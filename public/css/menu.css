@@ -1,0 +1,125 @@
+/*----------------------------------------
+  menu start
+-----------------------------------------*/
+.navbar-brand a {
+    font-family: Arial,Verdana,sans-serif;
+    font-size: 80px;
+    font-weight: 400;
+    letter-spacing: 8px;
+    font-family: futura-pt;
+    font-size: 38px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: .21em;
+    text-transform: uppercase;
+    line-height: 1em;
+    -webkit-transition: color .5s ease-out;
+    -moz-transition: color .5s ease-out;
+    -o-transition: color .5s ease-out;
+    transition: color .5s ease-out;
+}
+.navbar {
+    float: right;
+    height: 50px;
+    padding: 15px 15px;
+    line-height: 20px;
+    color: #fff;
+}
+.navbar li a span {
+    border-bottom: 1px solid transparent;
+    -webkit-transition: color 0.3s, border-bottom-color 0.3s;
+    -moz-transition: color 0.3s, border-bottom-color 0.3s;
+    -o-transition: color 0.3s, border-bottom-color 0.3s;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+.navbar li a span {
+        color: #fff;
+
+}
+.folder-child-wrapper {
+    position: absolute;
+    left: 50%;
+    margin-left: -100px;
+    z-index: 1100;
+    background-color: #fff;
+    /*padding-top: 18px;*/
+}
+.folder-child{
+    padding-left: 15px;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    height: auto;
+}
+ul.folder-child {
+    /*padding: 15px 20px;*/
+    margin: 0;
+    position: relative;
+    height: auto;
+
+}
+ul.folder-child  li {
+    text-align: left;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+ul.folder-child  li a {
+    display: block;
+    font-size: 10.2px;
+    padding: 5px 0;
+    overflow: hidden;
+    /*width: 150px;*/
+    color: #000;
+}
+#header ul.folder-child li a:hover, a:focus {
+    color: #000;
+    text-decoration: underline;
+}
+
+#header li a{
+    font-family: Arial,verdana,sans-serif;
+    /*font-size: 15px;*/
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0px;
+    font-family: futura-pt;
+    font-size: 12px;
+    font-weight: 300;
+    font-style: normal;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    line-height: 1.5em;
+    cursor: pointer;
+}
+#header a:hover, a:focus {
+    color: #fff;
+    text-decoration: underline;
+}
+#header .folder-child-wrapper ul.folder-child:before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-width: 0 0 10px;
+    border-style: solid;
+    border-right: solid 10px transparent;
+    border-left: solid 10px transparent;
+    position: absolute;
+    top: -14px;
+    left:51%;
+    margin-left: -10px;
+}
+
+#header .folder .folder-child-wrapper .folder-child:before {
+    color: #fff;
+}
+.navbar-brand img {
+    width:100%;
+    max-width:40px;
+}
+
+/*----------------------------------------
+  menu end
+-----------------------------------------*/
