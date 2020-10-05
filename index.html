@@ -115,7 +115,7 @@ modal end
           <!-- content goes here -->
           <!--start-->
           <div class="form-area">
-            <form action="https://docs.google.com/forms/u/1/d/e/1FAIpQLSfjDSKLcmEL4dIAUvVZn6YLlhXSD3hIOt9Wfetiab8XrYGj0g/formResponse">
+            <form role="form" action="https://docs.google.com/forms/u/1/d/e/1FAIpQLSfjDSKLcmEL4dIAUvVZn6YLlhXSD3hIOt9Wfetiab8XrYGj0g/formResponse" method="post">
               <div class="form-group">
                 <input type="email" name="emailaddres" class="form-control" id="email" placeholder="Email" required>
               </div>
@@ -129,7 +129,7 @@ modal end
                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" required>
               </div>-->
               <div class="form-group">
-                <textarea name="entry.416750429" class="form-control" type="textarea" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
+                <textarea name="entry.416750429" class="form-control" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
                 <span class="help-block">
                   <p id="characterLeft" class="help-block ">You have reached the limit</p></span>
               </div>
@@ -153,6 +153,7 @@ modal end
         </div>
       </div>
       <!--end-->
+      <!--iframeにリダイレクトかける。-->
 
       <!-- content goes here end-->
     </div>
