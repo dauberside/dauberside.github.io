@@ -3,6 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+
   <title>lol</title>
   <link href="css/crime.css" rel="stylesheet">
   <link href="css/menu.css" rel="stylesheet">
@@ -373,5 +375,40 @@ carousel end
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="js/crime.js"></script>
   <script src="js/tiltfx.js"></script>
+  <script type="text/javascript">
+    // Form Validator
+    $(document).ready(function () {
+      $("#form").validate({
+        rules: {
+          "entry.233542546": {
+            required: true
+          },
+          "entry.2108942869": {
+            required: true
+          },
+          "entry.1551144577": {
+            required: true,
+            email: true
+          }
+        },
+        messages: {
+          "entry.233542546": {
+            required: "必須項目です"
+          },
+          "entry.2108942869": {
+            required: "必須項目です"
+          },
+          "entry.1551144577": {
+            required: "必須項目です",
+            email: "必須項目です"
+          }
+        },
+        submitHandler: function (form) { // for demo
+          form.submit();
+        }
+      });
+
+    });
+  </script>
 </body>
 </html>
