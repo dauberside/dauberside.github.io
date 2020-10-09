@@ -13,7 +13,7 @@
 
   <style>
     body {
-      /*background-image: url(images/bg.JPG);*/
+      /*background-image: url(../images/bg.JPG);*/
       background-position: center center;
       background-size: cover;
       background-attachment: fixed;
@@ -307,40 +307,6 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="../js/crime.js"></script>
   <script src="../js/tiltfx.js"></script>
-  <script type="text/javascript">
-    // Form Validator
-    $(document).ready(function () {
-      $("#form").validate({
-        rules: {
-          "entry.233542546": {
-            required: true
-          },
-          "entry.2108942869": {
-            required: true
-          },
-          "entry.1551144577": {
-            required: true,
-            email: true
-          }
-        },
-        messages: {
-          "entry.233542546": {
-            required: "必須項目です"
-          },
-          "entry.2108942869": {
-            required: "必須項目です"
-          },
-          "entry.1551144577": {
-            required: "必須項目です",
-            email: "必須項目です"
-          }
-        },
-        submitHandler: function (form) { // for demo
-          form.submit();
-        }
-      });
 
-    });
-  </script>
 </body>
 </html>
