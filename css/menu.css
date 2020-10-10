@@ -171,7 +171,7 @@ ul.folder-child  li a {
 /*----------------------------------------
   main start
 -----------------------------------------*/
-    #main {
+     #main {
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -188,6 +188,53 @@ ul.folder-child  li a {
       display: none;
       padding-bottom: 25px;
       margin-top: -25px;
+    }
+
+    #main02 {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    #main02 .col-md-6 {
+      margin: 0 0 .5em;
+    }
+
+    #main02 .col-md-6 {
+      margin: 1em 0;
+      font-size: 14px
+        /*16px*/
+      ;
+      line-height: 1.5em;
+    }
+
+    p {
+      word-wrap: break-word;
+    }
+
+    input,
+    select,
+    textarea {
+      font-size: 100%;
+      margin: 0;
+      vertical-align: baseline;
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: sans-serif;
+      color: #222;
+    }
+
+    #main02 input {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+    }
+
+    input {
+      line-height: normal;
     }
 
 /*----------------------------------------
