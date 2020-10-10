@@ -144,7 +144,11 @@ ul.folder-child  li a {
     position: absolute;
     top: -14px;
     left:51%;
-    margin-left: -10px;
+    margin-left: -20px;
+}
+
+#header .dropdown-menu {
+    top: 80%;
 }
 
 #header .folder .folder-child-wrapper .folder-child:before {
