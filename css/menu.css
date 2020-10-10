@@ -29,7 +29,7 @@
       padding: 20px 20px 50px 20px;
       max-width: 1200px;
       margin: 0 auto;
-}
+    }
 /*----------------------------------------
   common end
 -----------------------------------------*/
@@ -158,3 +158,34 @@ ul.folder-child  li a {
 /*----------------------------------------
   menu end
 -----------------------------------------*/
+
+/*---------------------------------------
+modal start
+---------------------------------------*/
+    .center {
+      margin-top: 50px;
+    }
+
+    .modal-header {
+      padding-bottom: 5px;
+    }
+
+    .modal-footer {
+      padding: 0;
+    }
+
+    .modal-footer .btn-group button {
+      height: 40px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border: none;
+      border-right: 1px solid #ddd;
+    }
+
+    .modal-footer .btn-group:last-child>button {
+      border-right: 0;
+    }
+
+/*---------------------------------------
+modal end
+---------------------------------------*/
