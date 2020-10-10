@@ -113,8 +113,7 @@ ul.folder-child  li a {
     text-decoration: underline;
 }
 
-#header li a p{
-    font-family: "Font Awesome 5 Free";
+#header li a {
     font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
@@ -129,6 +128,12 @@ ul.folder-child  li a {
     line-height: 1.5em;
     cursor: pointer;
 }
+
+#header p{
+    font-weight: 900;
+    font-family: "Font Awesome 5 Free";
+}
+
 #header a:hover, a:focus {
     color: #fff;
     text-decoration: underline;
