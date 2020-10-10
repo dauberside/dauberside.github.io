@@ -114,6 +114,7 @@ ul.folder-child  li a {
 }
 
 #header li a p{
+    font-family: "Font Awesome 5 Free";
     font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
@@ -121,7 +122,7 @@ ul.folder-child  li a {
     letter-spacing: 0px;
     font-family: futura-pt;
     font-size: 12px;
-    /*font-weight: 300;*/
+    font-weight: 300;
     font-style: normal;
     text-transform: lowercase;
     letter-spacing: 1px;
