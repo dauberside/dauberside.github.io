@@ -124,13 +124,12 @@ ul.folder-child  li a {
     font-weight: 300;
     font-style: normal;
     text-transform: lowercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     line-height: 1.5em;
     cursor: pointer;
 }
 
 #header .fas{
-    font-family: "Font Awesome 5 Free";
     /*font-size: 15px;*/
     font-weight: 1000;
     text-transform: none;
@@ -138,7 +137,7 @@ ul.folder-child  li a {
     font-size: 12px;
     font-style: normal;
     text-transform: lowercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     line-height: 1.5em;
     cursor: pointer;
 }
