@@ -113,7 +113,7 @@ ul.folder-child  li a {
     text-decoration: underline;
 }
 
-#header li a {
+#header li a p {
     font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
