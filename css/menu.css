@@ -129,15 +129,12 @@ ul.folder-child  li a {
     cursor: pointer;
 }
 
-#header p{
-    font-weight: 900;
+#header p.fas{
     font-family: "Font Awesome 5 Free";
-        font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0px;
-    font-family: futura-pt;
     font-size: 12px;
     font-weight: 300;
     font-style: normal;
