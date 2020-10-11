@@ -132,6 +132,7 @@ ul.folder-child  li a {
 #header .fas{
     font-family: "Font Awesome 5 Free";
     /*font-size: 15px;*/
+    font-weight: 1000;
     text-transform: none;
     letter-spacing: 0px;
     font-size: 12px;
