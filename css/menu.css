@@ -113,7 +113,7 @@ ul.folder-child  li a {
     text-decoration: underline;
 }
 
-#header li a p {
+#header li a p.fa-home {
     font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
