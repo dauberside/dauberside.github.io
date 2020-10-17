@@ -370,12 +370,12 @@ carousel start
     /*=========================
 carousel end
 =========================*/
-  #carousel-custom .fa, .fab, .fad, .fal, .far, .fas {
+.fa, .fab, .fad, .fal, .far, .fas {
       -moz-osx-font-smoothing: grayscale;
       -webkit-font-smoothing: antialiased;
       display: inline-block;
       font-style: normal;
       font-variant: normal;
       text-rendering: auto;
-      line-height: unset;
+      line-height: unset !important;
   }
