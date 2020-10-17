@@ -370,6 +370,7 @@ carousel start
     /*=========================
 carousel end
 =========================*/
+@media screen and (min-width: 768px) {
 .fa, .fab, .fad, .fal, .far, .fas {
       -moz-osx-font-smoothing: grayscale;
       -webkit-font-smoothing: antialiased;
@@ -379,3 +380,4 @@ carousel end
       text-rendering: auto;
       line-height: unset !important;
   }
+}
