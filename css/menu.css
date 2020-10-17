@@ -403,6 +403,6 @@ carousel end
       font-style: normal;
       font-variant: normal;
       text-rendering: auto;
-      line-height: 0;
+      line-height: inherit;
   }
 }
