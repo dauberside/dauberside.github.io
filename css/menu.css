@@ -370,7 +370,7 @@ carousel start
     /*=========================
 carousel end
 =========================*/
-@media screen and (min-width: 768px) {
+@media screen and (max-width: 768px) {
 .fa, .fab, .fad, .fal, .far, .fas {
       line-height: unset !important;
   }
