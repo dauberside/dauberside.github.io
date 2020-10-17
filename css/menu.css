@@ -340,7 +340,7 @@ carousel start
     #carousel-custom .carousel-outer {
       position: relative;
     }
-
+/*
     .carousel-control.left {
       background-image: none;
       width: 54px;
@@ -350,11 +350,11 @@ carousel start
       margin-top: auto;
       line-height: 54px;
       /*border: 2px solid #fff;*/
-      opacity: 1;
+ /*     opacity: 1;
       text-shadow: none;
     }
 
-    .carousel-control.right {
+/*    .carousel-control.right {
       background-image: none;
       width: 54px;
       height: 54px;
@@ -363,7 +363,7 @@ carousel start
       margin-top: auto;
       line-height: 54px;
       /*border: 2px solid #fff;*/
-      opacity: 1;
+ /*     opacity: 1;
       text-shadow: none;
     }
 
