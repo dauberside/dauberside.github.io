@@ -12,7 +12,7 @@
     body {
       color: #fff;
       background-color: #000;
-      font-family: Arial, verdana, sans-serif;
+      font-family: FeijoaWebMedium, "Times New Roman", 游明朝体, "Yu Mincho", YuMincho, serif;
       font-weight: 400;
       font-size: 14px;
       line-height: 1.6em;
@@ -114,7 +114,6 @@ ul.folder-child  li a {
 }
 
 #header li a  {
-    font-family: Arial,verdana,sans-serif;
     /*font-size: 15px;*/
     font-weight: 400;
     text-transform: none;
@@ -229,6 +228,7 @@ ul.folder-child  li a {
 
     p {
       word-wrap: break-word;
+
     }
 
     input,
