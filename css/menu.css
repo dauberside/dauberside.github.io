@@ -370,7 +370,7 @@ carousel start
     /*=========================
 carousel end
 =========================*/
-  .fa, .fab, .fad, .fal, .far, .fas {
+  #carousel-custom .fa, .fab, .fad, .fal, .far, .fas {
       -moz-osx-font-smoothing: grayscale;
       -webkit-font-smoothing: antialiased;
       display: inline-block;
