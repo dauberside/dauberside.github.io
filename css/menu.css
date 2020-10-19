@@ -63,6 +63,7 @@
     -moz-transition: color 0.3s, border-bottom-color 0.3s;
     -o-transition: color 0.3s, border-bottom-color 0.3s;
     transition: color 0.3s, border-bottom-color 0.3s;
+    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
 }
 .navbar li a span {
         color: #fff;
@@ -135,6 +136,7 @@ ul.folder-child  li a {
     letter-spacing: 2px;
     line-height: 1.5em;
     cursor: pointer;
+    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 
