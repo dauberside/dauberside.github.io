@@ -12,7 +12,7 @@
     body {
       color: #fff;
       background-color: #000;
-     font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+     font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
       font-weight: 400;
       font-size: 14px;
       line-height: 1.6em;
@@ -63,7 +63,7 @@
     -moz-transition: color 0.3s, border-bottom-color 0.3s;
     -o-transition: color 0.3s, border-bottom-color 0.3s;
     transition: color 0.3s, border-bottom-color 0.3s;
-    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", "sans-serif","Font Awesome 5 Brands";
 }
 .navbar li a span {
         color: #fff;
