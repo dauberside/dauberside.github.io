@@ -165,17 +165,11 @@ ul.folder-child  li a {
     color: #fff;
 }
 
-@media screen and (max-width: 768px){
-.navbar-brand .logo1 {
+
+.navbar-brand img {
     width:100%;
     max-width:40px;
-}
-}
-@media screen and (min-width: 1200px){
-.navbar-brand .logo2 {
-    width:100%;
-    max-width:40px;
-}
+
 }
 
 
