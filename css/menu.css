@@ -164,9 +164,13 @@ ul.folder-child  li a {
 #header .folder .folder-child-wrapper .folder-child:before {
     color: #fff;
 }
+
+@media screen and (min-width: 783px) {
 .navbar-brand img {
     width:100%;
     max-width:40px;
+    background: url(images/geometric_pattern_animated.svg);
+}
 }
 
 /*----------------------------------------
