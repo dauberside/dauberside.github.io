@@ -165,13 +165,12 @@ ul.folder-child  li a {
     color: #fff;
 }
 
-@media screen and (min-width: 783px) {
+
 .navbar-brand img {
     width:100%;
     max-width:40px;
-    background: url(images/geometric_pattern_animated.svg);
 }
-}
+
 
 /*----------------------------------------
   menu end
