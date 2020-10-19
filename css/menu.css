@@ -63,7 +63,6 @@
     -moz-transition: color 0.3s, border-bottom-color 0.3s;
     -o-transition: color 0.3s, border-bottom-color 0.3s;
     transition: color 0.3s, border-bottom-color 0.3s;
-    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", "sans-serif","Font Awesome 5 Brands";
 }
 .navbar li a span {
         color: #fff;
@@ -136,7 +135,6 @@ ul.folder-child  li a {
     letter-spacing: 2px;
     line-height: 1.5em;
     cursor: pointer;
-    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 
@@ -226,7 +224,6 @@ ul.folder-child  li a {
 
     p {
       word-wrap: break-word;
-    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
 
     }
 
@@ -258,7 +255,6 @@ ul.folder-child  li a {
     #content h1, .h1, h2, .h2, h3, .h3 {
     margin-top: 10px;
     margin-bottom: 10px;
-    font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 /*----------------------------------------
