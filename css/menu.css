@@ -308,7 +308,7 @@ carousel start
       margin: 10px 0 0;
       overflow: auto;
       position: static;
-      text-align: left;
+      text-align: center;
       white-space: nowrap;
       width: 100%;
     }
