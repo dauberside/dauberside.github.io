@@ -386,3 +386,9 @@ h3 {
     margin-inline-end: 0px;
     font-weight: bold;
 }
+
+.cover .btn-lg {
+    padding: 10px 20px;
+    font-weight: 700;
+    text-align: center;
+}
