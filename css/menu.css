@@ -390,5 +390,6 @@ h3 {
 #main02 .lead .btn {
     padding: 10px 20px;
     font-weight: 700;
+    margin:0 0 0 0;
     text-align: center;
 }
