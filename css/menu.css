@@ -220,10 +220,10 @@ ul.folder-child  li a {
 
     #main02 .col-md-6 {
       margin: 1em 0;
-      font-size: 14px
+     /* font-size: 14px
         /*16px*/
-      ;
-      line-height: 35px;
+      /*;
+      line-height: 35px;*/
       letter-spacing: .2px;
     }
 
