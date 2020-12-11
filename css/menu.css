@@ -389,6 +389,7 @@ h3 {
 }
 
 p .lead .btn {
+    display: block;
     padding: 10px 20px;
     margin:10px 0 0 0;
     text-align: center;
