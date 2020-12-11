@@ -10,6 +10,7 @@
     }
 
     body {
+      text-align: center;
       color: #fff;
       background-color: #000;
      font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
@@ -391,9 +392,4 @@ h3 {
     padding: 10px 20px;
     margin:10px 0 0 0;
     text-align: center;
-}
-
-@media (min-width: 768px)
-.lead {
-    font-size: 1.2rem;
 }
