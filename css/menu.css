@@ -10,11 +10,11 @@
     }
 
     body {
-      color: #fff;
+      color: rgb(255, 42, 0);
       background-color: #000;
      font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
       font-weight: 400;
-      font-size: 14px;
+      font-size: 1.2rem;
       line-height: 1.6em;
       letter-spacing: 0px;
       font-weight: 100;
