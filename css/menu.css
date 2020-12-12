@@ -187,12 +187,7 @@ ul.folder-child  li a {
       max-width: 1100px;
       margin: 0 auto;
     }
-#main02 .col-md-12
-  position: relative;
-  width: 100%;
-  padding-right: 30px;
-  padding-left: 30px;
-}
+
     #main .col-md-12 {
       display: block;
       border-bottom: 1px solid #ddd;
@@ -210,6 +205,11 @@ ul.folder-child  li a {
     #main02 {
       max-width: 1000px;
       margin: 0 auto;
+    }
+
+    #main02 .col-md-12
+    padding-right: 30px;
+    padding-left: 30px;
     }
     #main02 .col-md-12 {
       margin: 0 0 .5em;
