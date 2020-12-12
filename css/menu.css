@@ -203,8 +203,9 @@ ul.folder-child  li a {
     }
 
     #main02 {
-      max-width: 1000px;
-      margin: 0 auto;
+    padding: 20px 20px 50px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
     }
 
     #main02 .col-md-12
