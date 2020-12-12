@@ -3,10 +3,7 @@
 -----------------------------------------*/
   #bg {
       background-image: url(https://i.pinimg.com/originals/9f/58/ba/9f58ba7d51c008540fa772463f80f946.png);
-      background-position: center center;
-      background-size: cover;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
+
     }
   body {
       background-position: center center;
