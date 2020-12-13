@@ -316,7 +316,7 @@ ul.folder-child  li a {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
   }
-.grid_row  .button {
+.col-md-2  .button {
       font-size: 1rem;
     border: 1px solid rgba(0, 0, 0, 1) !important;
     flex: 0 0 50%;
