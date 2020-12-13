@@ -201,6 +201,13 @@ ul.folder-child  li a {
       padding-bottom: 25px;
       margin-top: -25px;
     }
+    #productNav_header {
+      text-transform: lowercase;
+      margin-bottom: 0px;
+      display: none;
+      padding-bottom: 0px;
+      margin-top: -25px;
+    }
       #productNav_footer {
       text-transform: lowercase;
       margin-bottom: 0px;
