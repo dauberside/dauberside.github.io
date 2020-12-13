@@ -198,6 +198,13 @@ ul.folder-child  li a {
       text-transform: lowercase;
       margin-bottom: 0px;
       display: none;
+      padding-bottom: 25px;
+      margin-top: -25px;
+    }
+      #productNav_footer {
+      text-transform: lowercase;
+      margin-bottom: 0px;
+      display: none;
       padding-bottom: 50px;
       margin-top: -25px;
     }
