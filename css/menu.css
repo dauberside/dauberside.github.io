@@ -325,6 +325,16 @@ ul.folder-child  li a {
     line-height: 1.2;
     padding: .3rem 1rem;
   }
+     .col-md-3  .button
+     a:hover{
+    font-size: 1rem;
+    border: 1px solid rgba(240, 240, 240, 1) !important;
+    flex: 0 0 50%;
+    text-align: left;
+    display: inline-block;
+    line-height: 1.2;
+    padding: .3rem 1rem;
+  }
 
     p {
       word-wrap: break-word;
