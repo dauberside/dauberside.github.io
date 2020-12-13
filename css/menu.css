@@ -11,7 +11,7 @@
       background-attachment: fixed;
       background-repeat: no-repeat;
     }
-    @media (min-width: 576px){
+
     body {
 
       color: #fff;
@@ -27,7 +27,6 @@
       line-height: 1.4em;
       letter-spacing: .26px;
     }
-  }
 
       @media (min-width: 768px){
     body {
