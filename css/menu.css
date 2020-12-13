@@ -325,9 +325,8 @@ ul.folder-child  li a {
     line-height: 1.2;
     padding: .3rem 1rem;
   }
-     .col-md-3  .button
-     a:hover,
-     a:focus{
+    a.button:hover,
+    a.button:focus{
     font-size: 1rem;
     border: 1px solid rgba(240, 240, 240, 1) !important;
     flex: 0 0 50%;
