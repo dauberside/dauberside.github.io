@@ -316,15 +316,15 @@ ul.folder-child  li a {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
   }
-.col-md-2  .button {
-      font-size: 1rem;
+    .col-md-3  .button {
+    font-size: 1rem;
     border: 1px solid rgba(250, 250, 250, 1) !important;
     flex: 0 0 50%;
     text-align: left;
     display: inline-block;
     line-height: 1.2;
     padding: .3rem 1rem;
-}
+  }
 
     p {
       word-wrap: break-word;
