@@ -316,7 +316,15 @@ ul.folder-child  li a {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
   }
-
+.grid_row  .button {
+      font-size: 1rem;
+    border: 1px solid rgba(0, 0, 0, 1) !important;
+    flex: 0 0 50%;
+    text-align: left;
+    display: inline-block;
+    line-height: 1.2;
+    padding: .3rem 1rem;
+}
 
     p {
       word-wrap: break-word;
