@@ -528,7 +528,7 @@ html {
   }
 }
 
-@media (min-width: 982px) {
+@media (min-width: 1000px) {
   .col-md {
     -ms-flex-preferred-size: 0;
     flex-basis: 0;
