@@ -11,6 +11,24 @@
       background-attachment: fixed;
       background-repeat: no-repeat;
     }
+    @media (min-width: 576px){
+    body {
+
+      color: #fff;
+      background-color: #000;
+      font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.6em;
+      letter-spacing: 0px;
+      font-weight: 100;
+      font-style: normal;
+      font-size: 10px;
+      line-height: 1.4em;
+      letter-spacing: .26px;
+    }
+  }
+
       @media (min-width: 768px){
     body {
 
@@ -60,7 +78,7 @@
       font-weight: 100;
       font-style: normal;
       font-size: 10px;
-      line-height: 2em;
+      line-height: 2.1em;
       letter-spacing: .26px;
     }
   }
