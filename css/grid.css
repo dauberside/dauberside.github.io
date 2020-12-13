@@ -42,7 +42,7 @@ html {
 
 @media (min-width: 1000px) {
   .container, .container-sm, .container-md, .container-lg {
-    max-width: 960px;
+    max-width: 980px;
   }
 }
 
