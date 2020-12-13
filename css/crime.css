@@ -5,7 +5,7 @@
  */
 
 html {
-  font-family: 游ゴシック体, 'Yu Gothic', YuGothic, 'ヒラギノ角ゴシック Pro', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, Osaka, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
+  /*font-family: 游ゴシック体, 'Yu Gothic', YuGothic, 'ヒラギノ角ゴシック Pro', 'Hiragino Kaku Gothic Pro', メイリオ, Meiryo, Osaka, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;*/
   -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
 }
@@ -1184,7 +1184,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-    font-family: Arial,verdana,sans-serif;
+    /*font-family: Arial,verdana,sans-serif;*/
     font-weight: 400;
     line-height: 1.2em;
     text-transform: uppercase;
