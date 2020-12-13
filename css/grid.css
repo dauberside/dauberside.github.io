@@ -40,7 +40,7 @@ html {
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1000px) {
   .container, .container-sm, .container-md, .container-lg {
     max-width: 960px;
   }
