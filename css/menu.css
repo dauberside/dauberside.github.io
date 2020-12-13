@@ -305,7 +305,7 @@ ul.folder-child  li a {
       letter-spacing: .2px;
     }
 
-    [grid_row]{
+    .grid_row{
     align-items: flex-start;
     box-sizing: border-box;
     /* display: -webkit-box; */
