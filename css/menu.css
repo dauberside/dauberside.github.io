@@ -306,49 +306,7 @@ ul.folder-child  li a {
     }
 
     .grid_row {
-    align-items: flex-start;
-    box-sizing: border-box;
-    /* display: -webkit-box; */
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    /* display: flex; */
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-  }
-    .col-md-3  .button {
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background-image: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    display: inline-block;
-    line-height: 1.2;
-    padding: .3rem 1rem;
-  }
-
-  .button:focus,
-  .button:active:focus,
-  .button.active:focus,
-  .button.focus,
-  .button:active.focus,
-  .button.active.focus {
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
-  }
-    a.button:hover,
-    a.button:focus{
-    color: #fff;
-    background-color: #286090;
-    border-color: #204d74;
+      float: left;
   }
 
     p {
