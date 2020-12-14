@@ -18,7 +18,7 @@
     body {
       color: #fff;
       background-color: black;
-      font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
+      /*font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";*/
       font-weight: 400;
       font-size: 14px;
       line-height: 1.6em;
@@ -29,6 +29,12 @@
       line-height: 1.4em;
       letter-spacing: .26px;
     }
+
+    body {
+        font-family:
+        'M+ C Type-1 (basic latin) Regular',
+        'M+ Type-1 (general-j) Regular', sans-serif;
+}
 
       @media (min-width: 768px){
     body {
