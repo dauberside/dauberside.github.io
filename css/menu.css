@@ -308,19 +308,13 @@ ul.folder-child  li a {
   grid start
 -----------------------------------------*/
 
-    .grid_row {
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    margin: 0 auto;
-    }
     .grid_row
     {
     display: block;
     border-bottom: 1px solid #ddd;
     text-align: center;
     flex-basis: 0;
+    margin: 0 auto;
     }
 
     .grid_row .col-md-12 {
