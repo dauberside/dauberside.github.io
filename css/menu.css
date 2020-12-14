@@ -316,7 +316,7 @@ ul.folder-child  li a {
     margin: 0 auto;
     }
 
-    .grid_row .col-md-12 {
+    .grid_row .row {
     display: block;
     border-bottom: 1px solid #ddd;
     text-align: center;
