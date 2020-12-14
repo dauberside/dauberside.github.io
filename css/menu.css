@@ -304,10 +304,28 @@ ul.folder-child  li a {
       line-height: 35px;*/
       letter-spacing: .2px;
     }
-
+/*----------------------------------------
+  grid start
+-----------------------------------------*/
     .grid_row {
-      float: left;
-  }
+    margin: 0 auto;
+    }
+    .grid_row
+    {  display: block;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    flex-basis: 0;
+    }
+
+    .grid_row .col-md-12 {
+    display: block;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    }
+/*----------------------------------------
+  grid end
+-----------------------------------------*/
+
 
     p {
       word-wrap: break-word;
