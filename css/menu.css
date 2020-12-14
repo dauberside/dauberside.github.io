@@ -492,3 +492,18 @@ h3 {
 .lead {
   text-align: center;
 }
+/*----------------------------------------
+  img flex  start
+-----------------------------------------*/
+
+.align-items-center {
+  -ms-flex-align: center!important;
+  align-items: center!important;
+}
+.d-flex {
+  display: -ms-flexbox!important;
+  display: flex!important;
+}
+/*----------------------------------------
+  img flex  start
+-----------------------------------------*/
