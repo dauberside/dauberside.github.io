@@ -3,8 +3,8 @@
 -----------------------------------------*/
   #bg {
       background-image: url(https://i.pinimg.com/originals/66/36/d0/6636d07eba36b23c9ac5c16ee9b948ee.jpg);
-      opacity: 0.5;
-
+      background-color:rgba(255,255,255,0.8);
+      background-blend-mode:lighten;
     }
   body {
       background-position: center center;
