@@ -3,7 +3,7 @@
 -----------------------------------------*/
   #bg {
       background-image: url(https://i.pinimg.com/originals/66/36/d0/6636d07eba36b23c9ac5c16ee9b948ee.jpg);
-      background-color:rgba(245, 233, 233, 97%);
+      background-color:rgba(220, 220, 220, 97%);
       background-blend-mode: difference;
     }
   body {
@@ -12,11 +12,9 @@
       background-attachment: fixed;
       background-repeat: no-repeat;
     }
-
     body {
-
       color: #fff;
-      background-color: #000;
+      background-color:rgba(10, 13, 31, 100%);;
       font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";
       font-weight: 400;
       font-size: 14px;
