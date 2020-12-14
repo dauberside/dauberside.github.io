@@ -321,6 +321,10 @@ ul.folder-child  li a {
     text-align: center;
     padding: .5rem;
     }
+
+    .col-2.toybox {
+    background-color: rgba(86,61,124,.15);
+}
 /*----------------------------------------
   grid end
 -----------------------------------------*/
