@@ -19,6 +19,9 @@
       color: #fff;
       background-color: black;
       /*font-family: "Helvetica Neue", "Helvetica", "Hiragino Sans", "Arial", "Yu Gothic", "Meiryo", sans-serif,"Font Awesome 5 Brands";*/
+      font-family:
+        'M+ C Type-1 (basic latin) Regular',
+        'M+ Type-1 (general-j) Regular', sans-serif;
       font-weight: 400;
       font-size: 14px;
       line-height: 1.6em;
@@ -30,17 +33,15 @@
       letter-spacing: .26px;
     }
 
-    body {
-        font-family:
-        'M+ C Type-1 (basic latin) Regular',
-        'M+ Type-1 (general-j) Regular', sans-serif;
-}
+
 
 
 
 @media (min-width: 1200px){
     body {
-
+      font-family:
+        'M+ C Type-1 (basic latin) Regular',
+        'M+ Type-1 (general-j) Regular', sans-serif;
       line-height: 2.1em;
 
     }
