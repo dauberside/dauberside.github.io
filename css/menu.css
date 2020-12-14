@@ -317,7 +317,6 @@ ul.folder-child  li a {
     }
 
     .grid_row .row {
-    display: block;
     border-bottom: 1px solid #ddd;
     text-align: center;
     }
