@@ -319,6 +319,7 @@ ul.folder-child  li a {
     .grid_row .row {
     border-bottom: 1px solid #ddd;
     text-align: center;
+    padding: .5rem;
     }
 /*----------------------------------------
   grid end
