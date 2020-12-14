@@ -3,8 +3,10 @@
 -----------------------------------------*/
   #bg {
       background-image: url(https://i.pinimg.com/originals/66/36/d0/6636d07eba36b23c9ac5c16ee9b948ee.jpg);
-      background-color:rgb(10 15 30 / 0.95);
-      background-blend-mode: color-burn;
+      background-color:rgb(255 255 255 / 0.95);
+      background-blend-mode: exclusion;
+}
+
 }
 
   body {
