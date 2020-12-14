@@ -311,7 +311,6 @@ ul.folder-child  li a {
     .grid_row
     {
     display: block;
-    border-bottom: 1px solid #ddd;
     text-align: center;
     flex-basis: 0;
     margin: 0 auto;
