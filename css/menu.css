@@ -22,18 +22,13 @@
       font-family: "Noto Serif JP","Arial", "Yu Gothic", "Meiryo" ;
       font-weight: 400;
       font-size: 14px;
-      line-height: 1.6em;
       letter-spacing: 0px;
       font-weight: 100;
       font-style: normal;
       font-size: 10px;
-      line-height: 1.4em;
+      line-height: 2.1em;
       letter-spacing: 0.05em;
     }
-
-
-
-
 
 @media (min-width: 1200px){
     body {
