@@ -280,12 +280,14 @@ ul.folder-child  li a {
     display: flex;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
+    margin-right: 0px;
+    margin-left: 0px;
 }
+@media (min-width: 1200px){
 .row_first {
     margin-right: -15px;
     margin-left: -15px;
+}
 }
     .grid_row .row_first {
     border-top: 1px solid #ddd;
