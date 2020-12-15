@@ -271,14 +271,13 @@ ul.folder-child  li a {
     .grid_row
     {
     display: block;
-    text-align: center;
     flex-basis: 0;
     margin: 0 auto;
     }
 
     .grid_row .row {
     border-bottom: 1px solid #ddd;
-    text-align: center;
+    text-align: left;
     padding: .5rem;
     }
 .row_first {
