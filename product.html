@@ -3,6 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+
   <title>lol</title>
   <link href="css/crime.css" rel="stylesheet">
   <link href="css/menu.css" rel="stylesheet">
@@ -10,8 +12,16 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/v4-shims.css">
 
+  <link rel="stylesheet" type="text/css" href="http://mplus-fonts.sourceforge.jp/webfonts/basic_latin/mplus_webfonts.css">
+  <link rel="stylesheet" type="text/css" href="http://mplus-fonts.sourceforge.jp/webfonts/general-j/mplus_webfonts.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Underdog&display=swap');
+  </style>
+
 </head>
-<body>
+<body id="bg">
+  <!-- /header -->
   <header id="header">
     <div class="container">
       <div id="logo">
@@ -36,9 +46,10 @@
         </ul>
       </div>
     </div>
-  </header><!-- /header -->
+  </header>
+  <!-- /header -->
 
-  <!--start-->
+  <!-- content goes here -->
   <div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -46,9 +57,6 @@
           <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
         </div>
         <div class="modal-body" style="padding:10px 10px 0px 10px;">
-          <!--end-->
-
-          <!-- content goes here -->
           <div class="form-area">
             <form role="form" action="https://docs.google.com/forms/u/1/d/e/1FAIpQLSf2tU3FCb0KWeNMbskNq9zIGKlq9k60cveLlBKx3XUOyW-Eew/formResponse" method="post" target="hidden_iframe" onsubmit="submitted=true;">
               <div class="form-group">
@@ -78,87 +86,133 @@
             </form>
             <script type="text/javascript">var submitted = false;</script>
             <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
-            <!-- content goes here -->
           </div>
         </div>
       </div>
-      <!--end-->
-      <!--iframeにリダイレクトかける。-->
-
-      <!-- content goes here end-->
     </div>
   </div>
-  <!--end-->
-  <div class="container">
-    <div class="row">
-      <div class="col-sm">
-        One of three columns
-      </div>
-      <div class="col-sm">
-        One of three columns
-      </div>
-      <div class="col-sm">
-        One of three columns
-      </div>
-    </div>
-  </div>
-  <!--main start-->
+  <!-- content goes here end-->
 
+  <div id="content">
 
-  <div class="container">
-    <!--text-->
-    <div class="col-md-12">
-      <div class="grid_row">
-        <div class="row">
-          <div class="col-3"><small>Learn</small></div>
-        </div>
-        <div class="row">
-          <div class="col-3 toybox"><small>Blender</small></div>
+    <!--main-->
+    <div id="main">
+      <div class="container">
+        <div id="productNav" class="col-md-12">
+          <a href="project.html"><span class="back-arrow">←</span> Back to Project </a>
         </div>
       </div>
     </div>
-    <!--text-->
-    <div class="col-md-12">
-      <div class="inner cover">
-        <p>
-        <font >
-          Blenderは、無料のオープンソース3D作成ソフトです。モデリング、ボーンアニメーション、シミュレーション、レンダリング、合成、モーショントラッキング、ビデオ編集、2Dアニメーションなどの3Dパイプライン全体をサポートします。
-        </font>
-      </p>
-        <p>
-        <font >
-          <a class="button" href="https://www.blender.org/download/">自力で作成したい人はこちらからダウンロードできます。</a>
-        </font>
-      </p>
+    <!--main-->
+
+    <div class="container">
+
+      <!--text-->
+      <div class="col-md-12">
+        <div class="col-md-6">
+          <div class="grid_row">
+            <div class="row">
+              <div class="col-3"><small>Project name</small></div>
+              <div class="col-3 "><small>Program</small></div>
+              <div class="col-2"><small>Location</small></div>
+            </div>
+
+            <div class="row">
+              <div class="col-3 toybox"><small>Dauber Side</small></div>
+              <div class="col-3 toybox"><small>2020/07/01/~</small></div>
+              <div class="col-2 toybox"><small>TOKYO</small></div>
+            </div>
+          </div>
+          <div class="grid_row">
+            <div class="row">
+              <div class="col-3"><small>Size</small></div>
+              <div class="col-3 "><small>Scale</small></div>
+              <div class="col-2"><small>Date</small></div>
+            </div>
+
+            <div class="row">
+              <div class="col-3 toybox"><small>"R40”</small></div>
+              <div class="col-3 toybox"><small>1:1</small></div>
+              <div class="col-2 toybox"><small>STL</small></div>
+              <div class="col-3 toybox">
+                <a class="button" href="https://drive.google.com/uc?export=download&id=1yYbYi30VRVCjlZNxR5OQgPwb73Ud52-z">Download</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--text-->
+
+        <div class="col-md-6">
+
+          <!--carousel-custom-->
+
+          <div id="carousel-custom" class="carousel slide" data-ride="carousel">
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+              <div class="item ">
+                <img src="https://i.pinimg.com/originals/63/18/6d/63186d8b8cee97e766f2dd7b49b8a35c.png" alt="..." class="img-responsive center-block" height="600" width="600">
+              </div>
+              <div class="item">
+                <img src="https://i.pinimg.com/originals/67/74/44/67744483dc93a57ad7ca552cd4b919f5.png" alt="..." class="img-responsive center-block" height="600" width="600">
+              </div>
+              <div class="item active">
+                <img src="https://i.pinimg.com/originals/3e/ba/3b/3eba3b25bac88bc0c73dae32845397f6.png" alt="..." class="img-responsive center-block" height="600" width="600">
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <!---->
+            <a class="left carousel-control" href="#carousel-custom" role="button" data-slide="prev">
+              <!--<span class="fas fa-arrow-left"></span>-->
+            </a>
+            <a class="right carousel-control" href="#carousel-custom" role="button" data-slide="next">
+              <!--<span class="fas fa-arrow-right"></span>-->
+            </a>
+            <!---->
+
+
+            <!-- Indicators start-->
+            <!--<ol class="carousel-indicators visible-sm-block hidden-xs-block visible-md-block visible-lg-block">
+              <li data-target="#carousel-custom" data-slide-to="0" class="active">
+                <img src="https://i.pinimg.com/originals/63/18/6d/63186d8b8cee97e766f2dd7b49b8a35c.png" alt="..." class="img-responsive center-block" height="60" width="60">
+              </li>
+              <li data-target="#carousel-custom" data-slide-to="1">
+                <img src="https://i.pinimg.com/originals/67/74/44/67744483dc93a57ad7ca552cd4b919f5.png" alt="..." class="img-responsive center-block" height="60" width="60">
+              </li>
+              <li data-target="#carousel-custom" data-slide-to="2">
+                <img src="https://i.pinimg.com/originals/3e/ba/3b/3eba3b25bac88bc0c73dae32845397f6.png" alt="..." class="img-responsive center-block" height="60" width="60">
+              </li>
+            </ol>-->
+            <!--Indicators end-->
+          </div>
+
+          <!--carousel-custom-->
+        </div>
       </div>
+
     </div>
-    <!--text-->
-  </div>
-  <!--main end-->
 
-
-  <div class="accordion" id="accordionExample">
-    <div class="card">
-      <div class="card-header" id="headingOne">
-        <h2 class="mb-0">
-              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                Collapsible Group Item #1
-              </button>
-            </h2>
-      </div>
-
-      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-        <div class="card-body">
-          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+    <!--productNav start-->
+    <div id="main">
+      <div class="container">
+        <div id="productNav_footer" class="col-md-12">
+          <!--<a href="project.html"><span class="back-arrow">←</span> Back to Project </a>-->
         </div>
       </div>
     </div>
+    <!--productNav end-->
 
+  </div>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/crime.js"></script>
-    <script src="js/tiltfx.js"></script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/crime.js"></script>
+  <script src="js/tiltfx.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
 </body>
 </html>
