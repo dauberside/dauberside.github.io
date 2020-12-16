@@ -1,5 +1,3 @@
-const { LINE_LOOP } = require("../p5");
-
 var canvas;
 
 function windowResized() {
@@ -20,7 +18,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    strokeWeight(10);
+    strokeWeight(15);
     line(pmouseX, pmouseY, mouseX, mouseY);
   }
 }
