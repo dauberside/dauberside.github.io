@@ -14,7 +14,7 @@ function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
   canvas.position(0, 0);
   canvas.style('z-index', '-1');
-  background('rgba(100%,0%,100%,0.5)');
+  background('rgba(2%,20%,255%,0.5)');
 }
 
 function draw() {
