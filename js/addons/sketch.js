@@ -19,7 +19,7 @@ function setup() {
 
 function draw() {
   // put drawing code here
-  if (mouseisPressed) {
+  if (mouseIsPressed) {
     line(pmouseX, pmouseY, mouseX, mouseY);
   }
 }
