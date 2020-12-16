@@ -4,7 +4,7 @@ var canvas;
 
 function windowResized() {
   //console.log('resized');//
-  resizeCanvas(windowWidth, windHeight);
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 
