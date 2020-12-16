@@ -284,6 +284,12 @@ ul.folder-child  li a {
     margin-right: 0px;
     margin-left: 0px;
 }
+    .grid_row .row_first {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    padding: .5rem;
+    }
 @media (min-width: 1200px){
 .row_first {
     margin-right: -15px;
@@ -295,12 +301,7 @@ ul.folder-child  li a {
     margin-left: -15px;
 }
 }
-    .grid_row .row_first {
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    padding: .5rem;
-    }
+
 
 /*----------------------------------------
   grid end
