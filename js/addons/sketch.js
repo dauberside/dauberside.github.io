@@ -20,7 +20,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    strokeWeight(20);
+    strokeWeight(10);
     line(pmouseX, pmouseY, mouseX, mouseY);
   }
 }
