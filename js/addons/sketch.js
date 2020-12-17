@@ -45,6 +45,7 @@ function draw() {
   if (mouseIsPressed) {
     strokeWeight(10);
     line(pmouseX, pmouseY, mouseX, mouseY);
+    filter(BLUR, 3);
   }
   spray();
 }
