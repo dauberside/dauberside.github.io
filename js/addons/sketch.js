@@ -92,7 +92,7 @@ function draw() {
 
 function spray() {
   if (mouseIsPressed) {
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 2000; i++) {
       let xc = constrain(pmouseX, mouseX, windowWidth);
       let yc = constrain(pmouseY, mouseY, windowHeight);
       let x = random(-35, 35);
