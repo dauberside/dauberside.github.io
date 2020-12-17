@@ -43,16 +43,15 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    //strokeWeight(10);
+    strokeWeight(10);
     line(pmouseX, pmouseY, mouseX, mouseY);
-    //filter(BLUR, 3);
   }
   spray();
 }
 
 function spray() {
   if (mouseIsPressed) {
-    for (let i = 0; i < 1500; i++) {
+    for (let i = 0; i < 400; i++) {
       let xc = constrain(pmouseX, mouseX, windowWidth);
       let yc = constrain(pmouseY, mouseY, windowHeight);
       let x = random(-15, 15);
