@@ -38,13 +38,14 @@ function setup() {
   canvas.position(0, 0);
   canvas.style('z-index', '-1');
   background('rgba(2%,20%,255%,0.1)');
-  strokeWeight(10);
-  storke(0)
+
 }
 
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
+    strokeWeight(10);
+    storke(0)
     line(pmouseX, pmouseY, mouseX, mouseY);
   }
   spray();
