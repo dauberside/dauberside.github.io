@@ -43,7 +43,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    line(0, 0, 0, 50); //black
+    stroke(0, 0, 0, 70); //black
 
   }
   spray();
@@ -54,8 +54,8 @@ function spray() {
     for (let i = 0; i < 200; i++) {
       let xc = constrain(pmouseX, mouseX, windowWidth);
       let yc = constrain(pmouseY, mouseY, windowHeight);
-      let x = random(-20, 20);
-      let y = random(-20, 20);
+      let x = random(-10, 10);
+      let y = random(-10, 10);
       if (dist(0, 0, x, y) < 1000) {
         ellipseMode(CENTER);
         ellipse(xc + x, yc + y, 1, 1);
