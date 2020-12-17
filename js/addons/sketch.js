@@ -99,7 +99,7 @@ function spray() {
       let y = random(-35, 35);
       if (dist(0, 0, x, y) < 20) {
         ellipseMode(CENTER);
-        ellipse(xc + x, yc + y, 0, 0);
+        ellipse(xc + x, yc + y, 0, 1);
 
       }
     }
