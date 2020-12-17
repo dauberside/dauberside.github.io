@@ -43,7 +43,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    line('rgba(2%,20%,255%,0.1)'); //black
+    strokeWeight(1); //black
 
   }
   spray();
