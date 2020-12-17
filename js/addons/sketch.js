@@ -84,7 +84,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    strokeWeight(20);
+    stroke(0, 0, 0, 70);
 
   }
   spray();
