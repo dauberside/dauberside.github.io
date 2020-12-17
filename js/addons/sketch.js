@@ -56,7 +56,7 @@ function spray() {
       let yc = constrain(pmouseY, mouseY, windowHeight);
       let x = random(-15, 15);
       let y = random(-15, 15);
-      if (dist(0, 0, x, y) < 15) {
+      if (dist(0, 0, x, y) < 10) {
         ellipseMode(CENTER);
         ellipse(xc + x, yc + y, 1, 1);
       }
