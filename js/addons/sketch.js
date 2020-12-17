@@ -84,7 +84,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    strokeweight(5);
+    strokeWeight(5);
     stroke(0, 0, 0, 70);
 
   }
