@@ -84,6 +84,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
+    strokeweight(5);
     stroke(0, 0, 0, 70);
 
   }
@@ -92,12 +93,12 @@ function draw() {
 
 function spray() {
   if (mouseIsPressed) {
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 1500; i++) {
       let xc = constrain(pmouseX, mouseX, windowWidth);
       let yc = constrain(pmouseY, mouseY, windowHeight);
       let x = random(-50, 50);
       let y = random(-50, 50);
-      if (dist(1, 1, x, y) < 10) {
+      if (dist(0, 0, x, y) < 5) {
         ellipseMode(CENTER);
         ellipse(xc + x, yc + y, 0, 0);
 
