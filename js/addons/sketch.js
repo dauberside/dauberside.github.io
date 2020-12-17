@@ -84,7 +84,7 @@ function setup() {
 function draw() {
   // put drawing code here
   if (mouseIsPressed) {
-    strokeWeight(10);
+    strokeWeight(20);
 
   }
   spray();
@@ -99,7 +99,7 @@ function spray() {
       let y = random(-35, 35);
       if (dist(0, 0, x, y) < 20) {
         ellipseMode(CENTER);
-        ellipse(xc + x, yc + y, 100, 100);
+        ellipse(xc + x, yc + y, 0, 0);
 
       }
     }
