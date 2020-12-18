@@ -44,7 +44,7 @@
       "
       < p style = 'margin:20px' > Loading...</p > ";
     $.getJSON(
-      "https://spreadsheets.google.com/feeds/list/17GkffJw4P6sABGH7trefxFax22G4pL8ZZL5oMSJsXoU/od6/public/values?alt=json",
+      "https://docs.google.com/spreadsheets/d/1OPUaP9h2uI0971ZARc_DG4oAGG1CSQncmW7tkkkFXCw/od6/public/values?alt=json",
       function (data) {
         document.getElementsByClassName("chat_s")[0].innerHTML = "";
         for (var i = 0; i < data.feed.entry.length; i++) { var entry = data.feed.entry[i]; var a; if (entry.gsx$name.$t == "Ariana") { a = "chat_ar"; } else { a = "chat_me"; } document.getElementsByClassName("chat_s")[0].innerHTML += '<div class="chat ' + a + '">' + entry.gsx$message.$t + "</div>"; }
