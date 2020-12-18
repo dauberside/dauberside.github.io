@@ -1,0 +1,53 @@
+<div class="chat_box">
+  <div class="chat_h">
+    <i title="ee button emi cheyadu" style="float:left" class="material-icons">arrow_back_ios</i>
+    <div><span title="It looks like I'm online, doesn't it?" style="color:#68d883;font-size:23px; line-height:15px">&#x25CF;</span> ARIANA LYNN</div>
+    <i onclick="chat_load()" title="Refresh Chat to Get Latest Messages." style="float:right" class="material-icons">replay</i>
+  </div>
+  <div class="chat_b">
+    <script type="text/javascript">
+      var submitted = false;
+    </script>
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){chat_send()}"></iframe>
+    <form onsubmit="submitted=true" action="https://docs.google.com/forms/d/e/1FAIpQLSd-8wkxgXbOXhV47ma05LR8iQzaJZxeFPq0V7ABRRIXPbTYbA/formResponse" method="POST" target="hidden_iframe">
+      <input type="text" placeholder="Type a message..." name="entry.1650216873" id="entry_1650216873" />
+      <input type="hidden" name="draftResponse" value="null,null,&quot;-1766445210298050477&quot;]" />
+      <input type="hidden" name="pageHistory" value="0" />
+      <input type="hidden" name="fbzx" value="-1766445210298050477" />
+      <input type="submit" class="material-icons" name="submit" value="send" id="ss-submit" onclick="return chat_check()" />
+    </form>
+  </div>
+  <div class="chat_s">
+  </div>
+  <i title="Scroll to bottom." style="position:absolute;bottom:80px;left:22px;background:white;color:#9E9E9E;cursor:pointer;border-radius:100%;box-shadow:0 0 15px -3px grey" class="material-icons" onclick="chat_tobottom()">expand_more</i>
+</div>
+
+<div style="position:fixed;z-index:10;padding:15px;background:rgba(50,50,50,0.8);color:white;font-size:11px;width:240px;word-break:break-word;line-height:18px;right:15px;bottom:15px">PS. I (Ariana Lynn) currently own the spreadsheet and the form so I'll be the one replying from the other side of the chat. High chances though that I'm asleep though when you're reading this (GMT+8).<br />Here's the link to the <a style="color:white" href="https://docs.google.com/spreadsheets/d/1OPUaP9h2uI0971ZARc_DG4oAGG1CSQncmW7tkkkFXCw/edit?usp=sharing">spreadsheet</a><br />PPS. This is 2.0 of my earlier pen on <a style="color:white" href="https://codepen.io/arianalynn/pen/YqGeoz">codepen</a></div>
+<script type="text/javascript">
+  function chat_send() {
+    document.getElementsByClassName("chat_s")[0].innerHTML +=
+      '<div class="chat chat_me">' +
+      document.getElementById("entry.1852610060").value +
+      "</div>";
+    chat_tobottom();
+    document.getElementById("entry.1852610060").value = "";
+  }
+
+  function chat_tobottom() {
+    document.getElementsByClassName(
+      "chat_s"
+    )[0].scrollTop = document.getElementsByClassName("chat_s")[0].scrollHeight;
+  }
+
+  function chat_load() {
+    document.getElementsByClassName("chat_s")[0].innerHTML =
+      "
+      < p style = 'margin:20px' > Loading...</p > ";
+    $.getJSON(
+      "https://spreadsheets.google.com/feeds/list/17GkffJw4P6sABGH7trefxFax22G4pL8ZZL5oMSJsXoU/od6/public/values?alt=json",
+      function (data) {
+        document.getElementsByClassName("chat_s")[0].innerHTML = "";
+        for (var i = 0; i < data.feed.entry.length; i++) { var entry = data.feed.entry[i]; var a; if (entry.gsx$name.$t == "Ariana") { a = "chat_ar"; } else { a = "chat_me"; } document.getElementsByClassName("chat_s")[0].innerHTML += '<div class="chat ' + a + '">' + entry.gsx$message.$t + "</div>"; }
+      });
+  } chat_load();
+</script>
