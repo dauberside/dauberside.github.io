@@ -376,6 +376,18 @@ modal start
 modal end
 ---------------------------------------*/
 
+/*----------------------------------------
+  btn start
+-----------------------------------------*/
+small.btn.btn-default{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-left-width: 1px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+
 /*=========================
 carousel start
 =========================*/
@@ -482,14 +494,4 @@ h3 {
 .d-flex {
   display: -ms-flexbox!important;
   display: flex!important;
-}
-/*----------------------------------------
-  btn start
------------------------------------------*/
-small .btn .btn-default{
-    padding-top: 0px;
-    padding-bottom: 0px;
-    border-left-width: 1px;
-    padding-left: 30px;
-    padding-right: 30px;
 }
