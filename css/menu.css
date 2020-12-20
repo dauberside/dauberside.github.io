@@ -34,7 +34,6 @@
 @media (min-width: 1200px){
     body {
       line-height: 2em;
-
     }
   }
 
@@ -448,7 +447,7 @@ carousel start
       text-shadow: none;
     }
 
-    /*=========================
+/*=========================
 carousel end
 =========================*/
 @media screen and (max-width: 768px) {
@@ -487,7 +486,8 @@ h3 {
 /*----------------------------------------
   btn start
 -----------------------------------------*/
-small.btn.btn-default{
+small,.btn,
+.btn-default{
     padding-top: 0px;
     padding-bottom: 0px;
     border-left-width: 1px;
