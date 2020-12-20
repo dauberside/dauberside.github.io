@@ -8,26 +8,33 @@
   <title>lol</title>
   <link href="../css/crime.css" rel="stylesheet">
   <link href="../css/menu.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/v4-shims.css">
+  <link href="../css/grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css">
 
 </head>
-<body>
+<body id="bg">
   <header id="header">
     <div class="container">
       <div id="logo">
-        <a class="navbar-brand" href="../index.html"><img src="../images/geometric_pattern_animated.svg"></a>
+        <a class="navbar-brand" href="../index.html">
+          <img src="../images/geometric_pattern_animated.svg">
+
+        </a>
       </div>
       <div class="navbar">
         <ul class="list-inline">
           <li class="folder"><a href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>menu</span></a>
             <div class="dropdown-menu folder-child-wrapper">
               <ul class="folder-child">
-                　<li><a class="dropdown-item" href="index.html">
-                    <p class="fas fa-home">home</p></a></li>
-                <li><a class="dropdown-item" href="project.html">
-                    <p class="fas fa-umbrella">project</p></a></li>
-                <!--<li><a class="dropdown-item" href="#">Another action</a><li>-->
+                　<li><a class="dropdown-item" href="../index.html">
+                    <p>home</p>
+                  </a></li>
+                <li><a class="dropdown-item" href="../project.html">
+                    <p>project</p>
+                  </a></li>
+                <!--<li><a class="dropdown-item" href="#">Another action</a>-->
+                <li>
               </ul>
             </div>
           </li>
@@ -63,7 +70,8 @@
               <div class="form-group">
                 <textarea name="entry.2108942869" class="form-control" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
                 <span class="help-block">
-                  <p id="characterLeft" class="help-block ">Up to 140 characters</p></span>
+                  <p id="characterLeft" class="help-block ">Up to 140 characters</p>
+                </span>
               </div>
               <div class="modal-footer">
                 <div class="btn-group btn-group-justified" role="group" aria-label="group button">
@@ -80,7 +88,7 @@
               </div>
             </form>
             <script type="text/javascript">var submitted = false;</script>
-            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){window.location='thanks-page.html';}"></iframe>
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
             <!-- content goes here -->
           </div>
         </div>
@@ -91,7 +99,6 @@
       <!-- content goes here end-->
     </div>
   </div>
-
   <!--end-->
   <div id="main">
     <div class="container">
@@ -100,12 +107,10 @@
       </div>
     </div>
   </div>
-
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="../js/crime.js"></script>
   <script src="../js/tiltfx.js"></script>
-
 </body>
 </html>
