@@ -379,15 +379,6 @@ modal end
 /*----------------------------------------
   btn start
 -----------------------------------------*/
-@media (min-width: 1200px){
-small.btn.btn-default{
-    padding-top: 0px;
-    padding-bottom: 0px;
-    border-left-width: 1px;
-    padding-left: 30px;
-    padding-right: 30px;
-}
-}
 
 small.btn.btn-default{
     padding-top: 0px;
