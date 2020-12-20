@@ -3,9 +3,9 @@
   common start
 -----------------------------------------*/
   #bg {
-      background-image: url(https://i.pinimg.com/originals/66/36/d0/6636d07eba36b23c9ac5c16ee9b948ee.jpg);
-      /*background-image: url(https://i.pinimg.com/originals/84/ec/d9/84ecd90084722cdb32030c780dca0a11.jpg);*/
-      background-color:rgb(255 255 255 / 0.95);
+      /*background-image: url(https://i.pinimg.com/originals/66/36/d0/6636d07eba36b23c9ac5c16ee9b948ee.jpg);*/
+      background-image: url(https://i.pinimg.com/originals/84/ec/d9/84ecd90084722cdb32030c780dca0a11.jpg);
+      background-color:rgb(255 255 255 / 0.99);
       background-blend-mode: exclusion;
 }
 
