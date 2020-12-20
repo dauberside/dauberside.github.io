@@ -384,7 +384,7 @@ modal end
 small.btn.btn-default{
     padding-top: 0px;
     padding-bottom: 0px;
-    line-height: auto;
+    line-height: 2em;
 }
 
 /*=========================
