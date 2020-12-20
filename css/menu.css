@@ -486,8 +486,7 @@ h3 {
 /*----------------------------------------
   btn start
 -----------------------------------------*/
-small,.btn,
-.btn-default{
+small .btn .btn-default{
     padding-top: 0px;
     padding-bottom: 0px;
     border-left-width: 1px;
