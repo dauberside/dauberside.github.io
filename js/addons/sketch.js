@@ -74,8 +74,9 @@ function windowResized() {
 }
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent("canvas-wrapper");
-  background(255);
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
+  background('rgba(2%,20%,255%,0.1)');
 }
 function mouseDragged() {
   let type = _("#pen-pencil").checked ? "pencil" : "brush";
