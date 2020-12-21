@@ -11,6 +11,8 @@
   <link href="css/crime.css" rel="stylesheet">
   <link href="css/menu.css" rel="stylesheet">
   <link href="css/grid.css" rel="stylesheet">
+  <link href="css/sketchtool.css" rel="stylesheet">
+
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/v4-shims.css">
 </head>
@@ -94,6 +96,38 @@
 
   <!-- main goes here start-->
   <div class="container">
+
+    <!-- tool goes here start-->
+    <div class="app">
+      <div class="controls">
+        <div class="title">Sketch</div>
+        <div class="type">
+          <input type="radio" name="pen-type" id="pen-pencil" checked>
+          <label for="pen-pencil">
+            <i class="fa fa-pencil"></i>
+          </label>
+          <input type="radio" name="pen-type" id="pen-brush">
+          <label for="pen-brush">
+            <i class="fa fa-paint-brush"></i>
+          </label>
+        </div>
+        <div class="size">
+          <label for="pen-size">Size</label>
+          <input type="range" id="pen-size" min="1" max="50">
+        </div>
+        <div class="color">
+          <label for="pen-color">Color</label>
+          <input type="color" id="pen-color" value="#000">
+        </div>
+        <div class="actions">
+          <button id="reset-canvas">Reset</button>
+          <button id="save-canvas">Save</button>
+        </div>
+      </div>
+      <div id="canvas-wrapper"></div>
+    </div>
+    <!-- tool here end-->
+
   </div>
   <!-- main goes here goal-->
 
