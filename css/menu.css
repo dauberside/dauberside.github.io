@@ -187,9 +187,9 @@ ul.folder-child  li a {
 
 
 .navbar-brand img {
-    display: block;
-    max-width: 100%;
-    height: auto;
+    width:100%;
+    max-width:80px;
+
 }
 
 
