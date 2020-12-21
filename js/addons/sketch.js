@@ -44,6 +44,7 @@ function draw() {
   // put drawing code here
   if (mouseIsPressed) {
     strokeWeight(10);
+    fill(fff);
     //line(pmouseX, pmouseY, mouseX, mouseY);
   }
   spray();
