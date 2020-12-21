@@ -7,13 +7,13 @@
   background:#555;
 } */
 .app {
-  position:fixed;
+  /* position:fixed;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
   width:650px;
   height:650px;
-  font-family:"Raleway", sans-serif;
+  font-family:"Raleway", sans-serif; */
 }
 .app .controls {
   height:50px;
