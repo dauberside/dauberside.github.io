@@ -91,7 +91,7 @@ function mouseDragged() {
   }
 }
 _("#reset-canvas").addEventListener("click", function () {
-  background(255);
+  background('rgba(2%,20%,255%,0.1)');
 });
 _("#save-canvas").addEventListener("click", function () {
   saveCanvas(canvas, "sketch", "png");
