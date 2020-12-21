@@ -44,7 +44,7 @@ function draw() {
   // put drawing code here
   if (mouseIsPressed) {
     strokeWeight(10);
-    fill(fff);
+    stroke('rgba(255%,255%,255%,1)');
     //line(pmouseX, pmouseY, mouseX, mouseY);
   }
   spray();
