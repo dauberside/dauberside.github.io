@@ -79,8 +79,8 @@
     height: 50px;
     padding: 15px 15px;
     line-height: 20px;
-    /* color: #fff; */
-    color: rgba(118,248,76,1);
+     color: #fff;
+
 }
 .navbar li a span {
     border-bottom: 1px solid transparent;
@@ -90,8 +90,8 @@
     transition: color 0.3s, border-bottom-color 0.3s;
 }
 .navbar li a span {
-        /* color: #fff; */
-        color: rgba(118,248,76,1);
+        color: #fff;
+
 
 }
 .folder-child-wrapper {
@@ -129,12 +129,11 @@ ul.folder-child  li a {
     padding: 5px 0;
     overflow: hidden;
     /*width: 150px;*/
-    /* color: #000;*/
-    color: #ff0000;
+    color: #000;
+
 }
 #header ul.folder-child li a:hover, a:focus {
-    /* color: #000; */
-    color: #ff0000;
+    color: #000;
     text-decoration: underline;
 }
 
