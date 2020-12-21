@@ -3,9 +3,9 @@
   padding:0px;
   box-sizing:border-box;
 }
-body {
+/* body {
   background:#555;
-}
+} */
 .app {
   position:fixed;
   top:50%;
