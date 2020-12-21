@@ -48,6 +48,19 @@
 
 
 
+@media (min-width: 576px){
+  header {
+max-width: 540px;
+}
+}
+
+@media (min-width: 768px){
+  header {
+max-width: 720px;
+}
+}
+
+
 @media (min-width: 1000px){
   header {
 max-width: 980px;
@@ -58,6 +71,7 @@ max-width: 980px;
 max-width: 1140px;
 }
 }
+
 
     header {
       padding: 20px 20px 50px 20px;
