@@ -28,7 +28,7 @@ function mousePressed() {
 }
 
 function draw() {
-  background(51);
+  background('rgba(2%,20%,255%,0.1)');
   if (s.eat(food)) {
     pickLocation();
   }
