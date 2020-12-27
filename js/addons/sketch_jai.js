@@ -1,8 +1,6 @@
 var canvas;
 red = new Riso('red');
 blue = new Riso('blue');
-}
-
 
 function windowResized() {
   //console.log('resized');//
