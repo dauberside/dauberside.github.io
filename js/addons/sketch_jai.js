@@ -19,18 +19,18 @@ function setup() {
   clearRiso();
 
   blue.fill(255);
-  blue.ellipse(200, windoheight / 2, 300, 300);
+  blue.ellipse(200, height / 2, 300, 300);
 
   red.fill(255);
-  red.ellipse(400, windoheight / 2, 300, 300);
+  red.ellipse(400, height / 2, 300, 300);
 
-  let textGraphic = createGraphics(windoWidth, windowHeight);
+  let textGraphic = createGraphics(width, height);
   textGraphic.fill(0);
   textGraphic.textStyle(BOLD);
   textGraphic.textFont('Arial');
   textGraphic.textAlign(CENTER, CENTER);
   textGraphic.textSize(20);
-  textGraphic.text('P5.RISO', windoWidth / 2 + 5, windoHeight / 2);
+  textGraphic.text('P5.RISO', width / 2 + 5, height / 2);
 
   red.cutout(textGraphic); // cut text out of red
   blue.cutout(textGraphic); // cut text out of blue
