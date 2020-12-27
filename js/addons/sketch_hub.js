@@ -1,3 +1,4 @@
+var canvas;
 let s;
 let scl = 20;
 let food;
