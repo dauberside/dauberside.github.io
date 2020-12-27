@@ -1,22 +1,14 @@
-var canvas;
-red = new Riso('red');
-blue = new Riso('blue');
-
-function windowResized() {
-  //console.log('resized');//
-  resizeCanvas(windowWidth, windowHeight);
-}
+let blue;
+let red;
 
 function setup() {
-  // put setup code here
-  canvas = createCanvas(windowWidth, windowHeight);
-  canvas.position(0, 0);
-  canvas.style('z-index', '-1');
+  createCanvas(600, 600);
   red = new Riso('red');
   blue = new Riso('blue');
 }
+
 function draw() {
-  background('rgba(2%,20%,255%,0.1)');
+  background(220);
   clearRiso();
 
   blue.fill(255);
