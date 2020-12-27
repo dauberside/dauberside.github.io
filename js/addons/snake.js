@@ -24,7 +24,7 @@ function Snake() {
   this.death = function () {
     for (let i = 0; i < this.tail.length; i++) {
       let pos = this.tail[i];
-      let d = dist(0, 0, this.x, this.y, pos.x, pos.y);
+      let d = dist(this.x, this.y, pos.x, pos.y);
       if (d < 1) {
         console.log('starting over');
         this.total = 0;
