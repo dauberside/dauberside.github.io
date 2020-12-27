@@ -1,15 +1,37 @@
+let blue;
+let red;
+
 function setup() {
-  createCanvas(500, 500);
-  let blueChannel = new Riso("blue"); //create riso object, set to blue
+  createCanvas(600, 600);
+  red = new Riso('red');
+  blue = new Riso('blue');
+}
 
-  blueChannel.fill(255); // completely opaque
-  blueChannel.ellipse(0, 0, 100, 100); //draw ellipse on blue layer
+function draw() {
+  background(220);
+  clearRiso();
 
-  blueChannel.fill(50); // fairly transparent
-  blueChannel.ellipse(50, 50, 100, 100);
+  blue.fill(255);
+  blue.ellipse(200, height / 2, 300, 300);
 
-  blueChannel.fill(3); // almost invisible
-  blueChannel.ellipse(75, 75, 100, 100);
+  red.fill(255);
+  red.ellipse(400, height / 2, 300, 300);
+
+  let textGraphic = createGraphics(width, height);
+  textGraphic.fill(0);
+  textGraphic.textStyle(BOLD);
+  textGraphic.textFont('Arial');
+  textGraphic.textAlign(CENTER, CENTER);
+  textGraphic.textSize(20);
+  textGraphic.text('P5.RISO', width / 2 + 5, height / 2);
+
+  red.cutout(textGraphic); // cut text out of red
+  blue.cutout(textGraphic); // cut text out of blue
+  red.cutout(blue); // cut blue out of red
 
   drawRiso();
+}
+
+function mouseClicked() {
+  exportRiso();
 }
