@@ -1,6 +1,4 @@
 function Snake() {
-  canvas.position(0, 0);
-  canvas.style('z-index', '-1');
   this.x = 0;
   this.y = 0;
   this.xspeed = 1;
