@@ -121,8 +121,7 @@ function draw() {
   // put drawing code here
   if (mouseIsPressed) {
     strokeWeight(0.001);
-    stroke(HSB, height, height, height);
-    //stroke('rgba(255%,255%,255%,1)');
+    stroke('rgba(255%,255%,255%,1)');
     //line(pmouseX, pmouseY, mouseX, mouseY);
   }
   spray();
