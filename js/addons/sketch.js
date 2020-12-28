@@ -132,8 +132,8 @@ function spray() {
     for (let i = 0; i < 2500; i++) {
       let xc = constrain(pmouseX, mouseX, windowWidth);
       let yc = constrain(pmouseY, mouseY, windowHeight);
-      let x = random(-50, 50);
-      let y = random(-50, 50);
+      let x = random(-30, 30);
+      let y = random(-30, 30);
       if (dist(0, 0, x, y) < 30) {
         ellipseMode(CENTER);
         ellipse(xc + x, yc + y, 1, 1);
