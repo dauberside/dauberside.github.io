@@ -23,47 +23,49 @@
 //   }
 // }
 
-var canvas;
+//start//
+// var canvas;
 
-function windowResized() {
-  //console.log('resized');//
-  resizeCanvas(windowWidth, windowHeight);
-}
+// function windowResized() {
+//   //console.log('resized');//
+//   resizeCanvas(windowWidth, windowHeight);
+// }
 
 
 
-function setup() {
-  // put setup code here
-  canvas = createCanvas(windowWidth, windowHeight);
-  canvas.position(0, 0);
-  canvas.style('z-index', '-1');
-  background('rgba(2%,20%,255%,0.1)');
-}
+// function setup() {
+//   // put setup code here
+//   canvas = createCanvas(windowWidth, windowHeight);
+//   canvas.position(0, 0);
+//   canvas.style('z-index', '-1');
+//   background('rgba(2%,20%,255%,0.1)');
+// }
 
-function draw() {
-  // put drawing code here
-  if (mouseIsPressed) {
-    strokeWeight(10);
-    stroke('rgba(255%,255%,255%,1)');
-    //line(pmouseX, pmouseY, mouseX, mouseY);
-  }
-  spray();
-}
+// function draw() {
+//   // put drawing code here
+//   if (mouseIsPressed) {
+//     strokeWeight(10);
+//     stroke('rgba(255%,255%,255%,1)');
+//     //line(pmouseX, pmouseY, mouseX, mouseY);
+//   }
+//   spray();
+// }
 
-function spray() {
-  if (mouseIsPressed) {
-    for (let i = 0; i < 400; i++) {
-      let xc = constrain(pmouseX, mouseX, windowWidth);
-      let yc = constrain(pmouseY, mouseY, windowHeight);
-      let x = random(-15, 15);
-      let y = random(-15, 15);
-      if (dist(0, 0, x, y) < 10) {
-        ellipseMode(CENTER);
-        ellipse(xc + x, yc + y, 1, 1);
-      }
-    }
-  }
-}
+// function spray() {
+//   if (mouseIsPressed) {
+//     for (let i = 0; i < 400; i++) {
+//       let xc = constrain(pmouseX, mouseX, windowWidth);
+//       let yc = constrain(pmouseY, mouseY, windowHeight);
+//       let x = random(-15, 15);
+//       let y = random(-15, 15);
+//       if (dist(0, 0, x, y) < 10) {
+//         ellipseMode(CENTER);
+//         ellipse(xc + x, yc + y, 1, 1);
+//       }
+//     }
+//   }
+// }
+//end//
 
 // function _(selector) {
 //   return document.querySelector(selector);
@@ -97,3 +99,45 @@ function spray() {
 // _("#save-canvas").addEventListener("click", function () {
 //   saveCanvas(canvas, "sketch", "png");
 // });
+
+var canvas;
+
+function windowResized() {
+  //console.log('resized');//
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+
+
+function setup() {
+  // put setup code here
+  canvas = createCanvas(windowWidth, windowHeight);
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
+  background('rgba(2%,20%,255%,0.1)');
+}
+
+function draw() {
+  // put drawing code here
+  if (mouseIsPressed) {
+    strokeWeight(0.001);
+    stroke('rgba(255%,255%,255%,1)');
+    //line(pmouseX, pmouseY, mouseX, mouseY);
+  }
+  spray();
+}
+
+function spray() {
+  if (mouseIsPressed) {
+    for (let i = 0; i < 2500; i++) {
+      let xc = constrain(pmouseX, mouseX, windowWidth);
+      let yc = constrain(pmouseY, mouseY, windowHeight);
+      let x = random(-50, 50);
+      let y = random(-50, 50);
+      if (dist(0, 0, x, y) < 30) {
+        ellipseMode(CENTER);
+        ellipse(xc + x, yc + y, 1, 1);
+      }
+    }
+  }
+}
