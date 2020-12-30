@@ -1,3 +1,4 @@
+var canvas;
 let map = null;
 let noiseScale = 1 / 150;
 let ocean = "#008dc4";
@@ -8,10 +9,15 @@ let stone = "#676767";
 let snow = "#fffafa";
 
 
+function windowResized() {
+  //console.log('resized');//
+  resizeCanvas(windowWidth, windowHeight);
+}
+
 function setup() {
-  createCanvas(1280, 720);
-  position(0, 0);
-  style('z-index', '-1');
+  canvas = createCanvas(windowWidth, windowHeight);
+  canvas.position(0, 0);
+  canvas.style('z-index', '-1');
   noStroke();
 
   background(0);
