@@ -10,7 +10,8 @@ let snow = "#fffafa";
 
 function setup() {
   createCanvas(1280, 720);
-
+  position(0, 0);
+  style('z-index', '-1');
   noStroke();
 
   background(0);
