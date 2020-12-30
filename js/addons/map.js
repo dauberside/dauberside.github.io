@@ -1,9 +1,9 @@
 var canvas;
 let map = null;
 let noiseScale = 1 / 150;
-let ocean = "#008dc4";
-let shore = "[55, 94, 119]";
-let sand = "[50, 85, 164]3";
+let ocean = "IVY";
+let shore = "MAROON";
+let sand = "PUMPKIN";
 let grass = "COPPER";
 let stone = "BISQUE";
 let snow = "FLUORESCENTRED";
