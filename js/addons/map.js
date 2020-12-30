@@ -4,9 +4,9 @@ let noiseScale = 1 / 150;
 let ocean = "#008dc4";
 let shore = "[55, 94, 119]";
 let sand = "[50, 85, 164]3";
-let grass = "[0, 131, 138]";
-let stone = "[255, 102, 94]";
-let snow = "[68, 214, 44]";
+let grass = "COPPER";
+let stone = "BISQUE";
+let snow = "FLUORESCENTRED";
 
 
 function windowResized() {
