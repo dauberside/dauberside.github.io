@@ -1,9 +1,16 @@
 var drawer;
-var border = 30;
+var border = 1;
+var canvas
 
+function windowResized() {
+  //console.log('resized');//
+  resizeCanvas(windowWidth, windowHeight);
+}
 
 function setup() {
   var canvas = createCanvas(windowWidth, windowHeight);
+  var canvas.position(0, 0);
+  var canvas.style('z-index', '-1');
   /*
   canvas.style("overflow", "hidden");
   var body = new p5.Element(canvas.parent());
