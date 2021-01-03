@@ -15,9 +15,9 @@ function setup() {
   canvas.position(0, 0);
   canvas.style('z-index', '-1');
   /*
-  canvas.style("overflow", "hidden");
+  canvas.style("overflow", "hidden","absolute");
   var body = new p5.Element(canvas.parent());
-  body.style("overflow", "hidden");
+  body.style("overflow", "hidden","absolute");
   */
   border = width * height * 0.000001;
   initCA();
@@ -30,7 +30,7 @@ function draw() {
 
   strokeWeight(2 * border);
   noFill();
-  stroke(255);
+  stroke('rgba(255%,255%,255%,1)');
   rect(0, 0, width, height);
 }
 
@@ -50,7 +50,7 @@ function initCA() {
   }
   drawer.initDrawingStack();
 
-  background(255);
+  background('rgba(2%,20%,255%,0.1)');
 
 }
 
