@@ -10,7 +10,7 @@ function setup() {
 
   body.style("overflow", "hidden");
   */
-  border = width * height * 0.00002;
+  border = width * height * 0.000001;
   initCA();
 
 }
