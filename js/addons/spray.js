@@ -1,5 +1,5 @@
 
-color c1, c2;
+var color c1, c2;
 
 void setup(){
   size(640, 640);
