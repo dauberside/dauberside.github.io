@@ -214,15 +214,15 @@ function setup() {
 
 function draw() {
   if (mouseIsPressed) {
-    for (let i = 0; i <= 2000; i++) {
+    for (let i = 0; i <= 500; i++) {
       let radious = (0.5 - pow(random(1.5), 0.5 / 0.5)) * 40;
       let angle = random(TWO_PI);
       let r = random(0, 10);
       let offsetX = r * cos(angle);
       let offsetY = r * sin(angle);
-      let sizeX = random(0.2, 1, 5);
-      let sizeY = random(0.2, 1, 5);
-      fill(255);
+      let sizeX = random(0.1, 1, 5);
+      let sizeY = random(0.1, 1, 5);
+      fill(150);
       noStroke();
       rect(mouseX + radious * cos(angle) + offsetX, mouseY + radious * sin(angle) + offsetY, sizeX, sizeY);
     }
