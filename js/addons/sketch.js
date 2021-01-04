@@ -143,6 +143,47 @@
 //   }
 // }
 
+// var canvas;
+
+// function windowResized() {
+//   //console.log('resized');//
+//   resizeCanvas(windowWidth, windowHeight);
+// }
+
+// function setup() {
+//   // put setup code here
+//   canvas = createCanvas(windowWidth, windowHeight);
+//   canvas.position(0, 0);
+//   canvas.style('z-index', '-1');
+//   background('rgba(2%,20%,255%,0.1)');
+// }
+
+// // function draw() {
+// //   // put drawing code here
+// //   if (mouseIsPressed) {
+// //     //fill(0, 102, 153);
+// //     //line(pmouseX, pmouseY, mouseX, mouseY);
+// //   }
+// //   spray();
+// // }
+
+// function draw() {
+//   if (mouseIsPressed) {
+//     for (let i = 0; i <= 1000; i++) {
+//       let angle = random(TWO_PI);
+//       let r = random(0, 30);
+//       let offsetX = r * cos(angle);
+//       let offsetY = r * sin(angle);
+//       let sizeX = random(0.2, 1, 5);
+//       let sizeY = random(0.2, 1, 5);
+//       fill(255);
+//       noStroke();
+//       rect(mouseX + offsetX, mouseY + offsetY, sizeX, sizeY);
+//     }
+//   }
+// }
+
+
 var canvas;
 
 function windowResized() {
@@ -155,8 +196,10 @@ function windowResized() {
 function setup() {
   // put setup code here
   canvas = createCanvas(windowWidth, windowHeight);
+
   canvas.position(0, 0);
   canvas.style('z-index', '-1');
+  frameRate(360);
   background('rgba(2%,20%,255%,0.1)');
 }
 
@@ -171,16 +214,17 @@ function setup() {
 
 function draw() {
   if (mouseIsPressed) {
-    for (let i = 0; i <= 1000; i++) {
+    for (let i = 0; i <= 2000; i++) {
+      let radious = (0.5 - pow(random(1.5), 0.5 / 0.5)) * 40;
       let angle = random(TWO_PI);
-      let r = random(0, 30);
+      let r = random(0, 10);
       let offsetX = r * cos(angle);
       let offsetY = r * sin(angle);
       let sizeX = random(0.2, 1, 5);
       let sizeY = random(0.2, 1, 5);
       fill(255);
       noStroke();
-      rect(mouseX + offsetX, mouseY + offsetY, sizeX, sizeY);
+      rect(mouseX + radious * cos(angle) + offsetX, mouseY + radious * sin(angle) + offsetY, sizeX, sizeY);
     }
   }
 }
