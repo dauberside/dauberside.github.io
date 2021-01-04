@@ -160,16 +160,16 @@ function setup() {
   background('rgba(2%,20%,255%,0.1)');
 }
 
-function draw() {
-  // put drawing code here
-  if (mouseIsPressed) {
-    fill(0, 102, 153);
-    //line(pmouseX, pmouseY, mouseX, mouseY);
-  }
-  spray();
-}
+// function draw() {
+//   // put drawing code here
+//   if (mouseIsPressed) {
+//     //fill(0, 102, 153);
+//     //line(pmouseX, pmouseY, mouseX, mouseY);
+//   }
+//   spray();
+// }
 
-function spray() {
+function draw() {
   if (mouseIsPressed) {
     for (let i = 0; i <= 1000; i++) {
       let angle = random(TWO_PI);
@@ -178,7 +178,7 @@ function spray() {
       let offsetY = r * sin(angle);
       let sizeX = random(0.2, 1, 5);
       let sizeY = random(0.2, 1, 5);
-      fill(100);
+      fill(255);
       noStroke();
       rect(mouseX + offsetX, mouseY + offsetY, sizeX, sizeY);
     }
