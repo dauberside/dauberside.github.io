@@ -215,7 +215,7 @@ function setup() {
 function draw() {
   if (mouseIsPressed) {
     for (let i = 0; i <= 2000; i++) {
-      let radious = (1.0 - pow(random(5), 1.0 / 10.0)) * 100;
+      let radious = (1.0 - pow(random(5), 1.0 / 20.0)) * 100;
       let angle = random(TWO_PI);
       let r = random(0, 20);
       let offsetX = r * cos(angle);
