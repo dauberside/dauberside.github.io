@@ -1,197 +1,105 @@
-<style>
-  /*Downloaded from https://www.codeseek.co/arianalynn/live-chat-20-built-with-google-formsspreadsheet-JZEGXZ */
-  @import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
-  @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" dir="ltr" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:mixi="http://mixi-platform.com/ns#">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    position: relative;
-    font-family: Montserrat, sans-serif;
-  }
+  <title>lol</title>
+  <link href="css/crime.css" rel="stylesheet">
+  <link href="css/menu.css" rel="stylesheet">
+  <link href="css/grid.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css">
 
-  *:focus {
-    outline: none;
-  }
+</head>
+<body id="bg">
+  <header id="header">
+    <div class="container">
+      <div id="logo">
+        <a class="navbar-brand" href="index.html"><img src="images/geometric_pattern.svg"></a>
+      </div>
+      <div class="navbar">
+        <ul class="list-inline">
+          <li class="folder"><a href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>menu</span></a>
+            <div class="dropdown-menu folder-child-wrapper">
+              <ul class="folder-child">
+                　<li><a class="dropdown-item" href="index.html">
+                    <p>home</p>
+                  </a></li>
+                <li><a class="dropdown-item" href="project.html">
+                    <p>project</p>
+                  </a></li>
+                <!--<li><a class="dropdown-item" href="#">Another action</a>-->
+                <li>
+              </ul>
+            </div>
+          </li>
+          <li><a href="https://www.instagram.com/DauberSide/"><span class="fab fa-instagram"></span><a></li>
+          <li><a data-toggle="modal" data-target="#squarespaceModal"><span class="far fa-envelope"></span></a></li>
 
-  body {
-    background-color: #e9bbab;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1600 900'%3E%3Cpath fill='%23f6ded4' d='M0 504 0 899 1600 899 1600 120z'/%3E%3Cpath fill='%23e0cbc1' d='M1600 567 1600 899 0 899 0 165z'/%3E%3Cpath fill='%23854e4b' d='M0 680 0 899 1600 899 1600 300z'/%3E%3Cpath fill='%23b06763' d='M1600 719 1600 899 0 899 0 353z'/%3E%3Cpath fill='%23482426' d='M0 788 0 899 1600 899 1600 625z'/%3E%3C/svg%3E");
-    /* background by SVGBackgrounds.com */
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-  }
+          <!--<li></li>-->
+        </ul>
+      </div>
+    </div>
+  </header>
+  <!-- /header -->
+  <!-- line modal -->
+  <!--start-->
+  <div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        </div> -->
+        <div class="modal-body" style="padding:10px 10px 0px 10px;">
+          <!--end-->
 
-  .chat_box {
-    width: 340px;
-    height: 420px;
-    margin: calc(50vh - 208px) auto;
-    background: #eeeeee;
-    border-radius: 10px;
-    box-shadow: 0 0 55px -12px #616161;
-    overflow: hidden;
-  }
+          <!-- content goes here -->
+          <div class="form-area">
+            <form role="form" action="https://docs.google.com/forms/u/1/d/e/1FAIpQLSf2tU3FCb0KWeNMbskNq9zIGKlq9k60cveLlBKx3XUOyW-Eew/formResponse" method="post" target="hidden_iframe" onsubmit="submitted=true;">
+              <div class="form-group">
+                <input type="text" name="entry.233542546" class="form-control" id="name" placeholder="Name" required>
+              </div>
+              <div class="form-group">
+                <input type="email" name="entry.1551144577" class="form-control" id="email" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <textarea name="entry.2108942869" class="form-control" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
+                <span class="help-block">
+                  <p id="characterLeft" class="help-block ">Up to 140 characters</p>
+                </span>
+              </div>
+              <div class="modal-footer">
+                <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" role="button">close</button>
+                  </div>
+                  <div class="btn-group btn-delete hidden" role="group">
+                    <button type="button" id="delImage" class="btn btn-default btn-hover-red" data-dismiss="modal" role="button">Close</button>
+                  </div>
+                  <div class="btn-group" role="group">
+                    <button type="submit" id="saveImage" class="btn btn-default btn-hover-green" data-action="save" role="button">submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <script type="text/javascript">var submitted = false;</script>
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
+            <!-- content goes here -->
+          </div>
+        </div>
+      </div>
+      <!--end-->
+      <!--iframeにリダイレクトかける。-->
 
-  .chat_h {
-    background: #fafafa;
-    padding: 18px 20px;
-    box-shadow: 0 1px 5px silver;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .chat_h i {
-    font-size: 21px;
-    color: #757575;
-    cursor: pointer;
-  }
-
-  .chat_h div {
-    font-size: 16px;
-    color: #854e4b;
-    display: inline;
-  }
-
-  .chat_b {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 20px 22px;
-  }
-
-  .chat_b input[type="text"] {
-    width: 230px;
-    border-radius: 20px;
-    border: none;
-    padding: 16px 22px;
-    box-shadow: 0 3px 10px -2px grey;
-  }
-
-  .chat_b input[type="submit"] {
-    background: #b06763;
-    border: none;
-    color: white;
-    padding: 12px 10px 12px 14px;
-    font-size: 23px;
-    border-radius: 100%;
-    cursor: pointer;
-    float: right;
-    box-shadow: 0 0 30px -2px grey;
-  }
-
-  .chat_b input[type="submit"]:hover {
-    background: #854e4b;
-  }
-
-  .chat {
-    padding: 15px 20px;
-    display: inline-block;
-    clear: both;
-    margin-top: 10px;
-    font-size: 14px;
-    word-wrap: break-word;
-    max-width: 78%;
-  }
-
-  .chat_me {
-    background: #854e4b;
-    color: white;
-    float: right;
-    margin-right: 20px;
-    border-radius: 13px 13px 0 13px;
-  }
-
-  .chat_ar {
-    background: #f6ded4;
-    color: #212121;
-    float: left;
-    margin-left: 20px;
-    border-radius: 13px 13px 13px 0;
-  }
-
-  .chat_s {
-    height: 270px;
-    overflow-y: scroll;
-  }
-
-  ::-webkit-scrollbar {
-    width: 15px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 0 5px #eeeeee;
-    background: rgba(0, 0, 0, 0.1);
-  }
-</style>
-<script>
-  /*Downloaded from https://www.codeseek.co/arianalynn/live-chat-20-built-with-google-formsspreadsheet-JZEGXZ */
-  function chat_send() {
-    document.getElementsByClassName("chat_s")[0].innerHTML +=
-      '<div class="chat chat_me">' +
-      document.getElementById("entry_1852610060").value +
-      "</div>";
-    chat_tobottom();
-    document.getElementById("entry_1852610060").value = "";
-  }
-
-  function chat_tobottom() {
-    document.getElementsByClassName(
-      "chat_s"
-    )[0].scrollTop = document.getElementsByClassName("chat_s")[0].scrollHeight;
-  }
-
-  function chat_load() {
-    document.getElementsByClassName("chat_s")[0].innerHTML =
-      "<p style='margin:20px'>Loading...</p>";
-    $.getJSON(
-      "https://spreadsheets.google.com/feeds/list/1OPUaP9h2uI0971ZARc_DG4oAGG1CSQncmW7tkkkFXCw/od6/public/values?alt=json",
-      function (data) {
-        document.getElementsByClassName("chat_s")[0].innerHTML = "";
-        for (var i = 0; i < data.feed.entry.length; i++) {
-          var entry = data.feed.entry[i];
-          var a;
-          if (entry.gsx$name.$t == "Ariana") {
-            a = "chat_ar";
-          } else {
-            a = "chat_me";
-          }
-          document.getElementsByClassName("chat_s")[0].innerHTML +=
-            '<div class="chat ' +
-            a +
-            '">' +
-            entry.gsx$message.$t +
-            "</div>";
-        }
-      }
-    );
-  }
-
-  chat_load();
-</script>
-
-<div class="chat_box">
-  <div class="chat_h">
-    <i title="ee button emi cheyadu" style="float:left" class="material-icons">arrow_back_ios</i>
-    <div><span title="It looks like I'm online, doesn't it?" style="color:#68d883;font-size:23px; line-height:15px">&#x25CF;</span> ARIANA LYNN</div>
-    <i onclick="chat_load()" title="Refresh Chat to Get Latest Messages." style="float:right" class="material-icons">replay</i>
+      <!-- content goes here end-->
+    </div>
   </div>
-  <div class="chat_b">
-    <script type="text/javascript">
-      var submitted = false;
-    </script>
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){chat_send()}"></iframe>
-    <form onsubmit="submitted=true" action="https://docs.google.com/forms/d/e/1FAIpQLSd-8wkxgXbOXhV47ma05LR8iQzaJZxeFPq0V7ABRRIXPbTYbA/formResponse" method="POST" target="hidden_iframe">
-      <input type="text" placeholder="Type a message..." name="entry.1852610060" id="entry.1852610060" />
-      <input type="hidden" name="draftResponse" value="null,null,&quot;-1766445210298050477&quot;]" />
-      <input type="hidden" name="pageHistory" value="0" />
-      <input type="hidden" name="fbzx" value="-1766445210298050477" />
-      <input type="submit" class="material-icons" name="submit" value="send" id="ss-submit" onclick="return chat_check()" />
-    </form>
-  </div>
-  <div class="chat_s">
-  </div>
-  <i title="Scroll to bottom." style="position:absolute;bottom:80px;left:22px;background:white;color:#9E9E9E;cursor:pointer;border-radius:100%;box-shadow:0 0 15px -3px grey" class="material-icons" onclick="chat_tobottom()">expand_more</i>
-</div>
+  <!--end-->
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/crime.js"></script>
+</body>
+</html>
