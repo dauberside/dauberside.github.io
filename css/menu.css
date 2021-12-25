@@ -470,6 +470,50 @@ carousel start
     #carousel-custom .carousel-outer {
       position: relative;
     }
+
+  /* 001*/
+      #carousel-custom001 {
+      margin-top: 10px;
+      width: 100%;;
+      padding: 10px;
+    }
+
+    #carousel-custom001 .carousel-indicators {
+      margin: 10px 0 0;
+      overflow: auto;
+      position: static;
+      text-align: center;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    #carousel-custom001 .carousel-indicators li {
+      background-color: transparent;
+      -webkit-border-radius: 0;
+      border-radius: 0;
+      display: inline-block;
+      height: auto;
+      margin: 0 !important;
+      width: auto;
+    }
+
+    #carousel-custom001 .carousel-indicators li img {
+      display: block;
+      opacity: 0.5;
+    }
+
+    #carousel-custom001 .carousel-indicators li.active img {
+      opacity: 1;
+    }
+
+    #carousel-custom001 .carousel-indicators li:hover img {
+      opacity: 0.75;
+    }
+
+    #carousel-custom001 .carousel-outer {
+      position: relative;
+    }
+/* 001 end */
 /*
     .carousel-control.left {
       background-image: none;
