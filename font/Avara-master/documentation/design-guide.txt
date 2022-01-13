@@ -1,0 +1,4 @@
+- Each dot in AVARA must strictly fit to the grid. See fontforge sources.
+
+In use :
+http://fdddl.be/

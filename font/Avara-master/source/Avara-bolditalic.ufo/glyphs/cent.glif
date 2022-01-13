@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="cent" format="1">
+  <advance width="560"/>
+  <unicode hex="00A2"/>
+  <outline>
+    <component base="c" yOffset="160"/>
+    <component base="bar" xOffset="240" yOffset="80"/>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.schriftgestaltung.Glyphs.ComponentInfo</key>
+      <array>
+        <dict>
+          <key>alignment</key>
+          <integer>-1</integer>
+          <key>index</key>
+          <integer>0</integer>
+          <key>name</key>
+          <string>c</string>
+        </dict>
+        <dict>
+          <key>alignment</key>
+          <integer>-1</integer>
+          <key>index</key>
+          <integer>1</integer>
+          <key>name</key>
+          <string>bar</string>
+        </dict>
+      </array>
+      <key>com.schriftgestaltung.Glyphs.lastChange</key>
+      <string>2020-08-21 12:25:57 +0000</string>
+      <key>com.typemytype.robofont.mark</key>
+      <array>
+        <real>0.001</real>
+        <real>0.822</real>
+        <real>0.283</real>
+        <real>1.0</real>
+      </array>
+    </dict>
+  </lib>
+</glyph>

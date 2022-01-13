@@ -1,0 +1,55 @@
+@kern_uc = [ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z Agrave Aacute Acircumflex Atilde Adieresis Amacron Aring AE AEacute Ccedilla Egrave Eacute Ecircumflex Edieresis Igrave Iacute Icircumflex Itilde Idieresis Ntilde Ograve Oacute Ocircumflex Otilde Odieresis Omacron OE Scaron Ugrave Uacute Ucircumflex Utilde Udieresis Wgrave Wacute Wcircumflex Wdieresis Ygrave Yacute Ycircumflex Ydieresis Zacute Zcaron Zdotaccent ];
+
+@kern_punct = [ comma semicolon colon period ellipsis exclam exclamdown question questiondown quoteleft quoteright quotedblleft quotedblright quotesinglbase quotedblbase quotesingle quotedbl slash backslash bullet periodcentered asterisk dagger daggerdbl copyright registered ];
+
+@kern_punct_uc = [ ampersand ];
+
+@pnum = [ numbersign Euro dollar cent yen zero one two three four five six seven eight nine ];
+
+@tnum = [ numbersign.tnum Euro.tnum dollar.tnum cent.tnum yen.tnum zero.tnum one.tnum two.tnum three.tnum four.tnum five.tnum six.tnum seven.tnum eight.tnum nine.tnum ];
+
+# Prefix: Languagesystems
+languagesystem DFLT dflt;
+
+feature aalt {
+# automatic
+feature tnum;
+feature pnum;
+feature frac;
+} aalt;
+
+feature dlig {
+  sub T h by T_h.dlig ;
+  sub f k by f_k.dlig ;
+  sub f b by f_b.dlig ;
+  sub f h by f_h.dlig ;
+  sub f j by f_j.dlig ;
+  sub q j by q_j.dlig ;
+  
+} dlig;
+
+feature liga {
+  sub f l by fl;
+  sub f i by fi;
+  sub f f by f_f;
+  sub f f i by f_f_i;
+  sub f f l by f_f_l;
+} liga;
+
+feature tnum {
+    sub @pnum by @tnum ; 
+    
+} tnum;
+
+feature pnum {
+    sub @tnum by @pnum ; 
+    
+} pnum;
+
+feature frac {
+# automatic
+sub one slash four by onequarter;
+sub one slash two by onehalf;
+sub three slash four by threequarters;
+} frac;
+
