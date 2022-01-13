@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="Adieresis" format="1">
+  <advance width="800"/>
+  <unicode hex="00C4"/>
+  <outline>
+    <component base="A"/>
+    <component base="dieresis" xOffset="320" yOffset="240"/>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.schriftgestaltung.Glyphs.lastChange</key>
+      <string>2020-08-21 12:34:08 +0000</string>
+      <key>com.typemytype.robofont.mark</key>
+      <array>
+        <real>0.374</real>
+        <real>0.974</real>
+        <real>0.983</real>
+        <real>1.0</real>
+      </array>
+    </dict>
+  </lib>
+</glyph>

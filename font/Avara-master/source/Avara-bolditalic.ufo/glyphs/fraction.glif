@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="fraction" format="1">
+  <advance width="280"/>
+  <unicode hex="2044"/>
+  <outline>
+    <contour>
+      <point x="520" y="840" type="line"/>
+      <point x="600" y="840" type="line"/>
+      <point x="-80" y="-40" type="line"/>
+      <point x="-160" y="-40" type="line"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.typemytype.robofont.mark</key>
+      <array>
+        <real>0.001</real>
+        <real>0.822</real>
+        <real>0.283</real>
+        <real>1.0</real>
+      </array>
+    </dict>
+  </lib>
+</glyph>
