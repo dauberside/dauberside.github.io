@@ -87,36 +87,36 @@
             <script>
               const form = document.getElementById('mG61Hd');
               const submitbtn = document.getElementById('saveImage');
+              const inputName = document.getElementById('inputName');
+              const inputMail = document.getElementById('inputMail');
               const reg = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}.[A-Za-z0-9]{1,}$/;
               let submitted = false;
 
-              submitbtn.addEventListener('click', function (e) {
+              submitbtn.addEventListener('click', function (event) {
+                let message = [];
+                /*入力値チェック*/
+                if (inputName.value == "") {
+                  message.push("氏名が未入力です。");
+                }
 
-                saveImage.addEventListener('click', function (event) {
-                  let message = [];
-                  /*入力値チェック*/
-                  if (inputName.value == "") {
-                    message.push("氏名が未入力です。");
-                  }
+                if (inputMail.value == "") {
+                  message.push("メールアドレスが未入力です。");
+                } else if (!reg.test(inputMail.value)) {
+                  message.push("メールアドレスの形式が不正です。");
+                }
+                if (Message.length > 0) {
+                  alert(message);
+                  return;
+                }
+                alert('入力チェックOK');
 
-                  if (inputMail.value == "") {
-                    message.push("メールアドレスが未入力です。");
-                  } else if (!reg.test(inputMail.value)) {
-                    message.push("メールアドレスの形式が不正です。");
-                  }
-                  if (Message.length > 0) {
-                    alert(message);
-                    return;
-                  }
-                  alert('入力チェックOK');
+                submitted = true;
 
-                  submitted = true;
-
-                  if (submitted === true) {
-                    form.submit();
-                    window.location = 'thanks-page.html';
-                  }
-                });
+                if (submitted === true) {
+                  form.submit();
+                  window.location = 'thanks-page.html';
+                }
+              });
             </script>
             <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
             <!-- content goes here -->
