@@ -84,7 +84,25 @@
                 </div>
               </div>
             </form>
-            <script type="text/javascript">var submitted = false;</script>
+            <script>
+              const form = document.getElementById('mG61Hd');
+              const submitbtn = document.getElementById('saveImage');
+              let submitted = false;
+
+              submitbtn.addEventListener('click', function (e) {
+
+                /*
+                ここにバリデーション処理を書いて、
+                全部クリアだったら「submitted = true;」にする
+                */
+                submitted = true;
+
+                if (submitted === true) {
+                  form.submit();
+                  window.location = 'thanks.html';
+                }
+              });
+            </script>
             <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='thanks-page.html';}"></iframe>
             <!-- content goes here -->
           </div>
