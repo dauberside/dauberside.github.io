@@ -1,0 +1,23 @@
+{
+  "name": "dauberside.github.io",
+  "version": "1.0.0",
+  "description": "Dauberside Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dauberside/dauberside.github.io.git"
+  },
+  "keywords": [
+    "Dauberside",
+    "Project"
+  ],
+  "author": "KrinkCrank",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dauberside/dauberside.github.io/issues"
+  },
+  "homepage": "https://github.com/dauberside/dauberside.github.io#readme"
+}
