@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 export default function Home() {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = '/js/my-script.js';
+    script.src = '/js/crime.js';
     script.async = true;
     document.body.appendChild(script);
   }, []);
