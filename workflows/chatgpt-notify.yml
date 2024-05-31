@@ -1,0 +1,19 @@
+name: Notify ChatGPT
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Send notification to ChatGPT
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d '{"text": "Code has been pushed to the main branch."}' \
+          YOUR_CHATGPT_WEBHOOK_URL
