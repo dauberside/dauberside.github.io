@@ -16,4 +16,4 @@ jobs:
         run: |
           curl -X POST -H "Content-Type: application/json" \
           -d '{"text": "Code has been pushed to the main branch."}' \
-          YOUR_CHATGPT_WEBHOOK_URL
+          https://your-webhook-server-url/webhook
