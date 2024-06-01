@@ -1,19 +1,35 @@
-// pages/index.js
-import React, { useEffect } from 'react';
+import { useState } from "react";
 
 export default function Home() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = '/js/crime.js';
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    });
+    const data = await res.json();
+    setResponse(data.result);
+  };
 
   return (
     <div>
-      <h1>Welcome to my site</h1>
-      <p>This is a static page converted to Next.js</p>
-      <img src="/images/habit_int.gif" alt="Example Image" />
+      <h1>OpenAI API with Next.js</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Enter your prompt"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      {response && <p>Response: {response}</p>}
     </div>
   );
 }
