@@ -1,35 +1,48 @@
-import { useState } from "react";
+import Link from 'next/link';
+import { useEffect } from 'react';
 
-export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt }),
-    });
-    const data = await res.json();
-    setResponse(data.result);
-  };
+export default function Navbar() {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const script = document.createElement("script");
+      script.src = "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   return (
-    <div>
-      <h1>OpenAI API with Next.js</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter your prompt"
-        />
-        <button type="submit">Submit</button>
-      </form>
-      {response && <p>Response: {response}</p>}
-    </div>
+    <header id="header">
+      <div className="container">
+        <div id="logo">
+          <Link href="/">
+            <a className="navbar-brand">
+              <img src="/images/geometric_pattern.svg" alt="Logo" />
+            </a>
+          </Link>
+        </div>
+        <nav className="navbar">
+          <ul className="list-inline">
+            <li className="folder">
+              <Link href="/">
+                <a id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                  <span>menu</span>
+                </a>
+              </Link>
+              <div className="dropdown-menu folder-child-wrapper">
+                <ul className="folder-child">
+                  {/* Add your menu items here */}
+                </ul>
+              </div>
+            </li>
+            <li>
+              <a data-toggle="modal" data-target="#squarespaceModal">
+                <span className="glyphicon glyphicon-envelope"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
   );
 }
