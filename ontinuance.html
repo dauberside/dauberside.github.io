@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" dir="ltr" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:mixi="http://mixi-platform.com/ns#">
+
+<!-- 🧠 start -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+
+  <title>lol</title>
+  <link href="css/crime.css" rel="stylesheet">
+  <link href="css/menu.css" rel="stylesheet">
+  <link href="css/grid.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/all.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.0/css/v4-shims.css">
+</head>
+<!-- 🧠 end -->
+<!-- ☠️ start -->
+<body id="bg">
+  <!-- /header -->
+  <header id="header">
+    <div class="container">
+      <div id="logo">
+        <a class="navbar-brand" href="index.html"><img src="images/geometric_pattern.svg"></a>
+      </div>
+      <div class="navbar">
+        <ul class="list-inline">
+          <li class="folder"><a href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"><span>menu</span></a>
+            <div class="dropdown-menu folder-child-wrapper">
+              <ul class="folder-child">
+                　<li><a class="dropdown-item" href="index.html">
+                    <p>home</p>
+                  </a></li>
+                <li><a class="dropdown-item" href="project.html">
+                    <p>project</p>
+                  </a></li>
+                <!--<li><a class="dropdown-item" href="#">Another action</a><li>-->
+              </ul>
+            </div>
+          </li>
+          <li><a href="https://www.instagram.com/DauberSide/"><span class="fab fa-instagram"></span><a></li>
+          <li><a data-toggle="modal" data-target="#squarespaceModal"><span class="far fa-envelope"></span></a></li>
+          <!--<li></li>-->
+        </ul>
+      </div>
+    </div>
+  </header>
+  <!-- /header -->
+
+  <!-- modal fade goes here -->
+  <div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        </div>
+        <div class="modal-body" style="padding:10px 10px 0px 10px;">
+          <div class="form-area">
+            <form role="form" action="https://docs.google.com/forms/u/2/d/e/1FAIpQLSf2tU3FCb0KWeNMbskNq9zIGKlq9k60cveLlBKx3XUOyW-Eew/formResponse" method="post" target="hidden_iframe" onsubmit="submitted=true;">
+              <div class="form-group">
+                <input type="text" name="entry.233542546" class="form-control" id="name" placeholder="Name" required>
+              </div>
+              <div class="form-group">
+                <input type="email" name="entry.1664462797" class="form-control" id="email" placeholder="Email" required>
+              </div>
+              <div class="form-group">
+                <textarea name="entry.2108942869" class="form-control" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
+                <span class="help-block">
+                  <p id="characterLeft" class="help-block ">Up to 140 characters</p>
+                </span>
+              </div>
+              <div class="modal-footer">
+                <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" role="button">close</button>
+                  </div>
+                  <div class="btn-group btn-delete hidden" role="group">
+                    <button type="button" id="delImage" class="btn btn-default btn-hover-red" data-dismiss="modal" role="button">Close</button>
+                  </div>
+                  <div class="btn-group" role="group">
+                    <button type="submit" id="saveImage" class="btn btn-default btn-hover-green" data-action="save" role="button">submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <script type="text/javascript">var submitted = false;</script>
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Button trigger modal -->
+  <div class="container">
+    <div class="col-12">
+      <div class="grid_row">
+        <div style="border-top: 1px solid" class="row">
+          <div class="col-1"><small>🗓</small></div>
+          <div class="col-2"><small>年号</small></div>
+          <div class="col-2"><small>月日</small></div>
+          <div class="col-2"><small>時間</small></div>
+          <div class="col-2"><small>場所</small></div>
+          <div class="col-2"><small>名目</small></div>
+        </div>
+      </div>
+    </div>
+    <!--start-->
+    <div class="col-12">
+      <div class="grid_row">
+        <div class="row toybox">
+          <div class="col-1"><small>🍺</small></div>
+          <div class="col-2"><small>2020</small></div>
+          <div class="col-2"><small>12/31</small></div>
+          <div class="col-2"><small>23:59</small></div>
+          <div class="col-2"><small><a data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">詳細</a></small></div>
+          <div class="col-2"><small>路上試行</small></div>
+        </div>
+      </div>
+    </div>
+    <div id="collapseExample" class="col-12 collapse">
+      <div class="grid_row">
+        <div class="row">
+          <div class="media">
+            <div class="media-body">
+              <iframe class="img-responsive center-block" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3245.6134517802675!2d139.7139682546036!3d35.563247688075876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6018605c93e2a23f%3A0xc356e55918383f04!2z44OJ44Oz44O744Kt44Ob44O844OGIOiSsueUsOmnheWJjeW6lw!5e0!3m2!1sja!2sus!4v1609316004077!5m2!1sja!2sus" width="1096"> </iframe>
+              <h5 class="mt-3">テスト：集合場所</h5>
+              <small>テスト：ネット場</small>
+              <small>今年も残すところ残りわずかとなりました。<br>
+                お疲れ様です。
+                路上観察は最近してません。
+
+                <!-- 今年の後半から現在にかけてヒカル氏と企画を立てて、今の現状にいたり昨今のインスタグラムによっての繋がりと落書きという繋がりを考えて読み物として、尚且つ紙媒体としてなどに落とし込めればと粉骨している次第です。
+                私はメーカーズムーブメントというキーワードを手掛かりに現在DIYではできない物として造形表現を３Dプリンター（以下より、プリンターとします。）に投影する事でDAUBERを設計から造形をする事ができました。
+                しかし現状プリンターの問題があり、世間一般に広まっていない概念を提供して、品質が一定な形で提供できないのではという壁にぶつかり、業者側が使っているプリンターではなく、一般家庭用のプリンターで積層工法の設定をする事で、業者が使用しているプリンターには劣るが、金型造形という中間作業を中抜きができ、世間には存在しない私個人が所有できる新しい道具が突如として存在するというのは落書きの概念に近いと私は思うわけで、金型から造形を作るメリットとデメリットに関してはコストの問題、特に試行錯誤という試作品を着手する事が難しいという事、さらに固定概念として造形という言葉によって一般社会からすると、そもそもミリ単位での調整を絶対にして製造ラインを確立して販売という概念ではなく、落書きという概念に近く、簡素であり、一般社会には提供できないが周囲に対しての創造性を誘発する事は可能なのではないかという事が言葉としてお伝えできる内容なのではないか？もしくは共有できる事柄なのだとも思います。
+                今年の節目をここに書き残すのですが、最近奈良にある益田岩船が気になるわけで、何しろ今年はコロナの影響で散々でしたがみなさんはいかがでしたか？ -->
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--start-->
+    <div class="col-12">
+      <div class="grid_row">
+        <div class="row">
+          <div class="col-1"><small>🗓</small></div>
+          <div class="col-2"><small>年号</small></div>
+          <div class="col-2"><small>月日</small></div>
+          <div class="col-2"><small>時間</small></div>
+          <div class="col-2"><small>場所</small></div>
+          <div class="col-2"><small>名目</small></div>
+        </div>
+      </div>
+    </div>
+    <!--start-->
+    <div class="col-12">
+      <div class="grid_row">
+        <div class="row toybox">
+          <div class="col-1"><small>🗓</small></div>
+          <div class="col-2"><small>20XX</small></div>
+          <div class="col-2"><small>02/01</small></div>
+          <div class="col-2"><small>00:00</small></div>
+          <div class="col-2"><small><a data-toggle="collapse" href="#collapseExample02" role="button" aria-expanded="false" aria-controls="collapseExample02">詳細</a></small></div>
+          <div class="col-2"><small>鬼ごっこ</small></div>
+        </div>
+      </div>
+    </div>
+    <div id="collapseExample02" class="col-12 collapse">
+      <div class="grid_row">
+        <div class="row">
+          <div class="media">
+            <div class="media-body">
+              <iframe class="img-responsive center-block" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13364875.097657569!2d140.24292547353707!3d35.83679808475969!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34674e0fd77f192f%3A0xf54275d47c665244!2z5pel5pys!5e0!3m2!1sja!2sus!4v1609322937312!5m2!1sja!2sus" width="1096"> </iframe>
+              <h5 class="mt-3">集合場所：全世界規模</h5>
+              <small>名目：鬼ごっこ</small>
+              <small>ルール：鬼につかまると大変、鬼はGPSで探索可能でプレイヤーはゴースト機能搭載のアプリケーション
+                開発はむり
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--end-->
+    <!--start-->
+
+  </div>
+
+
+  <!-- Modal -->
+
+
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="col">
+            <img src="https://i.pinimg.com/originals/d1/66/18/d16618ff72ab4155f2e7ac389ac09de5.jpg" class="img-responsive center-block">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-default" data-dismiss="modal" role="button">close</button>
+            </div>
+            <div class="btn-group btn-delete hidden" role="group">
+              <button type="button" id="delImage" class="btn btn-default btn-hover-red" data-dismiss="modal" role="button">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/crime.js"></script>
+  <!-- <script src="js/tiltfx.js"></script> -->
+
+  <!-- <script src="js/addons/p5.js"></script>
+  <script src="js/addons/p5.min.js"></script> -->
+
+</body>
+</html>
