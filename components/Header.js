@@ -8,7 +8,7 @@ const Header = () => {
         <div id="logo">
           <Link href="/">
             <a className="navbar-brand">
-              <img src="/images/geometric_pattern.svg" alt="Logo" />
+              <img src="../public/images/geometric_pattern.svg" alt="Logo" />
             </a>
           </Link>
         </div>
