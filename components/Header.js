@@ -23,7 +23,7 @@ const Header = () => {
               <div className="dropdown-menu folder-child-wrapper">
                 <ul className="folder-child">
                   <li>
-                    <Link href="/">
+                  <Link href="/" legacyBehavior>
                       <a className="dropdown-item">
                         <p>home</p>
                       </a>
