@@ -5,14 +5,6 @@ import Footer from '../components/Footer';
 const Project = () => {
   return (
     <div>
-      <Head>
-        <title>Project</title>
-        <link rel="stylesheet" href="../public/css/crime.css" />
-        <link rel="stylesheet" href="../public/css/menu.css" />
-        <link rel="stylesheet" href="../public/css/grid.css" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css" />
-      </Head>
       <Header />
       <main>
         <h2>Our Projects</h2>
