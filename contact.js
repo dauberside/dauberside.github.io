@@ -1,3 +1,4 @@
+// pages/contact.js
 import { useState } from 'react';
 import Header from '../components/Header';
 

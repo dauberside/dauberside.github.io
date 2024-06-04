@@ -1,3 +1,4 @@
+// pages/about.js
 import Header from '../components/Header';
 
 export default function About() {
