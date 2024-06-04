@@ -1,32 +1,27 @@
-import React from 'react';
-import Header from '../src/components/Header';
-import Footer from '../src/components/Footer';
+import Head from 'next/head';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import ContactForm from '../components/ContactForm';
 
-const ContactPage = () => {
+const Contact = () => {
   return (
     <div>
+      <Head>
+        <title>Contact</title>
+        <link rel="stylesheet" href="/css/crime.css" />
+        <link rel="stylesheet" href="/css/menu.css" />
+        <link rel="stylesheet" href="/css/grid.css" />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css" />
+      </Head>
       <Header />
       <main>
         <h2>Contact Us</h2>
-        <form>
-          <div>
-            <label htmlFor="name">Name:</label>
-            <input type="text" id="name" name="name" required />
-          </div>
-          <div>
-            <label htmlFor="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-          <div>
-            <label htmlFor="message">Message:</label>
-            <textarea id="message" name="message" required></textarea>
-          </div>
-          <button type="submit">Send</button>
-        </form>
+        <ContactForm />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default ContactPage;
+export default Contact;
