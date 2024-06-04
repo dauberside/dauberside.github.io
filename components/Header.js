@@ -70,12 +70,6 @@ const Header = () => {
 };
 
 export default Header;
-他のページからスタイルシートリンクを削除
-例えば、pages/contact.js からスタイルシートリンクを削除します。
-
-pages/contact.js
-jsx
-コードをコピーする
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ContactForm from '../components/ContactForm';
