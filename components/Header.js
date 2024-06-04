@@ -70,21 +70,3 @@ const Header = () => {
 };
 
 export default Header;
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ContactForm from '../components/ContactForm';
-
-const Contact = () => {
-  return (
-    <div>
-      <Header />
-      <main>
-        <h2>Contact Us</h2>
-        <ContactForm />
-      </main>
-      <Footer />
-    </div>
-  );
-};
-
-export default Contact;
