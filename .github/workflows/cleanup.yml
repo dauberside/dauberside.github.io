@@ -1,0 +1,43 @@
+name: Cleanup Unwanted Files
+
+on:
+  pull_request:
+    branches:
+      - test-cleanup
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install git-filter-repo
+      run: |
+        pip install git-filter-repo
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Remove unwanted files
+      run: |
+        # Define the unwanted paths
+        UNWANTED_PATHS=(
+          "path/to/unwanted/file1"
+          "path/to/unwanted/directory1"
+        )
+
+        # Force delete the unwanted paths using git filter-repo
+        for path in "${UNWANTED_PATHS[@]}"; do
+          git filter-repo --path "$path" --invert-paths --force
+        done
+
+    - name: Push changes
+      if: success()
+      run: |
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        git push origin --force --all
+        git push origin --force --tags
