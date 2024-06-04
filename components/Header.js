@@ -3,6 +3,13 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 const Header = () => {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "../js/crime.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   return (
     <>
       <Head>
