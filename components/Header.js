@@ -5,7 +5,7 @@ import Link from 'next/link';
 const Header = () => {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "../js/crime.js";
+    script.src = "../bootstrap/dist/css/bootstrap.css";
     script.async = true;
     document.body.appendChild(script);
   }, []);
