@@ -1,9 +1,13 @@
 // pages/_app.js
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '../src/styles/global.css'; // 他のグローバルスタイルがあればここでインポート
+import '../src/styles/global.css'; // グローバルスタイルの正しいパス
+import 'bootstrap/dist/css/bootstrap.min.css'; // BootstrapのCSS
 import Script from 'next/script';
+import Footer from '../components/Footer'; // フッターコンポーネントをインポート
 
 function MyApp({ Component, pageProps }) {
+  // Spotifyのトークンを取得する手順を追加する
+  const spotifyToken = "f142c21f4e424c60a8733b678bbcac65";
+
   return (
     <>
       <Script
@@ -11,6 +15,7 @@ function MyApp({ Component, pageProps }) {
         strategy="lazyOnload"
       />
       <Component {...pageProps} />
+      <Footer spotifyToken={spotifyToken} />
     </>
   );
 }
