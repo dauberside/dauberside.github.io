@@ -4,7 +4,7 @@ import Script from 'next/script';
 import Footer from '../components/Footer';
 
 function MyApp({ Component, pageProps }) {
-  const spotifyToken = "f142c21f4e424c60a8733b678bbcac65"; // 有効なSpotifyトークンを設定
+  const spotifyToken = "f142c21f4e424c60a8733b678bbcac65"; 
 
   return (
     <>
