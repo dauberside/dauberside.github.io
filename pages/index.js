@@ -1,18 +1,15 @@
-import React, { useEffect } from 'react';
+// pages/index.js
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const Home = () => {
-  useEffect(() => {
-    // Any client-side only code here
-  }, []);
-
+export default function Home() {
   return (
-    <div>
+    <>
       <Header />
+      <main>
+        {/* メインコンテンツ */}
+      </main>
       <Footer />
-    </div>
+    </>
   );
-};
-
-export default Home;
+}
