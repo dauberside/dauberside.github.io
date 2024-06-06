@@ -1,82 +1,100 @@
 // components/Player.js
 import { useEffect, useState } from 'react';
+import { getPlaylist } from '../utils/spotify';
+import { FaPlay, FaPause } from 'react-icons/fa';  // FontAwesomeのアイコンを使用
 
-const Player = ({ spotifyToken }) => {
+const Player = ({ spotifyToken, playlistId }) => {
   const [player, setPlayer] = useState(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
   const [currentTrack, setCurrentTrack] = useState(null);
+  const [tracks, setTracks] = useState([]);
 
   useEffect(() => {
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new Spotify.Player({
-        name: 'Web Playback SDK Player',
+    const script = document.createElement('script');
+    script.src = 'https://sdk.scdn.co/spotify-player.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    window.onSpotifyWebPlaybackSDKReady = async () => {
+      const playlist = await getPlaylist(spotifyToken, playlistId);
+      setTracks(playlist.tracks.items.map(item => item.track.uri));
+
+      const player = new window.Spotify.Player({
+        name: 'Web Playback SDK',
         getOAuthToken: cb => { cb(spotifyToken); },
-        volume: 0.5
+        volume: 0.5,
       });
 
       setPlayer(player);
 
       player.addListener('ready', ({ device_id }) => {
         console.log('Ready with Device ID', device_id);
+        player.connect().then(() => {
+          playTrack(0);  // 初期トラックを再生
+        });
       });
 
       player.addListener('not_ready', ({ device_id }) => {
         console.log('Device ID has gone offline', device_id);
       });
 
-      player.addListener('player_state_changed', state => {
+      player.addListener('player_state_changed', (state) => {
         if (!state) return;
-
-        setCurrentTrack(state.track_window.current_track);
         setIsPaused(state.paused);
+        setCurrentTrack(state.track_window.current_track);
       });
 
       player.connect();
     };
-  }, [spotifyToken]);
+
+    return () => {
+      if (player) {
+        player.disconnect();
+      }
+    };
+  }, [spotifyToken, playlistId]);
+
+  const playTrack = (index) => {
+    player._options.getOAuthToken(accessToken => {
+      fetch(`https://api.spotify.com/v1/me/player/play`, {
+        method: 'PUT',
+        body: JSON.stringify({ uris: [tracks[index]] }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+    });
+  };
 
   const handlePlayPause = () => {
-    player.togglePlay();
-  };
-
-  const handleNextTrack = () => {
-    player.nextTrack();
+    if (isPaused) {
+      player.resume().then(() => {
+        console.log('Resumed!');
+      });
+    } else {
+      player.pause().then(() => {
+        console.log('Paused!');
+      });
+    }
   };
 
   return (
-    <div className="player-controls">
+    <div className="spotify-player">
       {currentTrack && (
         <div className="track-info">
-          <img src={currentTrack.album.images[0].url} alt={currentTrack.name} className="album-art" />
-          <div>
-            <div className="track-name">{currentTrack.name}</div>
-            <div className="artist-name">{currentTrack.artists[0].name}</div>
-          </div>
+          <div>Track: <span>{currentTrack.name}</span></div>
+          <div>Artist: <span>{currentTrack.artists.map(artist => artist.name).join(', ')}</span></div>
+          <div>Album: <span>{currentTrack.album.name}</span></div>
         </div>
       )}
-      <button className="spotify-btn play-pause" onClick={handlePlayPause}>
-        {isPaused ? 'Play' : 'Pause'}
-      </button>
-      <button className="spotify-btn next" onClick={handleNextTrack}>Next</button>
+      <div className="control-buttons">
+        <button onClick={handlePlayPause}>
+          {isPaused ? <FaPlay /> : <FaPause />}
+        </button>
+      </div>
     </div>
   );
-}
+};
 
 export default Player;
-2. Footer.js の更新
-Footer.js でプレーヤーを読み込む部分はそのままです。次に、カスタムスタイルを作成します。
-
-javascript
-コードをコピーする
-// components/Footer.js
-import Player from './Player';
-
-const Footer = ({ spotifyToken }) => {
-  return (
-    <footer id="footer">
-      <Player spotifyToken={spotifyToken} />
-    </footer>
-  );
-}
-
-export default Footer;

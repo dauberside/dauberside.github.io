@@ -126,3 +126,62 @@ footer {
   background-color: #1ed760;
 }
 
+/* global.css */
+
+/* global.css */
+
+/* Spotifyプレイヤーのコンテナ */
+.spotify-player {
+  background-color: #121212; /* 黒に近い背景色 */
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* シャドウを追加して浮き上がらせる */
+}
+
+/* プレイリスト情報のスタイル */
+.spotify-player .track-info {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.spotify-player .track-info div {
+  margin: 5px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1db954; /* Spotifyの緑色に合わせる */
+}
+
+.spotify-player .track-info div span {
+  font-weight: normal;
+  color: #ffffff; /* 通常のテキストを白に */
+}
+
+/* 再生・停止ボタンのスタイル */
+.spotify-player .control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spotify-player .control-buttons button {
+  background-color: #1db954;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* ホバー効果をスムーズに */
+}
+
+.spotify-player .control-buttons button:hover {
+  background-color: #1ed760;
+}
