@@ -1,60 +1,58 @@
 import Link from 'next/link';
-import Head from 'next/head';
 
-function Header() {
-  return (
-    <>
-      <Head>
-        <link rel="stylesheet" href="../css/crime.css" />
-        <link rel="stylesheet" href="../css/menu.css" />
-        <link rel="stylesheet" href="../css/grid.css" />
-      </Head>
-      <header id="header">
-        <div className="container">
-          <div id="logo">
-            <Link href="/" legacyBehavior>
-              <a className="navbar-brand">
-                <img src="/images/geometric_pattern.svg" alt="Logo" />
+const Header = () => (
+  <header id="header">
+    <div className="container">
+      <div id="logo">
+        <Link href="/" legacyBehavior>
+          <a className="navbar-brand">
+            <img src="/images/geometric_pattern.svg" alt="Logo" />
+          </a>
+        </Link>
+      </div>
+      <div className="navbar">
+        <ul className="list-inline">
+          <li className="folder">
+            <Link href="#" legacyBehavior>
+              <a id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
+                <span>menu</span>
               </a>
             </Link>
-          </div>
-          <div className="navbar">
-            <ul className="list-inline">
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Menu
-                </a>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <li>
-                    <Link href="/" legacyBehavior>
-                      <a className="dropdown-item">Home</a>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/project" legacyBehavior>
-                      <a className="dropdown-item">Project</a>
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <Link href="https://www.instagram.com/DauberSide/" legacyBehavior>
-                  <a><span className="fab fa-instagram"></span></a>
-                </Link>
-              </li>
-              <li>
-                <Link href="#" legacyBehavior>
-                  <a data-toggle="modal" data-target="#squarespaceModal">
-                    <span className="far fa-envelope"></span>
-                  </a>
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </header>
-    </>
-  );
-}
+            <div className="dropdown-menu folder-child-wrapper">
+              <ul className="folder-child">
+                <li>
+                  <Link href="/" legacyBehavior>
+                    <a className="dropdown-item">
+                      <p>home</p>
+                    </a>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/project" legacyBehavior>
+                    <a className="dropdown-item">
+                      <p>project</p>
+                    </a>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <Link href="https://www.instagram.com/DauberSide/" legacyBehavior>
+              <a><span className="fab fa-instagram"></span></a>
+            </Link>
+          </li>
+          <li>
+            <Link href="#" legacyBehavior>
+              <a data-toggle="modal" data-target="#squarespaceModal">
+                <span className="far fa-envelope"></span>
+              </a>
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+);
 
 export default Header;
