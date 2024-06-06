@@ -1,7 +1,6 @@
-// components/header.js
 import Link from 'next/link';
 
-export default function Header() {
+const Header = () => {
   return (
     <header id="header">
       <div className="container">
@@ -12,48 +11,51 @@ export default function Header() {
             </a>
           </Link>
         </div>
-        <div className="navbar">
-          <ul className="list-inline">
-            <li className="folder">
-              <Link href="#" legacyBehavior>
-                <a id="dropdownMenuLink" aria-haspopup="true" aria-expanded="false">
-                  <span>menu</span>
-                </a>
-              </Link>
-              <div className="dropdown-menu folder-child-wrapper">
-                <ul className="folder-child">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul className="navbar-nav">
+              <li className="nav-item dropdown">
+                <Link href="#" legacyBehavior>
+                  <a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Menu
+                  </a>
+                </Link>
+                <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <li>
                     <Link href="/" legacyBehavior>
-                      <a className="dropdown-item">
-                        <p>home</p>
-                      </a>
+                      <a className="dropdown-item">Home</a>
                     </Link>
                   </li>
                   <li>
                     <Link href="/project" legacyBehavior>
-                      <a className="dropdown-item">
-                        <p>project</p>
-                      </a>
+                      <a className="dropdown-item">Project</a>
                     </Link>
                   </li>
                 </ul>
-              </div>
-            </li>
-            <li>
-              <Link href="https://www.instagram.com/DauberSide/" legacyBehavior>
-                <a><span className="fab fa-instagram"></span></a>
-              </Link>
-            </li>
-            <li>
-              <Link href="#" legacyBehavior>
-                <a data-toggle="modal" data-target="#squarespaceModal">
-                  <span className="far fa-envelope"></span>
-                </a>
-              </Link>
-            </li>
-          </ul>
-        </div>
+              </li>
+              <li className="nav-item">
+                <Link href="https://www.instagram.com/DauberSide/" legacyBehavior>
+                  <a className="nav-link">
+                    <span className="fab fa-instagram"></span>
+                  </a>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="#" legacyBehavior>
+                  <a className="nav-link" data-bs-toggle="modal" data-bs-target="#squarespaceModal">
+                    <span className="far fa-envelope"></span>
+                  </a>
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </nav>
       </div>
     </header>
   );
-}
+};
+
+export default Header;
