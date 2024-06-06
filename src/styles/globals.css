@@ -140,12 +140,16 @@ footer {
   max-width: 600px;
   margin: 0 auto;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* シャドウを追加して浮き上がらせる */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* プレイリスト情報のスタイル */
 .spotify-player .track-info {
-  margin-bottom: 10px;
+  flex-grow: 1;
   text-align: left;
+  padding-left: 10px;
 }
 
 .spotify-player .track-info div {
@@ -163,7 +167,6 @@ footer {
 /* 再生・停止ボタンのスタイル */
 .spotify-player .control-buttons {
   display: flex;
-  justify-content: center;
   gap: 10px;
 }
 

@@ -1,12 +1,10 @@
-// pages/_app.js
-import '../src/styles/globals.css'; // グローバルスタイル
-import 'bootstrap/dist/css/bootstrap.min.css'; // BootstrapのCSS
-import '../src/styles/spotify-player.css'; // Spotifyプレーヤースタイル
+import '../src/styles/globals.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Script from 'next/script';
 import Footer from '../components/Footer';
 
 function MyApp({ Component, pageProps }) {
-  const spotifyToken = "f142c21f4e424c60a8733b678bbcac65"; // Spotifyのアクセストークン
+  const spotifyToken = "f142c21f4e424c60a8733b678bbcac65"; // 有効なSpotifyトークンを設定
 
   return (
     <>

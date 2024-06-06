@@ -1,100 +1,78 @@
 // components/Player.js
 import { useEffect, useState } from 'react';
-import { getPlaylist } from '../utils/spotify';
-import { FaPlay, FaPause } from 'react-icons/fa';  // FontAwesomeのアイコンを使用
+import styles from '../src/styles/Player.module.css';
 
-const Player = ({ spotifyToken, playlistId }) => {
+const Player = ({ token }) => {
   const [player, setPlayer] = useState(null);
-  const [isPaused, setIsPaused] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(null);
-  const [tracks, setTracks] = useState([]);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://sdk.scdn.co/spotify-player.js';
-    script.async = true;
-    document.body.appendChild(script);
+    if (!window.Spotify) {
+      const script = document.createElement('script');
+      script.src = "https://sdk.scdn.co/spotify-player.js";
+      script.async = true;
+      document.body.appendChild(script);
 
-    window.onSpotifyWebPlaybackSDKReady = async () => {
-      const playlist = await getPlaylist(spotifyToken, playlistId);
-      setTracks(playlist.tracks.items.map(item => item.track.uri));
+      script.onload = () => initializeSpotifyPlayer();
+    } else {
+      initializeSpotifyPlayer();
+    }
 
-      const player = new window.Spotify.Player({
-        name: 'Web Playback SDK',
-        getOAuthToken: cb => { cb(spotifyToken); },
-        volume: 0.5,
-      });
-
-      setPlayer(player);
-
-      player.addListener('ready', ({ device_id }) => {
-        console.log('Ready with Device ID', device_id);
-        player.connect().then(() => {
-          playTrack(0);  // 初期トラックを再生
+    function initializeSpotifyPlayer() {
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        const spotifyPlayer = new window.Spotify.Player({
+          name: 'Web Playback SDK Player',
+          getOAuthToken: cb => { cb(token); },
+          volume: 0.5
         });
-      });
 
-      player.addListener('not_ready', ({ device_id }) => {
-        console.log('Device ID has gone offline', device_id);
-      });
+        setPlayer(spotifyPlayer);
 
-      player.addListener('player_state_changed', (state) => {
-        if (!state) return;
-        setIsPaused(state.paused);
-        setCurrentTrack(state.track_window.current_track);
-      });
+        spotifyPlayer.addListener('ready', ({ device_id }) => {
+          console.log('Ready with Device ID', device_id);
+        });
 
-      player.connect();
-    };
+        spotifyPlayer.addListener('not_ready', ({ device_id }) => {
+          console.log('Device ID has gone offline', device_id);
+        });
+
+        spotifyPlayer.addListener('player_state_changed', (state) => {
+          if (!state) return;
+          setCurrentTrack(state.track_window.current_track);
+          setIsPlaying(!state.paused);
+        });
+
+        spotifyPlayer.connect();
+      };
+    }
 
     return () => {
       if (player) {
         player.disconnect();
       }
     };
-  }, [spotifyToken, playlistId]);
-
-  const playTrack = (index) => {
-    player._options.getOAuthToken(accessToken => {
-      fetch(`https://api.spotify.com/v1/me/player/play`, {
-        method: 'PUT',
-        body: JSON.stringify({ uris: [tracks[index]] }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-    });
-  };
-
-  const handlePlayPause = () => {
-    if (isPaused) {
-      player.resume().then(() => {
-        console.log('Resumed!');
-      });
-    } else {
-      player.pause().then(() => {
-        console.log('Paused!');
-      });
-    }
-  };
+  }, [token]);
 
   return (
-    <div className="spotify-player">
+    <div className={styles.player}>
       {currentTrack && (
-        <div className="track-info">
-          <div>Track: <span>{currentTrack.name}</span></div>
-          <div>Artist: <span>{currentTrack.artists.map(artist => artist.name).join(', ')}</span></div>
-          <div>Album: <span>{currentTrack.album.name}</span></div>
+        <div className={styles.trackInfo}>
+          <img src={currentTrack.album.images[0].url} alt={currentTrack.name} className={styles.albumArt} />
+          <div className={styles.trackDetails}>
+            <div className={styles.trackName}>{currentTrack.name}</div>
+            <div className={styles.trackArtist}>{currentTrack.artists[0].name}</div>
+          </div>
         </div>
       )}
-      <div className="control-buttons">
-        <button onClick={handlePlayPause}>
-          {isPaused ? <FaPlay /> : <FaPause />}
-        </button>
+      <div className={styles.controls}>
+        <button className={styles.controlButton} onClick={() => player.previousTrack()}>⏮️</button>
+        <button className={styles.controlButton} onClick={() => player.togglePlay()}>{isPlaying ? '⏸️' : '▶️'}</button>
+        <button className={styles.controlButton} onClick={() => player.nextTrack()}>⏭️</button>
       </div>
     </div>
   );
 };
 
 export default Player;
+

@@ -1,0 +1,13 @@
+/* styles/player.css */
+.controlButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+  }
+  
+  .controlButton:hover {
+    color: #1db954; /* Spotifyのブランドカラー */
+  }
+  
