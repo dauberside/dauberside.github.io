@@ -22,6 +22,7 @@ export default async (req, res) => {
     });
 
     const { access_token: accessToken } = response.data;
+    console.log('Access token:', accessToken); // デバッグ用
     res.status(200).json({ accessToken });
   } catch (error) {
     console.error('Error fetching access token:', error);
