@@ -1,55 +1,68 @@
 const express = require('express');
 const axios = require('axios');
+const session = require('express-session');
 const querystring = require('querystring');
-const WebSocket = require('ws');
+const app = express();
+
 require('dotenv').config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirect_uri = process.env.SPOTIFY_REDIRECT_URI;
 
-// WebSocketサーバーの設定
-const wss = new WebSocket.Server({ port: 8080 });
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: true,
+}));
 
-wss.on('connection', ws => {
-  console.log('Client connected');
-
-  ws.on('message', message => {
-    console.log('Received:', message);
-    // メッセージを処理して、アップデートやコントロールを送信します
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
-});
-
-console.log('WebSocket server is running on ws://localhost:8080');
-
-// Spotify認証のためのエンドポイント
 app.get('/callback', async (req, res) => {
-  const code = req.query.code;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+    const code = req.query.code;
 
-  try {
-    const response = await axios.post('https://accounts.spotify.com/api/token', querystring.stringify({
-      grant_type: 'authorization_code',
-      code: code,
-      redirect_uri: redirectUri,
-      client_id: process.env.SPOTIFY_CLIENT_ID,
-      client_secret: process.env.SPOTIFY_CLIENT_SECRET
-    }), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    try {
+        const response = await axios.post('https://accounts.spotify.com/api/token', querystring.stringify({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: redirect_uri,
+            client_id: client_id,
+            client_secret: client_secret,
+        }), {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
 
-    const accessToken = response.data.access_token;
-    res.send(`Access Token: ${accessToken}`);
-  } catch (error) {
-    res.send(`Error: ${error.response.data.error_description}`);
-  }
+        const access_token = response.data.access_token;
+        req.session.access_token = access_token;
+        res.redirect('/profile');
+    } catch (error) {
+        console.error('Error getting Spotify access token', error);
+        res.send('Error getting Spotify access token');
+    }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.get('/profile', async (req, res) => {
+    const access_token = req.session.access_token;
+
+    if (!access_token) {
+        return res.redirect('/');
+    }
+
+    try {
+        const response = await axios.get('https://api.spotify.com/v1/me', {
+            headers: {
+                'Authorization': `Bearer ${access_token}`
+            }
+        });
+
+        const userData = response.data;
+        res.send(`<h1>Welcome, ${userData.display_name}</h1><p>Email: ${userData.email}</p>`);
+    } catch (error) {
+        console.error('Error getting user data from Spotify', error);
+        res.send('Error getting user data from Spotify');
+    }
+});
+
+app.listen(3000, () => {
+    console.log('Server running on port 3000');
 });
