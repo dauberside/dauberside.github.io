@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const accessToken = localStorage.getItem('spotifyAccessToken');
@@ -18,9 +19,16 @@ const Profile = () => {
       })
       .catch(error => {
         console.error('Error fetching profile:', error);
+        setError('Failed to fetch profile. Please check the console for more details.');
       });
+    } else {
+      setError('No access token found. Please log in again.');
     }
   }, []);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   if (!profile) {
     return <div>Loading...</div>;
@@ -29,7 +37,7 @@ const Profile = () => {
   return (
     <div>
       <h1>Welcome, {profile.display_name}</h1>
-      <img src={profile.images[0].url} alt="Profile Picture" />
+      <img src={profile.images[0]?.url} alt="Profile Picture" />
       <p>Email: {profile.email}</p>
       <p>Followers: {profile.followers.total}</p>
     </div>
