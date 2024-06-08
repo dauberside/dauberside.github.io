@@ -1,9 +1,9 @@
-import Player from './Player';
+import Link from 'next/link';
+import Head from 'next/head';
 
-const Footer = ({ spotifyToken }) => {
+const Footer = () => {
   return (
     <footer id="footer">
-      <Player token={spotifyToken} />
     </footer>
   );
 };
