@@ -5,7 +5,8 @@ import { useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const loadBootstrap = async () => {
+      const bootstrap = await import('bootstrap');
       const exampleModal = document.getElementById('exampleModal');
       if (exampleModal) {
         exampleModal.addEventListener('show.bs.modal', event => {
@@ -13,12 +14,12 @@ function MyApp({ Component, pageProps }) {
           const recipient = button.getAttribute('data-bs-whatever');
           const modalTitle = exampleModal.querySelector('.modal-title');
           const modalBodyInput = exampleModal.querySelector('.modal-body input');
-
           modalTitle.textContent = `New message to ${recipient}`;
           modalBodyInput.value = recipient;
         });
       }
-    }
+    };
+    loadBootstrap();
   }, []);
 
   return (
