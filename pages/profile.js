@@ -7,29 +7,27 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('spotifyToken');
-    if (!token) {
-      window.location.href = '/';
-    } else {
-      const fetchProfile = async () => {
-        try {
-          const response = await fetch('https://api.spotify.com/v1/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          const data = await response.json();
-          setProfile(data);
-          setLoading(false);
-        } catch (error) {
-          console.error('プロフィール情報の取得に失敗しました', error);
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('spotify_access_token');
+        const response = await fetch('https://api.spotify.com/v1/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile');
         }
-      };
-
-      fetchProfile();
-    }
+        const data = await response.json();
+        setProfile(data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+  
+    fetchProfile();
   }, []);
-
+  
   if (loading) {
     return <div>Loading...</div>;
   }
