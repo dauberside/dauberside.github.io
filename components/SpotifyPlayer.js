@@ -1,7 +1,6 @@
-// components/SpotifyPlayer.js
 import { useEffect } from 'react';
 
-const SpotifyPlayer = ({ token }) => {
+const SpotifyPlayer = () => {
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://sdk.scdn.co/spotify-player.js';
@@ -9,7 +8,8 @@ const SpotifyPlayer = ({ token }) => {
     document.body.appendChild(script);
 
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new window.Spotify.Player({
+      const token = localStorage.getItem('spotifyToken');
+      const player = new Spotify.Player({
         name: 'Web Playback SDK',
         getOAuthToken: cb => { cb(token); },
         volume: 0.5
@@ -25,9 +25,14 @@ const SpotifyPlayer = ({ token }) => {
 
       player.connect();
     };
-  }, [token]);
+  }, []);
 
-  return <div>Spotify Player</div>;
+  return (
+    <div>
+      <h2>Spotify Player</h2>
+      <div id="spotify-player"></div>
+    </div>
+  );
 };
 
 export default SpotifyPlayer;
