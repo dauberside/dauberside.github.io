@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Head from 'next/head';
 
 function Header() {
   return (
@@ -39,7 +38,7 @@ function Header() {
               </li>
               <li>
                 <Link href="#" legacyBehavior>
-                  <a data-toggle="modal" data-target="#squarespaceModal">
+                  <a data-bs-toggle="modal" data-bs-target="#squarespaceModal">
                     <span className="far fa-envelope"></span>
                   </a>
                 </Link>
