@@ -1,3 +1,4 @@
+// pages/profile.js
 import { useEffect, useState } from 'react';
 import SpotifyPlayer from '../components/SpotifyPlayer';
 
@@ -8,10 +9,8 @@ const Profile = () => {
   useEffect(() => {
     const token = localStorage.getItem('spotifyToken');
     if (!token) {
-      // トークンがない場合はログインページにリダイレクト
       window.location.href = '/';
     } else {
-      // トークンを使ってSpotify APIにリクエストを送る
       const fetchProfile = async () => {
         try {
           const response = await fetch('https://api.spotify.com/v1/me', {
@@ -38,7 +37,7 @@ const Profile = () => {
   return (
     <div>
       <h1>Welcome, {profile.display_name}</h1>
-      <img src={profile.images[0].url} alt="Profile Picture" />
+      <img src={profile.images[0]?.url} alt="Profile Picture" />
       <SpotifyPlayer />
     </div>
   );

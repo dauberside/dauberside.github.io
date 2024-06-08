@@ -1,3 +1,4 @@
+// components/SpotifyPlayer.js
 import { useEffect } from 'react';
 
 const SpotifyPlayer = () => {
