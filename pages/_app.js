@@ -1,25 +1,25 @@
-import '../src/styles/globals.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Script from 'next/script';
 import { useEffect } from 'react';
+
+const initializeModal = () => {
+  const exampleModal = document.getElementById('exampleModal');
+  if (exampleModal) {
+    exampleModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const recipient = button.getAttribute('data-bs-whatever');
+      const modalTitle = exampleModal.querySelector('.modal-title');
+      const modalBodyInput = exampleModal.querySelector('.modal-body input');
+
+      modalTitle.textContent = `New message to ${recipient}`;
+      modalBodyInput.value = recipient;
+    });
+  }
+};
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    const loadBootstrap = async () => {
-      const bootstrap = await import('bootstrap');
-      const exampleModal = document.getElementById('exampleModal');
-      if (exampleModal) {
-        exampleModal.addEventListener('show.bs.modal', event => {
-          const button = event.relatedTarget;
-          const recipient = button.getAttribute('data-bs-whatever');
-          const modalTitle = exampleModal.querySelector('.modal-title');
-          const modalBodyInput = exampleModal.querySelector('.modal-body input');
-          modalTitle.textContent = `New message to ${recipient}`;
-          modalBodyInput.value = recipient;
-        });
-      }
-    };
-    loadBootstrap();
+    import('bootstrap').then(() => {
+      initializeModal();
+    });
   }, []);
 
   return (
