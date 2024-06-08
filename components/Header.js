@@ -38,7 +38,7 @@ function Header() {
               </li>
               <li>
                 <Link href="#" legacyBehavior>
-                  <a data-bs-toggle="modal" data-bs-target="#squarespaceModal">
+                  <a data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">
                     <span className="far fa-envelope"></span>
                   </a>
                 </Link>
