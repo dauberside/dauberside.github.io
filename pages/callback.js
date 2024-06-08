@@ -1,30 +1,36 @@
 // pages/callback.js
-import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import { useEffect } from 'react';
 
 const Callback = () => {
-  const router = useRouter();
+    const router = useRouter();
+    const { code } = router.query;
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const code = router.query.code;
+    useEffect(() => {
+        if (code) {
+            const fetchToken = async () => {
+                try {
+                    const response = await fetch('/api/getToken', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ code }),
+                    });
 
-      if (code) {
-        try {
-          const response = await axios.post('/api/get-token', { code });
-          localStorage.setItem('spotifyAccessToken', response.data.access_token);
-          router.push('/profile');
-        } catch (error) {
-          console.error('Error fetching the token', error);
+                    const data = await response.json();
+                    localStorage.setItem('spotifyToken', data.access_token);
+                    router.push('/profile');
+                } catch (error) {
+                    console.error('Error fetching token:', error);
+                }
+            };
+
+            fetchToken();
         }
-      }
-    };
+    }, [code, router]);
 
-    fetchToken();
-  }, [router.query.code]);
-
-  return <h1>認証が完了しました。トークンを取得しています...</h1>;
+    return <h1>認証が完了しました。トークンを取得しています...</h1>;
 };
 
 export default Callback;
