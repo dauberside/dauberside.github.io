@@ -18,9 +18,7 @@ export default function Home() {
             <a>Login with Spotify</a>
           </Link>
           <br />
-          <Link href="/profile">
-            <a>View Profile</a>
-          </Link>
+          <Link href="/profile">View Profile</Link>
         </div>
       </main>
       <Footer />
