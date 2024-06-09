@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "projectId": "prj_SvykC7R30HlS827AeUOsKPqAvvDZ",
   "orgId": "team_sixQFOWnnLzR59bcCHudMA0n",
   "settings": {
@@ -12,11 +11,5 @@
     "rootDirectory": null,
     "directoryListing": false,
     "nodeVersion": "20.x"
-  },
-  "functions": {
-    "api/send.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
   }
 }
