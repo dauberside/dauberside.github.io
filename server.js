@@ -1,68 +1,66 @@
+require('dotenv').config({ path: '.env.local' });
 const express = require('express');
-const axios = require('axios');
-const session = require('express-session');
-const querystring = require('querystring');
-const app = express();
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+const next = require('next');
 
-require('dotenv').config();
+const dev = process.env.NODE_ENV !== 'production';
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = process.env.SPOTIFY_REDIRECT_URI;
+app.prepare().then(() => {
+  const server = express();
 
-app.use(session({
-    secret: 'secret-key',
-    resave: false,
-    saveUninitialized: true,
-}));
+  server.use(bodyParser.urlencoded({ extended: false }));
+  server.use(bodyParser.json());
 
-app.get('/callback', async (req, res) => {
-    const code = req.query.code;
+  server.post('/send', (req, res) => {
+    const output = `
+      <p>You have a new contact request</p>
+      <h3>Contact Details</h3>
+      <ul>
+        <li>Name: ${req.body.name}</li>
+        <li>Email: ${req.body.email}</li>
+      </ul>
+      <h3>Message</h3>
+      <p>${req.body.message}</p>
+    `;
 
-    try {
-        const response = await axios.post('https://accounts.spotify.com/api/token', querystring.stringify({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: redirect_uri,
-            client_id: client_id,
-            client_secret: client_secret,
-        }), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      logger: true,
+      debug: true,
+    });
 
-        const access_token = response.data.access_token;
-        req.session.access_token = access_token;
-        res.redirect('/profile');
-    } catch (error) {
-        console.error('Error getting Spotify access token', error);
-        res.send('Error getting Spotify access token');
-    }
-});
+    let mailOptions = {
+      from: `"Nodemailer Contact" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER,
+      subject: 'Contact Request',
+      text: 'Hello world?',
+      html: output,
+    };
 
-app.get('/profile', async (req, res) => {
-    const access_token = req.session.access_token;
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error occurred: ', error);
+        return res.status(500).send(error.toString());
+      }
+      console.log('Message sent: %s', info.messageId);
+      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+      res.status(200).send('Message sent');
+    });
+  });
 
-    if (!access_token) {
-        return res.redirect('/');
-    }
+  server.all('*', (req, res) => {
+    return handle(req, res);
+  });
 
-    try {
-        const response = await axios.get('https://api.spotify.com/v1/me', {
-            headers: {
-                'Authorization': `Bearer ${access_token}`
-            }
-        });
-
-        const userData = response.data;
-        res.send(`<h1>Welcome, ${userData.display_name}</h1><p>Email: ${userData.email}</p>`);
-    } catch (error) {
-        console.error('Error getting user data from Spotify', error);
-        res.send('Error getting user data from Spotify');
-    }
-});
-
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+  server.listen(3000, (err) => {
+    if (err) throw err;
+    console.log('> Ready on http://localhost:3000');
+  });
 });
