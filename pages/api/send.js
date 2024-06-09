@@ -1,8 +1,8 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 
 export default async function handler(req, res) {
   const smtpHost = process.env.SMTP_HOST || 'default_host';
-  const smtpPort = process.env.SMTP_PORT || 587;
+  const smtpPort = process.env.SMTP_PORT || 'default_port';
   const smtpUser = process.env.SMTP_USER || 'default_user';
   const smtpPass = process.env.SMTP_PASS || 'default_pass';
 
@@ -14,13 +14,11 @@ export default async function handler(req, res) {
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort == 465, // true for port 465, false for other ports
+    secure: smtpPort == 465,
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    logger: true,
-    debug: true,
   });
 
   const mailOptions = {

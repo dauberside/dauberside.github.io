@@ -1,5 +1,17 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "framework": "nextjs"
+  "builds": [
+    { "src": "pages/**/*.js", "use": "@vercel/node" },
+    { "src": "api/send.js", "use": "@vercel/node" }
+  ],
+  "functions": {
+    "api/send.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/pages/$1" }
+  ]
 }
