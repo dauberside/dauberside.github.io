@@ -45,10 +45,10 @@ function Header() {
                 </Link>
               </li>
             </ul>
+            <ContactForm />  {/* ContactFormコンポーネントをレンダリング */}
           </div>
         </div>
       </header>
-      <ContactForm />  {/* ContactFormコンポーネントをレンダリング */}
     </>
   );
 }
