@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import ContactForm from './ContactForm';  // ContactFormコンポーネントをインポート
+import ContactForm from '../ContactForm';  // ContactFormコンポーネントをインポート
 
 function Header() {
   return (
