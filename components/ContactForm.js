@@ -13,15 +13,15 @@ const ContactForm = () => {
             <div className="form-area">
               <form role="form" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSf2tU3FCb0KWeNMbskNq9zIGKlq9k60cveLlBKx3XUOyW-Eew/formResponse" method="post" target="hidden_iframe" onsubmit="submitted=true;">
                 <div className="form-group">
-                  <input type="text" name="entry.233542546" className="form-control" id="name" placeholder="Name" required />
+                  <input type="text" name="entry.233542546" className="form-control" id="name" placeholder="Name" required autocomplete="name" />
                 </div>
                 <div className="form-group">
-                  <input type="email" name="entry.1664462797" className="form-control" id="email" placeholder="Email" required />
+                  <input type="email" name="entry.1664462797" className="form-control" id="email" placeholder="Email" required autocomplete="email" />
                 </div>
                 <div className="form-group">
-                  <textarea name="entry.2108942869" className="form-control" id="message" placeholder="Message" maxlength="140" rows="7"></textarea>
+                  <textarea name="entry.2108942869" className="form-control" id="message" placeholder="Message" maxlength="140" rows="7" autocomplete="message"></textarea>
                   <span className="help-block">
-                    <p id="characterLeft" className="help-block ">Up to 140 characters</p>
+                    <p id="characterLeft" className="help-block">Up to 140 characters</p>
                   </span>
                 </div>
                 <div className="modal-footer">
