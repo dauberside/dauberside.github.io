@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import ContactForm from '../components/ContactForm';  // srcディレクトリ内の相対パス
+import ContactForm from '../components/ContactForm';  // コンポーネントをインポート
+
 function Header() {
   return (
     <>
