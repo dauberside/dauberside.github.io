@@ -72,3 +72,11 @@ text-decoration: underline;
 .fab, .far {
 color: #fff;
 }
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+.modal-footer .btn {
+  width: 48%;
+}
