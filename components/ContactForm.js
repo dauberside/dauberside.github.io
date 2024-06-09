@@ -63,6 +63,7 @@ const ContactForm = () => {
                     <button type="button" className="btn btn-default" data-bs-dismiss="modal" role="button">Close</button>
                     <button type="submit" id="saveImage" className="btn btn-primary" data-action="save" role="button">Submit</button>
                   </div>
+                  {errorMessage && <div className="alert alert-danger mt-3">{errorMessage}</div>}
                 </form>
               ) : (
                 <div id="success-message">
