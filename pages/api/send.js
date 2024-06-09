@@ -1,47 +1,41 @@
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
-  const { name, email, message } = req.body;
+  const smtpHost = process.env.SMTP_HOST || 'default_host';
+  const smtpPort = process.env.SMTP_PORT || 587;
+  const smtpUser = process.env.SMTP_USER || 'default_user';
+  const smtpPass = process.env.SMTP_PASS || 'default_pass';
 
-  const output = `
-    <p>You have a new contact request</p>
-    <h3>Contact Details</h3>
-    <ul>
-      <li>Name: ${name}</li>
-      <li>Email: ${email}</li>
-    </ul>
-    <h3>Message</h3>
-    <p>${message}</p>
-  `;
+  console.log('SMTP_HOST:', smtpHost);
+  console.log('SMTP_PORT:', smtpPort);
+  console.log('SMTP_USER:', smtpUser);
+  console.log('SMTP_PASS:', smtpPass);
 
-  // デバッグ用のログ出力
-  console.log('SMTP_HOST:', process.env.SMTP_HOST);
-  console.log('SMTP_PORT:', process.env.SMTP_PORT);
-  console.log('SMTP_USER:', process.env.SMTP_USER);
-  console.log('SMTP_PASS:', process.env.SMTP_PASS);
-
-  let transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT, 10),
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort == 465, // true for port 465, false for other ports
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false,
-      minVersion: 'TLSv1.2',
+      user: smtpUser,
+      pass: smtpPass,
     },
     logger: true,
     debug: true,
   });
 
-  let mailOptions = {
-    from: `"Nodemailer Contact" <${process.env.SMTP_USER}>`,
-    to: process.env.SMTP_USER,
+  const mailOptions = {
+    from: `"Nodemailer Contact" <${smtpUser}>`,
+    to: smtpUser,
     subject: 'Contact Request',
     text: 'Hello world?',
-    html: output,
+    html: `<p>You have a new contact request</p>
+           <h3>Contact Details</h3>
+           <ul>
+             <li>Name: ${req.body.name}</li>
+             <li>Email: ${req.body.email}</li>
+           </ul>
+           <h3>Message</h3>
+           <p>${req.body.message}</p>`,
   };
 
   try {
@@ -50,7 +44,7 @@ export default async function handler(req, res) {
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     res.status(200).send('Message sent');
   } catch (error) {
-    console.error('Error occurred: ', error);
+    console.log('Error occurred: ', error);
     res.status(500).send(error.toString());
   }
 }
