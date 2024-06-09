@@ -72,14 +72,8 @@ text-decoration: underline;
 .fab, .far {
 color: #fff;
 }
-
-.modal-footer .btn-group, 
-.modal-footer .btn-group-vertical {
-  display: flex !important; /* displayをflexに強制設定 */
-  justify-content: space-between; /* ボタンを左右に配置 */
-  width: 100%; /* ボタンを均等に配置するための設定 */
-}
-
-.modal-footer .btn {
-  width: 48%; /* ボタンの幅を48%に設定 */
+.btn-group, .btn-group-vertical {
+  position: relative;
+  /* display: inline-flex; */
+  vertical-align: middle;
 }
