@@ -19,15 +19,15 @@ export default async function handler(req, res) {
 
   let transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+    port: parseInt(process.env.SMTP_PORT, 10),
+    secure: process.env.SMTP_PORT == '465', // true for 465, false for other ports
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
     tls: {
       rejectUnauthorized: false,
-      minVersion: 'TLSv1.2', // これを追加して、最小TLSバージョンを指定します
+      minVersion: 'TLSv1.2',
     },
     logger: true,
     debug: true,
@@ -51,4 +51,3 @@ export default async function handler(req, res) {
     res.status(500).send(error.toString());
   }
 }
-
