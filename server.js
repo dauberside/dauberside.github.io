@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.local' }); // これをファイルの一番上に置く
+require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
@@ -39,7 +39,7 @@ app.prepare().then(() => {
     let transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort == 465, // ポートが465の場合はtrue、それ以外はfalse
+      secure: smtpPort == 465, // true for port 465, false for other ports
       auth: {
         user: smtpUser,
         pass: smtpPass,
