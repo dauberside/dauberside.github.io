@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const ContactForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -13,7 +14,7 @@ const ContactForm = () => {
     setFormData(jsonData);
 
     try {
-      const response = await fetch('/send', {
+      const response = await fetch('/api/send', {
         method: 'POST',
         body: JSON.stringify(jsonData),
         headers: {
@@ -25,12 +26,12 @@ const ContactForm = () => {
         setSubmitted(true);
       } else {
         const errorText = await response.text();
+        setErrorMessage(errorText);
         console.error('Failed to send message:', errorText);
-        alert('Failed to send message: ' + errorText);
       }
     } catch (error) {
+      setErrorMessage(error.message);
       console.error('Error occurred:', error);
-      alert('Failed to send message');
     }
   };
 
