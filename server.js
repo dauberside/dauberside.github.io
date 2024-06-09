@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env.local' }); // これをファイルの一番上に置く
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
@@ -11,7 +11,6 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = express();
 
-  // 環境変数をコンソールに出力して確認
   const smtpHost = process.env.SMTP_HOST || 'default_host';
   const smtpPort = process.env.SMTP_PORT || 'default_port';
   const smtpUser = process.env.SMTP_USER || 'default_user';
@@ -40,11 +39,13 @@ app.prepare().then(() => {
     let transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: true, // true for 465, false for other ports
+      secure: smtpPort == 465, // ポートが465の場合はtrue、それ以外はfalse
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
+      logger: true,
+      debug: true,
     });
 
     let mailOptions = {
