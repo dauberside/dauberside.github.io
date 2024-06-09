@@ -1,48 +1,31 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
-export default async function handler(req, res) {
-  const smtpHost = process.env.SMTP_HOST || 'default_host';
-  const smtpPort = process.env.SMTP_PORT || 'default_port';
-  const smtpUser = process.env.SMTP_USER || 'default_user';
-  const smtpPass = process.env.SMTP_PASS || 'default_pass';
-
-  console.log('SMTP_HOST:', smtpHost);
-  console.log('SMTP_PORT:', smtpPort);
-  console.log('SMTP_USER:', smtpUser);
-  console.log('SMTP_PASS:', smtpPass);
+export default async (req, res) => {
+  const { name, email, message } = req.body;
 
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort == 465,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: true, // true for 465, false for other ports
     auth: {
-      user: smtpUser,
-      pass: smtpPass,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   const mailOptions = {
-    from: `"Nodemailer Contact" <${smtpUser}>`,
-    to: smtpUser,
-    subject: 'Contact Request',
-    text: 'Hello world?',
-    html: `<p>You have a new contact request</p>
-           <h3>Contact Details</h3>
-           <ul>
-             <li>Name: ${req.body.name}</li>
-             <li>Email: ${req.body.email}</li>
-           </ul>
-           <h3>Message</h3>
-           <p>${req.body.message}</p>`,
+    from: process.env.SMTP_USER,
+    to: process.env.SMTP_USER,
+    subject: `Contact form submission from ${name}`,
+    text: message,
+    html: `<p>You have a new contact form submission</p><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`,
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Message sent: %s', info.messageId);
-    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    res.status(200).send('Message sent');
+    await transporter.sendMail(mailOptions);
+    res.status(200).send('Message sent successfully');
   } catch (error) {
-    console.log('Error occurred: ', error);
-    res.status(500).send(error.toString());
+    console.error('Error sending email:', error);
+    res.status(500).send('Error sending message');
   }
-}
+};
