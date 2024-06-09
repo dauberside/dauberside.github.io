@@ -11,11 +11,5 @@
     "rootDirectory": null,
     "directoryListing": false,
     "nodeVersion": "20.x"
-  },
-  "functions": {
-    "api/send.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
   }
 }
