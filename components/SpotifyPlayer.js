@@ -1,38 +1,14 @@
-// components/SpotifyPlayer.js
-import { useEffect } from 'react';
+import React from 'react';
 
-const SpotifyPlayer = () => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://sdk.scdn.co/spotify-player.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const token = localStorage.getItem('spotifyToken');
-      const player = new Spotify.Player({
-        name: 'Web Playback SDK',
-        getOAuthToken: cb => { cb(token); },
-        volume: 0.5
-      });
-
-      player.addListener('ready', ({ device_id }) => {
-        console.log('Ready with Device ID', device_id);
-      });
-
-      player.addListener('not_ready', ({ device_id }) => {
-        console.log('Device ID has gone offline', device_id);
-      });
-
-      player.connect();
-    };
-  }, []);
-
+const SpotifyPlayer = ({ token }) => {
   return (
-    <div>
-      <h2>Spotify Player</h2>
-      <div id="spotify-player"></div>
-    </div>
+    <iframe
+      src={`https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0&token=${token}`}
+      width="300"
+      height="380"
+      frameBorder="0"
+      allow="encrypted-media"
+    ></iframe>
   );
 };
 
