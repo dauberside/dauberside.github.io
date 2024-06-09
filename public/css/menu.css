@@ -96,6 +96,11 @@ color: #fff;
   transition: opacity 0.5s ease-in-out;
 }
 
+#success-message p {
+  margin: 0;
+  font-size: 1.2em; /* フォントサイズを少し大きく */
+}
+
 .modal.show #success-message {
   display: block;
   opacity: 1;
