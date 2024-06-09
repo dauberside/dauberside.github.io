@@ -1,7 +1,8 @@
 module.exports = {
     env: {
-      SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
-      SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-      SPOTIFY_REDIRECT_URI: process.env.SPOTIFY_REDIRECT_URI,
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      SMTP_PASS: process.env.SMTP_PASS,
     },
   };
