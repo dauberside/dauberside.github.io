@@ -10,7 +10,7 @@ const ContactForm = () => {
     document.getElementById('hidden_iframe').onload = () => {
       if (submitted) {
         document.getElementById('contact-form').style.display = 'none';
-        document.getElementById('success-message').style.display = 'block';
+        document.getElementById('success-message').classList.add('show');
       }
     };
     event.target.submit();
