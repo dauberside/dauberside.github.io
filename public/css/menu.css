@@ -74,6 +74,6 @@ color: #fff;
 }
 .btn-group, .btn-group-vertical {
   position: relative;
-  /* display: inline-flex; */
+  display: block !important;
   vertical-align: middle;
 }
