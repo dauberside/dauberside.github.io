@@ -39,7 +39,7 @@ const ContactForm = () => {
                 </div>
               </form>
               <script type="text/javascript">var submitted = false;</script>
-              <iframe name="hidden_iframe" id="hidden_iframe" style={{display: 'none'}} onLoad="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
+              <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad="if(submitted) {window.location='contact/thanks-page.html';}"></iframe>
             </div>
           </div>
         </div>
