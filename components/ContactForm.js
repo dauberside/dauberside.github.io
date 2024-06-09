@@ -29,9 +29,6 @@ const ContactForm = () => {
                     <div className="btn-group" role="group">
                       <button type="button" className="btn btn-default" data-bs-dismiss="modal" role="button">Close</button>
                     </div>
-                    <div className="btn-group btn-delete hidden" role="group">
-                      <button type="button" id="delImage" className="btn btn-default btn-hover-red" data-bs-dismiss="modal" role="button">Close</button>
-                    </div>
                     <div className="btn-group" role="group">
                       <button type="submit" id="saveImage" className="btn btn-default btn-hover-green" data-action="save" role="button">Submit</button>
                     </div>

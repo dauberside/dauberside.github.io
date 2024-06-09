@@ -72,11 +72,16 @@ text-decoration: underline;
 .fab, .far {
 color: #fff;
 }
-.modal-footer {
+
+/* 他のスタイルの下に追加 */
+.modal-footer .btn-group,
+.modal-footer .btn-group-vertical {
   display: flex !important;
   justify-content: space-between;
+  width: 100%;
 }
 
 .modal-footer .btn {
   width: 48%;
+  text-align: center;
 }
