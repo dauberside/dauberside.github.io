@@ -74,7 +74,7 @@ color: #fff;
 }
 
 .modal-footer {
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
 }
 .modal-footer .btn {
