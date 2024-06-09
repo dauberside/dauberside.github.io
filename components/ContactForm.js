@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 
 const ContactForm = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.target;
     const data = new FormData(form);
-    const jsonData = JSON.stringify(Object.fromEntries(data.entries()));
+    const jsonData = Object.fromEntries(data.entries());
+
+    setFormData(jsonData);
 
     try {
       const response = await fetch('/send', {
         method: 'POST',
-        body: jsonData,
+        body: JSON.stringify(jsonData),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -32,12 +35,12 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="modal fade show" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ display: 'block' }}>
+    <div className={`modal ${submitted ? 'show' : ''}`} id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ display: submitted ? 'block' : 'none' }}>
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">New message</h5>
-            <button type="button" className="btn-close" onClick={() => setSubmitted(false)} aria-label="Close"></button>
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setSubmitted(false)}></button>
           </div>
           <div className="modal-body">
             <div className="form-area">
@@ -56,13 +59,16 @@ const ContactForm = () => {
                     </span>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-default" onClick={() => setSubmitted(false)}>Close</button>
+                    <button type="button" className="btn btn-default" data-bs-dismiss="modal" role="button">Close</button>
                     <button type="submit" id="saveImage" className="btn btn-primary" data-action="save" role="button">Submit</button>
                   </div>
                 </form>
               ) : (
                 <div id="success-message">
                   <h5>送信完了しました。ありがとうございました！</h5>
+                  <p><strong>Name:</strong> {formData.name}</p>
+                  <p><strong>Email:</strong> {formData.email}</p>
+                  <p><strong>Message:</strong> {formData.message}</p>
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import ContactForm from '../components/ContactForm';  // コンポーネントをインポート
+import ContactForm from './ContactForm';
 
 function Header() {
   return (
@@ -48,7 +48,7 @@ function Header() {
           </div>
         </div>
       </header>
-      <ContactForm />  {/* ContactFormコンポーネントをレンダリング */}
+      <ContactForm />
     </>
   );
 }

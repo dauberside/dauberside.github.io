@@ -92,18 +92,11 @@ color: #fff;
   text-align: center;
   margin-top: 20px;
   border-radius: 5px;
-}
-
-#success-message {
-  display: none;
-  padding: 20px;
-  text-align: center;
-  margin-top: 20px;
-  border-radius: 5px;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
 }
 
-#success-message.show {
+.modal.show #success-message {
+  display: block;
   opacity: 1;
 }
