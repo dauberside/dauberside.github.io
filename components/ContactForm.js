@@ -40,8 +40,8 @@ const ContactForm = () => {
                   </span>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-default" data-bs-dismiss="modal" role="button">Close</button>
-                  <button type="submit" id="saveImage" className="btn btn-primary" data-action="save" role="button">Submit</button>
+                  <button type="button" className="btn" data-bs-dismiss="modal" role="button">Close</button>
+                  <button type="submit" id="saveImage" className="btn" data-action="save" role="button">Submit</button>
                 </div>
               </form>
               <div id="success-message" style={{ display: 'none' }}>
