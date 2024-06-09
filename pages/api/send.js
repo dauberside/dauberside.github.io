@@ -14,13 +14,16 @@ export default async function handler(req, res) {
     <p>${message}</p>
   `;
 
+  // デバッグ用のログ出力
+  console.log('SMTP_HOST:', process.env.SMTP_HOST);
+  console.log('SMTP_PORT:', process.env.SMTP_PORT);
   console.log('SMTP_USER:', process.env.SMTP_USER);
   console.log('SMTP_PASS:', process.env.SMTP_PASS);
 
   let transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT, 10),
-    secure: process.env.SMTP_PORT == '587', // true for 465, false for other ports
+    secure: process.env.SMTP_PORT == '465', // true for 465, false for other ports
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
