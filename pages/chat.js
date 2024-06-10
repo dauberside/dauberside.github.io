@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -9,8 +9,8 @@ const socket = io({
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState('');
-  const [username, setUsername] = useState('');
+  const [input, setInput] = useState('');
+  const socket = io();
 
   useEffect(() => {
     socket.on('chat message', (msg) => {
@@ -18,54 +18,30 @@ const Chat = () => {
     });
 
     return () => {
-      socket.off('chat message');
+      socket.disconnect();
     };
   }, []);
 
-  const handleSendMessage = () => {
-    if (message.trim() && username.trim()) {
-      const msg = { username, text: message };
-      socket.emit('chat message', msg);
-      setMessage('');
+  const sendMessage = () => {
+    if (input) {
+      socket.emit('chat message', input);
+      setInput('');
     }
   };
 
   return (
     <div>
-      <Header />
-      <main>
-        <div className="container my-5">
-          <div className="chat-container">
-            <div className="chat-box">
-              {messages.map((msg, index) => (
-                <div key={index} className="chat-message">
-                  <strong>{msg.username}:</strong> {msg.text}
-                </div>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Your name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Type a message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-              <button className="btn" onClick={handleSendMessage}>
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
+      <h1>Chat</h1>
+      <ul>
+        {messages.map((msg, index) => (
+          <li key={index}>{msg}</li>
+        ))}
+      </ul>
+      <input 
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
+      <button onClick={sendMessage}>Send</button>
     </div>
   );
 };
