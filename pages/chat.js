@@ -46,6 +46,8 @@ const Chat = () => {
             <div className="chat-input">
               <input
                 type="text"
+                id="username"
+                name="username"
                 className="form-control mb-2"
                 placeholder="Your name"
                 value={username}
@@ -53,6 +55,8 @@ const Chat = () => {
               />
               <input
                 type="text"
+                id="message"
+                name="message"
                 className="form-control mb-2"
                 placeholder="Type a message"
                 value={message}
