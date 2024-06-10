@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+
+const socket = io({
+  path: '/socket.io',
+});
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const socket = io({
-    path: '/socket.io',
+  const socket = io();
 
   useEffect(() => {
     socket.on('chat message', (msg) => {
