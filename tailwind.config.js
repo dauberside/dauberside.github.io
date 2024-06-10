@@ -3,11 +3,12 @@ module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "./src/**/*.css",
-    "./public/css/**/*.{css}"
+    "./src/**/*.{js,jsx,ts,tsx}", // 修正されたパス
+    "./src/**/*.css", // 修正されたパス
+    "./public/css/**/*.css" // 修正されたパス
   ],
   theme: {
     extend: {},
   },
-}
+  plugins: [],
+};
