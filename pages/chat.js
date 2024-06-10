@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -33,10 +32,6 @@ const Chat = () => {
 
   return (
     <div>
-      <Head>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/css/custom.css" />
-      </Head>
       <Header />
       <main>
         <div className="container my-5">
