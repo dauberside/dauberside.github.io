@@ -33,12 +33,13 @@ const Chat = () => {
         ))}
       </ul>
       <form onSubmit={sendMessage}>
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button type="submit">Send</button>
-      </form>
+  <input
+    name="message"
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+  />
+  <button type="submit">Send</button>
+</form>
     </div>
   );
 };
