@@ -3,7 +3,7 @@ name: Cleanup
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   cleanup:
