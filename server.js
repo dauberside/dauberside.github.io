@@ -76,25 +76,21 @@ app.prepare().then(() => {
     });
   });
 
-  // socket.ioの接続設定
   io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
 
-    // クライアントからのメッセージを受け取り、全クライアントに送信する
     socket.on('chat message', (msg) => {
       io.emit('chat message', msg);
     });
   });
 
-  // その他のすべてのリクエストに対してNext.jsのハンドラーを使う
   server.all('*', (req, res) => {
     return handle(req, res);
   });
 
-  // サーバーを起動してポート3000でリスンする
   httpServer.listen(3000, (err) => {
     if (err) throw err;
     console.log('> Ready on http://localhost:3000');
