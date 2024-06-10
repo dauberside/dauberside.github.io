@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "buildCommand": "npm run build",
   "framework": "nextjs",
   "functions": {
