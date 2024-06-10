@@ -18,7 +18,7 @@ app.prepare().then(() => {
     path: '/socket.io',
   });
 
-  // CORS設定を最初に行う
+  // CORS設定
   server.use(cors({
     origin: 'https://www.xn--tu8hz2e.tk',
     methods: ['GET', 'POST'],
