@@ -4,7 +4,9 @@ import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const socket = io();
+const socket = io({
+  path: '/socket.io',
+});
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
