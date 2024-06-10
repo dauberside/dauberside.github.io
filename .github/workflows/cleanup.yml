@@ -6,21 +6,22 @@ on:
       - main
       - master
       
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3  # Node.js 20対応のバージョンに更新
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3  # Node.js 20対応のバージョンに更新
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run cleanup
-      run: npm run cleanup
+      jobs:
+        build:
+          runs-on: ubuntu-latest
+      
+          steps:
+          - name: Checkout repository
+            uses: actions/checkout@v3  # Node.js 20対応のバージョンに更新
+      
+          - name: Set up Node.js
+            uses: actions/setup-node@v3  # Node.js 20対応のバージョンに更新
+            with:
+              node-version: '20'
+      
+          - name: Install dependencies
+            run: npm install
+      
+          # ここでcleanupスクリプトの実行を削除します
+          # - name: Run cleanup
+          #   run: npm run cleanup
