@@ -1,4 +1,12 @@
 module.exports = {
+    async rewrites() {
+      return [
+        {
+          source: '/socket.io/:path*',
+          destination: '/api/socket',
+        },
+      ];
+    },
     env: {
       SMTP_HOST: process.env.SMTP_HOST,
       SMTP_PORT: process.env.SMTP_PORT,
