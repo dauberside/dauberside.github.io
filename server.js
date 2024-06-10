@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 const next = require('next');
 const http = require('http');
 const { Server } = require('socket.io');
+const cors = require('cors');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -15,8 +16,13 @@ app.prepare().then(() => {
   const httpServer = http.createServer(server);
   const io = new Server(httpServer, {
     path: '/socket.io',
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
   });
 
+  server.use(cors());
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
@@ -35,7 +41,7 @@ app.prepare().then(() => {
     let transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
+      secure: process.env.SMTP_PORT == 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,

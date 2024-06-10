@@ -12,8 +12,8 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/css/bootstrap.min.css"
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css"
           />
           <link rel="stylesheet" href="/css/crime.css" />
           <link rel="stylesheet" href="/css/menu.css" />
@@ -32,7 +32,7 @@ class MyDocument extends Document {
           <Main />
           <NextScript />
           <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-          <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
         </body>
       </Html>
     );
@@ -40,4 +40,3 @@ class MyDocument extends Document {
 }
 
 export default MyDocument;
-
