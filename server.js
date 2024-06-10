@@ -5,13 +5,12 @@ const nodemailer = require('nodemailer');
 const next = require('next');
 const http = require('http');
 const { Server } = require('socket.io');
-const cors = require('cors'); // 追加
+const cors = require('cors');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-// デバッグ用のログ
 console.log('SMTP_HOST:', process.env.SMTP_HOST);
 console.log('SMTP_PORT:', process.env.SMTP_PORT);
 console.log('SMTP_USER:', process.env.SMTP_USER);
@@ -22,7 +21,7 @@ app.prepare().then(() => {
   const httpServer = http.createServer(server);
   const io = new Server(httpServer);
 
-  server.use(cors()); // 追加
+  server.use(cors());
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
@@ -41,7 +40,7 @@ app.prepare().then(() => {
     let transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
+      secure: process.env.SMTP_PORT == 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
