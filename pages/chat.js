@@ -40,7 +40,6 @@ const Chat = () => {
       <Header />
       <main>
         <div className="container my-5">
-          <h1 className="mb-4">Chat</h1>
           <div className="chat-container">
             <div className="chat-box">
               {messages.map((msg, index) => (
@@ -64,7 +63,7 @@ const Chat = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
-              <button className="btn btn-primary" onClick={handleSendMessage}>
+              <button className="btn" onClick={handleSendMessage}>
                 Send
               </button>
             </div>
