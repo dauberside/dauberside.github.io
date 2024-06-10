@@ -3,6 +3,7 @@ name: Deploy to Vercel
 on:
   push:
     branches:
+      - main
       - master
 
 jobs:
@@ -11,21 +12,32 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # Node.js 20対応のバージョンに更新
+      uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3  # Node.js 20対応のバージョンに更新
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
       with:
         node-version: '20'
 
+    - name: Cache Node modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     - name: Install dependencies
       run: npm install
+
+    - name: Run tests
+      run: npm test
 
     - name: Build project
       run: npm run build
 
     - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v20  # 最新バージョンに更新
+      uses: amondnet/vercel-action@v20
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
