@@ -8,18 +8,14 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
+// デバッグ用のログ
+console.log('SMTP_HOST:', process.env.SMTP_HOST);
+console.log('SMTP_PORT:', process.env.SMTP_PORT);
+console.log('SMTP_USER:', process.env.SMTP_USER);
+console.log('SMTP_PASS:', process.env.SMTP_PASS);
+
 app.prepare().then(() => {
   const server = express();
-
-  const smtpHost = process.env.SMTP_HOST || 'default_host';
-  const smtpPort = process.env.SMTP_PORT || 'default_port';
-  const smtpUser = process.env.SMTP_USER || 'default_user';
-  const smtpPass = process.env.SMTP_PASS || 'default_pass';
-
-  console.log('SMTP_HOST:', smtpHost);
-  console.log('SMTP_PORT:', smtpPort);
-  console.log('SMTP_USER:', smtpUser);
-  console.log('SMTP_PASS:', smtpPass);
 
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
@@ -37,20 +33,20 @@ app.prepare().then(() => {
     `;
 
     let transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort == 465, // true for port 465, false for other ports
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
       auth: {
-        user: smtpUser,
-        pass: smtpPass,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
       logger: true,
       debug: true,
     });
 
     let mailOptions = {
-      from: `"Nodemailer Contact" <${smtpUser}>`,
-      to: smtpUser,
+      from: `"Nodemailer Contact" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER,
       subject: 'Contact Request',
       text: 'Hello world?',
       html: output,
