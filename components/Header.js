@@ -19,7 +19,7 @@ function Header() {
                 <a className="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Menu
                 </a>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <ul className="dropdown-menu">
                   <li>
                     <Link href="/" legacyBehavior>
                       <a className="dropdown-item">Home</a>
