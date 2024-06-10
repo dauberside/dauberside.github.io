@@ -1,11 +1,5 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "framework": "nextjs",
-  "functions": {
-    "api/send.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
-  }
+  "framework": "nextjs"
 }
