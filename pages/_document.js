@@ -15,10 +15,10 @@ class MyDocument extends Document {
             rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css"
           />
-          <link rel="stylesheet" href="/css/crime.css" />
-          <link rel="stylesheet" href="/css/menu.css" />
-          <link rel="stylesheet" href="/css/grid.css" />
-          <link rel="stylesheet" href="/css/custom.css" />
+          <link rel="stylesheet" href="src/css/crime.css" />
+          <link rel="stylesheet" href="src/css/menu.css" />
+          <link rel="stylesheet" href="src/css/grid.css" />
+          <link rel="stylesheet" href="src/css/custom.css" />
           <link
             rel="stylesheet"
             href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
