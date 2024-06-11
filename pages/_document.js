@@ -11,7 +11,6 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css"/>
           <link rel="stylesheet" href="/css/crime.css" />
           <link rel="stylesheet" href="/css/menu.css" />
           <link rel="stylesheet" href="/css/grid.css" />
