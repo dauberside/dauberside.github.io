@@ -13,25 +13,39 @@ const Chat = () => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
+    // 初期メッセージの取得
+    fetch('/api/messages')
+      .then((response) => response.json())
+      .then((data) => setMessages(data));
+
     socket.on('chat message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
 
-    socket.on('init', (msgs) => {
-      setMessages(msgs);
-    });
-
     return () => {
       socket.off('chat message');
-      socket.off('init');
     };
   }, []);
 
   const handleSendMessage = () => {
     if (message.trim() && username.trim()) {
       const msg = { username, text: message };
-      socket.emit('chat message', msg);
-      setMessage('');
+      fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(msg),
+      })
+        .then((response) => response.json())
+        .then((newMessage) => {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+          socket.emit('chat message', newMessage);
+          setMessage('');
+        })
+        .catch((error) => {
+          console.error('Failed to send message:', error);
+        });
     }
   };
 
