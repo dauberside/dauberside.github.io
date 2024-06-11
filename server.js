@@ -20,10 +20,19 @@ app.prepare().then(() => {
       origin: 'https://www.xn--tu8hz2e.tk',
       methods: ['GET', 'POST'],
       allowedHeaders: ['Content-Type'],
-      credentials: true  // 追加
+      credentials: true
     }
   });
 
+  // HTTPからHTTPSへのリダイレクト処理
+  server.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+  });
+
+  // CORS設定
   server.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'https://www.xn--tu8hz2e.tk');
     res.header('Access-Control-Allow-Methods', 'GET, POST');
@@ -35,12 +44,11 @@ app.prepare().then(() => {
     next();
   });
 
-  // CORS設定
   server.use(cors({
     origin: 'https://www.xn--tu8hz2e.tk',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
-    credentials: true  // 追加
+    credentials: true
   }));
 
   server.use(bodyParser.urlencoded({ extended: false }));

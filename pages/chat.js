@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 // ソケットの初期化
 const socket = io('https://www.xn--tu8hz2e.tk', {
   path: '/socket.io',
+  withCredentials: true
 });
 
 const Chat = () => {
