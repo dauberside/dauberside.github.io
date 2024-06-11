@@ -1,4 +1,4 @@
-// pages/_document.js
+import React from 'react';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 class MyDocument extends Document {
@@ -11,6 +11,10 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
+          <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css"
+          />
           <link rel="stylesheet" href="/css/crime.css" />
           <link rel="stylesheet" href="/css/menu.css" />
           <link rel="stylesheet" href="/css/grid.css" />
@@ -27,6 +31,8 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         </body>
       </Html>
     );
@@ -34,4 +40,3 @@ class MyDocument extends Document {
 }
 
 export default MyDocument;
-

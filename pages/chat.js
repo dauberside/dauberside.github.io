@@ -13,17 +13,17 @@ const Chat = () => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
-    socket.on('init messages', (msgs) => {
-      setMessages(msgs);
-    });
-
     socket.on('chat message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
     });
 
+    socket.on('init', (msgs) => {
+      setMessages(msgs);
+    });
+
     return () => {
-      socket.off('init messages');
       socket.off('chat message');
+      socket.off('init');
     };
   }, []);
 

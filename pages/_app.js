@@ -1,16 +1,12 @@
-import '../src/styles/globals.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
   return (
     <>
-      <Script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        strategy="lazyOnload"
-      />
       <Component {...pageProps} />
+      <Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" />
     </>
   );
 }
