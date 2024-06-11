@@ -16,7 +16,7 @@ function Header() {
           <div className="navbar">
             <ul className="list-inline">
               <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a className="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Menu
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">

@@ -18,8 +18,14 @@ app.prepare().then(() => {
   const httpServer = http.createServer(server);
   const io = new Server(httpServer, {
     path: '/socket.io',
+    cors: {
+      origin: 'https://www.xn--tu8hz2e.tk',
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type']
+    }
   });
 
+  // CORS設定
   server.use(cors({
     origin: 'https://www.xn--tu8hz2e.tk',
     methods: ['GET', 'POST'],
