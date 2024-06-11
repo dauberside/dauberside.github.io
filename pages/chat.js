@@ -3,7 +3,6 @@ import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
-import React, { useEffect, useState } from 'react';
 
 const socket = io({
   path: '/socket.io',
