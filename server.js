@@ -5,25 +5,14 @@ const nodemailer = require('nodemailer');
 const next = require('next');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabaseクライアントの作成
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
-
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const MessageSchema = new mongoose.Schema({
-  username: String,
-  text: String,
-  createdAt: { type: Date, default: Date.now },
-});
-
-const Message = mongoose.model('Message', MessageSchema);
 
 app.prepare().then(() => {
   const server = express();
@@ -32,7 +21,6 @@ app.prepare().then(() => {
     path: '/socket.io',
   });
 
-  server.use(cors());
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
@@ -83,12 +71,18 @@ app.prepare().then(() => {
     console.log('a user connected');
 
     async function fetchMessages() {
-      try {
-        const messages = await Message.find().sort({ createdAt: -1 }).limit(10);
-        socket.emit('init', messages.reverse());
-      } catch (err) {
-        console.error(err);
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
       }
+
+      socket.emit('init', data.reverse());
     }
 
     fetchMessages();
@@ -98,13 +92,16 @@ app.prepare().then(() => {
     });
 
     socket.on('chat message', async (msg) => {
-      try {
-        const message = new Message(msg);
-        await message.save();
-        io.emit('chat message', msg);
-      } catch (err) {
-        console.error(err);
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([{ username: msg.username, text: msg.text }]);
+
+      if (error) {
+        console.error('Error saving message:', error);
+        return;
       }
+
+      io.emit('chat message', msg);
     });
   });
 
