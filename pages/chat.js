@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import supabase from '../src/utils/supabaseClient.js'; // 正しいパスを確認
+import supabase from '../src/utils/supabaseClient.js';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
