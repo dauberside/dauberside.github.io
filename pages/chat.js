@@ -4,10 +4,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
 
-const socket = io({
-  path: '/socket.io',
-});
-
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
@@ -17,7 +13,8 @@ const Chat = () => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: true });
       
       if (error) {
         console.error('Error fetching messages:', error.message);
@@ -28,8 +25,15 @@ const Chat = () => {
 
     fetchMessages();
 
+    const subscription = supabase
+      .from('messages')
+      .on('INSERT', payload => {
+        setMessages(prevMessages => [...prevMessages, payload.new]);
+      })
+      .subscribe();
+
     return () => {
-      supabase.removeAllSubscriptions();
+      supabase.removeSubscription(subscription);
     };
   }, []);
 
@@ -42,7 +46,6 @@ const Chat = () => {
       if (error) {
         console.error('Failed to send message:', error.message);
       } else {
-        setMessages((prevMessages) => [...prevMessages, ...data]);
         setMessage('');
       }
     }
