@@ -1,6 +1,4 @@
-// pages/api/messages.js
-
-import supabase from '../../utils/supabaseClient';
+import supabase from 'src/utils/supabaseClient.js';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
