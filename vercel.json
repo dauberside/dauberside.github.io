@@ -11,7 +11,7 @@
   "rewrites": [
     {
       "source": "/socket.io/:path*",
-      "destination": "http://localhost:3000/socket.io/:path*"
+      "destination": "/api/socket/:path*"
     }
   ]
 }
