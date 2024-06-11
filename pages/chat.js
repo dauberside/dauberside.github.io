@@ -14,7 +14,6 @@ const Chat = () => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
-    // 初期メッセージの取得
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
