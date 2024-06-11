@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';  // この行を追加
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ContactForm from '../components/ContactForm';
 
 const Contact = () => {
   useEffect(() => {
