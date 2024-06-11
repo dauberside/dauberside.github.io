@@ -1,4 +1,4 @@
-import React from 'react'; // Reactをインポート
+import React from 'react';  // この行を追加
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -7,7 +7,6 @@ export default function Home() {
     <>
       <Header />
       <main>
-        <h1>Welcome to my website</h1>
       </main>
       <Footer />
     </>

@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import React from 'react';  // この行を追加
+import Link from 'next/link'; // Linkのインポート
 import ContactForm from './ContactForm';
 
 function Header() {

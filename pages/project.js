@@ -1,3 +1,4 @@
+import React from 'react';  // この行を追加
 import Head from 'next/head';
 import Link from 'next/link';
 import Header from '../components/Header';

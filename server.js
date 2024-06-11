@@ -82,21 +82,29 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log('a user connected');
 
-    Message.find().sort({ createdAt: -1 }).limit(10).exec((err, messages) => {
-      if (err) return console.error(err);
-      socket.emit('init', messages.reverse());
-    });
+    async function fetchMessages() {
+      try {
+        const messages = await Message.find().sort({ createdAt: -1 }).limit(10);
+        socket.emit('init', messages.reverse());
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchMessages();
 
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
 
-    socket.on('chat message', (msg) => {
-      const message = new Message(msg);
-      message.save((err) => {
-        if (err) return console.error(err);
+    socket.on('chat message', async (msg) => {
+      try {
+        const message = new Message(msg);
+        await message.save();
         io.emit('chat message', msg);
-      });
+      } catch (err) {
+        console.error(err);
+      }
     });
   });
 
