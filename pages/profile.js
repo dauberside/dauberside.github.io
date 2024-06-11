@@ -1,6 +1,5 @@
 // pages/profile.js
-import { useEffect, useState } from 'react';
-import SpotifyPlayer from '../components/SpotifyPlayer';
+import React from 'react';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);

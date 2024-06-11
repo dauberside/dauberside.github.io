@@ -1,6 +1,6 @@
 // pages/callback.js
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import React from 'react';
 
 const Callback = () => {
     const router = useRouter();
