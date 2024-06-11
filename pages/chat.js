@@ -13,7 +13,6 @@ const Chat = () => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
-    // 初期メッセージの取得
     fetch('/api/messages')
       .then((response) => response.json())
       .then((data) => setMessages(data))
@@ -28,25 +27,26 @@ const Chat = () => {
     };
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim() && username.trim()) {
       const msg = { username, text: message };
-      fetch('/api/messages', {
+      const response = await fetch('/api/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': process.env.SUPABASE_KEY,
+          'Authorization': `Bearer ${process.env.SUPABASE_KEY}`
         },
         body: JSON.stringify(msg),
-      })
-        .then((response) => response.json())
-        .then((newMessage) => {
-          setMessages((prevMessages) => [...prevMessages, newMessage]);
-          socket.emit('chat message', newMessage);
-          setMessage('');
-        })
-        .catch((error) => {
-          console.error('Failed to send message:', error);
-        });
+      });
+
+      if (response.ok) {
+        const newMessage = await response.json();
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      } else {
+        const error = await response.json();
+        console.error('Failed to send message:', error.message);
+      }
     }
   };
 
