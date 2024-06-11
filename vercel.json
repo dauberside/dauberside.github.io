@@ -10,8 +10,8 @@
   },
   "rewrites": [
     {
-      "source": "/socket.io",
-      "destination": "http://localhost:3000/socket.io"
+      "source": "/socket.io/:path*",
+      "destination": "/api/socket/:path*"
     }
   ]
 }
