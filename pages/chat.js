@@ -16,7 +16,8 @@ const Chat = () => {
     // 初期メッセージの取得
     fetch('/api/messages')
       .then((response) => response.json())
-      .then((data) => setMessages(data));
+      .then((data) => setMessages(data))
+      .catch((error) => console.error('Error fetching messages:', error));
 
     socket.on('chat message', (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
