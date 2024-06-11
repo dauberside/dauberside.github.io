@@ -1,4 +1,5 @@
-name: Deploy to Vercel
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +8,7 @@ on:
       - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,16 +20,11 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Cache Node modules
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
     - name: Install dependencies
       run: npm install
+
+    - name: Run tests
+      run: npm test
 
     - name: Build project
       run: npm run build
@@ -39,4 +35,3 @@ jobs:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-
