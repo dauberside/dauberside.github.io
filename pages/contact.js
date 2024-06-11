@@ -1,10 +1,9 @@
-import React from 'react';  // この行を追加
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Contact = () => {
   useEffect(() => {
-    // Any client-side only code here
   }, []);
 
   return (
