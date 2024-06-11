@@ -39,7 +39,7 @@ const Chat = () => {
         },
         body: JSON.stringify(msg),
       });
-
+  
       if (response.ok) {
         const newMessage = await response.json();
         setMessages((prevMessages) => [...prevMessages, newMessage]);
