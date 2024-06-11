@@ -1,4 +1,3 @@
-// pages/api/messages.js
 import supabase from '../../src/utils/supabaseClient';
 
 export default async function handler(req, res) {
@@ -7,7 +6,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('messages')
       .insert([{ username, text }]);
-
+    
     if (error) {
       return res.status(500).json({ error: error.message });
     }
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('messages')
       .select('*');
-
+    
     if (error) {
       return res.status(500).json({ error: error.message });
     }
