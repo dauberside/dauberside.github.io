@@ -3,6 +3,10 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
 
+const socket = io({
+  path: '/socket.io',
+});
+
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
