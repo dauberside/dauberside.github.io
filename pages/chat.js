@@ -25,29 +25,48 @@ const Chat = () => {
 
     fetchMessages();
 
-    const subscription = supabase
-      .from('messages')
-      .on('INSERT', payload => {
-        setMessages(prevMessages => [...prevMessages, payload.new]);
-      })
-      .subscribe();
+    const socket = io({
+      path: '/socket.io',
+    });
+
+    socket.on('connect', () => {
+      console.log('connected');
+    });
+
+    socket.on('init', (data) => {
+      setMessages(data);
+    });
+
+    socket.on('chat message', (msg) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
+    });
 
     return () => {
-      supabase.removeSubscription(subscription);
+      socket.disconnect();
     };
   }, []);
 
   const handleSendMessage = async () => {
-    if (message.trim() && username.trim()) {
-      const { data, error } = await supabase
-        .from('messages')
-        .insert([{ username, text: message }]);
-
-      if (error) {
-        console.error('Failed to send message:', error.message);
-      } else {
-        setMessage('');
+    try {
+      if (message.trim() && username.trim()) {
+        const response = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, text: message }),
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          setMessages((prevMessages) => [...prevMessages, data[0]]);
+          setMessage('');
+        } else {
+          console.error('Failed to send message');
+        }
       }
+    } catch (error) {
+      console.error('Unexpected error:', error);
     }
   };
 
