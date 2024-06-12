@@ -56,7 +56,7 @@ const Chat = () => {
           },
           body: JSON.stringify({ username, text: message }),
         });
-  
+
         if (response.ok) {
           const data = await response.json();
           setMessages((prevMessages) => [...prevMessages, data[0]]);
