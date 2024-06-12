@@ -15,7 +15,7 @@ const Chat = () => {
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true });
-      
+
       if (error) {
         console.error('Error fetching messages:', error.message);
       } else {
@@ -62,7 +62,8 @@ const Chat = () => {
           setMessages((prevMessages) => [...prevMessages, data[0]]);
           setMessage('');
         } else {
-          console.error('Failed to send message');
+          const errorData = await response.json();
+          console.error('Failed to send message:', errorData);
         }
       }
     } catch (error) {

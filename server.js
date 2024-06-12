@@ -24,7 +24,8 @@ app.prepare().then(() => {
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
-  server.post('/send', (req, res) => {
+  // メール送信エンドポイント
+  server.post('/api/send', async (req, res) => {
     const output = `
       <p>You have a new contact request</p>
       <h3>Contact Details</h3>
@@ -56,17 +57,17 @@ app.prepare().then(() => {
       html: output,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Error occurred: ', error);
-        return res.status(500).send(error.toString());
-      }
-      console.log('Message sent: %s', info.messageId);
-      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Message sent');
       res.status(200).send('Message sent');
-    });
+    } catch (error) {
+      console.error('Error occurred:', error);
+      res.status(500).send(error.toString());
+    }
   });
 
+  // チャット機能
   io.on('connection', (socket) => {
     console.log('a user connected');
 
