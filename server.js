@@ -7,7 +7,6 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { createClient } = require('@supabase/supabase-js');
 
-// Supabaseクライアントの作成
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY);
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -24,7 +23,6 @@ app.prepare().then(() => {
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
-  // メール送信エンドポイント
   server.post('/api/send', async (req, res) => {
     const output = `
       <p>You have a new contact request</p>
@@ -59,15 +57,12 @@ app.prepare().then(() => {
 
     try {
       await transporter.sendMail(mailOptions);
-      console.log('Message sent');
       res.status(200).send('Message sent');
     } catch (error) {
-      console.error('Error occurred:', error);
       res.status(500).send(error.toString());
     }
   });
 
-  // チャットメッセージ送信エンドポイント
   server.post('/api/messages', async (req, res) => {
     const { user_id, username, text } = req.body;
     const { data, error } = await supabase
@@ -82,7 +77,6 @@ app.prepare().then(() => {
     res.status(200).json(data);
   });
 
-  // チャット機能
   io.on('connection', (socket) => {
     console.log('a user connected');
 
