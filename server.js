@@ -9,7 +9,6 @@ const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -61,8 +60,10 @@ app.prepare().then(() => {
 
     try {
       await transporter.sendMail(mailOptions);
+      console.log('Message sent');
       res.status(200).send('Message sent');
     } catch (error) {
+      console.error('Error occurred:', error);
       res.status(500).send(error.toString());
     }
   });
