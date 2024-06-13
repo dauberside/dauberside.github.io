@@ -1,9 +1,4 @@
 import nodemailer from 'nodemailer';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -39,10 +34,8 @@ export default async function handler(req, res) {
 
     try {
       await transporter.sendMail(mailOptions);
-      console.log('Message sent');
       res.status(200).send('Message sent');
     } catch (error) {
-      console.error('Error occurred:', error);
       res.status(500).send(error.toString());
     }
   } else {
