@@ -3,7 +3,7 @@ module.exports = {
     return [
       {
         source: '/socket.io/:path*',
-        destination: '/api/socket/:path*',
+        destination: '/api/socket',
       },
     ];
   },

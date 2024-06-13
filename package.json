@@ -5,9 +5,9 @@
   "main": "index.mjs",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "test": "echo \"No tests specified\" && exit 0"
+    "build": "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY npm run build:local",
+    "build:local": "next build",
+    "start": "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY next start"
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
