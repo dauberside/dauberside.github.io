@@ -1,12 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+// Securely load environment variables
+const supabaseUrl: string | undefined = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey: string | undefined = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing Supabase URL or Key");
+  throw new Error("Missing Supabase URL or Key in environment variables");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialize Supabase client
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default supabase;

@@ -4,11 +4,9 @@
   "description": "Project description",
   "main": "index.mjs",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
-    "test": "jest --passWithNoTests",
-    "cleanup": "echo 'Cleanup script not implemented yet'"
+    "start": "next start"
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",

@@ -71,3 +71,4 @@ example.zip
 Thumbs.db
 *.swpnode_modules/
 .next/
+.env*.local
