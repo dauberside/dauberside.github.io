@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
-import { signInWithEmail, signOut } from '../src/utils/auth.js'; // auth.jsからインポート
+import { signInWithEmail, signOut, signUpWithEmail } from '../src/utils/auth.js'; // auth.jsからインポート
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -12,6 +12,7 @@ const Chat = () => {
   const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false); // 新規登録とログインの切り替え用状態
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -97,6 +98,16 @@ const Chat = () => {
     }
   };
 
+  const handleSignUp = async () => {
+    try {
+      const user = await signUpWithEmail(email, password);
+      setUserId(user.id);
+      setLoggedIn(true);
+    } catch (error) {
+      console.error('Sign up error:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -113,7 +124,7 @@ const Chat = () => {
         <Header />
         <main className="container mx-auto p-4">
           <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl mb-4">Login</h2>
+            <h2 className="text-2xl mb-4">{isSignUp ? 'Sign Up' : 'Login'}</h2>
             <input
               type="email"
               placeholder="Email"
@@ -128,8 +139,14 @@ const Chat = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="mb-4 p-2 border rounded w-full"
             />
-            <button onClick={handleLogin} className="w-full bg-blue-500 text-white py-2 rounded">
-              Login
+            <button onClick={isSignUp ? handleSignUp : handleLogin} className="w-full bg-blue-500 text-white py-2 rounded">
+              {isSignUp ? 'Sign Up' : 'Login'}
+            </button>
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="w-full bg-gray-500 text-white py-2 rounded mt-4"
+            >
+              {isSignUp ? 'Already have an account? Login' : 'Don’t have an account? Sign Up'}
             </button>
           </div>
         </main>
