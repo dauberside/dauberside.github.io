@@ -72,3 +72,4 @@ Thumbs.db
 *.swpnode_modules/
 .next/
 .env*.local
+.env.local
