@@ -7,7 +7,10 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -23,6 +26,7 @@ app.prepare().then(() => {
   server.use(bodyParser.urlencoded({ extended: false }));
   server.use(bodyParser.json());
 
+  // メール送信エンドポイント
   server.post('/api/send', async (req, res) => {
     const output = `
       <p>You have a new contact request</p>
@@ -63,11 +67,12 @@ app.prepare().then(() => {
     }
   });
 
+  // チャットメッセージ送信エンドポイント
   server.post('/api/messages', async (req, res) => {
-    const { user_id, username, text } = req.body;
+    const { username, text } = req.body;
     const { data, error } = await supabase
       .from('messages')
-      .insert([{ user_id, username, text }])
+      .insert([{ username, text }])
       .select();
 
     if (error) {
@@ -77,6 +82,7 @@ app.prepare().then(() => {
     res.status(200).json(data);
   });
 
+  // チャット機能
   io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -104,7 +110,7 @@ app.prepare().then(() => {
     socket.on('chat message', async (msg) => {
       const { data, error } = await supabase
         .from('messages')
-        .insert([{ user_id: msg.user_id, username: msg.username, text: msg.text }])
+        .insert([{ username: msg.username, text: msg.text }])
         .select();
 
       if (error) {
@@ -121,13 +127,7 @@ app.prepare().then(() => {
   });
 
   httpServer.listen(3000, (err) => {
-    if (err) {
-      console.error('Error starting server:', err);
-      process.exit(1);
-    }
+    if (err) throw err;
     console.log('> Ready on http://localhost:3000');
   });
-}).catch(err => {
-  console.error('Error preparing app:', err);
-  process.exit(1);
 });
