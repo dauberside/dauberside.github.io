@@ -2,12 +2,6 @@
   "version": 2,
   "buildCommand": "npm run build",
   "framework": "nextjs",
-  "functions": {
-    "pages/api/send.js": {
-      "memory": 128,
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/socket.io/:path*",
