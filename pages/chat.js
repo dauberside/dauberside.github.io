@@ -3,8 +3,7 @@ import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
-import { signInWithEmail, signOut } from '../src/utils/auth.js'; // 新しいauth.jsからインポート
-import { Button, Input, Card } from '@shadcn/ui'; // shadcn/uiコンポーネントをインポート
+import { signInWithEmail, signOut } from '../src/utils/auth.js'; // auth.jsからインポート
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -113,24 +112,26 @@ const Chat = () => {
       <div>
         <Header />
         <main className="container mx-auto p-4">
-          <Card className="p-6 max-w-md mx-auto">
+          <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl mb-4">Login</h2>
-            <Input
+            <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mb-2"
+              className="mb-2 p-2 border rounded w-full"
             />
-            <Input
+            <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mb-4"
+              className="mb-4 p-2 border rounded w-full"
             />
-            <Button onClick={handleLogin} className="w-full">Login</Button>
-          </Card>
+            <button onClick={handleLogin} className="w-full bg-blue-500 text-white py-2 rounded">
+              Login
+            </button>
+          </div>
         </main>
         <Footer />
       </div>
@@ -141,9 +142,11 @@ const Chat = () => {
     <div>
       <Header />
       <main className="container mx-auto p-4">
-        <Button onClick={handleLogout} className="mb-4">Logout</Button>
-        <Card className="p-6">
-          <div className="chat-box overflow-auto h-80 mb-4">
+        <button onClick={handleLogout} className="mb-4 bg-red-500 text-white py-2 px-4 rounded">
+          Logout
+        </button>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="chat-box overflow-auto h-80 mb-4 border p-4">
             {messages.map((msg, index) => (
               <div key={index} className="chat-message p-2 border-b">
                 <strong>{msg.username}:</strong> {msg.text}
@@ -151,27 +154,29 @@ const Chat = () => {
             ))}
           </div>
           <div className="chat-input">
-            <Input
+            <input
               type="text"
               id="name"
               name="name"
               placeholder="Your name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mb-2"
+              className="mb-2 p-2 border rounded w-full"
             />
-            <Input
+            <input
               type="text"
               id="text"
               name="text"
               placeholder="Type a message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="mb-2"
+              className="mb-2 p-2 border rounded w-full"
             />
-            <Button onClick={handleSendMessage} className="w-full">Send</Button>
+            <button onClick={handleSendMessage} className="w-full bg-blue-500 text-white py-2 rounded">
+              Send
+            </button>
           </div>
-        </Card>
+        </div>
       </main>
       <Footer />
     </div>

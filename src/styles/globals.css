@@ -1,10 +1,6 @@
-/* global.cssに追加 */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import '@shadcn/ui/dist/styles.css';
 
 body {
   background-color: rgb(0, 14, 40) !important;
