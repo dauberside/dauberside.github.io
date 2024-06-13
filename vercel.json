@@ -13,5 +13,15 @@
       "source": "/socket.io/:path*",
       "destination": "/api/socket/:path*"
     }
+  ],
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_KEY": "@next_public_supabase_key"
+  },
+  "builds": [
+    {
+      "src": "next.config.js",
+      "use": "@vercel/next"
+    }
   ]
 }
