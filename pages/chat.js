@@ -3,11 +3,17 @@ import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import supabase from '../src/utils/supabaseClient.js';
+import { signInWithEmail, signOut } from '../src/utils/auth.js'; // 新しいauth.jsからインポート
+import { Button, Input, Card } from '@shadcn/ui'; // shadcn/uiコンポーネントをインポート
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -23,7 +29,18 @@ const Chat = () => {
       }
     };
 
+    const fetchUserId = async () => {
+      const user = supabase.auth.user();
+      if (user) {
+        setUserId(user.id);
+        setLoggedIn(true);
+      } else {
+        console.error('User not authenticated');
+      }
+    };
+
     fetchMessages();
+    fetchUserId();
 
     const socket = io({
       path: '/socket.io',
@@ -48,13 +65,13 @@ const Chat = () => {
 
   const handleSendMessage = async () => {
     try {
-      if (message.trim() && username.trim()) {
+      if (message.trim() && username.trim() && userId) {
         const response = await fetch('/api/messages', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username, text: message }),
+          body: JSON.stringify({ user_id: userId, username, text: message }),
         });
 
         if (response.ok) {
@@ -71,44 +88,90 @@ const Chat = () => {
     }
   };
 
+  const handleLogin = async () => {
+    try {
+      const user = await signInWithEmail(email, password);
+      setUserId(user.id);
+      setLoggedIn(true);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      setUserId(null);
+      setLoggedIn(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (!loggedIn) {
+    return (
+      <div>
+        <Header />
+        <main className="container mx-auto p-4">
+          <Card className="p-6 max-w-md mx-auto">
+            <h2 className="text-2xl mb-4">Login</h2>
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mb-2"
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mb-4"
+            />
+            <Button onClick={handleLogin} className="w-full">Login</Button>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Header />
-      <main>
-        <div className="container my-5">
-          <div className="chat-container">
-            <div className="chat-box">
-              {messages.map((msg, index) => (
-                <div key={index} className="chat-message">
-                  <strong>{msg.username}:</strong> {msg.text}
-                </div>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                id="name"
-                name="name"
-                className="form-control mb-2"
-                placeholder="Your name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <input
-                type="text"
-                id="text"
-                name="text"
-                className="form-control mb-2"
-                placeholder="Type a message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-              <button className="btn btn-primary" onClick={handleSendMessage}>
-                Send
-              </button>
-            </div>
+      <main className="container mx-auto p-4">
+        <Button onClick={handleLogout} className="mb-4">Logout</Button>
+        <Card className="p-6">
+          <div className="chat-box overflow-auto h-80 mb-4">
+            {messages.map((msg, index) => (
+              <div key={index} className="chat-message p-2 border-b">
+                <strong>{msg.username}:</strong> {msg.text}
+              </div>
+            ))}
           </div>
-        </div>
+          <div className="chat-input">
+            <Input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Your name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mb-2"
+            />
+            <Input
+              type="text"
+              id="text"
+              name="text"
+              placeholder="Type a message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mb-2"
+            />
+            <Button onClick={handleSendMessage} className="w-full">Send</Button>
+          </div>
+        </Card>
       </main>
       <Footer />
     </div>

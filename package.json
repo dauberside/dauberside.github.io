@@ -11,6 +11,7 @@
     "cleanup": "echo 'Cleanup script not implemented yet'"
   },
   "dependencies": {
+    "@shadcn/ui": "^0.0.4",
     "@supabase/supabase-js": "^2.43.4",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",

@@ -67,6 +67,21 @@ app.prepare().then(() => {
     }
   });
 
+  // チャットメッセージ送信エンドポイント
+  server.post('/api/messages', async (req, res) => {
+    const { user_id, username, text } = req.body;
+    const { data, error } = await supabase
+      .from('messages')
+      .insert([{ user_id, username, text }])
+      .select();
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(200).json(data);
+  });
+
   // チャット機能
   io.on('connection', (socket) => {
     console.log('a user connected');
@@ -95,14 +110,15 @@ app.prepare().then(() => {
     socket.on('chat message', async (msg) => {
       const { data, error } = await supabase
         .from('messages')
-        .insert([{ username: msg.username, text: msg.text }]);
+        .insert([{ user_id: msg.user_id, username: msg.username, text: msg.text }])
+        .select();
 
       if (error) {
         console.error('Error saving message:', error);
         return;
       }
 
-      io.emit('chat message', msg);
+      io.emit('chat message', data[0]);
     });
   });
 
@@ -111,7 +127,13 @@ app.prepare().then(() => {
   });
 
   httpServer.listen(3000, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.error('Error starting server:', err);
+      process.exit(1);
+    }
     console.log('> Ready on http://localhost:3000');
   });
+}).catch(err => {
+  console.error('Error preparing app:', err);
+  process.exit(1);
 });

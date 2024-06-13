@@ -1,12 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./public/**/*.{js,jsx,ts,tsx,css}"
+    './pages/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+    './src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@shadcn/ui/dist/**/*.js',
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
-};
+  plugins: [
+    require('@shadcn/ui/plugin')
+  ],
+}
