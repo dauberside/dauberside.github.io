@@ -1,12 +1,4 @@
 module.exports = {
-  async rewrites() {
-    return [
-      {
-        source: '/socket.io/:path*',
-        destination: '/api/socket/:path*',
-      },
-    ];
-  },
   env: {
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,

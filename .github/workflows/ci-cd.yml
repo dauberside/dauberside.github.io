@@ -31,7 +31,7 @@ jobs:
       run: npm install
 
     - name: Build project
-      run: SUPABASE_URL=${{ secrets.SUPABASE_URL }} SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} npm run build
+      run: npm run build
 
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v25
@@ -39,3 +39,10 @@ jobs:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USER: ${{ secrets.SMTP_USER }}
+        SMTP_PASS: ${{ secrets.SMTP_PASS }}
