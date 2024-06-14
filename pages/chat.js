@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import supabase from '../src/utils/supabaseClient';
 
 const socket = io({
   path: '/socket.io',
@@ -46,12 +45,11 @@ const Chat = () => {
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        const { data, error } = await supabase.auth.getUser();
-        console.log('Fetched user data:', data);
-        if (error) {
-          console.error('Error fetching user ID:', error);
-        } else if (data && data.user) {
-          setUserId(data.user.id);
+        // ローカルストレージまたは他の方法でユーザーIDを取得
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.id) {
+          setUserId(user.id);
+          setUsername(user.username);
         } else {
           console.error('No user found');
           router.push('/login'); // ログインページにリダイレクト

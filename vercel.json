@@ -8,14 +8,6 @@
       "destination": "/api/socket/:path*"
     }
   ],
-  "env": {
-    "SUPABASE_URL": "@SUPABASE_URL",
-    "SUPABASE_ANON_KEY": "@SUPABASE_ANON_KEY",
-    "SMTP_HOST": "@SMTP_HOST",
-    "SMTP_PORT": "@SMTP_PORT",
-    "SMTP_USER": "@SMTP_USER",
-    "SMTP_PASS": "@SMTP_PASS"
-  },
   "builds": [
     {
       "src": "next.config.js",

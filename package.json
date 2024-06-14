@@ -5,13 +5,12 @@
   "main": "index.mjs",
   "scripts": {
     "dev": "next dev",
-    "build": "SUPABASE_URL=$SUPABASE_URL SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY npm run build:local",
+    "build": "npm run build:local",
     "build:local": "next build",
-    "start": "SUPABASE_URL=$SUPABASE_URL SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY next start"
+    "start": "next start"
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
-    "@supabase/supabase-js": "^2.43.4",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
