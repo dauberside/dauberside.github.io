@@ -73,3 +73,4 @@ Thumbs.db
 .next/
 .env*.local
 .env.local
+.env.preview.local
