@@ -73,3 +73,8 @@ Thumbs.db
 .next/
 .env*.local
 .env.local
+
+# Supabase
+.branches
+.temp
+.env

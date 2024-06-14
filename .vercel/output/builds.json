@@ -4,8 +4,7 @@
   "argv": [
     "/opt/homebrew/Cellar/node/22.2.0/bin/node",
     "/opt/homebrew/bin/vercel",
-    "build",
-    "--yes"
+    "build"
   ],
   "builds": [
     {

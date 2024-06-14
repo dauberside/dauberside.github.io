@@ -9,12 +9,12 @@
     }
   ],
   "env": {
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "SMTP_HOST": "@smtp_host",
-    "SMTP_PORT": "@smtp_port",
-    "SMTP_USER": "@smtp_user",
-    "SMTP_PASS": "@smtp_pass"
+    "SUPABASE_URL": "@SUPABASE_URL",
+    "SUPABASE_ANON_KEY": "@SUPABASE_ANON_KEY",
+    "SMTP_HOST": "@SMTP_HOST",
+    "SMTP_PORT": "@SMTP_PORT",
+    "SMTP_USER": "@SMTP_USER",
+    "SMTP_PASS": "@SMTP_PASS"
   },
   "builds": [
     {
