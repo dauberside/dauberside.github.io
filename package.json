@@ -4,13 +4,13 @@
   "description": "Project description",
   "main": "index.mjs",
   "scripts": {
-    "dev": "next dev",
-    "build": "npm run build:local",
-    "build:local": "next build",
+    "dev": "node server.js",
+    "build": "next build",
     "start": "next start"
   },
   "dependencies": {
     "@shadcn/ui": "^0.0.4",
+    "@supabase/supabase-js": "^2.43.4",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
@@ -27,6 +27,7 @@
     "prettier": "^3.3.1",
     "querystring": "^0.2.1",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.2",
     "react-dom": "^18.3.1",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",

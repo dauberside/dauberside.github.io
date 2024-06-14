@@ -1,33 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const socket = io({
-  path: '/socket.io',
-});
+const socket = io();
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await fetch('/api/messages');
         const data = await response.json();
-
-        if (response.ok) {
-          setMessages(data);
-        } else {
-          console.error('Error fetching messages:', data.error);
-        }
+        setMessages(data);
       } catch (error) {
-        console.error('Unexpected error fetching messages:', error);
+        console.error('Error fetching messages:', error);
       }
     };
 
@@ -42,56 +33,12 @@ const Chat = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        // ローカルストレージまたは他の方法でユーザーIDを取得
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.id) {
-          setUserId(user.id);
-          setUsername(user.username);
-        } else {
-          console.error('No user found');
-          router.push('/login'); // ログインページにリダイレクト
-        }
-      } catch (error) {
-        console.error('Unexpected error fetching user ID:', error);
-      }
-    };
-
-    fetchUserId();
-  }, [router]);
-
   const handleSendMessage = async () => {
-    if (!userId) {
-      console.error('User ID is not set');
-      return;
-    }
-
     if (message.trim() && username.trim()) {
-      try {
-        const response = await fetch('/api/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ user_id: userId, username, text: message }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          socket.emit('chat message', data[0]);
-          setMessages((prevMessages) => [...prevMessages, data[0]]);
-          setMessage('');
-        } else {
-          console.error('Failed to send message:', data.error);
-        }
-      } catch (error) {
-        console.error('Unexpected error sending message:', error);
-      }
-    } else {
-      console.error('Username or message is empty');
+      const newMessage = { username, text: message };
+      socket.emit('chat message', newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessage('');
     }
   };
 
