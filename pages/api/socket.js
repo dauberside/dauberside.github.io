@@ -9,7 +9,7 @@ export default function handler(req, res) {
     const io = new Server(res.socket.server, {
       path: '/api/socket',
       cors: {
-        origin: "http://localhost:3000", // ローカル環境用
+        origin: "https://www.xn--tu8hz2e.tk", // ローカル環境用
         methods: ["GET", "POST"],
         credentials: true
       }
