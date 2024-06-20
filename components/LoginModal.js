@@ -1,29 +1,27 @@
-// components/LoginModal.js
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { useRouter } from 'next/router';
 
 const LoginModal = ({ show, handleClose, handleLogin, handleSignup }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignup, setIsSignup] = useState(false); // サインアップモードのフラグ
-  const router = useRouter();
+  const [isSignup, setIsSignup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(''); // error変数を追加
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       if (isSignup) {
         await handleSignup(email, password);
-        alert('アカウントが作成されました！チャットページに移動します。');
-        router.push('/chat');  // サインアップ後にチャットページにリダイレクト
       } else {
         await handleLogin(email, password);
-        alert('ログインに成功しました！チャットページに移動します。');
-        router.push('/chat');  // ログイン後にチャットページにリダイレクト
       }
-      handleClose();
+      setError(''); // 成功時にエラーをクリア
     } catch (error) {
-      alert('処理に失敗しました。再度お試しください。');
+      setError(error.message || 'An error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,6 +32,7 @@ const LoginModal = ({ show, handleClose, handleLogin, handleSignup }) => {
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={onSubmit}>
+          {error && <div className="alert alert-danger">{error}</div>}
           <Form.Group controlId="formEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
@@ -41,6 +40,7 @@ const LoginModal = ({ show, handleClose, handleLogin, handleSignup }) => {
               placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </Form.Group>
           <Form.Group controlId="formPassword">
@@ -50,16 +50,17 @@ const LoginModal = ({ show, handleClose, handleLogin, handleSignup }) => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </Form.Group>
-          <Button variant="primary" type="submit">
-            {isSignup ? 'Sign Up' : 'Login'}
+          <Button variant="primary" type="submit" disabled={loading}>
+            {isSignup ? (loading ? '登録中...' : '新規アカウント作成') : (loading ? 'ログイン中...' : 'ログイン')}
           </Button>
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => setIsSignup(!isSignup)}>
-          {isSignup ? 'Already have an account? Login' : 'Create an account'}
+          {isSignup ? '既にアカウントをお持ちですか？ログイン' : 'アカウントを作成'}
         </Button>
       </Modal.Footer>
     </Modal>

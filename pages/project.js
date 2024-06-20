@@ -1,32 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import LoginModal from '../components/LoginModal';
+import { useRouter } from 'next/router';
 
 const Project = () => {
-  const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
 
-  const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
-
-  const handleLogin = async (email, password) => {
-    // ログイン処理
-    if (email === 'user@example.com' && password === 'password') {
-      const user = { email };
-      localStorage.setItem('user', JSON.stringify(user));
-      return user;
-    } else {
-      throw new Error('Invalid email or password');
-    }
-  };
-
-  const handleSignup = async (email, password) => {
-    // サインアップ処理
-    const user = { email, password };
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
+  const handleChatClick = (e) => {
+    e.preventDefault();
+    router.push('/chat');
   };
 
   return (
@@ -64,7 +48,7 @@ const Project = () => {
             </a>
           </Link>
           <Link href="#" legacyBehavior>
-            <a onClick={handleShow}>
+            <a onClick={handleChatClick}>
               <div className="col-md-12">
                 <div className="grid_row">
                   <div className="row">
@@ -92,7 +76,6 @@ const Project = () => {
         </div>
       </main>
       <Footer />
-      <LoginModal show={showModal} handleClose={handleClose} handleLogin={handleLogin} handleSignup={handleSignup} />
     </div>
   );
 };

@@ -1,16 +1,16 @@
 import supabase from './supabaseClient';
 
-export const login = async (email, password) => {
+export const signUp = async (email, password) => {
+  const { user, error } = await supabase.auth.signUp({ email, password });
+  if (error && error.message.includes('already registered')) {
+    return { error: '既にアカウントが存在します。ログインしてください。' };
+  }
+  if (error) throw error;
+  return { user };
+};
+
+export const signIn = async (email, password) => {
   const { user, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return user;
-};
-
-export const logout = async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-};
-
-export const getCurrentUser = () => {
-  return supabase.auth.user();
 };

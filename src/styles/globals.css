@@ -190,3 +190,14 @@ footer {
 .spotify-player .control-buttons button:hover {
   background-color: #1ed760;
 }
+
+@media (min-width: 576px) {
+  .modal {
+      --bs-modal-margin: 6.75rem !important;
+      --bs-modal-box-shadow: var(--bs-box-shadow);
+  }
+}
+.button-group {
+  display: flex;
+  gap: 10px;
+}

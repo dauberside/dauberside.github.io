@@ -1,10 +1,14 @@
-import supabase from '../../src/utils/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { user_id, username, text } = req.body;
 
-    console.log('Received message:', { user_id, username, text });
+    console.log('Received message:', { user_id, username, text }); // 追加: リクエスト内容をログに出力
 
     try {
       const { data, error } = await supabase
