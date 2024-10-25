@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* カスタムスタイルを追加 */
+
+.text-dark {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-dark-rgb), var(--bs-text-opacity)) !important;
+}
+
 body {
   background-color: rgb(0, 14, 40) !important;
   color: #fff;
@@ -49,7 +56,6 @@ header {
   justify-content: center;
   align-items: center;
 }
-
 
 .navbar {
   display: flex;
@@ -108,87 +114,18 @@ footer {
   width: 100%;
 }
 
-.player-controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.player-controls button {
-  background-color: #1db954;
-  border: none;
-  color: #fff;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 25px;
-  font-size: 16px;
-}
-
-.player-controls button:hover {
-  background-color: #1ed760;
-}
-
 /* global.css */
 
-/* global.css */
 
-/* Spotifyプレイヤーのコンテナ */
-.spotify-player {
-  background-color: #121212; /* 黒に近い背景色 */
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* シャドウを追加して浮き上がらせる */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+@media (min-width: 576px) {
+  .sm\:justify-end {
+      justify-content: flex-end;
+  }
 }
-
-/* プレイリスト情報のスタイル */
-.spotify-player .track-info {
-  flex-grow: 1;
-  text-align: left;
-  padding-left: 10px;
-}
-
-.spotify-player .track-info div {
-  margin: 5px 0;
-  font-size: 16px;
-  font-weight: bold;
-  color: #1db954; /* Spotifyの緑色に合わせる */
-}
-
-.spotify-player .track-info div span {
-  font-weight: normal;
-  color: #ffffff; /* 通常のテキストを白に */
-}
-
-/* 再生・停止ボタンのスタイル */
-.spotify-player .control-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.spotify-player .control-buttons button {
-  background-color: #1db954;
-  border: none;
-  border-radius: 50%;
-  color: white;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* ホバー効果をスムーズに */
-}
-
-.spotify-player .control-buttons button:hover {
-  background-color: #1ed760;
+@media (min-width: 576px) {
+  .sm\:flex-row {
+      flex-direction: row;
+  }
 }
 
 @media (min-width: 576px) {
@@ -201,3 +138,79 @@ footer {
   display: flex;
   gap: 10px;
 }
+
+/* message */
+.chat-message {
+  background-color: rgb(0, 14, 40);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  max-width: 60%;
+}
+.chat-message.sent {
+  justify-content: flex-end;
+}
+
+.chat-message.received {
+  justify-content: flex-start;
+}
+
+.chat-message p {
+  max-width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.chat-message.sent p {
+  background-color: #dcf8c6;
+  text-align: right;
+}
+
+.chat-message.received p {
+  background-color: #fff;
+  text-align: left;
+}
+
+.fa-icon {
+  color: #333;
+  font-size: 24px;
+  margin-right: 15px;
+}
+
+.max-w-lg {
+  max-width: 47rem;
+}
+
+@layer base {
+  :root {
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+

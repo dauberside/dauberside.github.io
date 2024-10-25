@@ -1,58 +1,100 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { io } from 'socket.io-client';
+import { supabase } from '../src/utils/supabaseClient';
+
 
 const Chat = () => {
+  // useState で状態管理
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
-  const [socket, setSocket] = useState(null);
+  const [editingMessage, setEditingMessage] = useState(null);
 
+  // useEffect で初回のメッセージ取得とリアルタイムリスナーの設定
   useEffect(() => {
-    const newSocket = io(); // サーバーのURLを指定しないことで、同じサーバー上での接続を使用
-    setSocket(newSocket);
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (error) {
+        console.error('Error fetching messages:', error);
+      } else {
+        setMessages(data);
+      }
+    };
 
-    newSocket.on('connect', () => {
-      console.log('WebSocket connection established on client.');
-    });
+    fetchMessages();
 
-    newSocket.on('chat message', (msg) => {
-      console.log('New message received on client:', msg);
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    });
-
-    newSocket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected on client, reason:', reason);
-    });
+    const messageListener = supabase
+      .channel('realtime:public:messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        setMessages(prevMessages => [...prevMessages, payload.new]);
+      })
+      .subscribe();
 
     return () => {
-      newSocket.close();
+      supabase.removeChannel(messageListener);
     };
   }, []);
 
-  const handleSendMessage = (e) => {
+  // メッセージの送信
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (message.trim() && username.trim()) {
-      const newMessage = { username: username, text: message }; // 修正箇所: 正しいオブジェクト形式に
-      console.log('Attempting to send message:', newMessage);
+      if (editingMessage) {
+        const { error } = await supabase
+          .from('messages')
+          .update({ text: message })
+          .eq('id', editingMessage.id);
 
-      if (socket && socket.connected) {
-        socket.emit('chat message', newMessage);
-        setMessage('');
+        if (error) {
+          console.error('Error updating message:', error);
+        } else {
+          setMessages(prevMessages =>
+            prevMessages.map(msg =>
+              msg.id === editingMessage.id ? { ...msg, text: message } : msg
+            )
+          );
+        }
+        setEditingMessage(null);
       } else {
-        console.error('WebSocket is not open. Waiting for connection...');
-        socket.once('connect', () => {
-          console.log('Sending message after reconnect:', newMessage);
-          socket.emit('chat message', newMessage);
-          setMessage('');
-        });
+        const { error } = await supabase
+          .from('messages')
+          .insert([{ username, text: message }]);
+
+        if (error) {
+          console.error('Error sending message:', error);
+        }
       }
+      setMessage('');
     } else {
       console.error('Username or message is empty');
     }
   };
 
+  // メッセージの編集
+  const handleEditMessage = (msg) => {
+    setMessage(msg.text);
+    setEditingMessage(msg);
+  };
+
+  // メッセージの削除
+  const handleDeleteMessage = async (id) => {
+    const { error } = await supabase
+      .from('messages')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting message:', error);
+    } else {
+      setMessages(prevMessages => prevMessages.filter(msg => msg.id !== id));
+    }
+  };
+
+  // 入力値の変更を管理
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'username') {
@@ -62,6 +104,7 @@ const Chat = () => {
     }
   };
 
+  // JSXの返却
   return (
     <div>
       <Header />
@@ -70,8 +113,14 @@ const Chat = () => {
           <div className="chat-container">
             <div className="chat-box">
               {messages.map((msg, index) => (
-                <div key={index} className="chat-message">
+                <div key={msg.id} className={`chat-message ${msg.username === username ? 'sent' : 'received'}`}>
                   <strong>{msg.username}:</strong> {msg.text}
+                  {msg.username === username && (
+                    <div className="message-actions">
+                      <button onClick={() => handleEditMessage(msg)}>Edit</button>
+                      <button onClick={() => handleDeleteMessage(msg.id)}>Delete</button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -97,8 +146,8 @@ const Chat = () => {
                 autoComplete="off"
               />
               <div className="button-group">
-                <button className="btn btn-primary" onClick={handleSendMessage}>
-                  Send
+                <button className="btn btn-dark" onClick={handleSendMessage}>
+                  {editingMessage ? 'Update' : 'Send'}
                 </button>
               </div>
             </div>

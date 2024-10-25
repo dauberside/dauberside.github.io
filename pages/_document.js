@@ -11,6 +11,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
+        <title>Dauber Project</title>
           <link rel="stylesheet" href="/css/crime.css" />
           <link rel="stylesheet" href="/css/menu.css" />
           <link rel="stylesheet" href="/css/grid.css" />
@@ -35,4 +36,3 @@ class MyDocument extends Document {
 }
 
 export default MyDocument;
-

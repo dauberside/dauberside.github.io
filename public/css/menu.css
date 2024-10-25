@@ -5,13 +5,7 @@
 
 #header {
 background-color: rgb(0, 14, 40);
-padding: 20px 20px 0px 20px;
 margin: 0 auto;
-}
-@media (min-width: 1200px) {
-header {
-  max-width: 1140px;
-}
 }
 
 #header .container {
@@ -111,6 +105,14 @@ color: #fff;
   grid start
 -----------------------------------------*/
 .container a {
+  color: #fff;
+  text-decoration-line: none;
+}
+.container {
+  color: #fff;
+  text-decoration-line: none;
+}
+.container p{
   color: #fff;
   text-decoration-line: none;
 }

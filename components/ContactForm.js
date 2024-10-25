@@ -1,22 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-const ContactForm = () => {
+const ContactForm = ({ isOpen, onRequestClose }) => {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      const firstInput = document.getElementById("name");
+      if (firstInput) {
+        firstInput.focus();
+      }
+    }
+  }, [isOpen]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email" && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+      setErrorMessage("Invalid email address");
+    } else {
+      setErrorMessage('');
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const form = event.target;
-    const data = new FormData(form);
-    const jsonData = Object.fromEntries(data.entries());
-
-    setFormData(jsonData);
-
     try {
       const response = await fetch('/api/send', {
         method: 'POST',
-        body: JSON.stringify(jsonData),
+        body: JSON.stringify(formData),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -36,48 +63,73 @@ const ContactForm = () => {
   };
 
   return (
-    <div className={`modal ${submitted ? 'show' : ''}`} id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ display: submitted ? 'block' : 'none' }}>
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id="exampleModalLabel">New message</h5>
-            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setSubmitted(false)}></button>
-          </div>
-          <div className="modal-body">
-            <div className="form-area">
-              {!submitted ? (
-                <form id="contact-form" role="form" onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <input type="text" name="name" className="form-control" id="name" placeholder="Name" required autoComplete="name" />
-                  </div>
-                  <div className="form-group">
-                    <input type="email" name="email" className="form-control" id="email" placeholder="Email" required autoComplete="email" />
-                  </div>
-                  <div className="form-group">
-                    <textarea name="message" className="form-control" id="message" placeholder="Message" maxLength="140" rows="7" autoComplete="message"></textarea>
-                    <span className="help-block">
-                      <p id="characterLeft" className="help-block">Up to 140 characters</p>
-                    </span>
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn" data-bs-dismiss="modal" role="button">Close</button>
-                    <button type="submit" id="saveImage" className="btn" data-action="save" role="button">Submit</button>
-                  </div>
-                  {errorMessage && <div className="alert alert-danger mt-3">{errorMessage}</div>}
-                </form>
-              ) : (
-                <div id="success-message">
-                  <h5>送信完了しました。ありがとうございました！</h5>
-                  <p><strong>Name:</strong> {formData.name}</p>
-                  <p><strong>Email:</strong> {formData.email}</p>
-                  <p><strong>Message:</strong> {formData.message}</p>
-                </div>
-              )}
+    <Dialog open={isOpen} onOpenChange={onRequestClose} aria-labelledby="contactFormTitle">
+      <DialogContent className="text-white">
+        <DialogHeader>
+          <DialogTitle id="contactFormTitle">Contact Us</DialogTitle>
+          <DialogDescription>
+            {!submitted ? "Fill out the form below to get in touch." : "Thank you for your message!"}
+          </DialogDescription>
+        </DialogHeader>
+        {!submitted ? (
+          <form id="contact-form" role="form" onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Your Name"
+                required
+                value={formData.name}
+                onChange={handleInputChange}
+              />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Your Email"
+                required
+                value={formData.email}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                name="message"
+                placeholder="Your Message"
+                required
+                maxLength="140"
+                value={formData.message}
+                onChange={handleInputChange}
+              />
+            </div>
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+            <DialogFooter>
+              <Button type="button" onClick={onRequestClose} variant="ghost">Close</Button>
+              <Button type="submit" variant="ghost" disabled={!formData.name || !formData.email || !formData.message || errorMessage}>
+                Submit
+              </Button>
+            </DialogFooter>
+          </form>
+        ) : (
+          <div id="success-message">
+            <h5 className="text-lg font-bold">送信完了しました。ありがとうございました！</h5>
+            <p><strong>Name:</strong> {formData.name}</p>
+            <p><strong>Email:</strong> {formData.email}</p>
+            <p><strong>Message:</strong> {formData.message}</p>
+            <Button onClick={() => setSubmitted(false)} variant="ghost">
+              Another message
+            </Button>
           </div>
-        </div>
-      </div>
-    </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 

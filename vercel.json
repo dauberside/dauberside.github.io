@@ -2,16 +2,5 @@
   "version": 2,
   "buildCommand": "npm run build",
   "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/socket.io/:path*",
-      "destination": "/api/socket/:path*"
-    }
-  ],
-  "builds": [
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
-  ]
+  "public": true
 }

@@ -1,4 +1,19 @@
-module.exports = {
+const path = require('path');
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['i.pinimg.com', 'example.com'],
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
+    };
+    return config;
+  },
   async rewrites() {
     return [
       {
@@ -37,3 +52,5 @@ module.exports = {
     ];
   }
 };
+
+module.exports = nextConfig;

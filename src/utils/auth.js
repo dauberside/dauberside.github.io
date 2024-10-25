@@ -1,16 +1,31 @@
-import supabase from './supabaseClient';
+// auth.js
+import { supabase } from './supabaseClient';
+import bcrypt from 'bcryptjs';
 
-export const signUp = async (email, password) => {
-  const { user, error } = await supabase.auth.signUp({ email, password });
-  if (error && error.message.includes('already registered')) {
-    return { error: '既にアカウントが存在します。ログインしてください。' };
-  }
-  if (error) throw error;
-  return { user };
+const { error } = await supabase.auth.api.setCustomConfig({
+  otp_expiry: auth.otp_expiry()
+});
+
+if (error) {
+  console.error('Error setting OTP expiry:', error.message);
+}
+
+export const signUpUser = async (email, password, username) => {
+  const passwordHash = await bcrypt.hash(password, 10);
+  const { data, error } = await supabase.from('users').insert([
+    {
+      email,
+      password_hash: passwordHash,
+      username,
+    },
+  ]);
+  return { data, error };
 };
 
-export const signIn = async (email, password) => {
-  const { user, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  return user;
+
+export const loginUser = async (email, password) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email, password
+  });
+  return { data, error };
 };

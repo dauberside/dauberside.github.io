@@ -1,5 +1,5 @@
-import supabase from '../../../src/utils/supabaseClient';
 import { parse } from 'cookie';
+import { supabase } from '../../../../src/utils/supabaseClient';
 
 export default async function handler(req, res) {
   const cookies = parse(req.headers.cookie || '');
@@ -50,24 +50,8 @@ export default async function handler(req, res) {
       res.status(200).json({ messages });
       break;
 
-    case 'PUT':
-      const { table } = req.body;
-
-      if (table === 'users') {
-        const { error } = await supabase.rpc('create_users_table');
-        if (error) return res.status(500).json({ error: error.message });
-      }
-
-      if (table === 'messages') {
-        const { error } = await supabase.rpc('create_messages_table');
-        if (error) return res.status(500).json({ error: error.message });
-      }
-
-      res.status(200).json({ message: `Table ${table} created successfully` });
-      break;
-
     default:
-      res.setHeader('Allow', ['POST', 'GET', 'PUT']);
+      res.setHeader('Allow', ['POST', 'GET']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

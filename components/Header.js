@@ -1,8 +1,21 @@
-import React from 'react';  // この行を追加
-import Link from 'next/link'; // Linkのインポート
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
+import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import ContactForm from './ContactForm';
 
-function Header() {
+const Header = () => {
+  const [isContactFormOpen, setContactFormOpen] = useState(false);
+
+  const handleContactFormOpen = () => {
+    setContactFormOpen(true);
+  };
+
+  const handleContactFormClose = () => {
+    setContactFormOpen(false);
+  };
+
   return (
     <>
       <header id="header">
@@ -35,13 +48,13 @@ function Header() {
               </li>
               <li>
                 <Link href="https://www.instagram.com/DauberSide/" legacyBehavior>
-                  <a><span className="fab fa-instagram"></span></a>
+                  <a><FontAwesomeIcon icon={faInstagram} /></a>
                 </Link>
               </li>
               <li>
                 <Link href="#" legacyBehavior>
-                  <a data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">
-                    <span className="far fa-envelope"></span>
+                  <a data-bs-toggle="modal" data-bs-target="#contactModal" aria-label="Open contact form" onClick={handleContactFormOpen}>
+                    <FontAwesomeIcon icon={faEnvelope} />
                   </a>
                 </Link>
               </li>
@@ -49,9 +62,9 @@ function Header() {
           </div>
         </div>
       </header>
-      <ContactForm />
+      <ContactForm isOpen={isContactFormOpen} onRequestClose={handleContactFormClose} />
     </>
   );
-}
+};
 
 export default Header;
