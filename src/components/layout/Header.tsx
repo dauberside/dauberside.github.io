@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
-import ContactForm from './ContactForm';
+import ContactForm from '@/components/forms/ContactForm';
 
 const Header = () => {
   const [isContactFormOpen, setContactFormOpen] = useState(false);
