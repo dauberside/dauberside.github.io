@@ -1,34 +1,17 @@
-import React from 'react';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 class MyDocument extends Document {
-  static async getInitialProps(ctx) {
-    const initialProps = await Document.getInitialProps(ctx);
-    return { ...initialProps };
-  }
-
   render() {
     return (
       <Html>
         <Head>
-        <title>Dauber Project</title>
-          <link rel="stylesheet" href="/css/crime.css" />
-          <link rel="stylesheet" href="/css/menu.css" />
-          <link rel="stylesheet" href="/css/grid.css" />
-          <link rel="stylesheet" href="/css/custom.css" />
-          <link
-            rel="stylesheet"
-            href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
-          />
-          <link
-            rel="stylesheet"
-            href="https://use.fontawesome.com/releases/v5.15.1/css/v4-shims.css"
-          />
+          {/* <title>タグを削除 */}
+          {/* 外部スタイルシートの読み込みは_app.jsに移動することをお勧めします */}
         </Head>
         <body>
           <Main />
           <NextScript />
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+          {/* 外部スクリプトの読み込みは_app.jsに移動することをお勧めします */}
         </body>
       </Html>
     );
