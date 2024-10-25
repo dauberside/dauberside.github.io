@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 /* カスタムスタイルを追加 */
 
 body, html {
