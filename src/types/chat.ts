@@ -1,6 +1,7 @@
 export interface Message {
     id: number;
-    username: string;
-    text: string;
     created_at: string;
+    content: string;
+    user_id: string;
+    username?: string; // オプショナルとして追加
   }

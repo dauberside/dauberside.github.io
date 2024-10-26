@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import ContactForm from '@/components/forms/ContactForm';
 
-const Header = () => {
+interface HeaderProps {
+  className?: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ className }) => {
   const [isContactFormOpen, setContactFormOpen] = useState(false);
 
   const handleContactFormOpen = () => {
@@ -18,7 +22,7 @@ const Header = () => {
 
   return (
     <>
-      <header id="header">
+      <header id="header" className={className}>
         <div className="container">
           <div id="logo">
             <Link href="/" legacyBehavior>
@@ -27,7 +31,7 @@ const Header = () => {
               </a>
             </Link>
           </div>
-          <div className="navbar">
+          <nav className="navbar">
             <ul className="list-inline">
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" href="#" id="dropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -52,14 +56,12 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <Link href="#" legacyBehavior>
-                  <a data-bs-toggle="modal" data-bs-target="#contactModal" aria-label="Open contact form" onClick={handleContactFormOpen}>
-                    <FontAwesomeIcon icon={faEnvelope} />
-                  </a>
-                </Link>
+                <button onClick={handleContactFormOpen} aria-label="Open contact form">
+                  <FontAwesomeIcon icon={faEnvelope} />
+                </button>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
       </header>
       <ContactForm isOpen={isContactFormOpen} onRequestClose={handleContactFormClose} />
