@@ -18,20 +18,34 @@ const Chat: NextPage<ChatProps> = ({ initialMessages }) => {
   const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     const fetchUserId = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUserId(user?.id || 'anonymous')
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error) {
+          console.error('Error fetching user:', error)
+          return
+        }
+        if (isMounted) {
+          setUserId(user?.id || 'anonymous')
+        }
+      } catch (err) {
+        console.error('Unexpected error in fetchUserId:', err)
+      }
     }
+
     fetchUserId()
 
     const channel = supabase
       .channel('realtime messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-        setMessages((prevMessages) => [...prevMessages, payload.new as Message])
+        setMessages((prevMessages = []) => [...prevMessages, payload.new as Message])
       })
       .subscribe()
 
     return () => {
+      isMounted = false
       supabase.removeChannel(channel)
     }
   }, [])
@@ -83,12 +97,16 @@ export const getServerSideProps: GetServerSideProps<ChatProps> = async () => {
       .select('*')
       .order('created_at', { ascending: true })
 
-      return { props: { initialMessages: messages || [] } }
-    } catch (err) {
-      console.error('Failed to fetch messages:', err)
+    if (error) {
+      console.error('Supabase query error:', error)
       return { props: { initialMessages: [] } }
     }
 
+    return { props: { initialMessages: messages || [] } }
+  } catch (err) {
+    console.error('Unexpected error in getServerSideProps:', err)
+    return { props: { initialMessages: [] } }
+  }
 }
 
 export default Chat

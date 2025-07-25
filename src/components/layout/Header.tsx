@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
@@ -27,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
           <div id="logo">
             <Link href="/" legacyBehavior>
               <a className="navbar-brand">
-                <img src="/images/geometric_pattern.svg" alt="Logo" />
+                <Image src="/images/geometric_pattern.svg" alt="Logo"   width={100} height={50} />
               </a>
             </Link>
           </div>

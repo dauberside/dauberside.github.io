@@ -53,21 +53,21 @@ const Project = () => {
           </Link> 
           */
           }
-          {
-          <Link href="#" legacyBehavior>
-            <a onClick={handleChatClick}>
-              <div className="col-md-12">
-                <div className="grid_row">
-                  <div className="grid grid-cols-6 gap-4 py-2 border-b border-gray-700 pb-2">
-                    <div className="col-1"><small>💬</small></div>
-                    <div className="col-2"><small>2023</small></div>
-                    <div className="col-6"><small>Chat</small></div>
-                  </div>
+        {/* 
+        <Link href="#" legacyBehavior>
+          <a onClick={handleChatClick}>
+            <div className="col-md-12">
+              <div className="grid_row">
+                <div className="grid grid-cols-6 gap-4 py-2 border-b border-gray-700 pb-2">
+                  <div className="col-1"><small>💬</small></div>
+                  <div className="col-2"><small>2023</small></div>
+                  <div className="col-6"><small>Chat</small></div>
                 </div>
               </div>
-            </a>
-          </Link>
-          }
+            </div>
+          </a>
+        </Link>
+        */}
           { /*
             <Link href="/continuance" legacyBehavior>
             <a>
