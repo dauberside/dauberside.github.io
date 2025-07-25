@@ -22,15 +22,19 @@ export default async function handler(req, res) {
   }
 
   const output = `
-    <h1>新しいお問い合わせがあります</h1>
-    <h2>連絡先詳細</h2>
-    <ul>
-      <li>名前: ${name}</li>
-      <li>メールアドレス: ${email}</li>
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h1 style="color: #4CAF50;">新しいお問い合わせがあります</h1>
+    <h2 style="border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">連絡先詳細</h2>
+    <ul style="list-style: none; padding: 0;">
+      <li><strong>名前:</strong> ${name}</li>
+      <li><strong>メールアドレス:</strong> ${email}</li>
     </ul>
-    <h2>メッセージ</h2>
-    <p>${message}</p>
-  `;
+    <h2 style="border-bottom: 2px solid #4CAF50; padding-bottom: 5px;">メッセージ</h2>
+    <p style="background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+      ${message}
+    </p>
+  </div>
+`;
 
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
