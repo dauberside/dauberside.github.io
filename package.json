@@ -6,10 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "jest",
-    "format": "prettier --write ."
+    "start": "next start"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
@@ -90,5 +87,8 @@
     "rules": {
       "prettier/prettier": "error"
     }
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

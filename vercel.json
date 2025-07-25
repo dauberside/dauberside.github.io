@@ -2,5 +2,8 @@
   "version": 2,
   "buildCommand": "npm run build",
   "framework": "nextjs",
-  "public": true
+  "public": true,
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "source": "src/pages"
 }
