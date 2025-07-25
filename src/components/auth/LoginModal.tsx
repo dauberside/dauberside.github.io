@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -6,13 +6,13 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // ログイン処理をここに実装
-    console.log('Login attempt', { username, password });
+    console.log("Login attempt", { username, password });
   };
 
   if (!isOpen) return null;

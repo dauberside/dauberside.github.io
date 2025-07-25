@@ -1,13 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom'; // 念のため直接インポート
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import React from 'react';
+import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom"; // 念のため直接インポート
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import React from "react";
 
-describe('Sample Test', () => {
-  it('renders a simple text', () => {
+describe("Sample Test", () => {
+  it("renders a simple text", () => {
     render(<div>Hello, World!</div>);
-    expect(screen.getByText('Hello, World!')).toBeInTheDocument();
+    expect(screen.getByText("Hello, World!")).toBeInTheDocument();
   });
 });
 

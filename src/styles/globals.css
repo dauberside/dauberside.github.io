@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'bootstrap/dist/css/bootstrap.min.css';
+@import "bootstrap/dist/css/bootstrap.min.css";
 
 /* カスタムスタイルを追加 */
 
-body, html {
+body,
+html {
   /* スタイル */
 }
 
@@ -125,7 +126,8 @@ header {
   text-decoration: underline;
 }
 
-.fab, .far {
+.fab,
+.far {
   color: #fff;
 }
 
@@ -139,22 +141,21 @@ footer {
 
 /* global.css */
 
-
 @media (min-width: 576px) {
   .sm\:justify-end {
-      justify-content: flex-end;
+    justify-content: flex-end;
   }
 }
 @media (min-width: 576px) {
   .sm\:flex-row {
-      flex-direction: row;
+    flex-direction: row;
   }
 }
 
 @media (min-width: 576px) {
   .modal {
-      --bs-modal-margin: 6.75rem !important;
-      --bs-modal-box-shadow: var(--bs-box-shadow);
+    --bs-modal-margin: 6.75rem !important;
+    --bs-modal-box-shadow: var(--bs-box-shadow);
   }
 }
 .button-group {
@@ -277,74 +278,74 @@ footer {
   width: 70px;
 }
 
-
 .navbar-brand img {
   width: 100%;
   max-width: 30px;
 }
 
 #header {
-background-color: rgb(0, 14, 40);
-margin: 0 auto;
+  background-color: rgb(0, 14, 40);
+  margin: 0 auto;
 }
 
 #header .container {
-display: flex;
-justify-content: center;
-align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #logo {
-margin-right: auto;
+  margin-right: auto;
 }
 
 .navbar {
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .list-inline {
-display: flex;
-list-style: none;
-padding: 0;
-margin: 0;
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .list-inline li {
-margin: 0 10px;
+  margin: 0 10px;
 }
 
 .nav-item .dropdown-toggle::after {
-display: none; /* ドロップダウン矢印を非表示にする */
+  display: none; /* ドロップダウン矢印を非表示にする */
 }
 
 .dropdown-menu {
-background-color: #fff;
-border: none;
-border-radius: 0;
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  border: none;
+  border-radius: 0;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .dropdown-item {
-color: #000;
-padding: 10px 20px;
+  color: #000;
+  padding: 10px 20px;
 }
 
 .dropdown-item:hover {
-background-color: #f1f1f1;
+  background-color: #f1f1f1;
 }
 
 .nav-link {
-color: #fff;
-text-decoration: none;
+  color: #fff;
+  text-decoration: none;
 }
 
 .nav-link:hover {
-text-decoration: underline;
+  text-decoration: underline;
 }
 
-.fab, .far {
-color: #fff;
+.fab,
+.far {
+  color: #fff;
 }
 
 /* 他のスタイルの下に追加 */
@@ -380,7 +381,6 @@ color: #fff;
   opacity: 1;
 }
 
-
 /*----------------------------------------
   grid start
 -----------------------------------------*/
@@ -392,50 +392,49 @@ color: #fff;
   color: #fff;
   text-decoration-line: none;
 }
-.container p{
+.container p {
   color: #fff;
   text-decoration-line: none;
 }
-.grid_row
-{
-display: block;
-flex-basis: 0;
-margin: 0 auto;
+.grid_row {
+  display: block;
+  flex-basis: 0;
+  margin: 0 auto;
 }
 
 .grid_row .row {
-border-bottom: 1px solid #ddd;
-text-align: left;
-padding: .5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  padding: 0.5rem;
 }
 .row_first {
-display: -ms-flexbox;
-display: flex;
--ms-flex-wrap: wrap;
-flex-wrap: wrap;
-margin-right: 0px;
-margin-left: 0px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: 0px;
+  margin-left: 0px;
 }
 .grid_row .row_first {
-border-top: 1px solid #ddd;
-border-bottom: 1px solid #ddd;
-text-align: left;
-padding: .5rem;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  padding: 0.5rem;
 }
-@media (min-width: 1200px){
-.row_first {
-margin-right: -15px;
-margin-left: -15px;
+@media (min-width: 1200px) {
+  .row_first {
+    margin-right: -15px;
+    margin-left: -15px;
+  }
 }
-}
-@media (min-width: 1200px){
-.row {
-margin-right: -15px;
-margin-left: -15px;
-}
+@media (min-width: 1200px) {
+  .row {
+    margin-right: -15px;
+    margin-left: -15px;
+  }
 }
 .row.toybox {
-background-color: rgb(36 47 59 / 0.5);
+  background-color: rgb(36 47 59 / 0.5);
 }
 
 /*----------------------------------------

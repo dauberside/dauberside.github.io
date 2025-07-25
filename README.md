@@ -3,6 +3,7 @@
 Welcome to the DauberSide Project. This project is deployed using Vercel and utilizes Next.js for the frontend.
 
 ## Table of Contents
+
 - [Installation](#installation)
 - [Development](#development)
 - [Deployment](#deployment)
@@ -12,22 +13,23 @@ Welcome to the DauberSide Project. This project is deployed using Vercel and uti
 ## Installation
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/dauberside/dauberside.github.io.git
-    ```
+   ```sh
+   git clone https://github.com/dauberside/dauberside.github.io.git
+   ```
 2. Navigate to the project directory:
-    ```sh
-    cd dauberside.github.io
-    ```
+   ```sh
+   cd dauberside.github.io
+   ```
 3. Install dependencies:
-    ```sh
-    npm install
-    ```
+   ```sh
+   npm install
+   ```
 
 ## Development
 
 To start the development server, run:
-```sh
+
+````sh
 npm run dev
 
 ### 手順2: プロジェクトの整理
@@ -71,3 +73,4 @@ dauberside.github.io/
 git add .
 git commit -m "Add README.md and organize project structure"
 git push origin master
+````

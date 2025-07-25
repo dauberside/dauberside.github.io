@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,12 +11,17 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 
 const ContactForm = ({ isOpen, onRequestClose }) => {
   const [submitted, setSubmitted] = useState(false);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
-  const [serverError, setServerError] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+  const [serverError, setServerError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -29,11 +34,11 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch('/api/send', {
-        method: 'POST',
+      const response = await fetch("/api/send", {
+        method: "POST",
         body: JSON.stringify(data),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -42,31 +47,42 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
       } else {
         const errorText = await response.text();
         setServerError(errorText);
-        console.error('メッセージの送信に失敗しました:', errorText);
+        console.error("メッセージの送信に失敗しました:", errorText);
       }
     } catch (error) {
       setServerError(error.message);
-      console.error('エラーが発生しました:', error);
+      console.error("エラーが発生しました:", error);
     }
   };
 
   const handleReset = () => {
     setSubmitted(false);
-    setServerError('');
+    setServerError("");
     reset();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onRequestClose} aria-labelledby="contactFormTitle">
+    <Dialog
+      open={isOpen}
+      onOpenChange={onRequestClose}
+      aria-labelledby="contactFormTitle"
+    >
       <DialogContent className="bg-background ">
         <DialogHeader>
           <DialogTitle id="contactFormTitle">お問い合わせ</DialogTitle>
           <DialogDescription>
-            {!submitted ? "以下のフォームにご記入ください。" : "メッセージをお送りいただき、ありがとうございます！"}
+            {!submitted
+              ? "以下のフォームにご記入ください。"
+              : "メッセージをお送りいただき、ありがとうございます！"}
           </DialogDescription>
         </DialogHeader>
         {!submitted ? (
-          <form id="contact-form" role="form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            id="contact-form"
+            role="form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="name">お名前</Label>
               <Input
@@ -75,54 +91,72 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
                 placeholder="山田 太郎"
                 aria-invalid={errors.name ? "true" : "false"}
               />
-              {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
+              {errors.name && (
+                <p className="text-destructive text-sm">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">メールアドレス</Label>
               <Input
                 id="email"
                 type="email"
-                {...register("email", { 
+                {...register("email", {
                   required: "メールアドレスは必須です",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "有効なメールアドレスを入力してください"
-                  }
+                    message: "有効なメールアドレスを入力してください",
+                  },
                 })}
                 placeholder="example@example.com"
                 aria-invalid={errors.email ? "true" : "false"}
               />
-              {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-destructive text-sm">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="message">メッセージ</Label>
               <Textarea
                 id="message"
-                {...register("message", { 
+                {...register("message", {
                   required: "メッセージは必須です",
                   maxLength: {
                     value: 140,
-                    message: "メッセージは140文字以内で入力してください"
-                  }
+                    message: "メッセージは140文字以内で入力してください",
+                  },
                 })}
                 placeholder="ご用件をお書きください"
                 aria-invalid={errors.message ? "true" : "false"}
               />
-              {errors.message && <p className="text-destructive text-sm">{errors.message.message}</p>}
+              {errors.message && (
+                <p className="text-destructive text-sm">
+                  {errors.message.message}
+                </p>
+              )}
             </div>
             {serverError && <p className="text-destructive">{serverError}</p>}
             <DialogFooter>
-              <Button type="button" onClick={onRequestClose} variant="ghost">close</Button>
-              <Button type="submit" variant="ghost">send</Button>
+              <Button type="button" onClick={onRequestClose} variant="ghost">
+                close
+              </Button>
+              <Button type="submit" variant="ghost">
+                send
+              </Button>
             </DialogFooter>
           </form>
         ) : (
-        <div  id="success-message" className="space-y-4">
-          <h5 className="text-lg font-bold">送信完了しました。ありがとうございました！</h5>
-          <Button onClick={handleReset} variant="outline">
-          別のメッセージを送信
-          </Button>
-        </div>
+          <div id="success-message" className="space-y-4">
+            <h5 className="text-lg font-bold">
+              送信完了しました。ありがとうございました！
+            </h5>
+            <Button onClick={handleReset} variant="outline">
+              別のメッセージを送信
+            </Button>
+          </div>
         )}
       </DialogContent>
     </Dialog>

@@ -1,13 +1,13 @@
-import React from 'react';
-import Head from 'next/head';
-import type { AppProps } from 'next/app';
-import Script from 'next/script';
-import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import '@/styles/globals.css';
-import '@/styles/crime.css';
-import '@/styles/grid.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from "react";
+import Head from "next/head";
+import type { AppProps } from "next/app";
+import Script from "next/script";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import "@/styles/globals.css";
+import "@/styles/crime.css";
+import "@/styles/grid.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 config.autoAddCss = false;
 

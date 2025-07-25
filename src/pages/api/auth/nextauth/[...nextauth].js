@@ -1,8 +1,8 @@
 // pages/api/auth/[...nextauth].js
-import NextAuth from 'next-auth';
-import EmailProvider from 'next-auth/providers/email';
-import GoogleProvider from 'next-auth/providers/google';
-import { SupabaseAdapter } from '@next-auth/supabase-adapter';
+import NextAuth from "next-auth";
+import EmailProvider from "next-auth/providers/email";
+import GoogleProvider from "next-auth/providers/google";
+import { SupabaseAdapter } from "@next-auth/supabase-adapter";
 
 export default NextAuth({
   providers: [
