@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom'; // 念のため直接インポート
 import React from 'react';
 
 describe('Sample Test', () => {
@@ -23,3 +24,5 @@ const Dauber: React.FC = () => {
     </div>
   );
 };
+
+export default Dauber;
