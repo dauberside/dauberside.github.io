@@ -1,6 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import Script from 'next/script';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
@@ -11,7 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 config.autoAddCss = false;
 
-function AppProps({ Component, pageProps }) {
+function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
@@ -26,4 +26,4 @@ function AppProps({ Component, pageProps }) {
   );
 }
 
-export default AppProps;
+export default App;

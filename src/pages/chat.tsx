@@ -2,16 +2,11 @@ import { GetServerSideProps, NextPage } from 'next'
 import { useState, useEffect, useCallback } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/types/supabase'
+import { supabase } from '@/utils/supabaseClient'
 import { Message } from '@/types/chat'
 import ChatBox from '@/components/chat/ChatBox'
 import ChatInput from '@/components/chat/ChatInput'
 
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface ChatProps {
   initialMessages: Message[]
@@ -82,17 +77,18 @@ const Chat: NextPage<ChatProps> = ({ initialMessages }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<ChatProps> = async () => {
-  const { data: messages, error } = await supabase
-    .from('messages')
-    .select('*')
-    .order('created_at', { ascending: true })
+  try {
+    const { data: messages, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching messages:', error)
-    return { props: { initialMessages: [] } }
-  }
+      return { props: { initialMessages: messages || [] } }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err)
+      return { props: { initialMessages: [] } }
+    }
 
-  return { props: { initialMessages: messages || [] } }
 }
 
 export default Chat
