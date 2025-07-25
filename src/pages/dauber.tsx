@@ -53,7 +53,7 @@ const Dauber: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[rgb(0,14,40)] text-white font-sans">
-      <Header className="mx-auto" />
+      <Header className="mx-auto px-4" />
       <main className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column */}
