@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom'; // 念のため直接インポート
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import React from 'react';
 
 describe('Sample Test', () => {
