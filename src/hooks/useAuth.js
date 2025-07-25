@@ -8,13 +8,13 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession(); // getSessionの使用法を修正
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
     };
 
     getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => { // onAuthStateChangeの使用法を修正
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
     });
 
