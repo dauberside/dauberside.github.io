@@ -1,73 +1,32 @@
 # DauberSide Project
 
-Welcome to the DauberSide Project. This project is deployed using Vercel and utilizes Next.js for the frontend.
-
-## Table of Contents
-- [Installation](#installation)
-- [Development](#development)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+Welcome to the DauberSide Project. This site is built with Next.js and deployed on Vercel.
 
 ## Installation
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/dauberside/dauberside.github.io.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd dauberside.github.io
-    ```
-3. Install dependencies:
-    ```sh
-    npm install
-    ```
+```sh
+git clone https://github.com/dauberside/dauberside.github.io.git
+cd dauberside.github.io
+npm install
+```
 
 ## Development
 
-To start the development server, run:
+Start the development server with:
+
 ```sh
 npm run dev
+```
 
-### 手順2: プロジェクトの整理
-以下のようにディレクトリ構造を整理し、必要なファイルを適切な場所に配置します。
+## VS Code Integration
 
-#### ディレクトリ構造
+If you are using VS Code, you can take advantage of the Dev Containers extension. After installing the extension, run **Dev Containers: Reopen in Container** from the command palette to build and attach to a development container for this project.
 
-dauberside.github.io/
-├── .github/
-│ └── workflows/
-│ └── cleanup.yml
-├── .gitignore
-├── .next/
-├── .vercel/
-├── backup-repo.git/
-├── node_modules/
-├── pages/
-│ ├── _app.js
-│ ├── about.js
-│ ├── contact.js
-│ └── index.js
-├── public/
-│ ├── images/
-│ └── css/
-├── src/
-│ ├── components/
-│ │ ├── Header.js
-│ │ └── Footer.js
-│ ├── styles/
-│ │ └── global.css
-│ └── utils/
-├── package.json
-├── package-lock.json
-├── README.md
-└── vercel.json
+## Deployment
 
-### 手順3: コミットとプッシュ
-すべての変更をステージングし、コミットしてリモートリポジトリにプッシュします。
+Deployments are managed by Vercel via the GitHub Actions workflow.
 
-```bash
-git add .
-git commit -m "Add README.md and organize project structure"
-git push origin master
+## License
+
+MIT
+

@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 const Project = () => {
   const router = useRouter();
 
-  const handleChatClick = (e) => {
+  const handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     router.push('/chat');
   };
