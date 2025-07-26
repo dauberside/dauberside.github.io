@@ -440,3 +440,14 @@ footer {
 /*----------------------------------------
 grid end
 -----------------------------------------*/
+/* Language ボタン専用のスタイル */
+.language-button {
+  color: #fff; /* デフォルトの文字色 */
+  text-decoration: none; /* 下線を削除 */
+  margin-left: 0.5rem; /* 左余白 */
+}
+
+.language-button.active {
+  color: #cacaca; /* アクティブ時の文字色 */
+  text-decoration: underline; /* アクティブ時の下線 */
+}
