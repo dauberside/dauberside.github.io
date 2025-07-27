@@ -29,8 +29,9 @@ Welcome to the DauberSide Project. This project is deployed using Vercel and uti
 
 To start the development server, run:
 
-````sh
+```sh
 npm run dev
+```
 
 ### 手順2: プロジェクトの整理
 以下のようにディレクトリ構造を整理し、必要なファイルを適切な場所に配置します。
@@ -73,4 +74,4 @@ dauberside.github.io/
 git add .
 git commit -m "Add README.md and organize project structure"
 git push origin master
-````
+```
