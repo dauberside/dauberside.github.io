@@ -2,11 +2,37 @@ export function normStr(s: string) {
   return (s || '').toLowerCase().replace(/\s+/g, '');
 }
 
-/* --- insert helpers (right after normStr) --- */
+/** 全角 -> 半角 / 記号の正規化（数字・スペース・記号） */
+function toHalfwidth(s: string) {
+  if (!s) return '';
+  // 全角数字 -> 半角
+  let out = s.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFF10 + 0x30));
+  // 全角英字（必要なら）：ここでは必要最小限に
+  // 全角スペース -> 半角
+  out = out.replace(/\u3000/g, ' ');
+  // 記号：コロン・スラッシュ・ハイフン・波ダッシュ・アット
+  out = out
+    .replace(/\uFF1A/g, ':')     // ： -> :
+    .replace(/\uFF0F/g, '/')     // ／ -> /
+    .replace(/[\u2212\uFF0D\u30FC]/g, '-') // − ／ ー -> -
+    .replace(/[〜～]/g, '〜')     // 波ダッシュ統一（内部はそのままでもOK）
+    .replace(/\uFF20/g, '@')     // ＠ -> @
+    .replace(/[，、]/g, ' ');    // 読点はスペース化
+  // 余計な連続空白を 1 個に
+  out = out.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
 function pad2(n: number) { return String(n).padStart(2, '0'); }
 function toJstIso(y: number, m: number, d: number, hh = 0, mm = 0, ss = 0) {
   // YYYY-MM-DDTHH:mm:ss+09:00
   return `${y}-${pad2(m)}-${pad2(d)}T${pad2(hh)}:${pad2(mm)}:${pad2(ss)}+09:00`;
+}
+function nowJst(): Date {
+  // Convert current time to JST regardless of server TZ
+  const t = new Date();
+  const utcMs = t.getTime() + t.getTimezoneOffset() * 60000; // -> UTC
+  return new Date(utcMs + 9 * 60 * 60000); // +09:00
 }
 function clamp24(h: number, mi: number) {
   // supports "24:00" as next day 00:00
@@ -20,14 +46,14 @@ function removeFillerWords(s: string) {
     .replace(/^\s*[、。・:：-]+\s*/, '')
     .trim();
 }
-function pickDateFromText(src: string, now = new Date()) {
+function pickDateFromText(src: string, now = nowJst()) {
   let text = src;
   const y0 = now.getFullYear();
   let m0 = now.getMonth() + 1;
   let d0 = now.getDate();
 
   // 今日/明日/明後日
-  const mRel = text.match(/\b(今日|明日|明後日)\b/);
+  const mRel = text.match(/(今日|明日|明後日)/);
   if (mRel) {
     const map: Record<string, number> = { '今日': 0, '明日': 1, '明後日': 2 };
     const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + map[mRel[1]]);
@@ -78,7 +104,7 @@ function pickTimesFromText(src: string) {
   let text = src;
 
   // 範囲（19:00-21:30 / 19時〜21時半 / 19-21）
-  const mRange = text.match(/(\d{1,2})(?:[:時]?)(\d{2}|半)?\s*(?:[〜~\-]|から)\s*(\d{1,2})(?:[:時]?)(\d{2}|半)?/);
+  const mRange = text.match(/(\d{1,2})(?:[:：時]?)(\d{2}|半)?\s*(?:[〜~\-]|から)\s*(\d{1,2})(?:[:：時]?)(\d{2}|半)?/);
   if (mRange) {
     const sH = +mRange[1];
     const sM = mRange[2] === '半' ? 30 : (mRange[2] ? +mRange[2] : 0);
@@ -89,7 +115,7 @@ function pickTimesFromText(src: string) {
   }
 
   // 単独開始時刻（デフォルト 1 時間）
-  const mStart = text.match(/(\d{1,2})(?:[:時](\d{2}|半))?/);
+  const mStart = text.match(/(\d{1,2})(?:[:：時](\d{2}|半))?/);
   if (mStart) {
     const sH = +mStart[1];
     const sM = mStart[2] === '半' ? 30 : (mStart[2] ? +mStart[2] : 0);
@@ -105,7 +131,7 @@ function splitLocationAndSummary(src: string) {
   let summary = src.trim();
 
   // "@場所" 優先
-  const at = summary.match(/(.+?)\s*@\s*(.+)$/);
+  const at = summary.match(/(.+?)\s*[@＠]\s*(.+)$/);
   if (at) {
     summary = at[1].trim();
     location = at[2].trim();
@@ -125,8 +151,10 @@ function splitLocationAndSummary(src: string) {
 export async function extractEventFromText(text: string): Promise<{
   summary: string; start: string; end: string; location?: string; description?: string;
 } | null> {
-  const now = new Date();
-  const cleaned = removeFillerWords(text || '');
+  const now = nowJst();
+  // まず全角→半角などの正規化を行う（全角コロン/スラッシュ/数字対応）
+  const normalized = toHalfwidth(text || '');
+  const cleaned = removeFillerWords(normalized);
 
   // 1) 旧フォーマット（8/23 20:30-21:00 タイトル @場所）
   {

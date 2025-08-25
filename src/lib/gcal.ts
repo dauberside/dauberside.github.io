@@ -1,27 +1,30 @@
 import type { CreateEventInput, GCalEvent } from './types';
 
-// RFC3339 ユーティリティ（秒・タイムゾーンの補完）
-function ensureRfc3339WithSecondsJst(isoLike: string): string {
-  if (!isoLike) return isoLike;
+// RFC3339 ユーティリティ（秒のみ補完。タイムゾーンは変更しない）
+function ensureSeconds(isoLike: string): string {
+  if (!isoLike) return isoLike as any;
   let s = String(isoLike).trim();
-  // タイムゾーンが無ければ +09:00 を付与
-  if (!/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) {
-    s = s + '+09:00';
-  }
-  // 秒が無ければ :00 を補完
+  // 秒が無ければ `:00` を補完
   if (/T\d{2}:\d{2}(?!:)/.test(s)) {
     s = s.replace(/(T\d{2}:\d{2})(?=(?:[.+-]|Z|$))/, '$1:00');
   }
-  // ミリ秒が "T..:..:..+09:00" と競合しないようそのまま通す
   return s;
+}
+// 末尾にタイムゾーン表記（Z or ±HH:MM）が付いているか（末尾限定）
+function hasTz(s: string): boolean {
+  // 末尾が "Z" または "+HH:MM/-HH:MM" ならタイムゾーン付きとみなす
+  return /(Z|[+-]\d{2}:\d{2})$/i.test(s);
 }
 
 function buildGcalDatePart(input: { dateTime: string } | { date: string }) {
   if ('dateTime' in input) {
-    return {
-      dateTime: ensureRfc3339WithSecondsJst(input.dateTime),
-      timeZone: 'Asia/Tokyo',
-    } as const;
+    const s = ensureSeconds(input.dateTime);
+    if (hasTz(s)) {
+      // 既にタイムゾーンが含まれている場合はそのまま送る（timeZone は付与しない）
+      return { dateTime: s } as const;
+    }
+    // タイムゾーンが無い場合のみ JST を明示
+    return { dateTime: s, timeZone: 'Asia/Tokyo' } as const;
   }
   return { date: input.date } as const;
 }

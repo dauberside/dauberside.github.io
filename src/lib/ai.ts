@@ -19,58 +19,88 @@ function sanitizeSummary(s: string, location?: string) {
   return t;
 }
 
+export function formatJstShort(d0: string | Date) {
+  const d = new Date(d0);
+  if (isNaN(d.getTime())) return String(d0).slice(0, 16);
+
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d);
+
+  const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+  const M = get('month');
+  const D = get('day');
+  const hh = get('hour');
+  const mm = get('minute');
+  return `${Number(M)}/${Number(D)} ${hh}:${mm}`;
+}
+
 function makeConfirmLine(summary: string, startISO: string | Date, endISO: string | Date, location?: string) {
-  const fmtJst = (d0: string | Date) => {
-    const d = new Date(d0);
-    if (isNaN(d.getTime())) return String(d0).slice(0, 16);
-
-    const parts = new Intl.DateTimeFormat('ja-JP', {
-      timeZone: 'Asia/Tokyo',
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).formatToParts(d);
-
-    const get = (t: string) => parts.find(p => p.type === t)?.value || '';
-    const M = get('month');
-    const D = get('day');
-    const hh = get('hour');
-    const mm = get('minute');
-    return `${Number(M)}/${Number(D)} ${hh}:${mm}`;
-  };
-
-  const s = fmtJst(startISO);
-  const eFull = fmtJst(endISO);
+  // 事前にJSTのISOへ正規化してから表示用に短縮（naiveな日時でもJST扱い）
+  const s = formatJstShort(ensureJstIso(startISO));
+  const eFull = formatJstShort(ensureJstIso(endISO));
   const e = eFull.includes(' ') ? eFull.split(' ')[1] : eFull;
   const loc = location ? ` @${location}` : '';
   const title = sanitizeSummary(summary, location);
   return `${title.slice(0, 30)} ${s}〜${e}${loc}`;
 }
 
-// 短いISO（RFC3339秒あり、タイムゾーン付き）に正規化
-function toShortIso(v: string | Date) {
-  // 文字列ならそのまま整形を試みる
+/** 短いISO（RFC3339秒あり、タイムゾーン付き）に正規化（JST固定） */
+export function ensureJstIso(v: string | Date) {
   if (typeof v === 'string') {
-    // 日付のみ（終日）の場合はそのまま返す
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    let s = v.trim();
+    if (!s) return s;
 
-    // ISO っぽい場合は秒有り・オフセット維持（Z の場合は +09:00 に変換）
-    const m = v.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::\d{2})?(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/);
+    // 全角→半角、全角スペース除去、全角コロン→半角
+    s = s.normalize('NFKC').replace(/\u3000/g, ' ').replace(/：/g, ':');
+
+    // 終日（YYYY-MM-DD）はそのまま
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    // まずスラッシュ区切りをダッシュへ統一（YYYY/MM/DD → YYYY-MM-DD）
+    s = s.replace(
+      /^(\d{4})\/(\d{1,2})\/(\d{1,2})([ T])?/,
+      (_m, y, mo, da, sep = 'T') => `${y}-${String(mo).padStart(2, '0')}-${String(da).padStart(2, '0')}${sep}`
+    );
+
+    // ISO + タイムゾーン（Z または ±HH:MM）
+    let m = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::(\d{2}))?(Z|[+-]\d{2}:\d{2})$/);
     if (m) {
-      const base = m[1]; // YYYY-MM-DDTHH:MM
-      const tz = m[2] === 'Z' ? '+09:00' : m[2];
-      return `${base}:00${tz}`;
+      const [, ymd, hm, ss, tz] = m;
+      const sec = ss ?? '00';
+      const off = tz === 'Z' ? '+09:00' : tz;
+      return `${ymd}T${hm}:${sec}${off}`;
     }
+
+    // ISO だがタイムゾーン無し → JST とみなして +09:00 を付与
+    m = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::(\d{2}))?$/);
+    if (m) {
+      const [, ymd, hm, ss] = m;
+      return `${ymd}T${hm}:${ss ?? '00'}+09:00`;
+    }
+
+    // 短縮形: M/D HH:mm（年はJSTの「今年」）
+    m = s.match(/^(\d{1,2})[\/\-月](\d{1,2})(?:日)?\s+(\d{1,2}):(\d{2})$/);
+    if (m) {
+      const [, mo, da, hh, mm] = m;
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric' }).formatToParts(now);
+      const yy = parts.find(p => p.type === 'year')?.value || String(now.getFullYear());
+      return `${yy}-${String(mo).padStart(2, '0')}-${String(da).padStart(2, '0')}T${String(hh).padStart(2, '0')}:${mm}:00+09:00`;
+    }
+
+    // ここまでに該当しない文字列は Date に投げず、最終手段としてそのまま返す
+    // （誤ったUTC化を避ける）
   }
 
-  // それ以外は Date から JST として整形（壁時計表示）
-  const d = new Date(v);
+  // Date 型は「JSTの壁時間」で組み立て
+  const d = new Date(v as any);
   if (isNaN(d.getTime())) return String(v);
-  const pad = (n: number) => String(n).padStart(2, '0');
-
-  // 環境TZ非依存で JST の壁時間を得る
   const parts = new Intl.DateTimeFormat('ja-JP', {
     timeZone: 'Asia/Tokyo',
     year: 'numeric',
@@ -84,13 +114,13 @@ function toShortIso(v: string | Date) {
 
   const get = (t: string) => parts.find(p => p.type === t)?.value || '';
   const y = get('year');
-  const m2 = get('month');
+  const mo = get('month');
   const da = get('day');
   const hh = get('hour');
   const mm = get('minute');
   const ss = get('second');
 
-  return `${y}-${m2}-${da}T${hh}:${mm}:${ss}+09:00`;
+  return `${y}-${mo}-${da}T${hh}:${mm}:${ss}+09:00`;
 }
 
 /** 予定登録の確認カード（Buttonsテンプレ+postback, data≤300保証） */
@@ -106,16 +136,16 @@ export async function sendScheduleConfirm(
 
   const detail = [
     `件名: ${sanitizeSummary(summary, location)}`,
-    `開始: ${toShortIso(start)}`,
-    `終了: ${toShortIso(end)}`,
+    `開始: ${ensureJstIso(start)}`,
+    `終了: ${ensureJstIso(end)}`,
     location ? `場所: ${location}` : '',
   ].filter(Boolean).join('\n');
 
   // できるだけ短いJSON（URLエンコードはしない！data ≤ 300 対策）
   const compactPayload = {
     summary: summary ?? '',
-    start: toShortIso(start),
-    end: toShortIso(end),
+    start: ensureJstIso(start),
+    end: ensureJstIso(end),
     location: location ?? '',
     description: (() => {
       try {
