@@ -1,16 +1,15 @@
-import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import Header from "@/components/layout/Header";
+import React, { useState } from "react";
+
 import Footer from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import Header from "@/components/layout/Header";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,

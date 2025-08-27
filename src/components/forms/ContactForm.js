@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect,useState } from "react";
+import { useForm } from "react-hook-form";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const ContactForm = ({ isOpen, onRequestClose }) => {
   const [submitted, setSubmitted] = useState(false);
@@ -32,28 +33,29 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
     }
   }, [isOpen]);
 
-  const onSubmit = async (data) => {
-    try {
-      const response = await fetch("/api/send", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+const onSubmit = async (data) => {
+  try {
+    const response = await fetch("/api/send", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (response.ok) {
-        setSubmitted(true);
-      } else {
-        const errorText = await response.text();
-        setServerError(errorText);
-        console.error("メッセージの送信に失敗しました:", errorText);
-      }
-    } catch (error) {
-      setServerError(error.message);
-      console.error("エラーが発生しました:", error);
+    if (response.ok) {
+      setSubmitted(true);
+    } else {
+      const errorJson = await response.json().catch(() => null);
+      const errorMessage = errorJson?.error || (await response.text());
+      setServerError(errorMessage);
+      console.error("メッセージの送信に失敗しました:", errorMessage);
     }
-  };
+  } catch (error) {
+    setServerError(error.message);
+    console.error("エラーが発生しました:", error);
+  }
+};
 
   const handleReset = () => {
     setSubmitted(false);
