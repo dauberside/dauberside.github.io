@@ -1,7 +1,8 @@
 // src/lib/ai.ts
-import { replyTemplate } from '@/lib/line';
-import { kv } from '@/lib/kv';
 import crypto from 'crypto';                  // 追加
+
+import { kv } from '@/lib/kv';
+import { replyTemplate } from '@/lib/line';
 
 function truncateForButtons(s: string, limit = 60) {
   const t = String(s || '');

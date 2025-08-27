@@ -49,8 +49,8 @@ function removeFillerWords(s: string) {
 function pickDateFromText(src: string, now = nowJst()) {
   let text = src;
   const y0 = now.getFullYear();
-  let m0 = now.getMonth() + 1;
-  let d0 = now.getDate();
+  const m0 = now.getMonth() + 1;
+  const d0 = now.getDate();
 
   // 今日/明日/明後日
   const mRel = text.match(/(今日|明日|明後日)/);
@@ -162,11 +162,11 @@ export async function extractEventFromText(text: string): Promise<{
     if (m) {
       const Y = now.getFullYear();
       const mm = +m[1], dd = +m[2];
-      let sh = +m[3], sm = m[4] === '半' ? 30 : +m[4];
-      let eh = +m[5], em = m[6] === '半' ? 30 : +m[6];
+      const sh = +m[3], sm = m[4] === '半' ? 30 : +m[4];
+      const eh = +m[5], em = m[6] === '半' ? 30 : +m[6];
       const sFix = clamp24(sh, sm); const eFix = clamp24(eh, em);
-      let y = Y, mo = mm, da = dd;
-      let y2 = y, mo2 = mo, da2 = da + eFix.carryDay;
+      const y = Y, mo = mm, da = dd;
+      const y2 = y, mo2 = mo, da2 = da + eFix.carryDay;
       const start = toJstIso(y, mo, da, sFix.h, sFix.m, 0);
 
       // 終了が開始より前なら翌日扱い
@@ -190,7 +190,7 @@ export async function extractEventFromText(text: string): Promise<{
   // 24:00 補正
   const sFix = clamp24(times.startH, times.startM);
   const eFix = clamp24(times.endH, times.endM);
-  let y = picked.y, mo = picked.m, da = picked.d;
+  const y = picked.y, mo = picked.m, da = picked.d;
   let endDate = new Date(y, mo - 1, da + eFix.carryDay, eFix.h, eFix.m, times.allday ? 59 : 0);
   const startDate = new Date(y, mo - 1, da + sFix.carryDay, sFix.h, sFix.m, 0);
   if (!times.allday && endDate <= startDate) {

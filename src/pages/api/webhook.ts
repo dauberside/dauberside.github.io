@@ -119,31 +119,32 @@ async function tryCancelFromText(
   }
   return true;
 }
-import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'node:crypto';
+
 import { kv } from '@vercel/kv';
+import type { NextApiRequest, NextApiResponse } from 'next';
 // === 分割済みライブラリ ===
 type PostbackAction = { type: 'postback'; label: string; data: string };
 type CarouselColumn = { text: string; actions: PostbackAction[] };
 // === 分割済みライブラリ ===
-import {
-  kvAvailable,
-  chatKey,
-  saveMessageKV,
-  getRecentMessagesKV,
-  searchMessagesKV,
-  eventListKey,
-  saveEventRefKV,
-  loadRecentEventRefsKV,
-  pruneEventRefFromKV,
-} from '@/lib/kv';
-import { callCfChat, sendScheduleConfirm, isCfAiConfigured } from '@/lib/ai';
+import { callCfChat, isCfAiConfigured,sendScheduleConfirm } from '@/lib/ai';
 import {
   createGoogleCalendarEvent,
-  listGoogleCalendarEvents,
   deleteGoogleCalendarEvent,
+  listGoogleCalendarEvents,
 } from '@/lib/gcal';
-import { replyText, verifyLineSignature, replyTemplate } from '@/lib/line';
+import {
+  chatKey,
+  eventListKey,
+  getRecentMessagesKV,
+  kvAvailable,
+  loadRecentEventRefsKV,
+  pruneEventRefFromKV,
+  saveEventRefKV,
+  saveMessageKV,
+  searchMessagesKV,
+} from '@/lib/kv';
+import { replyTemplate,replyText, verifyLineSignature } from '@/lib/line';
 import { extractEventFromText, normStr } from '@/lib/parser';
 // Ambient type for optional module '@/lib/interpret'
 // This prevents TS compile errors when the file is not present.
@@ -220,22 +221,15 @@ function formatJstShort(iso?: string): string {
   return `${+m[2]}/${+m[3]} ${m[4]}:${m[5]}`;
 }
 
-// Buttons/Carousel の template.text は短い制限（60文字想定）。要約1行を生成。
-function makeConfirmLine(summary: string, startISO: string, endISO: string, location?: string) {
-  const fmt = (iso: string) => {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return (iso || '').slice(0, 16);
-    const M = d.getMonth() + 1;
-    const D = d.getDate();
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${M}/${D} ${hh}:${mm}`;
-  };
-  const s = fmt(startISO);
-  const eFull = fmt(endISO);
-  const e = eFull.includes(' ') ? eFull.split(' ')[1] : eFull; // 右側は時刻だけに
+// Buttons/Carousel の template.text は短い制限（60文字想定）。要約1行を生成（JST壁時計で厳格に整形）
+function makeConfirmLine(summary: string, startISO: string | Date, endISO: string | Date, location?: string) {
+  const toIso = (v: string | Date) => (typeof v === 'string' ? v : new Date(v).toISOString());
+  const s = formatJstShort(toIso(startISO));
+  const eFull = formatJstShort(toIso(endISO));
+  const e = eFull.includes(' ') ? eFull.split(' ')[1] : eFull; // 右側は時刻のみ
   const loc = location ? ` @${location}` : '';
-  return `${(summary || '(無題)').slice(0, 30)} ${s}〜${e}${loc}`;
+  const title = (summary || '(無題)').slice(0, 30);
+  return `${title} ${s}〜${e}${loc}`;
 }
 
 // よく出る地名（ロケーション推定用）
@@ -416,31 +410,48 @@ const TIME_SLOTS: Record<string, [number, number]> = {
 };
 
 function parseClockJa(raw: string): { sh?: number; sm?: number; eh?: number; em?: number } {
-  const s = toHalfWidthDigitsStr(raw || '');
+  const s0 = toHalfWidthDigitsStr(raw || '');
+  // Normalize full-width punctuations and collapse spaces
+  const sNorm = s0
+    .replace(/[：]/g, ':')
+    .replace(/[～〜]/g, '~')
+    .replace(/[－―—–]/g, '-')
+    .replace(/\s+/g, ' ');
 
-  // 19:30-21:00 / 19:30〜21:00
-  let m = s.match(/(\d{1,2})[:：](\d{2})\s*[-〜~]\s*(\d{1,2})[:：](\d{2})/);
+  // --- Mask date tokens so "8/27 16:00" doesn't let "8" be misread as 8時 ---
+  // (1) 8/27  (2) 8月27日  (3) 2025-08-27 のような日付
+  const s = sNorm
+    .replace(/\b(\d{1,2})\s*[\/.]\s*(\d{1,2})(?:\s*日)?\b/g, ' ')          // 8/27, 8.27, 8/27日
+    .replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, ' ')                           // 2025-08-27
+    .replace(/\b(\d{1,2})\s*月\s*(\d{1,2})\s*日\b/g, ' ');                  // 8月27日
+
+  // 1) Explicit range: HH:MM-HH:MM / HH:MM〜HH:MM
+  let m = s.match(/(?:^|[^\d])(\d{1,2})\s*:\s*(\d{2})\s*[-~]\s*(\d{1,2})\s*:\s*(\d{2})(?!\d)/);
   if (m) return { sh: +m[1], sm: +m[2], eh: +m[3], em: +m[4] };
 
-  // 19-21
-  m = s.match(/(\d{1,2})\s*[-〜~]\s*(\d{1,2})(?![:：])/);
+  // 2) Range: HH-HH  ※ avoid picking from dates like 8-27 by requiring non-digit/non-slash before the first hour
+  m = s.match(/(?:^|[^\/\d])(\d{1,2})\s*[-~]\s*(\d{1,2})(?!\s*:)/);
   if (m) return { sh: +m[1], sm: 0, eh: +m[2], em: 0 };
 
-  // 19時半-21時
-  m = s.match(/(\d{1,2})時半\s*[-〜~]\s*(\d{1,2})時/);
+  // 3) Range: HH時半-HH時
+  m = s.match(/(?:^|[^\d])(\d{1,2})時半\s*[-〜~]\s*(\d{1,2})時/);
   if (m) return { sh: +m[1], sm: 30, eh: +m[2], em: 0 };
 
-  // 19時-21時半
-  m = s.match(/(\d{1,2})時\s*[-〜~]\s*(\d{1,2})時半/);
+  // 4) Range: HH時-HH時半
+  m = s.match(/(?:^|[^\d])(\d{1,2})時\s*[-〜~]\s*(\d{1,2})時半/);
   if (m) return { sh: +m[1], sm: 0, eh: +m[2], em: 30 };
 
-  // 単独：19時半
-  m = s.match(/(\d{1,2})時半/);
+  // 5) Single: HH:MM（not followed by a range separator）
+  m = s.match(/(?:^|[\s　(（])(\d{1,2})\s*:\s*(\d{2})(?!\s*[-~〜])/);
+  if (m) return { sh: +m[1], sm: +m[2] };
+
+  // 6) Single: HH時半
+  m = s.match(/(?:^|[^\d])(\d{1,2})時半/);
   if (m) return { sh: +m[1], sm: 30 };
 
-  // 単独：19:00 / 19時
-  m = s.match(/(\d{1,2})(?:[:：](\d{2}))?\s*時?/);
-  if (m) return { sh: +m[1], sm: m[2] ? +m[2] : 0 };
+  // 7) Single: HH時（force "時" to avoid taking the month number）
+  m = s.match(/(?:^|[^\d])(\d{1,2})時(?!間)/);
+  if (m) return { sh: +m[1], sm: 0 };
 
   return {};
 }
@@ -462,55 +473,96 @@ function parseAmPmJa(raw: string, baseHour?: number): number | undefined {
 
 function extractTimeWindowJa(raw: string): { sh?: number; sm?: number; eh?: number; em?: number } | undefined {
   const txt = raw || '';
+  // Quick mask of date tokens to reduce false positives
+  const txtMasked = txt
+    .replace(/[：]/g, ':')
+    .replace(/\b(\d{1,2})\s*[\/.]\s*(\d{1,2})(?:\s*日)?\b/g, ' ')
+    .replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, ' ')
+    .replace(/\b(\d{1,2})\s*月\s*(\d{1,2})\s*日\b/g, ' ');
 
   // 終日/朝/昼/夕方/夜
   for (const k of Object.keys(TIME_SLOTS)) {
-    if (txt.includes(k)) {
+    if (txtMasked.includes(k)) {
       const [a, b] = TIME_SLOTS[k];
       return { sh: a, sm: 0, eh: b, em: 0 };
     }
   }
 
-  const c = parseClockJa(txt);
+  const c = parseClockJa(txtMasked);
   if (c.sh !== undefined) {
     // AM/PM 補正
-    const sh = parseAmPmJa(txt, c.sh) ?? c.sh;
-    const eh = c.eh !== undefined ? (parseAmPmJa(txt, c.eh) ?? c.eh) : undefined;
+    const sh = parseAmPmJa(txtMasked, c.sh) ?? c.sh;
+    const eh = c.eh !== undefined ? (parseAmPmJa(txtMasked, c.eh) ?? c.eh) : undefined;
     return { sh, sm: c.sm, eh, em: c.em };
   }
   return undefined;
 }
 
-function applyTimeWindowToRange(dayStartIso: string, dayEndIso: string, w?: { sh?: number; sm?: number; eh?: number; em?: number }) {
+function applyTimeWindowToRange(
+  dayStartIso: string,
+  dayEndIso: string,
+  w?: { sh?: number; sm?: number; eh?: number; em?: number }
+) {
   if (!w || w.sh === undefined) return { start: dayStartIso, end: dayEndIso };
-  const day = new Date(dayStartIso);
-  const mk = (h: number, m: number) => {
-    const d = new Date(day);
-    d.setHours(h, m, 0, 0);
-    return d.toISOString();
-  };
-  const start = mk(w.sh, w.sm ?? 0);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  // 例: 2025-08-27T00:00:00+09:00 → 2025-08-27
+  const datePart = (dayStartIso.match(/^(\d{4}-\d{2}-\d{2})/)?.[1]) || (() => {
+    // フォールバック：JSTの壁時計日付を抽出
+    const d = new Date(dayStartIso);
+    const parts = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(d);
+    const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+    return `${get('year')}-${get('month')}-${get('day')}`;
+  })();
+
+  const mk = (h: number, m: number) => `${datePart}T${pad(h)}:${pad(m)}:00+09:00`;
+
+  const start = mk(w.sh!, w.sm ?? 0);
+
   let end: string;
   if (w.eh !== undefined) {
-    const eh = w.eh >= 24 ? 23 : w.eh;
-    const em = w.em ?? 0;
-    end = mk(eh, em);
     if (w.eh >= 24) {
-      const d = new Date(end);
-      d.setUTCHours(d.getUTCHours() + 1); // 24:00 → 翌日00:00相当
-      end = d.toISOString();
+      // 翌日扱い（24:00 など）
+      const base = new Date(`${datePart}T00:00:00+09:00`);
+      base.setDate(base.getDate() + 1);
+      // JSTの翌日を再度文字列化
+      const parts = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+      }).formatToParts(base);
+      const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+      const nextDate = `${get('year')}-${get('month')}-${get('day')}`;
+      end = `${nextDate}T${pad(w.eh - 24)}:${pad(w.em ?? 0)}:00+09:00`;
+    } else {
+      end = mk(w.eh, w.em ?? 0);
     }
   } else {
-    // デフォルト90分
-    const d = new Date(start);
-    d.setMinutes(d.getMinutes() + 90);
-    end = d.toISOString();
+    // デフォルト 90 分
+    const sDate = new Date(start);
+    sDate.setMinutes(sDate.getMinutes() + 90);
+    // JSTの壁時計で再整形
+    const parts = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    }).formatToParts(sDate);
+    const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+    end = `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}+09:00`;
   }
+
+  // start >= end の場合は、終了を+1分しておく
   if (new Date(start).getTime() >= new Date(end).getTime()) {
-    const d = new Date(end);
-    d.setDate(d.getDate() + 1);
-    end = d.toISOString();
+    const d = new Date(start);
+    d.setMinutes(d.getMinutes() + 1);
+    const parts = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    }).formatToParts(d);
+    const get = (t: string) => parts.find(p => p.type === t)?.value || '';
+    end = `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}+09:00`;
   }
+
   return { start, end };
 }
 // 「23日」「8/23」「8月23日」「今日/明日/明後日」等から、その日の 00:00〜23:59(+09:00) を返す
@@ -564,14 +616,14 @@ function extractDayRangeJa(raw: string, now = new Date()): { start?: string; end
   }
 
   // 今月/来月/再来月 の N日
-  let mThis = text.match(/今月(?:の)?\s*(\d{1,2})\s*日?/);
+  const mThis = text.match(/今月(?:の)?\s*(\d{1,2})\s*日?/);
   if (mThis) {
     const DD = Math.min(31, Math.max(1, parseInt(mThis[1], 10)));
     const ds = isoDay(y, m, DD, 0, 0, 0);
     const de = isoDay(y, m, DD, 23, 59, 59);
     return { start: ds, end: de };
   }
-  let mNext = text.match(/来月(?:の)?\s*(\d{1,2})\s*日?/);
+  const mNext = text.match(/来月(?:の)?\s*(\d{1,2})\s*日?/);
   if (mNext) {
     let YY = y; let MM = m + 1; if (MM > 12) { MM = 1; YY += 1; }
     const DD = Math.min(31, Math.max(1, parseInt(mNext[1], 10)));
@@ -579,7 +631,7 @@ function extractDayRangeJa(raw: string, now = new Date()): { start?: string; end
     const de = isoDay(YY, MM, DD, 23, 59, 59);
     return { start: ds, end: de };
   }
-  let mNext2 = text.match(/再来月(?:の)?\s*(\d{1,2})\s*日?/);
+  const mNext2 = text.match(/再来月(?:の)?\s*(\d{1,2})\s*日?/);
   if (mNext2) {
     let YY = y; let MM = m + 2; while (MM > 12) { MM -= 12; YY += 1; }
     const DD = Math.min(31, Math.max(1, parseInt(mNext2[1], 10)));
@@ -589,7 +641,7 @@ function extractDayRangeJa(raw: string, now = new Date()): { start?: string; end
   }
 
   // 8/23 or 8月23日
-  let mmdd = text.match(/(\d{1,2})[\/月](\d{1,2})日?/);
+  const mmdd = text.match(/(\d{1,2})[\/月](\d{1,2})日?/);
   if (mmdd) {
     const MM = Math.min(12, Math.max(1, parseInt(mmdd[1], 10)));
     const DD = Math.min(31, Math.max(1, parseInt(mmdd[2], 10)));
@@ -628,7 +680,7 @@ async function handleScheduleIntent(
   let intent = parsed?.intent || 'smalltalk';
   let startISO = isoOrUndefined(parsed?.date_range?.start);
   let endISO   = isoOrUndefined(parsed?.date_range?.end);
-  let keywords: string[] = Array.isArray(parsed?.keywords) ? (parsed!.keywords as any[]).map(String) : [];
+  const keywords: string[] = Array.isArray(parsed?.keywords) ? (parsed!.keywords as any[]).map(String) : [];
 
   // ユーザー辞書をKVから取り込み（PLACE_WORDSにマージ）
   const dict = await loadUserDictKV(groupOrRoomId);
@@ -1293,8 +1345,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // /kvevents
       if (/^\/kvevents$/i.test(text)) {
         const key = eventListKey(groupOrRoomId);
-        let refs = await loadRecentEventRefsKV(groupOrRoomId, 10);
-        let clean = refs.filter((r: any) => r && r.id && r.summary);
+        const refs = await loadRecentEventRefsKV(groupOrRoomId, 10);
+        const clean = refs.filter((r: any) => r && r.id && r.summary);
         if (!clean.length) {
           // 空なら近傍の予定をGCalから取り込み（過去14日〜今後60日）
           const now = new Date();

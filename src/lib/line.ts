@@ -1,5 +1,6 @@
-import type { NextApiRequest } from 'next';
 import crypto from 'node:crypto';
+
+import type { NextApiRequest } from 'next';
 
 const LINE_ENDPOINT = 'https://api.line.me/v2/bot/message/reply';
 

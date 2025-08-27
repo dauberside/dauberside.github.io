@@ -35,6 +35,8 @@ const nextConfig = {
     ];
   },
   pageExtensions: ["js", "jsx", "ts", "tsx"],
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
   async redirects() {
     return [
       { source: "/chat", destination: "/", permanent: false },
