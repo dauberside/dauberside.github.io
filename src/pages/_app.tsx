@@ -1,8 +1,5 @@
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "@/styles/globals.css";
-import "@/styles/crime.css";
-import "@/styles/grid.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import { config } from "@fortawesome/fontawesome-svg-core";
 import type { AppProps } from "next/app";

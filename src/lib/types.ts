@@ -11,8 +11,8 @@ export interface CreateEventInput {
   end: GCalDate;
   location?: string;
   description?: string;
-  timeZone?: string;   // e.g. 'Asia/Tokyo'
-  allDay?: boolean;    // true if start/end are date (allday)
+  timeZone?: string; // e.g. 'Asia/Tokyo'
+  allDay?: boolean; // true if start/end are date (allday)
 }
 
 /** Minimal Google Calendar event shape we reference in the app */
@@ -45,7 +45,13 @@ export interface EventRef {
  * The fields are optional; when present, start/end are ISO strings (may include offset).
  */
 export interface ParsedSchedule {
-  intent?: 'check_schedule'|'create_event'|'cancel_event'|'reschedule_event'|'edit_event'|'smalltalk';
+  intent?:
+    | "check_schedule"
+    | "create_event"
+    | "cancel_event"
+    | "reschedule_event"
+    | "edit_event"
+    | "smalltalk";
   date_range?: { start?: string; end?: string };
   keywords?: string[];
 
@@ -53,28 +59,28 @@ export interface ParsedSchedule {
   summary?: string;
   location?: string;
   description?: string;
-  start?: string;     // ISO string (prefer +09:00)
-  end?: string;       // ISO string (prefer +09:00)
+  start?: string; // ISO string (prefer +09:00)
+  end?: string; // ISO string (prefer +09:00)
   allDay?: boolean;
 }
 
 /* ===== LINE template helper types (for stronger type-safety in webhook) ===== */
 
 export type LinePostbackAction = {
-  type: 'postback';
+  type: "postback";
   label: string;
   data: string;
   displayText?: string;
 };
 
 export type LineMessageAction = {
-  type: 'message';
+  type: "message";
   label: string;
   text: string;
 };
 
 export interface LineConfirmTemplate {
-  type: 'confirm';
+  type: "confirm";
   text: string; // must be ≤ 60 chars per LINE spec
   actions: [LinePostbackAction, LineMessageAction]; // yes/no (postback + message)
 }
@@ -85,12 +91,12 @@ export interface LineCarouselColumn {
 }
 
 export interface LineCarouselTemplate {
-  type: 'carousel';
+  type: "carousel";
   columns: LineCarouselColumn[];
 }
 
 export type LineQuickReplyItem = {
-  type: 'action';
+  type: "action";
   action: LinePostbackAction | LineMessageAction;
 };
 

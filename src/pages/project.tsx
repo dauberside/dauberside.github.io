@@ -9,7 +9,7 @@ import Header from "@/components/layout/Header";
 const Project = () => {
   const router = useRouter();
 
-  const handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const _handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     router.push("/chat");
   };

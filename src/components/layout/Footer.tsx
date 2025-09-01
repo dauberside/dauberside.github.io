@@ -1,15 +1,10 @@
-
-
 import React from "react";
 
-interface FooterProps {
-  className?: string;
-}
+// Accept standard <footer> props including className
+export type FooterProps = React.ComponentProps<"footer">;
 
-const Footer: React.FC<FooterProps> = ({ className }) => {
-  const currentYear = new Date().getFullYear();
-
-  return <footer id="footer"></footer>;
+const Footer: React.FC<FooterProps> = ({ className, ...props }) => {
+  return <footer id="footer" className={className} {...props} />;
 };
 
 export default Footer;

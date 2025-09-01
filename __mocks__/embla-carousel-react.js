@@ -1,26 +1,21 @@
-import useEmblaCarousel from "embla-carousel-react";
+/* Minimal mock for embla-carousel-react used in tests/SSR */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
-const isTestEnvironment = process.env.NODE_ENV === "test";
+import React from "react";
 
-{
-  !isTestEnvironment && (
-    <Carousel className="w-full mx-auto">{/* Carousel の内容 */}</Carousel>
+function useEmblaCarousel() {
+  // Return the same tuple shape as the real hook: [ref, api]
+  return [null, { scrollNext() {}, scrollPrev() {} }];
+}
+
+function EmblaCarouselReact(props) {
+  // Render a plain container so components depending on it can mount
+  return React.createElement(
+    "div",
+    { "data-embla-mock": true },
+    props.children,
   );
 }
 
-describe("Dauber Page", () => {
-  it("checks if embla-carousel is mocked", () => {
-    console.log(useEmblaCarousel()); // モックが適用されている場合、[null, {}] が出力される
-  });
-});
-
-const useEmblaCarousel = () => [null, {}];
 export default useEmblaCarousel;
-
-module.exports = {
-  moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/src/$1",
-    "embla-carousel-react": "<rootDir>/__mocks__/embla-carousel-react.js",
-  },
-  testEnvironment: "jsdom",
-};
+export { EmblaCarouselReact };

@@ -1,12 +1,16 @@
 // src/lib/kv.ts
-import { kv as _kv } from '@vercel/kv';
+import { kv as _kv } from "@vercel/kv";
 
-import type { EventRef } from './types';
+import type { EventRef } from "./types";
 
 export const kv = _kv;
 // Re-exports Vercel KV client as named export `kv` and provides helper utilities
 // (Postback payload stash helpers are optional but kept here for convenience)
-export async function stashPostbackPayload(id: string, json: string, ttlSec = 600) {
+export async function stashPostbackPayload(
+  id: string,
+  json: string,
+  ttlSec = 600,
+) {
   await kv.set(`pb:${id}`, json, { ex: ttlSec });
 }
 export async function popPostbackPayload(id: string): Promise<string | null> {
@@ -30,10 +34,11 @@ export async function kvAvailable() {
 }
 
 /** Normalize groupId to a stable string key */
-const normGid = (groupId?: string) => groupId || 'solo';
+const normGid = (groupId?: string) => groupId || "solo";
 
 export const chatKey = (groupId?: string) => `chat:${normGid(groupId)}`;
-export const eventListKey = (groupId?: string) => `gcal:${normGid(groupId)}:events`;
+export const eventListKey = (groupId?: string) =>
+  `gcal:${normGid(groupId)}:events`;
 
 function safeJSONParse<T>(s: string): T | null {
   try {
@@ -60,9 +65,13 @@ export async function getRecentMessagesKV(groupId: string | undefined, n = 20) {
   return (arr || []).map((s) => safeJSONParse<any>(s) ?? { text: s });
 }
 
-const norm = (s: string) => String(s || '').toLowerCase();
+const norm = (s: string) => String(s || "").toLowerCase();
 
-export async function searchMessagesKV(groupId: string | undefined, q: string, limit = 200) {
+export async function searchMessagesKV(
+  groupId: string | undefined,
+  q: string,
+  limit = 200,
+) {
   const items = (await getRecentMessagesKV(groupId, limit)) as any[];
   const needle = norm(q);
   return (items || []).filter((m) => norm(m?.text).includes(needle));
@@ -76,7 +85,10 @@ export async function searchMessagesKV(groupId: string | undefined, q: string, l
  * Save (or upsert) a minimal event reference for later cancellation/editing.
  * De-duplicates by id and keeps the list bounded to 100.
  */
-export async function saveEventRefKV(groupId: string | undefined, ref: EventRef) {
+export async function saveEventRefKV(
+  groupId: string | undefined,
+  ref: EventRef,
+) {
   if (!(await kvAvailable())) return;
   const gid = normGid(groupId);
   if (!gid || !ref?.id) return;
@@ -102,7 +114,7 @@ export async function saveEventRefKV(groupId: string | undefined, ref: EventRef)
  */
 export async function loadRecentEventRefsKV(
   groupId: string | undefined,
-  n = 20
+  n = 20,
 ): Promise<EventRef[]> {
   if (!(await kvAvailable())) return [];
   const key = eventListKey(groupId);
@@ -113,7 +125,7 @@ export async function loadRecentEventRefsKV(
     if (!s) continue;
 
     // Legacy: accidentally pushed a JSON array string as one item
-    if (s.trim().startsWith('[')) {
+    if (s.trim().startsWith("[")) {
       const a = safeJSONParse<any[]>(s);
       if (Array.isArray(a)) {
         for (const v of a) {
@@ -134,7 +146,10 @@ export async function loadRecentEventRefsKV(
  * Remove a ref by eventId. Uses LREM with the exact serialized value when possible;
  * falls back to rebuild if the typed client doesn't expose lrem.
  */
-export async function pruneEventRefFromKV(groupId: string | undefined, eventId: string) {
+export async function pruneEventRefFromKV(
+  groupId: string | undefined,
+  eventId: string,
+) {
   if (!(await kvAvailable())) return;
   const gid = normGid(groupId);
   if (!gid || !eventId) return;
@@ -163,7 +178,7 @@ export async function pruneEventRefFromKV(groupId: string | undefined, eventId: 
   if (removed) return;
 
   // Fallback: rebuild the list without the target id
-  const kept = arr.filter((s) => (safeJSONParse<EventRef>(s)?.id) !== eventId);
+  const kept = arr.filter((s) => safeJSONParse<EventRef>(s)?.id !== eventId);
   if (kept.length === arr.length) return; // nothing to remove
 
   await kv.del(key);
@@ -182,9 +197,8 @@ export async function clearEventRefsKV(groupId?: string) {
 /** Convenience: retrieve a ref by its id (scans up to 100) */
 export async function getEventRefByIdKV(
   groupId: string | undefined,
-  eventId: string
+  eventId: string,
 ): Promise<EventRef | null> {
   const list = await loadRecentEventRefsKV(groupId, 100);
   return list.find((e) => e.id === eventId) ?? null;
 }
-

@@ -1,4 +1,4 @@
-import type { CreateEventInput, GCalEvent } from './types';
+import type { CreateEventInput, GCalEvent } from "./types";
 
 // RFC3339 ユーティリティ（秒のみ補完。タイムゾーンは変更しない）
 function ensureSeconds(isoLike: string): string {
@@ -6,7 +6,7 @@ function ensureSeconds(isoLike: string): string {
   let s = String(isoLike).trim();
   // 秒が無ければ `:00` を補完
   if (/T\d{2}:\d{2}(?!:)/.test(s)) {
-    s = s.replace(/(T\d{2}:\d{2})(?=(?:[.+-]|Z|$))/, '$1:00');
+    s = s.replace(/(T\d{2}:\d{2})(?=(?:[.+-]|Z|$))/, "$1:00");
   }
   return s;
 }
@@ -17,14 +17,14 @@ function hasTz(s: string): boolean {
 }
 
 function buildGcalDatePart(input: { dateTime: string } | { date: string }) {
-  if ('dateTime' in input) {
+  if ("dateTime" in input) {
     const s = ensureSeconds(input.dateTime);
     if (hasTz(s)) {
       // 既にタイムゾーンが含まれている場合はそのまま送る（timeZone は付与しない）
       return { dateTime: s } as const;
     }
     // タイムゾーンが無い場合のみ JST を明示
-    return { dateTime: s, timeZone: 'Asia/Tokyo' } as const;
+    return { dateTime: s, timeZone: "Asia/Tokyo" } as const;
   }
   return { date: input.date } as const;
 }
@@ -34,11 +34,7 @@ function buildGcalDatePart(input: { dateTime: string } | { date: string }) {
  * 必要な環境変数が揃っていなければ null を返す。
  */
 async function getCalendarClient(): Promise<any | null> {
-  const {
-    GC_CLIENT_ID,
-    GC_CLIENT_SECRET,
-    GC_REFRESH_TOKEN,
-  } = process.env;
+  const { GC_CLIENT_ID, GC_CLIENT_SECRET, GC_REFRESH_TOKEN } = process.env;
 
   if (!GC_CLIENT_ID || !GC_CLIENT_SECRET || !GC_REFRESH_TOKEN) {
     return null;
@@ -46,11 +42,11 @@ async function getCalendarClient(): Promise<any | null> {
 
   try {
     // 動的 import（型は any で扱う）
-    const googleApis: any = await import('googleapis');
+    const googleApis: any = await import("googleapis");
     const google = googleApis.google;
     const auth = new google.auth.OAuth2(GC_CLIENT_ID, GC_CLIENT_SECRET);
     auth.setCredentials({ refresh_token: GC_REFRESH_TOKEN });
-    return google.calendar({ version: 'v3', auth });
+    return google.calendar({ version: "v3", auth });
   } catch {
     // 依存が無い / 実行環境で失敗した場合はフォールバック
     return null;
@@ -80,9 +76,10 @@ export async function listGoogleCalendarEvents(args: {
     q,
     maxResults,
     singleEvents: true,
-    orderBy: 'startTime',
+    orderBy: "startTime",
     // htmlLink を必ず含める
-    fields: 'items(id,summary,description,location,start,end,htmlLink),nextPageToken',
+    fields:
+      "items(id,summary,description,location,start,end,htmlLink),nextPageToken",
   });
 
   const items: any[] = resp?.data?.items ?? [];
@@ -118,7 +115,7 @@ export async function createGoogleCalendarEvent(args: {
       location: input.location,
       start: startPart as any,
       end: endPart as any,
-      htmlLink: '',
+      htmlLink: "",
     };
   }
 
@@ -132,7 +129,7 @@ export async function createGoogleCalendarEvent(args: {
       end: endPart as any,
     },
     // htmlLink を必ず返す
-    fields: 'id,summary,description,location,start,end,htmlLink',
+    fields: "id,summary,description,location,start,end,htmlLink",
   });
 
   const ev: any = resp?.data ?? {};

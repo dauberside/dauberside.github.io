@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       .json({ message: "有効なメールアドレスを入力してください" });
   }
 
- const output = `
+  const output = `
   <div style="font-family: Arial, sans-serif; line-height: 1.7; color: #222; background: #f8f8fa; padding: 32px 24px; border-radius: 12px; border: 1px solid #e0e0e0; max-width: 480px;">
     <h1 style="color: #1f1754; font-size: 1.5rem; margin-bottom: 16px;">新しいお問い合わせがあります</h1>
     <ul style="list-style: none; padding: 0; margin-bottom: 24px;">

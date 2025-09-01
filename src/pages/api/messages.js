@@ -1,10 +1,12 @@
 export default async function handler(req, res) {
   try {
-    res.setHeader('Cache-Control', 'no-store');
-    res.status(410).json({ error: 'This endpoint is deprecated and no longer available.' });
+    res.setHeader("Cache-Control", "no-store");
+    res
+      .status(410)
+      .json({ error: "This endpoint is deprecated and no longer available." });
     return;
   } catch (_e) {
-    res.status(410).json({ error: 'Endpoint deprecated.' });
+    res.status(410).json({ error: "Endpoint deprecated." });
     return;
   }
 }
