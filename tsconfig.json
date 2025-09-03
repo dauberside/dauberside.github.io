@@ -27,7 +27,7 @@
       "@/*": ["src/*"],
       "@/lib/*": ["src/lib/*"]
     },
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "pages/**/*.ts", "pages/**/*.tsx"],
   "exclude": ["node_modules"]
