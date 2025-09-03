@@ -1,30 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom"; // 念のため直接インポート
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import React from "react";
+/// <reference types="@testing-library/jest-dom" />
+// CommonJS-style to avoid ESM parsing issues in Jest v30
+require("@testing-library/jest-dom");
+const { render, screen: rtlScreen } = require("@testing-library/react");
+const ReactLib = require("react");
 
 describe("Sample Test", () => {
   it("renders a simple text", () => {
-    render(<div>Hello, World!</div>);
-    expect(screen.getByText("Hello, World!")).toBeInTheDocument();
+    render(ReactLib.createElement("div", null, "Hello, World!"));
+    expect(rtlScreen.getByText("Hello, World!")).toBeInTheDocument();
   });
 });
-
-const Dauber: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-[rgb(0,14,40)] text-white font-sans">
-      <Header className="mx-auto" />
-      <main className="container mx-auto px-4">
-        <h1>Dauber</h1> {/* タイトルを追加 */}
-        <section className="mt-8" aria-label="プロジェクト画像ギャラリー">
-          {/* ギャラリーの内容 */}
-          <p>ここにプロジェクト画像ギャラリーが表示されます。</p>
-        </section>
-      </main>
-      <Footer className="max-w-7xl mx-auto px-4" />
-    </div>
-  );
-};
-
-export default Dauber;

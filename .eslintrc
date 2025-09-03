@@ -1,6 +1,82 @@
 {
-  "extends": "next/core-web-vitals",
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "unused-imports", "simple-import-sort", "testing-library", "jest-dom"],
   "rules": {
-    "react/no-unescaped-entities": "off"
-  }
+    "react/no-unescaped-entities": "off",
+
+    // Keep Prettier active but non-blocking
+    "prettier/prettier": [
+      "warn",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+
+    // TS rules
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      {
+        "prefer": "type-imports",
+        "disallowTypeAnnotations": false
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/ban-ts-comment": [
+      "warn",
+      {
+        "ts-expect-error": "allow-with-description"
+      }
+    ],
+
+    // Remove unused imports/vars
+    "unused-imports/no-unused-imports": "warn",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+
+    // Import order
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+
+    // Allow console.warn/error but flag others
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "jest.setup.js"],
+      "env": { "jest": true },
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/lib/ai.ts",
+        "src/lib/gcal.ts",
+        "src/lib/kv.ts",
+        "src/lib/line.ts",
+        "src/lib/parser.ts",
+        "src/pages/api/webhook.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": true }
+        ]
+      }
+    }
+  ]
 }

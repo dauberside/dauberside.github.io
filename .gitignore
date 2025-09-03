@@ -75,3 +75,11 @@ dauber project.pub
 dauber project
 dauber project.pub
 .vscode
+
+# lock files we don't use
+package-lock.json
+# next/build cache
+.next/
+*.tsbuildinfo
+# env
+.env*

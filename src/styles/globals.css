@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- legacy global CSS imports ---- */
+@import "./grid.css";
+@import "./crime.css";
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 /* カスタムスタイルを追加 */

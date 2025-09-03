@@ -1,6 +1,7 @@
 // auth.js
-import { supabase } from "./supabaseClient";
 import bcrypt from "bcryptjs";
+
+import { supabase } from "./supabaseClient";
 
 const { error } = await supabase.auth.api.setCustomConfig({
   otp_expiry: auth.otp_expiry(),

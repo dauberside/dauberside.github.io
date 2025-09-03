@@ -1,14 +1,15 @@
-import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { useRouter } from "next/router";
+import React from "react";
+
+import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
 
 const Project = () => {
   const router = useRouter();
 
-  const handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const _handleChatClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     router.push("/chat");
   };

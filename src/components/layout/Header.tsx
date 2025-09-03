@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+
 import ContactForm from "@/components/forms/ContactForm";
 
 interface HeaderProps {

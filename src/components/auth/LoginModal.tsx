@@ -11,7 +11,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // ログイン処理をここに実装
+    // eslint-disable-next-line no-console
     console.log("Login attempt", { username, password });
   };
 

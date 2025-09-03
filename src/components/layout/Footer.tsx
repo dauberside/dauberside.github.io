@@ -1,20 +1,10 @@
 import React from "react";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faInstagram,
-  faTwitter,
-  faFacebook,
-} from "@fortawesome/free-brands-svg-icons";
 
-interface FooterProps {
-  className?: string;
-}
+// Accept standard <footer> props including className
+export type FooterProps = React.ComponentProps<"footer">;
 
-const Footer: React.FC<FooterProps> = ({ className }) => {
-  const currentYear = new Date().getFullYear();
-
-  return <footer id="footer"></footer>;
+const Footer: React.FC<FooterProps> = ({ className, ...props }) => {
+  return <footer id="footer" className={className} {...props} />;
 };
 
 export default Footer;
