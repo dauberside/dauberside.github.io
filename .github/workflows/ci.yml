@@ -31,6 +31,9 @@ jobs:
       - name: Activate pnpm 10 via Corepack
         run: corepack prepare pnpm@10.0.0 --activate
 
+      - name: Fallback install pnpm (npm -g)
+        run: npm i -g pnpm@10
+
       - name: pnpm version
         run: pnpm --version
 
