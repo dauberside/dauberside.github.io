@@ -25,10 +25,8 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Setup pnpm (install and add to PATH)
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - name: Install pnpm globally
+        run: npm i -g pnpm@10
 
       - name: Verify pnpm
         run: pnpm --version
