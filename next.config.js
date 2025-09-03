@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Keep linting behaviour default; this file should only export config
+  images: {
+    unoptimized: true,
+    remotePatterns: [{ protocol: 'https', hostname: 'i.pinimg.com', pathname: '/**' }],
+  },
 };
-
 module.exports = nextConfig;
