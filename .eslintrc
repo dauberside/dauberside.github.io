@@ -6,7 +6,7 @@
     "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "unused-imports", "simple-import-sort"],
+  "plugins": ["@typescript-eslint", "unused-imports", "simple-import-sort", "testing-library", "jest-dom"],
   "rules": {
     "react/no-unescaped-entities": "off",
 
@@ -52,5 +52,31 @@
 
     // Allow console.warn/error but flag others
     "no-console": ["warn", { "allow": ["warn", "error"] }]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "jest.setup.js"],
+      "env": { "jest": true },
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/lib/ai.ts",
+        "src/lib/gcal.ts",
+        "src/lib/kv.ts",
+        "src/lib/line.ts",
+        "src/lib/parser.ts",
+        "src/pages/api/webhook.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": true }
+        ]
+      }
+    }
+  ]
 }
