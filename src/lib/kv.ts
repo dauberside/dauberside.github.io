@@ -8,16 +8,18 @@ export const kv = _kv;
 // (Postback payload stash helpers are optional but kept here for convenience)
 export async function stashPostbackPayload(
   id: string,
-  json: string,
+  json: string | Record<string, unknown>,
   ttlSec = 600,
 ) {
-  await kv.set(`pb:${id}`, json, { ex: ttlSec });
+  const payload = typeof json === "string" ? json : JSON.stringify(json);
+  await kv.set(`pb:${id}`, payload, { ex: ttlSec });
 }
 export async function popPostbackPayload(id: string): Promise<string | null> {
   const key = `pb:${id}`;
-  const val = await kv.get<string>(key);
+  const val = await kv.get(key as any);
   if (val) await kv.del(key);
-  return val || null;
+  const out = ensureString(val);
+  return out ? out : null;
 }
 /** Internal: check if KV is configured */
 function hasKV(): boolean {
@@ -40,8 +42,18 @@ export const chatKey = (groupId?: string) => `chat:${normGid(groupId)}`;
 export const eventListKey = (groupId?: string) =>
   `gcal:${normGid(groupId)}:events`;
 
-function safeJSONParse<T>(s: string): T | null {
+export function ensureString(x: unknown): string {
+  if (typeof x === "string") return x;
   try {
+    return JSON.stringify(x);
+  } catch {
+    return String(x);
+  }
+}
+
+export function safeJSONParse<T = any>(x: unknown): T | null {
+  try {
+    const s = ensureString(x);
     return JSON.parse(s) as T;
   } catch {
     return null;
