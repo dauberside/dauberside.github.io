@@ -155,6 +155,9 @@ importers:
       "@typescript-eslint/parser":
         specifier: ^8.41.0
         version: 8.41.0(eslint@8.57.1)(typescript@5.8.3)
+      babel-jest:
+        specifier: ^30.1.2
+        version: 30.1.2(@babel/core@7.28.0)
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -176,6 +179,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: ^4.2.0
         version: 4.2.0(@typescript-eslint/eslint-plugin@8.41.0(@typescript-eslint/parser@8.41.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)
+      identity-obj-proxy:
+        specifier: ^3.0.0
+        version: 3.0.0
       jest:
         specifier: ^30.0.5
         version: 30.0.5(@types/node@20.19.9)
@@ -190,7 +196,7 @@ importers:
         version: 3.6.2
       ts-jest:
         specifier: ^29.4.0
-        version: 29.4.0(@babel/core@7.28.0)(@jest/transform@30.0.5)(@jest/types@30.0.5)(babel-jest@30.0.5(@babel/core@7.28.0))(jest-util@30.0.5)(jest@30.0.5(@types/node@20.19.9))(typescript@5.8.3)
+        version: 29.4.0(@babel/core@7.28.0)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.0))(jest-util@30.0.5)(jest@30.0.5(@types/node@20.19.9))(typescript@5.8.3)
       typescript:
         specifier: 5.8.3
         version: 5.8.3
@@ -847,6 +853,13 @@ packages:
     resolution:
       {
         integrity: sha512-Vk8amLQCmuZyy6GbBht1Jfo9RSdBtg7Lks+B0PecnjI8J+PCLQPGh7uI8Q/2wwpW2gLdiAfiHNsmekKlywULqg==,
+      }
+    engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
+
+  "@jest/transform@30.1.2":
+    resolution:
+      {
+        integrity: sha512-UYYFGifSgfjujf1Cbd3iU/IQoSd6uwsj8XHj5DSDf5ERDcWMdJOPTkHWXj4U+Z/uMagyOQZ6Vne8C4nRIrCxqA==,
       }
     engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
 
@@ -2286,6 +2299,15 @@ packages:
     peerDependencies:
       "@babel/core": ^7.11.0
 
+  babel-jest@30.1.2:
+    resolution:
+      {
+        integrity: sha512-IQCus1rt9kaSh7PQxLYRY5NmkNrNlU2TpabzwV7T2jljnpdHOcmnYYv8QmE04Li4S3a2Lj8/yXyET5pBarPr6g==,
+      }
+    engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
+    peerDependencies:
+      "@babel/core": ^7.11.0
+
   babel-plugin-istanbul@7.0.0:
     resolution:
       {
@@ -3719,6 +3741,12 @@ packages:
       }
     engines: { node: ">=18" }
 
+  harmony-reflect@1.6.2:
+    resolution:
+      {
+        integrity: sha512-HIp/n38R9kQjDEziXyDTuW3vvoxxyxjxFzXLrBr18uB47GnSt+G9D29fqrpM5ZkspMcPICud3XsBJQ4Y2URg8g==,
+      }
+
   has-bigints@1.1.0:
     resolution:
       {
@@ -3828,6 +3856,13 @@ packages:
         integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==,
       }
     engines: { node: ">=0.10.0" }
+
+  identity-obj-proxy@3.0.0:
+    resolution:
+      {
+        integrity: sha512-00n6YnVHKrinT9t0d9+5yZC6UBNJANpYEQvL2LlX6Ab9lnmxzIRcEmTPuyGScvl1+jKuCICX1Z0Ab1pPKKdikA==,
+      }
+    engines: { node: ">=4" }
 
   ieee754@1.2.1:
     resolution:
@@ -4320,6 +4355,13 @@ packages:
       }
     engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
 
+  jest-haste-map@30.1.0:
+    resolution:
+      {
+        integrity: sha512-JLeM84kNjpRkggcGpQLsV7B8W4LNUWz7oDNVnY1Vjj22b5/fAb3kk3htiD+4Na8bmJmjJR7rBtS2Rmq/NEcADg==,
+      }
+    engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
+
   jest-leak-detector@30.0.5:
     resolution:
       {
@@ -4448,6 +4490,13 @@ packages:
     resolution:
       {
         integrity: sha512-ojRXsWzEP16NdUuBw/4H/zkZdHOa7MMYCk4E430l+8fELeLg/mqmMlRhjL7UNZvQrDmnovWZV4DxX03fZF48fQ==,
+      }
+    engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
+
+  jest-worker@30.1.0:
+    resolution:
+      {
+        integrity: sha512-uvWcSjlwAAgIu133Tt77A05H7RIk3Ho8tZL50bQM2AkvLdluw9NG48lRCl3Dt+MOH719n/0nnb5YxUwcuJiKRA==,
       }
     engines: { node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0 }
 
@@ -7153,6 +7202,26 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  "@jest/transform@30.1.2":
+    dependencies:
+      "@babel/core": 7.28.0
+      "@jest/types": 30.0.5
+      "@jridgewell/trace-mapping": 0.3.29
+      babel-plugin-istanbul: 7.0.0
+      chalk: 4.1.2
+      convert-source-map: 2.0.0
+      fast-json-stable-stringify: 2.1.0
+      graceful-fs: 4.2.11
+      jest-haste-map: 30.1.0
+      jest-regex-util: 30.0.1
+      jest-util: 30.0.5
+      micromatch: 4.0.8
+      pirates: 4.0.7
+      slash: 3.0.0
+      write-file-atomic: 5.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   "@jest/types@29.6.3":
     dependencies:
       "@jest/schemas": 29.6.3
@@ -8065,6 +8134,19 @@ snapshots:
     dependencies:
       "@babel/core": 7.28.0
       "@jest/transform": 30.0.5
+      "@types/babel__core": 7.20.5
+      babel-plugin-istanbul: 7.0.0
+      babel-preset-jest: 30.0.1(@babel/core@7.28.0)
+      chalk: 4.1.2
+      graceful-fs: 4.2.11
+      slash: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  babel-jest@30.1.2(@babel/core@7.28.0):
+    dependencies:
+      "@babel/core": 7.28.0
+      "@jest/transform": 30.1.2
       "@types/babel__core": 7.20.5
       babel-plugin-istanbul: 7.0.0
       babel-preset-jest: 30.0.1(@babel/core@7.28.0)
@@ -9095,6 +9177,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  harmony-reflect@1.6.2: {}
+
   has-bigints@1.1.0: {}
 
   has-flag@3.0.0: {}
@@ -9154,6 +9238,10 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  identity-obj-proxy@3.0.0:
+    dependencies:
+      harmony-reflect: 1.6.2
 
   ieee754@1.2.1: {}
 
@@ -9528,6 +9616,21 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  jest-haste-map@30.1.0:
+    dependencies:
+      "@jest/types": 30.0.5
+      "@types/node": 20.19.9
+      anymatch: 3.1.3
+      fb-watchman: 2.0.2
+      graceful-fs: 4.2.11
+      jest-regex-util: 30.0.1
+      jest-util: 30.0.5
+      jest-worker: 30.1.0
+      micromatch: 4.0.8
+      walker: 1.0.8
+    optionalDependencies:
+      fsevents: 2.3.3
+
   jest-leak-detector@30.0.5:
     dependencies:
       "@jest/get-type": 30.0.1
@@ -9719,6 +9822,14 @@ snapshots:
       string-length: 4.0.2
 
   jest-worker@30.0.5:
+    dependencies:
+      "@types/node": 20.19.9
+      "@ungap/structured-clone": 1.3.0
+      jest-util: 30.0.5
+      merge-stream: 2.0.0
+      supports-color: 8.1.1
+
+  jest-worker@30.1.0:
     dependencies:
       "@types/node": 20.19.9
       "@ungap/structured-clone": 1.3.0
@@ -10773,7 +10884,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.4.0(@babel/core@7.28.0)(@jest/transform@30.0.5)(@jest/types@30.0.5)(babel-jest@30.0.5(@babel/core@7.28.0))(jest-util@30.0.5)(jest@30.0.5(@types/node@20.19.9))(typescript@5.8.3):
+  ts-jest@29.4.0(@babel/core@7.28.0)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.0))(jest-util@30.0.5)(jest@30.0.5(@types/node@20.19.9))(typescript@5.8.3):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
@@ -10788,9 +10899,9 @@ snapshots:
       yargs-parser: 21.1.1
     optionalDependencies:
       "@babel/core": 7.28.0
-      "@jest/transform": 30.0.5
+      "@jest/transform": 30.1.2
       "@jest/types": 30.0.5
-      babel-jest: 30.0.5(@babel/core@7.28.0)
+      babel-jest: 30.1.2(@babel/core@7.28.0)
       jest-util: 30.0.5
 
   tsconfig-paths@3.15.0:
