@@ -7,8 +7,8 @@ cd "$ROOT_DIR"
 OUT_PATCH="patches/fix-template-paths.patch"
 mkdir -p patches
 
-echo "Searching references to 'templates/' outside spec/templates..."
-grep -RIn --binary-files=without-match --exclude-dir={node_modules,.git,.next,dist} "templates/" . \
+echo "Searching references to 'spec/templates/' outside spec/templates..."
+grep -RIn --binary-files=without-match --exclude-dir={node_modules,.git,.next,dist} "spec/templates/" . \
   | grep -v "/spec/templates" > template_refs.txt || true
 
 TOTAL_LINES=$(wc -l < template_refs.txt || echo 0)

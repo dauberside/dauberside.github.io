@@ -286,21 +286,7 @@ function formatJstShort(iso?: string): string {
 }
 
 // Buttons/Carousel の template.text は短い制限（60文字想定）。要約1行を生成（JST壁時計で厳格に整形）
-function makeConfirmLine(
-  summary: string,
-  startISO: string | Date,
-  endISO: string | Date,
-  location?: string,
-) {
-  const toIso = (v: string | Date) =>
-    typeof v === "string" ? v : new Date(v).toISOString();
-  const s = formatJstShort(toIso(startISO));
-  const eFull = formatJstShort(toIso(endISO));
-  const e = eFull.includes(" ") ? eFull.split(" ")[1] : eFull; // 右側は時刻のみ
-  const loc = location ? ` @${location}` : "";
-  const title = (summary || "(無題)").slice(0, 30);
-  return `${title} ${s}〜${e}${loc}`;
-}
+// makeConfirmLine moved to src/lib/ai.ts; webhook uses sendScheduleConfirm from ai.ts instead
 
 // よく出る地名（ロケーション推定用）
 const PLACE_WORDS = [
