@@ -1,5 +1,4 @@
 /* Minimal mock for embla-carousel-react used in tests/SSR */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from "react";
 

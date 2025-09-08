@@ -9,9 +9,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 SPEC_DIR="$REPO_ROOT/spec"
 
 required=(
-  "templates/plan-template.md"
-  "templates/spec-template.md"
-  "templates/tasks-template.md"
+  "spec/templates/plan-template.md"
+  "spec/templates/spec-template.md"
+  "spec/templates/tasks-template.md"
   "memory/constitution.md"
 )
 
