@@ -9,9 +9,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 SPEC_DIR="$REPO_ROOT/spec"
 
 required=(
-  "spec/templates/plan-template.md"
-  "spec/templates/spec-template.md"
-  "spec/templates/tasks-template.md"
+  "templates/plan-template.md"
+  "templates/spec-template.md"
+  "templates/tasks-template.md"
   "memory/constitution.md"
 )
 
@@ -30,6 +30,6 @@ else
   for m in "${missing[@]}"; do
     echo "  - $m"
   done
-  echo "Run: 'git restore --source=HEAD spec/ --' if you accidentally deleted templates, or recreate them from spec/spec/templates/.* templates." >&2
+  echo "Hint: Recreate missing files under spec/ (e.g., spec/templates/* or spec/memory/constitution.md)." >&2
   exit 2
 fi

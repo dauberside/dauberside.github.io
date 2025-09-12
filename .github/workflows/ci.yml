@@ -35,3 +35,24 @@ jobs:
 
       - name: Run CI pipeline
         run: pnpm run ci
+
+  spec-validator:
+    name: Spec Validator
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Make scripts executable
+        run: |
+          chmod +x spec/scripts/*.sh scripts/*.sh || true
+      - name: Sync templates if needed
+        run: |
+          ./scripts/sync-templates.sh || true
+      - name: Validate spec structure
+        run: |
+          ./spec/scripts/validate-spec.sh

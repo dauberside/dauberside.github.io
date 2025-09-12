@@ -1,7 +1,7 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: sample-feature
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `001-sample-feature` | **Date**: 2025-09-12 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-sample-feature/spec.md`
 
 ## Execution Flow (/plan command scope)
 

@@ -20,7 +20,7 @@ jobs:
           chmod +x scripts/*.sh spec/scripts/*.sh || true
       - name: Log any template references outside spec/
         run: |
-          ./scripts/find-template-references.sh
+          ./spec/scripts/find-template-references.sh
       - name: Ensure templates are present (sync from spec/templates)
         run: |
           ./scripts/sync-templates.sh
