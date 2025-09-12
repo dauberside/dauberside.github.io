@@ -139,7 +139,6 @@ const ContactForm = ({ isOpen, onRequestClose, autoCloseAfterMs = 2500 }) => {
     }
   };
 
-  
   return (
     <Dialog
       open={isOpen}
