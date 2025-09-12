@@ -87,6 +87,11 @@ Set these in Vercel (Project Settings → Environment Variables). For local dev,
 
 Used by: `src/pages/api/send.js`
 
+Notes:
+
+- Request body size limit: 16KB (JSON). Requests larger than this will be rejected with 413.
+- Message length limit: 140 characters (UI and API both enforce this).
+
 ### reCAPTCHA (optional)
 
 - `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (optional, public) — Site key for v3 or Enterprise
@@ -102,6 +107,13 @@ Client uses `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`; server verifies with `RECAPTCHA_SE
 - `KV_REST_API_TOKEN` — KV token with write access (for `INCR`/`EXPIRE`)
 
 If KV is not configured, contact form still works but without per-IP throttling.
+
+### Minimal incident logging / external monitoring (optional)
+
+- `MONITORING_WEBHOOK_URL` — If set, the API will POST minimal incident events (code 415/413/429) as JSON
+- `MONITORING_WEBHOOK_TOKEN` — Optional bearer token for the webhook
+
+Incidents are also printed to Vercel logs as `console.warn("incident", payload)`.
 
 ### API middleware CORS (optional)
 

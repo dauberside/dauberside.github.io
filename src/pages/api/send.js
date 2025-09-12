@@ -24,6 +24,64 @@ function htmlEscape(s = "") {
     .replaceAll("'", "&#39;");
 }
 
+function maskIp(ip = "unknown") {
+  // IPv4: 1.2.3.4 -> 1.2.3.x, IPv6: shorten
+  if (ip.includes(".")) {
+    const parts = ip.split(".");
+    parts[3] = "x";
+    return parts.join(".");
+  }
+  if (ip.includes(":")) return ip.replace(/[0-9a-f]{1,4}$/i, "xxxx");
+  return ip;
+}
+
+function trunc(s = "", n = 120) {
+  s = String(s);
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
+
+function logIncident({ code, reason, req, extra = {} }) {
+  try {
+    const ip = maskIp(
+      (
+        req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ||
+        req.socket?.remoteAddress ||
+        "unknown"
+      ).replace("::ffff:", ""),
+    );
+    const ua = trunc(req.headers["user-agent"] || "");
+    const path = req.url || "/api/send";
+    const payload = {
+      ts: new Date().toISOString(),
+      code,
+      reason,
+      path,
+      ip,
+      ua,
+      ...extra,
+    };
+    // Vercel log
+    console.warn("incident", payload);
+    // Optional external webhook
+    const url = process.env.MONITORING_WEBHOOK_URL;
+    if (url) {
+      const headers = { "Content-Type": "application/json" };
+      if (process.env.MONITORING_WEBHOOK_TOKEN) {
+        headers["Authorization"] =
+          `Bearer ${process.env.MONITORING_WEBHOOK_TOKEN}`;
+      }
+      // fire-and-forget
+      fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ event: "incident", payload }),
+      }).catch(() => {});
+    }
+  } catch {
+    // ignore logging failures
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -32,11 +90,18 @@ export default async function handler(req, res) {
   // Content-Type を厳格化
   const ct = (req.headers["content-type"] || "").toString().toLowerCase();
   if (!ct.includes("application/json")) {
+    logIncident({ code: 415, reason: "bad_content_type", req, extra: { ct } });
     return res.status(415).json({ message: "不正な Content-Type です" });
   }
   // Content-Length が大きすぎる場合は即時拒否
   const cl = parseInt(req.headers["content-length"], 10);
   if (Number.isFinite(cl) && cl > MAX_CONTENT_LENGTH) {
+    logIncident({
+      code: 413,
+      reason: "content_length_exceeded",
+      req,
+      extra: { cl },
+    });
     return res.status(413).json({ message: "リクエストが大きすぎます" });
   }
 
@@ -66,6 +131,12 @@ export default async function handler(req, res) {
       // 60秒のTTLを都度設定（初回 or 更新）
       await kv.expire(key, 60);
       if (cnt > 1) {
+        logIncident({
+          code: 429,
+          reason: "rate_limited",
+          req,
+          extra: { count: cnt },
+        });
         return res.status(429).json({
           message: "短時間に送信が多すぎます。しばらくしてからお試しください",
         });
