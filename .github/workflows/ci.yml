@@ -31,7 +31,7 @@ jobs:
         run: pnpm --version
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run CI pipeline
         run: pnpm run ci
