@@ -3,7 +3,7 @@ name: Spec Templates CI
 on:
   pull_request:
     paths:
-      - 'spec/**'
+      - "spec/**"
   workflow_dispatch: {}
 
 jobs:

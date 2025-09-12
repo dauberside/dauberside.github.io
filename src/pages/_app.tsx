@@ -3,9 +3,9 @@ import "@/styles/globals.css";
 
 import { config } from "@fortawesome/fontawesome-svg-core";
 import type { AppProps } from "next/app";
+import { Noto_Sans_JP } from "next/font/google";
 import Head from "next/head";
 import React from "react";
-import { Noto_Sans_JP } from "next/font/google";
 
 const notoSans = Noto_Sans_JP({
   subsets: ["latin"],
