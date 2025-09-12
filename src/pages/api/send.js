@@ -1,13 +1,56 @@
 import { kv } from "@vercel/kv";
 import nodemailer from "nodemailer";
 
+// Next.js API Route config: limit JSON body to 16kb
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "16kb",
+    },
+  },
+};
+
+const MAX_CONTENT_LENGTH = 16 * 1024; // 16 KB
+const MAX_NAME = 80;
+const MAX_EMAIL = 254;
+const MAX_MESSAGE = 140; // UI と同一上限
+
+function htmlEscape(s = "") {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).json({ message: "メソッドが許可されていません" });
   }
+  // Content-Type を厳格化
+  const ct = (req.headers["content-type"] || "").toString().toLowerCase();
+  if (!ct.includes("application/json")) {
+    return res.status(415).json({ message: "不正な Content-Type です" });
+  }
+  // Content-Length が大きすぎる場合は即時拒否
+  const cl = parseInt(req.headers["content-length"], 10);
+  if (Number.isFinite(cl) && cl > MAX_CONTENT_LENGTH) {
+    return res.status(413).json({ message: "リクエストが大きすぎます" });
+  }
 
-  const { name, email, message, recaptchaToken } = req.body || {};
+  const { name, email, message, recaptchaToken, website } = req.body || {};
+
+  // ハニーポット: bot が埋めたら静かに成功扱いで終わる（可観測性を上げたい場合はログへ）
+  if (typeof website === "string" && website.trim() !== "") {
+    return res.status(200).json({ message: "メッセージが送信されました" });
+  }
+
+  // 入力の正規化（trim）と型チェック
+  const _name = typeof name === "string" ? name.trim() : "";
+  const _email = typeof email === "string" ? email.trim() : "";
+  const _message = typeof message === "string" ? message.trim() : "";
 
   // 簡易レート制限: 1IP/分（KVが未設定でもメール送信は継続）
   const ip = (
@@ -85,27 +128,44 @@ export default async function handler(req, res) {
   }
 
   // 入力バリデーション
-  if (!name || !email || !message) {
+  if (!_name || !_email || !_message) {
     return res
       .status(400)
       .json({ message: "全てのフィールドを入力してください" });
   }
 
-  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
+  if (_name.length > MAX_NAME) {
+    return res.status(400).json({ message: "お名前が長すぎます" });
+  }
+  if (_email.length > MAX_EMAIL) {
+    return res.status(400).json({ message: "メールアドレスが長すぎます" });
+  }
+  if (_message.length > MAX_MESSAGE) {
+    return res
+      .status(400)
+      .json({ message: "メッセージは140文字以内で入力してください" });
+  }
+
+  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(_email)) {
     return res
       .status(400)
       .json({ message: "有効なメールアドレスを入力してください" });
   }
 
+  // ここまで来たら name/email/message は安全に使用できる
+  const safeName = htmlEscape(_name);
+  const safeEmail = htmlEscape(_email);
+  const safeMessageHtml = htmlEscape(_message).replaceAll("\n", "<br>");
+
   const output = `
   <div style="font-family: Arial, sans-serif; line-height: 1.7; color: #222; background: #f8f8fa; padding: 32px 24px; border-radius: 12px; border: 1px solid #e0e0e0; max-width: 480px;">
     <h1 style="color: #1f1754; font-size: 1.5rem; margin-bottom: 16px;">新しいお問い合わせがあります</h1>
     <ul style="list-style: none; padding: 0; margin-bottom: 24px;">
-      <li style="margin-bottom: 8px;"><strong>名前:</strong> ${name}</li>
-      <li><strong>メールアドレス:</strong> ${email}</li>
+      <li style="margin-bottom: 8px;"><strong>名前:</strong> ${safeName}</li>
+      <li><strong>メールアドレス:</strong> ${safeEmail}</li>
     </ul>
     <h2 style="font-size: 1.1rem; margin-bottom: 8px;">メッセージ</h2>
-    <p style="background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #eee;">${message}</p>
+    <p style="background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #eee;">${safeMessageHtml}</p>
   </div>
 `;
 
@@ -113,6 +173,9 @@ export default async function handler(req, res) {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT, 10),
     secure: process.env.SMTP_PORT === "465",
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -123,7 +186,7 @@ export default async function handler(req, res) {
     from: `"お問い合わせフォーム" <${process.env.SMTP_USER}>`,
     to: process.env.CONTACT_EMAIL || process.env.SMTP_USER,
     subject: "新しいお問い合わせ",
-    text: `名前: ${name}\nメールアドレス: ${email}\n\nメッセージ:\n${message}`,
+    text: `名前: ${_name}\nメールアドレス: ${_email}\n\nメッセージ:\n${_message}`,
     html: output,
   };
 
