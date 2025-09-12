@@ -5,7 +5,7 @@ export default async function handler(req, res) {
       .status(410)
       .json({ error: "This endpoint is deprecated and no longer available." });
     return;
-  } catch {
+  } catch (_e) {
     res.status(410).json({ error: "Endpoint deprecated." });
     return;
   }

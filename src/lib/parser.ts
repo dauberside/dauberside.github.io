@@ -219,7 +219,9 @@ export async function extractEventFromText(text: string): Promise<{
       const y = Y,
         mo = mm,
         da = dd;
-      const da2 = da + eFix.carryDay;
+      const y2 = y,
+        mo2 = mo,
+        da2 = da + eFix.carryDay;
       const start = toJstIso(y, mo, da, sFix.h, sFix.m, 0);
 
       // 終了が開始より前なら翌日扱い
