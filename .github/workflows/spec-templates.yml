@@ -1,0 +1,38 @@
+name: Spec Templates CI
+
+on:
+  pull_request:
+    paths:
+      - "spec/**"
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node (for repo tooling)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/*.sh spec/scripts/*.sh || true
+      - name: Log any template references outside spec/
+        run: |
+          ./scripts/find-template-references.sh
+      - name: Ensure templates are present (sync from spec/templates)
+        run: |
+          ./scripts/sync-templates.sh
+      - name: Fail if sync produced changes (ensure PR includes sync)
+        run: |
+          # If the sync script modified files, CI should fail so contributors commit the changes.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE" || true
+          if ! git diff --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            echo "Templates are out of sync. Please run ./scripts/sync-templates.sh locally and commit the changes."
+            git --no-pager status --porcelain
+            exit 1
+          fi
+      - name: Run spec validator
+        run: |
+          ./spec/scripts/validate-spec.sh

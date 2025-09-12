@@ -1,3 +1,4 @@
+import { kv } from "@vercel/kv";
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
@@ -6,7 +7,64 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "メソッドが許可されていません" });
   }
 
-  const { name, email, message } = req.body;
+  const { name, email, message, recaptchaToken } = req.body || {};
+
+  // 簡易レート制限: 1IP/分（KVが未設定でもメール送信は継続）
+  const ip =
+    (req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      "unknown").replace("::ffff:", "");
+  try {
+    if (process.env.KV_URL || process.env.KV_REST_API_URL) {
+      const key = `rate:contact:${ip}`;
+  const cntRaw = await kv.incr(key);
+  const cnt = Number(cntRaw) || 0;
+      // 60秒のTTLを都度設定（初回 or 更新）
+      await kv.expire(key, 60);
+      if (cnt > 1) {
+        return res.status(429).json({ message: "短時間に送信が多すぎます。しばらくしてからお試しください" });
+      }
+    }
+  } catch {
+    // KV未設定や障害時はスルー
+  }
+
+  // reCAPTCHA 検証（任意。環境変数があれば v3/enterpriseに対応）
+  if (process.env.RECAPTCHA_SECRET_KEY && recaptchaToken) {
+    try {
+      const verifyUrl = process.env.RECAPTCHA_SITE_KEY?.startsWith("projects/")
+        ? `https://recaptchaenterprise.googleapis.com/v1beta1/projects/${encodeURIComponent(
+            process.env.RECAPTCHA_SITE_KEY.split("/")[1] || ""
+          )}/assessments?key=${encodeURIComponent(process.env.RECAPTCHA_API_KEY || "")}`
+        : "https://www.google.com/recaptcha/api/siteverify";
+
+      if (verifyUrl.includes("siteverify")) {
+        const params = new URLSearchParams();
+        params.set("secret", process.env.RECAPTCHA_SECRET_KEY);
+        params.set("response", recaptchaToken);
+        const resp = await fetch(verifyUrl, { method: "POST", body: params });
+        const json = await resp.json();
+        if (!json.success || (typeof json.score === "number" && json.score < 0.3)) {
+          return res.status(400).json({ message: "reCAPTCHA 検証に失敗しました" });
+        }
+      } else {
+        // Enterprise 簡易実装（詳細なイベントスコアリングは省略）
+        const ev = { event: { token: recaptchaToken, siteKey: process.env.RECAPTCHA_SITE_KEY, expectedAction: "contact_submit" } };
+        const resp = await fetch(verifyUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(ev),
+        });
+        const json = await resp.json();
+        const score = json?.riskAnalysis?.score ?? 1;
+        if (!json.tokenProperties?.valid || score < 0.3) {
+          return res.status(400).json({ message: "reCAPTCHA Enterprise 検証に失敗しました" });
+        }
+      }
+  } catch {
+      return res.status(400).json({ message: "reCAPTCHA 検証に失敗しました" });
+    }
+  }
 
   // 入力バリデーション
   if (!name || !email || !message) {

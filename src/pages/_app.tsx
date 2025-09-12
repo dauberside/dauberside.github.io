@@ -3,9 +3,16 @@ import "@/styles/globals.css";
 
 import { config } from "@fortawesome/fontawesome-svg-core";
 import type { AppProps } from "next/app";
+import { Noto_Sans_JP } from "next/font/google";
 import Head from "next/head";
-import Script from "next/script";
 import React from "react";
+
+const notoSans = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 config.autoAddCss = false;
 
@@ -15,11 +22,9 @@ function App({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        strategy="afterInteractive"
-      />
-      <Component {...pageProps} />
+      <div className={notoSans.variable}>
+        <Component {...pageProps} />
+      </div>
     </>
   );
 }

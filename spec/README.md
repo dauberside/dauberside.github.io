@@ -3,6 +3,7 @@
 Purpose: contain Spec Kit templates, helper scripts, and minimal operational docs so teams can author feature specs, plans, and tasks without needing the external `uvx` CLI to be available.
 
 Quick commands
+
 - Validate required templates exist:
   - `spec/scripts/validate-spec.sh`
 
@@ -12,6 +13,7 @@ Quick commands
 If you removed or merged duplicate Spec Kit files, run the validator above before opening PRs. If templates are missing, restore them from your upstream or recreate using `spec/spec/templates/*.md` as a reference.
 
 Workflow (minimal)
+
 1. Create a feature branch named like `001-feature-short-name`.
 2. Add `specs/<branch>/spec.md` describing the feature.
 3. Copy `spec/spec/templates/plan-template.md` to `specs/<branch>/plan.md` and fill Phase 0/1 content.

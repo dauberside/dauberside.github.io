@@ -6,5 +6,6 @@
 - [ ] 変更点が spec/templates に関わる場合、`spec/templates` 配下のテンプレートを編集したことを確認しました。
 
 注意:
+
 - CI は PR 時に自動で同期チェックと検証を実行します。CI が「Templates are out of sync」で失敗した場合は、上記コマンドをローカルで実行して差分をコミットしてください。
 - 重要: テンプレート本体の編集は `spec/templates` を単一ソースとして行ってください。`spec/templates/` は生成物です。

@@ -1,7 +1,7 @@
 // src/lib/ai.ts
 import crypto from "crypto"; // 追加
 
-import { kv } from "@/lib/kv";
+import { kv, safeJSONParse } from "@/lib/kv";
 import { replyTemplate } from "@/lib/line";
 
 function truncateForButtons(s: string, limit = 60) {
@@ -170,8 +170,8 @@ export async function sendScheduleConfirm(
     location: location ?? "",
     description: (() => {
       try {
-        const o = JSON.parse(payloadJson);
-        return String(o?.description ?? "").slice(0, 80);
+        const o = safeJSONParse<any>(payloadJson) ?? {};
+        return String((o as any)?.description ?? "").slice(0, 80);
       } catch {
         return "";
       }
@@ -235,42 +235,146 @@ export function isCfAiConfigured() {
 }
 
 export async function callCfChat(
-  prompt: string,
-  system?: string,
+  prompt: unknown,
+  system?: unknown,
 ): Promise<string> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const token = process.env.CLOUDFLARE_API_TOKEN;
-  if (!accountId || !token) {
-    return "（AI未設定）Cloudflare Workers AI の環境変数 CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN を設定してください。";
+  // Coerce inputs to strings to avoid "unknown object"/[object Object] issues
+  const toStr = (x: unknown): string => {
+    if (typeof x === "string") return x;
+    try {
+      return JSON.stringify(x);
+    } catch {
+      return String(x);
+    }
+  };
+  const p = toStr(prompt);
+  const sys = system !== undefined ? toStr(system) : "";
+
+  if (!isCfAiConfigured()) {
+    throw new Error("Cloudflare Workers AI is not configured");
   }
+
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID as string;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN as string;
   const model = process.env.CF_AI_MODEL || "@cf/meta/llama-3.1-8b-instruct";
-  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
-  const body: any =
-    model.includes("llama") || model.includes("instruct")
-      ? {
-          messages: [
-            { role: "system", content: system || "日本語で簡潔に。" },
-            { role: "user", content: String(prompt ?? "") },
-          ],
-        }
-      : { text: String(prompt ?? "") };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok)
-    throw new Error(
-      `CF AI HTTP ${res.status} ${(await res.text().catch(() => ""))?.slice(0, 300)}`,
-    );
-  const json = await res.json().catch(() => ({}) as any);
-  const out =
-    json?.result?.response ??
-    json?.result?.output_text ??
-    json?.result?.text ??
-    json?.result;
-  return typeof out === "string" ? out : JSON.stringify(out ?? json);
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${encodeURIComponent(model)}`;
+
+  // Use messages shape; ensure content is plain string
+  const body: any = {
+    messages: [
+      sys ? { role: "system", content: sys } : undefined,
+      { role: "user", content: p },
+    ].filter(Boolean),
+  };
+
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => "");
+      throw new Error(`CF-AI HTTP ${resp.status}: ${text.slice(0, 400)}`);
+    }
+
+    const json: any = await resp.json();
+    const out =
+      json?.result?.response ||
+      json?.result?.output_text ||
+      json?.result?.text ||
+      json?.response ||
+      json?.text;
+    if (typeof out === "string" && out.trim()) return out;
+
+    // Fallback: stringify the entire payload to ensure a string response
+    return typeof json === "string" ? json : JSON.stringify(json);
+  } catch (e: any) {
+    const msg = e?.message ? String(e.message) : String(e);
+    throw new Error(`CF-AI call failed: ${msg}`);
+  }
+}
+
+// =========================
+// AI schedule interpretation (guardrailed)
+// =========================
+
+export type AIScheduleDraft = {
+  summary: string;
+  start?: string; // RFC3339 like "YYYY-MM-DDTHH:mm:ss+09:00" or "YYYY-MM-DD" (allday)
+  end?: string; // same as start
+  location?: string;
+  description?: string;
+  allday?: boolean;
+};
+
+const SCHEDULE_AI_SYSTEM = [
+  "あなたは日本（Asia/Tokyo, JST, +09:00）向けの予定抽出アシスタントです。",
+  "出力は **JSONのみ**。前後に説明文やコードフェンスは付けないでください。",
+  "ルール：",
+  "1) タイムゾーン未指定の時刻は **JSTの壁時計時刻** と解釈する（UTC変換しない）。",
+  '2) 時刻が与えられた場合は RFC3339 の `"YYYY-MM-DDTHH:mm:ss+09:00"` を出力。',
+  '3) 日付のみの場合は終日扱いとし `"YYYY-MM-DD"` を出力、`allday:true` を付ける。',
+  "4) 不確実な情報は **推測しない**（不明な項目は省略可）。",
+  "5) `summary` は簡潔な日本語タイトル（60文字以内）。",
+  "6) `location` は地名や会場名など（60文字以内）。",
+  "7) `description` は元テキスト等を短く要約（200文字以内、任意）。",
+].join("\n");
+
+/**
+ * 自然言語から予定素案を生成
+ * - 出力は AIScheduleDraft（JST前提）。start/end は ensureJstIso で最終正規化。
+ * - 失敗時は null を返す。
+ */
+export async function aiInterpretSchedule(
+  text: string,
+): Promise<AIScheduleDraft | null> {
+  const prompt =
+    `次のテキストから予定を抽出してJSONだけを返してください。\n` +
+    `入力: ${String(text ?? "").trim()}\n\n` +
+    `出力フォーマットの例（必要な項目のみで可）:\n` +
+    `{"summary":"会議","start":"2025-08-27T16:00:00+09:00","end":"2025-08-27T17:00:00+09:00","location":"渋谷","description":"打合せ"}\n` +
+    `または終日の例:\n` +
+    `{"summary":"締切","start":"2025-09-01","end":"2025-09-01","allday":true}`;
+
+  const raw = await callCfChat(prompt, SCHEDULE_AI_SYSTEM);
+
+  // JSON抽出（前後に何か混ざっても最初の { ... } を拾う）
+  let jsonStr = (raw || "").trim();
+  const m = jsonStr.match(/\{[\s\S]*\}/);
+  if (m) jsonStr = m[0];
+
+  try {
+    const obj = JSON.parse(jsonStr || "{}") as Partial<AIScheduleDraft>;
+
+    // 文字数制限とサニタイズ
+    const summary = (obj.summary ?? "").toString().slice(0, 60) || "予定";
+    const location = obj.location
+      ? obj.location.toString().slice(0, 60)
+      : undefined;
+    const description = obj.description
+      ? obj.description.toString().slice(0, 200)
+      : undefined;
+    const allday = !!obj.allday;
+
+    // start/end をJST ISOへ正規化（alldayなら "YYYY-MM-DD" のままでもOK）
+    const normStart = obj.start ? ensureJstIso(obj.start) : undefined;
+    const normEnd = obj.end ? ensureJstIso(obj.end) : undefined;
+
+    return {
+      summary,
+      start: normStart,
+      end: normEnd,
+      location,
+      description,
+      allday,
+    };
+  } catch {
+    return null;
+  }
 }
