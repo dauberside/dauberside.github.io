@@ -14,8 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const ContactForm = ({ isOpen, onRequestClose }) => {
+const ContactForm = ({ isOpen, onRequestClose, autoCloseAfterMs = 2500 }) => {
   const [submitted, setSubmitted] = useState(false);
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   const {
     register,
     handleSubmit,
@@ -24,6 +25,7 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
     watch,
   } = useForm();
   const [serverError, setServerError] = useState("");
+  const [recaptchaReady, setRecaptchaReady] = useState(false);
 
   // 入力監視（残り文字数表示用）
   const messageValue = watch("message") || "";
@@ -51,6 +53,56 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
     }
   }, [isOpen, submitted, handleReset]);
 
+  // 送信成功後に自動クローズ（n秒後）
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!submitted) return;
+    if (!autoCloseAfterMs || autoCloseAfterMs <= 0) return;
+    const t = setTimeout(() => {
+      // 親から渡されたクローズハンドラを呼ぶ（クローズ時に既存の効果でリセットされます）
+      onRequestClose?.(false);
+    }, autoCloseAfterMs);
+    return () => clearTimeout(t);
+  }, [submitted, isOpen, autoCloseAfterMs, onRequestClose]);
+
+  // reCAPTCHA v3 スクリプトの動的ロード（任意）
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!siteKey) return;
+    if (typeof window === "undefined") return;
+    if (window.grecaptcha && typeof window.grecaptcha.execute === "function") {
+      setRecaptchaReady(true);
+      return;
+    }
+    const id = "grecaptcha-script";
+    if (document.getElementById(id)) return;
+    const s = document.createElement("script");
+    s.id = id;
+    s.async = true;
+    s.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(
+      siteKey,
+    )}`;
+    s.onload = () => setRecaptchaReady(true);
+    document.head.appendChild(s);
+    return () => {
+      // スクリプトは1回ロードすればOK。クリーンアップはしない。
+    };
+  }, [isOpen, siteKey]);
+
+  async function getRecaptchaToken() {
+    if (!siteKey) return null;
+    if (typeof window === "undefined") return null;
+    const g = window.grecaptcha;
+    if (!g || typeof g.execute !== "function") return null;
+    try {
+      await new Promise((resolve) => g.ready(resolve));
+      const token = await g.execute(siteKey, { action: "contact_submit" });
+      return token || null;
+    } catch {
+      return null;
+    }
+  }
+
   const onSubmit = async (data) => {
     setServerError("");
     // ハニーポット対応: bot っぽい送信は静かに成功扱い
@@ -59,9 +111,15 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
       return;
     }
     try {
+      // reCAPTCHA トークンを取得（可能な場合）
+      let recaptchaToken = null;
+      if (siteKey && recaptchaReady) {
+        recaptchaToken = await getRecaptchaToken();
+      }
+
       const response = await fetch("/api/send", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, recaptchaToken }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -82,7 +140,6 @@ const ContactForm = ({ isOpen, onRequestClose }) => {
   };
 
   
-
   return (
     <Dialog
       open={isOpen}
