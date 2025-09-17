@@ -1,0 +1,22 @@
+name: reminders-tick
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reminders tick endpoint
+        env:
+          TICK_URL: ${{ secrets.REMINDER_TICK_URL }}
+          TICK_TOKEN: ${{ secrets.REMINDER_TICK_TOKEN }}
+        run: |
+          if [ -z "$TICK_URL" ] || [ -z "$TICK_TOKEN" ]; then
+            echo "REMINDER_TICK_URL or REMINDER_TICK_TOKEN not set" >&2
+            exit 1
+          fi
+          # Use curl with short timeouts; treat 200 as success
+          curl -sS -m 10 -H "Authorization: Bearer $TICK_TOKEN" "$TICK_URL" | sed -e 's/.*/[tick] &/'

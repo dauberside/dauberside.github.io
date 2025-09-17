@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import type { NextApiRequest } from "next";
 
 const LINE_ENDPOINT = "https://api.line.me/v2/bot/message/reply";
+const LINE_PUSH_ENDPOINT = "https://api.line.me/v2/bot/message/push";
 
 const LIMITS = {
   buttons: 60, // buttons.template.text 60 chars (column text for carousel too)
@@ -29,6 +30,24 @@ export function verifyLineSignature(req: NextApiRequest, raw: Buffer): boolean {
 export async function replyText(replyToken: string, text: string) {
   const body = { replyToken, messages: [{ type: "text", text }] };
   await lineFetch(body);
+}
+
+export async function pushText(to: string, text: string) {
+  const token = process.env.CHANNEL_ACCESS_TOKEN || "";
+  if (!token) throw new Error("LINE access token is missing");
+  const body = { to, messages: [{ type: "text", text }] };
+  const res = await fetch(LINE_PUSH_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`LINE pushText failed: ${res.status} ${t}`);
+  }
 }
 
 type ButtonsTemplate = {

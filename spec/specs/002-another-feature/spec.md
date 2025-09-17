@@ -1,17 +1,13 @@
-# Feature Spec: [FEATURE]
+# Feature Spec: another-feature
 
-- ID: [###]
+- ID: 002
 - Owner: [name]
-- Date: [YYYY-MM-DD]
+- Date: 2025-09-12
 - Links: [related issues/PRs]
 
 ## Problem Statement
 
 [What user problem are we solving?]
-
-## Stakeholders / Personas
-
-- [roles and their goals]
 
 ## Goals / Non-Goals
 
@@ -25,16 +21,11 @@
 ## Requirements
 
 - Functional: [...]
-- Non-Functional: performance, security, privacy, accessibility (WCAG),
-  i18n/l10n, observability, reliability
+- Non-Functional: performance, security, accessibility, i18n, observability
 
 ## Success Criteria
 
 - KPI/Acceptance: [...]
-
-## Metrics / Telemetry
-
-- How will we measure success? What events/metrics are emitted?
 
 ## Risks & Mitigations
 
@@ -47,7 +38,3 @@
 ## Appendix
 
 - Prior art / references
-
-## Open Questions
-
-- [...]

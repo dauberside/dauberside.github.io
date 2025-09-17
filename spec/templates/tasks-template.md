@@ -1,6 +1,7 @@
 # Tasks for [FEATURE]
 
-Note: Tasks should follow TDD. Prefer contracts/integration tests first, then implementation. Mark independent tasks with [P] for parallel.
+Note: Tasks should follow TDD. Prefer contracts/integration tests first, then
+implementation. Mark independent tasks with [P] for parallel.
 
 1. [P] Create contracts: define API schema and write failing contract tests
 2. [P] Define data model: entities, validation rules, relationships

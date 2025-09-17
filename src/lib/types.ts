@@ -38,6 +38,20 @@ export interface EventRef {
   location?: string;
   htmlLink?: string;
   ts?: number; // saved at (epoch ms)
+  // Optional provenance (for reminders, push target)
+  source?: string; // e.g., 'line'
+  userId?: string; // LINE user id (for 1:1) or empty in groups
+  groupId?: string; // LINE group/room id used as storage partition
+}
+
+/** Reminder scheduling item (stored in KV sorted set as JSON string member) */
+export interface ReminderItem {
+  eventId: string;
+  groupId?: string;
+  userId?: string;
+  summary: string;
+  start: string; // ISO string
+  reminderAt: number; // epoch ms
 }
 
 /**

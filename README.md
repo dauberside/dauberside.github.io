@@ -1,6 +1,7 @@
 # DauberSide Project
 
-Welcome to the DauberSide Project. This project runs on Next.js and deploys via Vercel (Git integration).
+Welcome to the DauberSide Project. This project runs on Next.js and deploys via
+Vercel (Git integration).
 
 ## Table of Contents
 
@@ -54,8 +55,10 @@ Helpful scripts:
 Tips:
 
 - Force re-deploy: Vercel Dashboard → Deployments → “Redeploy” (Production)
-- Link domain to the correct Vercel project; if 404, check domain assignment and “Production Branch”
-- Environment variables must be set per environment (Development/Preview/Production) in Vercel
+- Link domain to the correct Vercel project; if 404, check domain assignment and
+  “Production Branch”
+- Environment variables must be set per environment
+  (Development/Preview/Production) in Vercel
 
 ## Operations
 
@@ -66,16 +69,20 @@ Tips:
   - Manage secrets in Vercel Project Settings → Environment Variables.
   - Use distinct values for Production vs. Preview when needed.
 - Contact form protection
-  - Rate limit: 1 IP/min using Vercel KV if configured (graceful fallback if not present).
-  - reCAPTCHA v3/Enterprise optional: enabled when keys are set (see vars below).
+  - Rate limit: 1 IP/min using Vercel KV if configured (graceful fallback if not
+    present).
+  - reCAPTCHA v3/Enterprise optional: enabled when keys are set (see vars
+    below).
   - Honeypot field blocks simple bots silently.
 - Domain
   - Primary: `www` subdomain; apex redirects to `www`.
-  - DNS is managed at your registrar; verify CNAME and A/ALIAS as documented by Vercel.
+  - DNS is managed at your registrar; verify CNAME and A/ALIAS as documented by
+    Vercel.
 
 ## Environment Variables
 
-Set these in Vercel (Project Settings → Environment Variables). For local dev, you can use a `.env.local` file.
+Set these in Vercel (Project Settings → Environment Variables). For local dev,
+you can use a `.env.local` file.
 
 ### Contact form & mail (required to send email)
 
@@ -83,23 +90,30 @@ Set these in Vercel (Project Settings → Environment Variables). For local dev,
 - `SMTP_PORT` (required) — SMTP port (e.g. 465 for SSL, 587 for STARTTLS)
 - `SMTP_USER` (required) — SMTP auth user / sender
 - `SMTP_PASS` (required) — SMTP auth password
-- `CONTACT_EMAIL` (optional) — Destination address; defaults to `SMTP_USER` if omitted
+- `CONTACT_EMAIL` (optional) — Destination address; defaults to `SMTP_USER` if
+  omitted
 
 Used by: `src/pages/api/send.js`
 
 Notes:
 
-- Request body size limit: 16KB (JSON). Requests larger than this will be rejected with 413.
+- Request body size limit: 16KB (JSON). Requests larger than this will be
+  rejected with 413.
 - Message length limit: 140 characters (UI and API both enforce this).
 
 ### reCAPTCHA (optional)
 
-- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (optional, public) — Site key for v3 or Enterprise
-- `RECAPTCHA_SECRET_KEY` (optional) — Secret key for v3 or Enterprise verification (server)
-- `RECAPTCHA_SITE_KEY` (optional, server) — For Enterprise: resource name like `projects/PROJECT_ID/keys/KEY_ID`
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (optional, public) — Site key for v3 or
+  Enterprise
+- `RECAPTCHA_SECRET_KEY` (optional) — Secret key for v3 or Enterprise
+  verification (server)
+- `RECAPTCHA_SITE_KEY` (optional, server) — For Enterprise: resource name like
+  `projects/PROJECT_ID/keys/KEY_ID`
 - `RECAPTCHA_API_KEY` (optional, server) — For Enterprise REST API calls
 
-Client uses `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`; server verifies with `RECAPTCHA_SECRET_KEY`. For Enterprise, also set `RECAPTCHA_SITE_KEY` and `RECAPTCHA_API_KEY`.
+Client uses `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`; server verifies with
+`RECAPTCHA_SECRET_KEY`. For Enterprise, also set `RECAPTCHA_SITE_KEY` and
+`RECAPTCHA_API_KEY`.
 
 ### Rate limiting via Vercel KV (optional)
 
@@ -110,14 +124,17 @@ If KV is not configured, contact form still works but without per-IP throttling.
 
 ### Minimal incident logging / external monitoring (optional)
 
-- `MONITORING_WEBHOOK_URL` — If set, the API will POST minimal incident events (code 415/413/429) as JSON
+- `MONITORING_WEBHOOK_URL` — If set, the API will POST minimal incident events
+  (code 415/413/429) as JSON
 - `MONITORING_WEBHOOK_TOKEN` — Optional bearer token for the webhook
 
-Incidents are also printed to Vercel logs as `console.warn("incident", payload)`.
+Incidents are also printed to Vercel logs as
+`console.warn("incident", payload)`.
 
 ### API middleware CORS (optional)
 
-- `ALLOWED_ORIGINS` — Comma-separated list of allowed origins; if unset, defaults to strict in production
+- `ALLOWED_ORIGINS` — Comma-separated list of allowed origins; if unset,
+  defaults to strict in production
 
 Used by: `src/pages/api/middleware.ts`
 
@@ -126,7 +143,8 @@ Used by: `src/pages/api/middleware.ts`
 - `CHANNEL_ACCESS_TOKEN` — LINE Messaging API token
 - `CHANNEL_SECRET` — LINE channel secret
 - `ALLOW_GROUP_IDS` — Comma-separated group IDs allowed to interact
-- `SKIP_LINE_SIGNATURE` — `true` only for local testing (disables signature verification)
+- `SKIP_LINE_SIGNATURE` — `true` only for local testing (disables signature
+  verification)
 
 Used by: `src/pages/api/webhook.ts`, `src/lib/line.ts`
 
@@ -153,7 +171,9 @@ Used by: `src/lib/ai.ts`
 - `LOG_DIR` — Log directory for local runs (default: `./logs`)
 - `NEXT_PUBLIC_ENABLE_CHAT` — Feature flag for UI
 
-Note: Supabase is disabled in this build. The stub at `src/utils/supabaseClient.ts` prevents compile errors; do not set Supabase keys unless you re-enable it.
+Note: Supabase is disabled in this build. The stub at
+`src/utils/supabaseClient.ts` prevents compile errors; do not set Supabase keys
+unless you re-enable it.
 
 ### Example `.env.local`
 

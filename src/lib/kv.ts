@@ -1,7 +1,7 @@
 // src/lib/kv.ts
 import { kv as _kv } from "@vercel/kv";
 
-import type { EventRef } from "./types";
+import type { EventRef, ReminderItem } from "./types";
 
 export const kv = _kv;
 // Re-exports Vercel KV client as named export `kv` and provides helper utilities
@@ -41,6 +41,10 @@ const normGid = (groupId?: string) => groupId || "solo";
 export const chatKey = (groupId?: string) => `chat:${normGid(groupId)}`;
 export const eventListKey = (groupId?: string) =>
   `gcal:${normGid(groupId)}:events`;
+
+// Global reminders ZSET and per-event map keys
+export const REMINDERS_KEY = `reminders:z`;
+export const reminderMapKey = (eventId: string) => `remindmap:${eventId}`;
 
 export function ensureString(x: unknown): string {
   if (typeof x === "string") return x;
@@ -213,4 +217,63 @@ export async function getEventRefByIdKV(
 ): Promise<EventRef | null> {
   const list = await loadRecentEventRefsKV(groupId, 100);
   return list.find((e) => e.id === eventId) ?? null;
+}
+
+/* ==============
+ * Reminders (30-min prior push)
+ * ============== */
+
+/** Schedule a reminder into global ZSET and keep a per-event lookup for cancellation. */
+export async function addReminder(item: ReminderItem) {
+  if (!(await kvAvailable())) return;
+  const json = JSON.stringify(item);
+  // ZADD by score
+  await (kv as any).zadd(REMINDERS_KEY, {
+    score: item.reminderAt,
+    member: json,
+  });
+  // Map for quick removal by eventId
+  await kv.set(reminderMapKey(item.eventId), json, { ex: 60 * 60 * 24 * 120 }); // 120 days TTL
+}
+
+/** Remove a scheduled reminder by eventId if present. */
+export async function removeReminderByEventId(eventId: string) {
+  if (!(await kvAvailable())) return;
+  try {
+    const json = await kv.get<string>(reminderMapKey(eventId));
+    if (!json) return;
+    // Remove exact member
+    await (kv as any).zrem(REMINDERS_KEY, json);
+    await kv.del(reminderMapKey(eventId));
+  } catch {
+    // ignore
+  }
+}
+
+/** Fetch up to `limit` due reminders (score <= now). Does not remove them. */
+export async function listDueReminders(nowMs = Date.now(), limit = 100) {
+  if (!(await kvAvailable())) return [] as ReminderItem[];
+  const arr: string[] = await (kv as any).zrange(REMINDERS_KEY, 0, nowMs, {
+    byScore: true,
+    limit: { offset: 0, count: Math.max(1, Math.min(500, limit)) },
+  });
+  const items: ReminderItem[] = [];
+  for (const s of arr || []) {
+    const o = safeJSONParse<ReminderItem>(s);
+    if (o && o.eventId && Number.isFinite(o.reminderAt)) items.push(o);
+  }
+  return items;
+}
+
+/** Attempt to claim and remove a reminder; returns true if removed. */
+export async function claimReminder(item: ReminderItem) {
+  if (!(await kvAvailable())) return false;
+  try {
+    const json = JSON.stringify(item);
+    const removed = await (kv as any).zrem(REMINDERS_KEY, json);
+    if (removed) await kv.del(reminderMapKey(item.eventId));
+    return Boolean(removed);
+  } catch {
+    return false;
+  }
 }

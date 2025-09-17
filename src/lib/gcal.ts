@@ -104,6 +104,22 @@ export async function createGoogleCalendarEvent(args: {
   // 入力の正規化（秒とJSTタイムゾーンを担保）
   const startPart = buildGcalDatePart(input.start);
   const endPart = buildGcalDatePart(input.end);
+  const isAllDay =
+    (startPart as any).date || (endPart as any).date ? true : false;
+
+  // GCal リマインダー設定（終日は除外）。環境変数で調整可。
+  // GC_REMINDER_USE_DEFAULT=1 ならカレンダーのデフォルトを使用。
+  // それ以外は GC_REMINDER_MINUTES(デフォルト30) と GC_REMINDER_METHOD("popup"|"email"、デフォルトpopup) を使用。
+  const buildReminders = () => {
+    if (isAllDay) return undefined;
+    if (process.env.GC_REMINDER_USE_DEFAULT === "1") {
+      return { useDefault: true } as any;
+    }
+    const minutes = Number(process.env.GC_REMINDER_MINUTES || 30);
+    const method = (process.env.GC_REMINDER_METHOD || "popup").toLowerCase();
+    const m: "popup" | "email" = method === "email" ? "email" : "popup";
+    return { useDefault: false, overrides: [{ method: m, minutes }] } as any;
+  };
 
   const calendar = await getCalendarClient();
   if (!calendar) {
@@ -127,6 +143,7 @@ export async function createGoogleCalendarEvent(args: {
       location: input.location,
       start: startPart as any,
       end: endPart as any,
+      reminders: buildReminders(),
     },
     // htmlLink を必ず返す
     fields: "id,summary,description,location,start,end,htmlLink",

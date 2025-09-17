@@ -38,14 +38,25 @@ if [ ! -f "$PLAN_TPL" ] || [ ! -f "$SPEC_TPL" ]; then
 fi
 
 DATE="$(today_iso)"
+OWNER="${FEATURE_OWNER:-}"
+if [ -z "$OWNER" ]; then
+	OWNER="$(git config user.name || echo "")"
+fi
 
 # Create files if not exist
 if [ ! -f "$FEATURE_DIR/spec.md" ]; then
-	sed -e "s/\[FEATURE\]/${FEATURE_NAME}/g" -e "s/\[###\]/${FEATURE_ID}/g" -e "s/\[YYYY-MM-DD\]/${DATE}/g" "$SPEC_TPL" > "$FEATURE_DIR/spec.md"
+	sed -e "s/\[FEATURE\]/${FEATURE_NAME}/g" \
+			-e "s/\[###\]/${FEATURE_ID}/g" \
+			-e "s/\[YYYY-MM-DD\]/${DATE}/g" \
+			-e "s/\[name\]/${OWNER}/g" \
+		"$SPEC_TPL" > "$FEATURE_DIR/spec.md"
 fi
 
 if [ ! -f "$FEATURE_DIR/plan.md" ]; then
-	sed -e "s/\[FEATURE\]/${FEATURE_NAME}/g" -e "s/\[DATE\]/${DATE}/g" -e "s/\[###-feature-name\]/${FEATURE_ID}-${FEATURE_NAME}/g" "$PLAN_TPL" > "$FEATURE_DIR/plan.md"
+	sed -e "s/\[FEATURE\]/${FEATURE_NAME}/g" \
+			-e "s/\[DATE\]/${DATE}/g" \
+			-e "s/\[###-feature-name\]/${FEATURE_ID}-${FEATURE_NAME}/g" \
+		"$PLAN_TPL" > "$FEATURE_DIR/plan.md"
 fi
 
 touch "$FEATURE_DIR/research.md" "$FEATURE_DIR/data-model.md" "$FEATURE_DIR/quickstart.md"

@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Booking API
+  version: 0.1.0
+  description: Minimal booking API for slots discovery and booking creation used by LINE-native scheduling.
+  license:
+    name: MIT
+  url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://example.com
+    description: Placeholder server (not used in Next.js pages/api during local dev)
+paths:
+  /api/slots:
+    get:
+      summary: List available time slots
+      operationId: listSlots
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          required: false
+          description: Anchor date (YYYY-MM-DD); defaults to today in site timezone
+        - in: query
+          name: duration
+          schema:
+            type: integer
+            enum: [15, 30, 45, 60]
+          required: false
+          description: Slot duration minutes (default 30)
+        - in: query
+          name: tz
+          schema:
+            type: string
+          required: false
+          description: IANA timezone (e.g., Asia/Tokyo)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      required: [start, end]
+                      properties:
+                        start:
+                          type: string
+                          format: date-time
+                        end:
+                          type: string
+                          format: date-time
+        "400":
+          description: Invalid parameters
+  /api/book:
+    post:
+      summary: Book a slot
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start, end, name, email]
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+                name:
+                  type: string
+                  maxLength: 80
+                email:
+                  type: string
+                  format: email
+                note:
+                  type: string
+                  maxLength: 140
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [confirmed]
+        "400":
+          description: Invalid input or slot unavailable
+        "409":
+          description: Slot already booked
+        "429":
+          description: Rate limit exceeded

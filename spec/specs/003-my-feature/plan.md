@@ -1,6 +1,6 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: my-feature
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: ./spec.md
+**Branch**: `003-my-feature` | **Date**: 2025-09-12 | **Spec**: ./spec.md
 **Input**: Feature specification from `./spec.md`
 
 ## Execution Flow (/plan command scope)
@@ -24,24 +24,33 @@ IMPORTANT: /plan stops at step 7; /tasks creates tasks.md
 
 ## Summary
 
-[Primary requirement + technical approach]
+Self-serve calendar booking: show real-time available slots on-site and let
+visitors confirm in two clicks. Integrate with Google Calendar for slot sourcing
+and event creation; reuse existing Next.js pages and gcal utility.
 
 ## Technical Context
 
-- Language/Version: [e.g., TypeScript 5.x]
-- Primary Dependencies: [e.g., Next.js, Tailwind]
-- Storage: [e.g., KV, Postgres, N/A]
-- Testing: [e.g., Jest]
-- Target Platform: [e.g., Vercel]
-- Project Type: [single/web/mobile]
-- Performance Goals: [domain specific]
-- Constraints: [domain specific]
-- Scale/Scope: [domain specific]
+- Language/Version: TypeScript 5.8.x, Node 22
+- Primary Dependencies: Next.js 14 (pages), Tailwind, Radix/shadcn, googleapis,
+  nodemailer, @vercel/kv
+- Storage: Vercel KV（rate-limit 用。予約データはGCalを単一正とする）
+- Testing: Jest + Testing Library（契約/統合優先）
+- Target Platform: Vercel
+- Project Type: single (web app: pages/api + frontend)
+- Performance Goals: p95 API < 400ms（Get slots/Book）
+- Constraints: Body 16KB / message 140 文字制限（既存仕様）、A11y
+  準拠、レート制限 1 IP/分
+- Scale/Scope: 初期はカレンダー1つ、スロット粒度は15/30分で検証
 
 ## Constitution Check
 
-Simplicity / Architecture / Testing / Observability / Versioning checkpoints.
-See repo constitution.
+- Simplicity: 単一プロジェクト構成を維持。予約の正は GCal に集約（DB追加しない）
+- Architecture: 既存 pages/api に `/api/slots` と `/api/book`
+  を追加。lib/gcal.ts を再利用
+- Testing: まず契約テスト→統合テスト。RED→GREEN→REFACTOR を遵守
+- Observability:
+  既存のログ/インシデント記録（413/415/429）スタイル踏襲。失敗時の構造化ログを追加
+- Versioning: 破壊的変更なし。BUILD を変更時に上げる
 
 ## Project Structure
 

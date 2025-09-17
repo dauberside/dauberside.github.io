@@ -9,6 +9,10 @@
 
 [What user problem are we solving?]
 
+## Stakeholders / Personas
+
+- [roles and their goals]
+
 ## Goals / Non-Goals
 
 - Goals: [...]
@@ -21,11 +25,15 @@
 ## Requirements
 
 - Functional: [...]
-- Non-Functional: performance, security, accessibility, i18n, observability
+- Non-Functional: performance, security, privacy, accessibility (WCAG), i18n/l10n, observability, reliability
 
 ## Success Criteria
 
 - KPI/Acceptance: [...]
+
+## Metrics / Telemetry
+
+- How will we measure success? What events/metrics are emitted?
 
 ## Risks & Mitigations
 
@@ -38,3 +46,7 @@
 ## Appendix
 
 - Prior art / references
+
+## Open Questions
+
+- [...]

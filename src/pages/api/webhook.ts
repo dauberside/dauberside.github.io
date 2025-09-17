@@ -26,6 +26,9 @@ async function tryCancelFromText(
             await pruneEventRefFromKV(groupId, tokenLike);
           } catch {}
         }
+        try {
+          await removeReminderByEventId(tokenLike);
+        } catch {}
         await replyText(
           replyToken,
           `🗑 予定をキャンセルしました\nID: ${tokenLike}`,
@@ -159,12 +162,15 @@ async function tryCancelFromText(
   // 1件に絞れた → 即削除
   const target = candidates[0];
   try {
-    await deleteGoogleCalendarEvent({ calendarId, eventId: target.id });
+    await deleteGoogleCalendarEvent({ calendarId, eventId: target.id! });
     if (groupId) {
       try {
-        await pruneEventRefFromKV(groupId, target.id);
+        await pruneEventRefFromKV(groupId, target.id!);
       } catch {}
     }
+    try {
+      await removeReminderByEventId(target.id!);
+    } catch {}
     await replyText(
       replyToken,
       `🗑 予定をキャンセルしました\n${target.summary || ""}\nID: ${target.id}`,
@@ -185,7 +191,12 @@ import type { NextApiRequest, NextApiResponse } from "next";
 type PostbackAction = { type: "postback"; label: string; data: string };
 type CarouselColumn = { text: string; actions: PostbackAction[] };
 // === 分割済みライブラリ ===
-import { callCfChat, isCfAiConfigured, sendScheduleConfirm } from "@/lib/ai";
+import {
+  aiAutoRegisterSchedule,
+  callCfChat,
+  isCfAiConfigured,
+  sendScheduleConfirm,
+} from "@/lib/ai";
 import {
   createGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
@@ -202,8 +213,19 @@ import {
   saveMessageKV,
   searchMessagesKV,
 } from "@/lib/kv";
+// extend kv helpers: addReminder/removeReminderByEventId are exported from the same module
+// (note: duplicate import lines are acceptable but we keep one consolidated above)
+import { addReminder, removeReminderByEventId } from "@/lib/kv";
 import { replyTemplate, replyText, verifyLineSignature } from "@/lib/line";
 import { extractEventFromText, normStr } from "@/lib/parser";
+// slots generation (CommonJS module) → dynamic import to avoid no-require-imports lint
+let _slotsGen: any = null;
+async function getSlotsGen() {
+  if (!_slotsGen) {
+    _slotsGen = await import("@/lib/slots-gen.js");
+  }
+  return _slotsGen;
+}
 // Ambient type for optional module '@/lib/interpret'
 // This prevents TS compile errors when the file is not present.
 declare module "@/lib/interpret" {
@@ -420,6 +442,7 @@ function seemsScheduleLike(raw: string) {
     /(予定|スケジュール|会議|ミーティング|mtg|ランチ|食事|飲み|集合|空き|空いて|約束|打合せ|打ち合わせ|キャンセル|取り消|取消|中止|削除|消して|消す)/i.test(
       raw,
     ) ||
+    /(予約.{0,6}(確認|チェック)|(確認|チェック).{0,6}予約)/i.test(raw) ||
     /(\d{1,2}[:：]\d{2})/.test(raw) ||
     /(今日|明日|明後日|今週[日月火水木金土]|来週[日月火水木金土]|\d{1,2}[\/月]\d{1,2}日?)/.test(
       raw,
@@ -910,7 +933,7 @@ async function handleScheduleIntent(
       intent = "reschedule_event";
     // 「予定の確認」「スケジュール確認」等を明示的に check_schedule にする
     else if (
-      /((予定|スケジュール).{0,6}(確認|チェック)|(確認|チェック).{0,6}(予定|スケジュール))/i.test(
+      /((予定|スケジュール).{0,6}(確認|チェック)|(確認|チェック).{0,6}(予定|スケジュール)|予約\s*確認)/i.test(
         text,
       )
     )
@@ -1116,6 +1139,9 @@ async function handleScheduleIntent(
         await pruneEventRefFromKV(groupOrRoomId, target.id!);
       } catch {}
     }
+    try {
+      await removeReminderByEventId(target.id!);
+    } catch {}
     await replyText(
       replyToken,
       `🗑 予定をキャンセルしました\n${target.summary}`,
@@ -1160,6 +1186,9 @@ async function handleScheduleIntent(
           await pruneEventRefFromKV(groupOrRoomId, target.id!);
         } catch {}
       }
+      try {
+        await removeReminderByEventId(target.id!);
+      } catch {}
     } catch {}
 
     const newSummary = (
@@ -1188,6 +1217,21 @@ async function handleScheduleIntent(
         end: endISO,
       });
     }
+    // schedule reminder for new event
+    try {
+      const startMs = new Date(startISO!).getTime();
+      const remindAt = startMs - 30 * 60 * 1000;
+      if (isFinite(startMs) && remindAt > Date.now() - 5 * 60 * 1000) {
+        await addReminder({
+          eventId: String(created.id),
+          groupId: groupOrRoomId,
+          userId: undefined,
+          summary: newSummary,
+          start: startISO!,
+          reminderAt: remindAt,
+        });
+      }
+    } catch {}
     const sDisp = formatJst(created.start?.dateTime || created.start?.date);
     const eDisp = formatJst(created.end?.dateTime || created.end?.date);
     await replyText(
@@ -1381,6 +1425,9 @@ export default async function handler(
             eventId: id,
           });
           await pruneEventRefFromKV(groupOrRoomId, id);
+          try {
+            await removeReminderByEventId(id);
+          } catch {}
           await replyText(
             ev.replyToken,
             `🗑 予定をキャンセルしました\nID: ${id}`,
@@ -1526,6 +1573,8 @@ export default async function handler(
                 summary,
                 start: startNorm,
                 end: endNorm,
+                source: "line",
+                userId: src.userId || "",
               });
               console.log("KV saveEventRefKV success:", {
                 groupOrRoomId,
@@ -1557,6 +1606,21 @@ export default async function handler(
             // also warm the cache using the "official" path
             try {
               await cacheEventsToKV(groupOrRoomId, [created]);
+            } catch {}
+            // schedule reminder 30 minutes before start
+            try {
+              const startMs = new Date(startNorm).getTime();
+              const remindAt = startMs - 30 * 60 * 1000;
+              if (isFinite(startMs) && remindAt > Date.now() - 5 * 60 * 1000) {
+                await addReminder({
+                  eventId: String(created.id),
+                  groupId: isGroupLike ? groupOrRoomId : undefined,
+                  userId: isGroupLike ? undefined : src.userId || undefined,
+                  summary,
+                  start: startNorm,
+                  reminderAt: remindAt,
+                });
+              }
             } catch {}
           }
 
@@ -2115,6 +2179,9 @@ export default async function handler(
                 eventId,
               });
               await pruneEventRefFromKV(groupOrRoomId, eventId);
+              try {
+                await removeReminderByEventId(eventId);
+              } catch {}
               await replyText(
                 ev.replyToken,
                 `🗑 予定をキャンセルしました\nID: ${eventId}`,
@@ -2172,6 +2239,27 @@ export default async function handler(
       // /ai（予定スニペット & 要約対応）
       if (/^\/ai\b/i.test(text)) {
         const q = text.replace(/^\/ai\s*/i, "").trim() || "こんにちは。";
+
+        // 即時登録（代行登録）: "/ai book ..." または 日本語の「予約」「登録」「作成」キーワードで開始する場合
+        // Note: \b doesn't work for Japanese; check start then space, colon, or EOL
+        if (/^(?:book|予約|登録|作成)(?:\s|:|：|$)/i.test(q)) {
+          try {
+            const res = await aiAutoRegisterSchedule(
+              // strip the leading command + optional separators
+              q.replace(/^(?:book|予約|登録|作成)(?:\s+|:|：)?/i, "").trim() ||
+                q,
+              process.env.CALENDAR_ID || "primary",
+              groupOrRoomId,
+            );
+            await replyText(ev.replyToken, res.message);
+          } catch (e: any) {
+            await replyText(
+              ev.replyToken,
+              `（登録失敗）${e?.message || "理由不明"}`,
+            );
+          }
+          continue;
+        }
         // まずAIでスケジュール意図なら専用ハンドラへ
         try {
           const parsed = await extractScheduleQuery(q);
@@ -2326,6 +2414,76 @@ export default async function handler(
 
       // コマンドなしの自然文でも、スケジュールらしければAIで処理
       if (seemsScheduleLike(text)) {
+        // まず「空き枠/予約したい」系なら、簡易スロット提案を優先
+        if (/(空き|空いて|予約|あいて)/.test(text)) {
+          try {
+            // date/duration/tz を軽量に推定（既存の extractDayRangeJa を流用）
+            const dr = extractDayRangeJa(text);
+            const datePart = (dr.start || "").slice(0, 10) || undefined;
+            // 15/30/45/60分のどれかを拾う（デフォルト30）
+            const dm = (() => {
+              const m = text.match(/(15|30|45|60)\s*分/);
+              return m ? parseInt(m[1], 10) : 30;
+            })();
+            // 希望時間帯が営業時間外かをチェック
+            const START_H = parseInt(process.env.WORK_START_HOUR || "9", 10);
+            const END_H = parseInt(process.env.WORK_END_HOUR || "17", 10);
+            const tw = extractTimeWindowJa(text);
+            const outsideHours = (() => {
+              if (!tw || tw.sh === undefined) return false;
+              const sh = tw.sh ?? START_H;
+              const eh = tw.eh ?? sh; // 単点指定の場合は開始時刻のみ評価
+              return sh < START_H || eh > END_H;
+            })();
+            const params: any = {
+              date: datePart,
+              duration: dm,
+              tz: "Asia/Tokyo",
+            };
+            const sg = await getSlotsGen();
+            const normalized = sg.normalizeQuery(params);
+            const slots = await sg.listAvailableSlots(normalized);
+            const top = slots.slice(0, 10);
+            if (!top.length) {
+              await replyText(
+                ev.replyToken,
+                "（空き）候補が見つかりませんでした。別の日付や時間でお試しください。",
+              );
+            } else {
+              const cols: CarouselColumn[] = top.map((s: any) => {
+                const sDisp = formatJstShort(s.start);
+                const eDisp = formatJstShort(s.end);
+                const payload = encodeURIComponent(
+                  JSON.stringify({
+                    summary: "予約",
+                    start: s.start,
+                    end: s.end,
+                    location: "",
+                    description: "LINE予約",
+                  }),
+                );
+                return {
+                  text: truncateForButtons(`${sDisp}〜${eDisp}`, 60),
+                  actions: [
+                    {
+                      type: "postback",
+                      label: "この枠で予約",
+                      data: `action=create&payload=${payload}`,
+                    },
+                  ],
+                };
+              });
+              await replyTemplate(
+                ev.replyToken,
+                { type: "carousel", columns: cols },
+                `（空き枠）${top.length}件を表示しています。${outsideHours ? "\n⚠ ご希望の時間帯は営業時間外の可能性があります（営業時間 " + String(START_H).padStart(2, "0") + ":00–" + String(END_H).padStart(2, "0") + ":00）。" : ""}`,
+              );
+              continue;
+            }
+          } catch (e) {
+            console.error("slot suggest error", e);
+          }
+        }
         try {
           await handleScheduleIntent(
             text,

@@ -16,7 +16,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix && prettier --write .",
-    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "spec:validate": "bash ./spec/scripts/validate-spec.sh",
+    "spec:openapi:lint": "openapi lint spec/specs/003-my-feature/contracts/booking.openapi.yml",
+    "spec:openapi:types": "openapi-typescript spec/specs/003-my-feature/contracts/booking.openapi.yml --output src/types/generated/booking-api.ts",
+    "test:contract": "jest --config jest.config.js src/__tests__/contract --runInBand"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
@@ -84,6 +88,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "nodemon": "^3.1.3",
     "prettier": "^3.3.1",
+    "@redocly/openapi-cli": "1.0.0-beta.95",
+    "openapi-typescript": "^7.4.2",
     "ts-jest": "^29.4.0",
     "typescript": "5.8.3"
   },

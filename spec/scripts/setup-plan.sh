@@ -34,3 +34,6 @@ sed -e "s/\[FEATURE\]/${FEATURE_PATH#*-}/g" -e "s/\[DATE\]/${DATE}/g" -e "s/\[##
 
 echo "Wrote plan.md to $FEATURE_DIR"
 
+# ensure contracts dir exists
+mkdir -p "$FEATURE_DIR/contracts"
+

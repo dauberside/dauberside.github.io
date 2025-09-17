@@ -1,12 +1,11 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: another-feature
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: ./spec.md
-**Input**: Feature specification from `./spec.md`
+**Branch**: `002-another-feature` | **Date**: 2025-09-12 | **Spec**: [link]
+**Input**: Feature specification from `/specs/002-another-feature/spec.md`
 
 ## Execution Flow (/plan command scope)
 
-1. Load feature spec from Input path → If not found: ERROR "No feature spec at
-   {path}"
+1. Load feature spec from Input path → If not found: ERROR "No feature spec at {path}"
 2. Fill Technical Context (scan for NEEDS CLARIFICATION)
    - Detect Project Type from context (web=frontend+backend, mobile=app+api)
    - Set Structure Decision based on project type
@@ -14,8 +13,7 @@
    - If violations: document in Complexity Tracking; if unjustified: ERROR
    - Update Progress Tracking: Initial Constitution Check
 4. Execute Phase 0 → research.md; if NEEDS CLARIFICATION remain: ERROR
-5. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific
-   file
+5. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific file
 6. Re-evaluate Constitution Check; refactor if violations appear
 7. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
 8. STOP - Ready for /tasks command
@@ -40,24 +38,19 @@ IMPORTANT: /plan stops at step 7; /tasks creates tasks.md
 
 ## Constitution Check
 
-Simplicity / Architecture / Testing / Observability / Versioning checkpoints.
-See repo constitution.
+Simplicity / Architecture / Testing / Observability / Versioning checkpoints. See repo constitution.
 
 ## Project Structure
 
-Documentation under `specs/[###-feature]/` with
-plan/research/data-model/quickstart/contracts. Source under repo root as single
-project by default.
+Documentation under `specs/[###-feature]/` with plan/research/data-model/quickstart/contracts. Source under repo root as single project by default.
 
 ## Phase 0: Outline & Research
 
-Describe unknowns → research tasks → consolidate findings in research.md
-(Decision/Rationale/Alternatives).
+Describe unknowns → research tasks → consolidate findings in research.md (Decision/Rationale/Alternatives).
 
 ## Phase 1: Design & Contracts
 
-Extract entities → data-model.md. Generate API contracts → /contracts. Generate
-contract tests (failing). Extract test scenarios. Update agent file.
+Extract entities → data-model.md. Generate API contracts → /contracts. Generate contract tests (failing). Extract test scenarios. Update agent file.
 
 ## Phase 2: Task Planning Approach
 
