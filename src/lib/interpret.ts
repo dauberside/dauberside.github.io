@@ -19,6 +19,7 @@ export {
     createGoogleCalendarEvent,
     deleteGoogleCalendarEvent,
     listGoogleCalendarEvents,
+    updateGoogleCalendarEvent,
 } from "@/lib/gcal";
 
 // ===== KV/Reminder Functions =====

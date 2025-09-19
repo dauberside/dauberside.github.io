@@ -161,6 +161,88 @@ export async function createGoogleCalendarEvent(args: {
   };
 }
 
+/** 予定更新 */
+export async function updateGoogleCalendarEvent(args: {
+  calendarId: string;
+  eventId: string;
+  input: Partial<CreateEventInput>;
+}): Promise<GCalEvent> {
+  const { calendarId, eventId, input } = args;
+
+  const calendar = await getCalendarClient();
+  if (!calendar) {
+    // フォールバック：元のイベント情報を返す
+    throw new Error("Google Calendar client not available");
+  }
+
+  // 既存のイベントを取得
+  const existingEvent = await calendar.events.get({
+    calendarId,
+    eventId,
+    fields: "id,summary,description,location,start,end,htmlLink",
+  });
+
+  const existing = existingEvent.data;
+
+  // 更新データを構築
+  const updateData: any = {};
+
+  if (input.summary !== undefined) {
+    updateData.summary = input.summary;
+  }
+
+  if (input.description !== undefined) {
+    updateData.description = input.description;
+  }
+
+  if (input.location !== undefined) {
+    updateData.location = input.location;
+  }
+
+  if (input.start) {
+    updateData.start = buildGcalDatePart(input.start);
+  }
+
+  if (input.end) {
+    updateData.end = buildGcalDatePart(input.end);
+  }
+
+  // リマインダー設定（時間が変更された場合のみ）
+  if (input.start || input.end) {
+    const isAllDay = updateData.start?.date || updateData.end?.date ||
+      existing.start?.date || existing.end?.date;
+
+    if (!isAllDay) {
+      if (process.env.GC_REMINDER_USE_DEFAULT === "1") {
+        updateData.reminders = { useDefault: true };
+      } else {
+        const minutes = Number(process.env.GC_REMINDER_MINUTES || 30);
+        const method = (process.env.GC_REMINDER_METHOD || "popup").toLowerCase();
+        const m: "popup" | "email" = method === "email" ? "email" : "popup";
+        updateData.reminders = { useDefault: false, overrides: [{ method: m, minutes }] };
+      }
+    }
+  }
+
+  const resp: any = await calendar.events.patch({
+    calendarId,
+    eventId,
+    requestBody: updateData,
+    fields: "id,summary,description,location,start,end,htmlLink",
+  });
+
+  const ev: any = resp?.data ?? {};
+  return {
+    id: String(ev.id),
+    summary: ev.summary,
+    description: ev.description,
+    location: ev.location,
+    start: ev.start,
+    end: ev.end,
+    htmlLink: ev.htmlLink,
+  };
+}
+
 /** 予定削除 */
 export async function deleteGoogleCalendarEvent(args: {
   calendarId: string;

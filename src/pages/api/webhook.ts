@@ -218,6 +218,11 @@ import {
 import { addReminder, removeReminderByEventId } from "@/lib/kv";
 import { replyTemplate, replyText, verifyLineSignature } from "@/lib/line";
 import { extractEventFromText, normStr } from "@/lib/parser";
+import {
+  handleScheduleEditPostback,
+  handleTextInput,
+  sendScheduleSelectionQuickReply,
+} from "@/lib/schedule-edit";
 // slots generation (CommonJS module) → dynamic import to avoid no-require-imports lint
 let _slotsGen: any = null;
 async function getSlotsGen() {
@@ -1414,6 +1419,33 @@ export default async function handler(
     // postback（テンプレ・Flexのボタン押下）
     if (ev.type === "postback" && ev.postback?.data && ev.replyToken) {
       const data = String(ev.postback.data);
+
+      // 予定変更機能のpostback処理
+      if (
+        data.includes("|") &&
+        (data.startsWith("SELECT_EVENT|") ||
+          data.startsWith("EDIT_") ||
+          data.startsWith("TIME_") ||
+          data.startsWith("DATE_") ||
+          data.startsWith("LOCATION_") ||
+          data.startsWith("CONFIRM_") ||
+          data.startsWith("DELETE_EVENT|") ||
+          data.startsWith("BACK_TO_"))
+      ) {
+        try {
+          await handleScheduleEditPostback(
+            data,
+            ev.replyToken,
+            src.userId || "",
+          );
+          continue;
+        } catch (error) {
+          console.error("Schedule edit postback error:", error);
+          await replyText(ev.replyToken, "❌ 処理中にエラーが発生しました");
+          continue;
+        }
+      }
+
       const params = new URLSearchParams(data);
       const action = params.get("action") || "";
       const id = params.get("id") || "";
@@ -1646,6 +1678,31 @@ export default async function handler(
     if (ev.type === "message" && ev.message?.type === "text" && ev.replyToken) {
       const text: string = (ev.message.text || "").trim();
       const calendarId = process.env.CALENDAR_ID || "primary";
+
+      // 予定変更コマンド
+      if (text.match(/^(予定変更|変更|edit)$/i)) {
+        try {
+          await sendScheduleSelectionQuickReply(
+            ev.replyToken,
+            src.userId || "",
+            groupOrRoomId,
+          );
+          continue;
+        } catch (error) {
+          console.error("Schedule edit command error:", error);
+          await replyText(
+            ev.replyToken,
+            "❌ 予定変更機能でエラーが発生しました",
+          );
+          continue;
+        }
+      }
+
+      // テキスト入力処理（変更実行など）
+      if (await handleTextInput(text, ev.replyToken, src.userId || "")) {
+        continue;
+      }
+
       if (
         await tryCancelFromText(text, groupOrRoomId, calendarId, ev.replyToken)
       ) {
