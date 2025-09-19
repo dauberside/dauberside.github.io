@@ -2,9 +2,9 @@
 // If not needed, this file can be safely deleted.
 
 export default function HeaderTest() {
-    return (
-        <main className="p-6 text-sm text-gray-600">
-            <p>Header test page (placeholder)</p>
-        </main>
-    );
+  return (
+    <main className="p-6 text-sm text-gray-600">
+      <p>Header test page (placeholder)</p>
+    </main>
+  );
 }
