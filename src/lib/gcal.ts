@@ -209,17 +209,25 @@ export async function updateGoogleCalendarEvent(args: {
 
   // リマインダー設定（時間が変更された場合のみ）
   if (input.start || input.end) {
-    const isAllDay = updateData.start?.date || updateData.end?.date ||
-      existing.start?.date || existing.end?.date;
+    const isAllDay =
+      updateData.start?.date ||
+      updateData.end?.date ||
+      existing.start?.date ||
+      existing.end?.date;
 
     if (!isAllDay) {
       if (process.env.GC_REMINDER_USE_DEFAULT === "1") {
         updateData.reminders = { useDefault: true };
       } else {
         const minutes = Number(process.env.GC_REMINDER_MINUTES || 30);
-        const method = (process.env.GC_REMINDER_METHOD || "popup").toLowerCase();
+        const method = (
+          process.env.GC_REMINDER_METHOD || "popup"
+        ).toLowerCase();
         const m: "popup" | "email" = method === "email" ? "email" : "popup";
-        updateData.reminders = { useDefault: false, overrides: [{ method: m, minutes }] };
+        updateData.reminders = {
+          useDefault: false,
+          overrides: [{ method: m, minutes }],
+        };
       }
     }
   }

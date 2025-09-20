@@ -115,3 +115,16 @@ export type LineQuickReplyItem = {
 };
 
 export type LineTemplate = LineConfirmTemplate | LineCarouselTemplate;
+
+/* ===== Enhanced Error Handling Types ===== */
+
+// Re-export error types for consistency
+export type {
+  ErrorContext,
+  ErrorSeverity,
+  ErrorSuggestion,
+  ErrorType,
+  RecoveryType,
+  RiskLevel,
+  SystemError,
+} from "./errors";

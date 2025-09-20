@@ -1,7 +1,8 @@
 describe("Booking API contract", () => {
   describe("GET /api/slots", () => {
     it("returns 200 with { slots: [] } for basic GET without params", async () => {
-      const handler = require("../../pages/api/slots");
+      const mod = require("../../pages/api/slots");
+      const handler = mod.default || mod;
 
       const req = { method: "GET", query: {} };
       const res = (() => {
@@ -28,7 +29,8 @@ describe("Booking API contract", () => {
     });
 
     it("returns non-empty slots with defaults (today, duration=30, SITE_TZ)", async () => {
-      const handler = require("../../pages/api/slots");
+      const mod = require("../../pages/api/slots");
+      const handler = mod.default || mod;
       const req = { method: "GET", query: {} };
       const res = (() => {
         const r = { statusCode: 200, headers: {}, body: undefined };
@@ -61,7 +63,8 @@ describe("Booking API contract", () => {
     });
 
     it("returns non-empty slots for date+duration+tz (Asia/Tokyo)", async () => {
-      const handler = require("../../pages/api/slots");
+      const mod = require("../../pages/api/slots");
+      const handler = mod.default || mod;
       const req = {
         method: "GET",
         query: { date: "2025-01-15", duration: "30", tz: "Asia/Tokyo" },
@@ -96,7 +99,8 @@ describe("Booking API contract", () => {
     });
 
     it("returns 400 for invalid date format", async () => {
-      const handler = require("../../pages/api/slots");
+      const mod = require("../../pages/api/slots");
+      const handler = mod.default || mod;
       const req = { method: "GET", query: { date: "2025/01/01" } };
       const res = (() => {
         const r = { statusCode: 200, headers: {}, body: undefined };
@@ -118,7 +122,8 @@ describe("Booking API contract", () => {
     });
 
     it("returns 400 for invalid duration (not in 15|30|45|60)", async () => {
-      const handler = require("../../pages/api/slots");
+      const mod = require("../../pages/api/slots");
+      const handler = mod.default || mod;
       const req = { method: "GET", query: { duration: "10" } };
       const res = (() => {
         const r = { statusCode: 200, headers: {}, body: undefined };

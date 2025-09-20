@@ -2,11 +2,17 @@
  Scans due reminders (<= now) and dispatches LINE push texts.
  Idempotency: claimReminder removes from ZSET before push to avoid duplicates.
  Rate: processes up to 100 per invocation.
+ Enhanced with smart reminder processing and context updates.
 */
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { claimReminder, kvAvailable, listDueReminders } from "@/lib/kv";
 import { pushText } from "@/lib/line";
+import {
+  processDueReminders,
+  updateTrafficDependentReminders,
+  updateWeatherDependentReminders,
+} from "@/lib/smart-reminder-engine";
 
 export default async function handler(
   req: NextApiRequest,
@@ -36,6 +42,8 @@ export default async function handler(
   }
 
   const now = Date.now();
+
+  // Process legacy reminders
   const due = await listDueReminders(now, 100);
   let sent = 0;
   for (const item of due) {
@@ -57,5 +65,31 @@ export default async function handler(
     }
   }
 
-  res.status(200).json({ ok: true, due: due.length, sent });
+  // Process smart reminders
+  let smartStats = { processed: 0, sent: 0, failed: 0 };
+  try {
+    smartStats = await processDueReminders(now);
+  } catch (error) {
+    console.error("Failed to process smart reminders:", error);
+  }
+
+  // Update context-dependent reminders periodically (every 5th run)
+  const shouldUpdateContext = Math.random() < 0.2; // 20% chance
+  if (shouldUpdateContext) {
+    try {
+      await Promise.all([
+        updateWeatherDependentReminders(),
+        updateTrafficDependentReminders(),
+      ]);
+    } catch (error) {
+      console.error("Failed to update context-dependent reminders:", error);
+    }
+  }
+
+  res.status(200).json({
+    ok: true,
+    legacy: { due: due.length, sent },
+    smart: smartStats,
+    contextUpdated: shouldUpdateContext,
+  });
 }
