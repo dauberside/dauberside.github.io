@@ -314,6 +314,65 @@ function jstRoundedLocalDatetime(stepMin = 30): string {
   return `${Y}-${M}-${D}T${h}:${mi}`;
 }
 
+function publicBaseUrl(): string | undefined {
+  const envUrl = process.env.PUBLIC_BASE_URL || process.env.SITE_ORIGIN;
+  if (envUrl && /^https?:\/\//i.test(envUrl)) return envUrl;
+  const vercel = process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel}`;
+  return undefined; // 最悪は未設定
+}
+
+// --- Google Calendar links ---
+function googleCalendarBaseUrl() {
+  // 基本ビュー
+  const base = "https://calendar.google.com/calendar/r";
+  const calId = process.env.GC_CALENDAR_ID || process.env.CALENDAR_ID;
+  if (calId) {
+    return `${base}?cid=${encodeURIComponent(calId)}`;
+  }
+  return base;
+}
+
+function toGcalDatesParam(startIso: string, endIso: string) {
+  const fmt = (iso: string) => {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const Y = d.getUTCFullYear();
+    const M = pad(d.getUTCMonth() + 1);
+    const D = pad(d.getUTCDate());
+    const h = pad(d.getUTCHours());
+    const m = pad(d.getUTCMinutes());
+    const s = pad(d.getUTCSeconds());
+    return `${Y}${M}${D}T${h}${m}${s}Z`;
+  };
+  return `${fmt(startIso)}/${fmt(endIso)}`;
+}
+
+function googleCalendarTemplateUrl(opts: {
+  title?: string;
+  start: string;
+  end: string;
+  location?: string;
+  details?: string;
+  tz?: string;
+}) {
+  const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+  const params = new URLSearchParams();
+  if (opts.title) params.set("text", opts.title);
+  params.set("dates", toGcalDatesParam(opts.start, opts.end));
+  if (opts.details) params.set("details", opts.details);
+  if (opts.location) params.set("location", opts.location);
+  params.set("ctz", opts.tz || "Asia/Tokyo");
+  const calId = process.env.GC_CALENDAR_ID || process.env.CALENDAR_ID;
+  if (calId) params.set("sf", "true"); // keep default UI features
+  return `${base}&${params.toString()}`;
+}
+
+// --- Pending create (KV) ---
+function pendingCreateKey(groupOrRoomId?: string, userId?: string) {
+  return `pending:create:${groupOrRoomId || "solo"}:${userId || "anon"}`;
+}
+
 /** 表示用: JSTで "YYYY/MM/DD HH:MM:SS" を返す（ISOが不正なら原文） */
 function formatJst(iso?: string): string {
   if (!iso) return "";
@@ -1563,6 +1622,26 @@ export default async function handler(
                   text: "#cal 8/23 20:30-21:00 件名 @場所",
                 },
               },
+              ...(publicBaseUrl()
+                ? [
+                    {
+                      type: "action" as const,
+                      action: {
+                        type: "uri" as const,
+                        label: "Webカレンダー（サイト）",
+                        uri: `${publicBaseUrl()}/booking`,
+                      },
+                    },
+                  ]
+                : []),
+              {
+                type: "action",
+                action: {
+                  type: "uri",
+                  label: "Googleカレンダー",
+                  uri: googleCalendarBaseUrl(),
+                },
+              },
             ]);
           } else if (kind === "check_schedule") {
             await handleScheduleIntent(
@@ -1611,20 +1690,40 @@ export default async function handler(
           e.setMinutes(e.getMinutes() + 60);
           const end = e.toISOString();
 
-          const payloadJson = JSON.stringify({
-            summary: "予定",
+          // タイトル誘導: まずKVに pending を保存し、ユーザーに件名入力を促す
+          try {
+            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
+            await (kv as any).set(
+              key,
+              JSON.stringify({ start, end, location: "" }),
+              { ex: 600 },
+            ); // 10分で期限切れ
+          } catch {}
+
+          const gcalTpl = googleCalendarTemplateUrl({
+            title: "(件名を入力)",
             start,
             end,
-            location: "",
-            description: "LINE日時選択",
+            tz: "Asia/Tokyo",
           });
-          await sendScheduleConfirm(
+
+          await replyTextWithQuickReply(
             ev.replyToken,
-            "予定",
-            start,
-            end,
-            "",
-            payloadJson,
+            "日時を受け取りました。件名を入力してください（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。",
+            [
+              {
+                type: "action",
+                action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl },
+              },
+              {
+                type: "action",
+                action: {
+                  type: "message",
+                  label: "やめる",
+                  text: "キャンセル",
+                },
+              },
+            ],
           );
         } catch (e) {
           console.error("pick_datetime error", e);
@@ -1838,6 +1937,42 @@ export default async function handler(
     if (ev.type === "message" && ev.message?.type === "text" && ev.replyToken) {
       const text: string = (ev.message.text || "").trim();
       const calendarId = process.env.CALENDAR_ID || "primary";
+
+      // 件名待ち（pending create）がある場合の最優先処理
+      try {
+        const key = pendingCreateKey(groupOrRoomId, src.userId || "");
+        const pendingRaw = await (kv as any).get(key);
+        if (pendingRaw) {
+          // ユーザーの入力を件名/ロケーションとして扱う
+          const obj = JSON.parse(String(pendingRaw) || "{}");
+          const mLoc = text.match(/@([^\s　]+)/);
+          const location = mLoc ? mLoc[1] : "";
+          const summary = text.replace(/@([^\s　]+)/, "").trim().slice(0, 80) || "予定";
+          const start = String(obj.start || "");
+          const end = String(obj.end || "");
+
+          const payloadJson = JSON.stringify({
+            summary,
+            start,
+            end,
+            location,
+            description: "LINE日時選択+件名入力",
+          });
+
+          await sendScheduleConfirm(
+            ev.replyToken,
+            summary,
+            start,
+            end,
+            location,
+            payloadJson,
+          );
+          try {
+            await (kv as any).del(key);
+          } catch {}
+          return res.status(200).end();
+        }
+      } catch {}
 
       // 予定変更コマンド
       if (text.match(/^(予定変更|変更|edit)$/i)) {
