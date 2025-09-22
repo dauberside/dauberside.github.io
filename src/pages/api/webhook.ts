@@ -216,7 +216,12 @@ import {
 // extend kv helpers: addReminder/removeReminderByEventId are exported from the same module
 // (note: duplicate import lines are acceptable but we keep one consolidated above)
 import { addReminder, removeReminderByEventId } from "@/lib/kv";
-import { replyTemplate, replyText, verifyLineSignature } from "@/lib/line";
+import {
+  replyTemplate,
+  replyText,
+  verifyLineSignature,
+  replyTextWithQuickReply,
+} from "@/lib/line";
 import { extractEventFromText, normStr } from "@/lib/parser";
 import {
   handleScheduleEditPostback,
@@ -288,6 +293,25 @@ function coerceToJstWall(iso?: string): string {
   if (/T\d{2}:\d{2}/.test(s) && !/[+-]\d{2}:\d{2}$/.test(s))
     return s + "+09:00";
   return s;
+}
+
+/**
+ * JSTの現在時刻を指定分解能できれいに丸めた "YYYY-MM-DDThh:mm"（タイムゾーン指定なし）を返す。
+ * 例: 10:07 → 10:30 / 10:45 → 11:00
+ */
+function jstRoundedLocalDatetime(stepMin = 30): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  // サーバはUTC前提。+09:00 を加算してから UTC getter でJSTの壁時計値を取得。
+  const d = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const m = d.getUTCMinutes();
+  const add = (stepMin - (m % stepMin)) % stepMin;
+  d.setUTCMinutes(m + add, 0, 0);
+  const Y = d.getUTCFullYear();
+  const M = pad(d.getUTCMonth() + 1);
+  const D = pad(d.getUTCDate());
+  const h = pad(d.getUTCHours());
+  const mi = pad(d.getUTCMinutes());
+  return `${Y}-${M}-${D}T${h}:${mi}`;
 }
 
 /** 表示用: JSTで "YYYY/MM/DD HH:MM:SS" を返す（ISOが不正なら原文） */
@@ -1518,16 +1542,28 @@ export default async function handler(
       if (action === "ai") {
         try {
           if (kind === "create_schedule") {
-            // 予定登録のガイドを表示（自由入力 or /ai book フローの案内）
-            await replyText(
-              ev.replyToken,
-              [
-                "予定登録: 登録したい予定をこのまま送ってください。",
-                "例1: 8/23 20:30-21:00 食事 @渋谷",
-                "例2: 10/3 19:00-20:00 ミーティング @表参道",
-                "ヒント: '/ai 予約 10/3 19:00-20:00 ミーティング @表参道' の形式でも登録フローが始まります。",
-              ].join("\n"),
-            );
+            // Quick Reply で日時ピッカーを提示
+            const initial = jstRoundedLocalDatetime(30); // "YYYY-MM-DDThh:mm"
+            await replyTextWithQuickReply(ev.replyToken, "登録する日時を選んでください", [
+              {
+                type: "action",
+                action: {
+                  type: "datetimepicker",
+                  label: "日時を選ぶ",
+                  mode: "datetime",
+                  data: "action=pick_datetime&flow=create",
+                  initial,
+                },
+              },
+              {
+                type: "action",
+                action: {
+                  type: "message",
+                  label: "手入力する",
+                  text: "#cal 8/23 20:30-21:00 件名 @場所",
+                },
+              },
+            ]);
           } else if (kind === "check_schedule") {
             await handleScheduleIntent(
               "予定の確認",
@@ -1553,6 +1589,46 @@ export default async function handler(
         } catch (e) {
           console.error("AI quick action error", e);
           await replyText(ev.replyToken, "（AI）処理中にエラーが発生しました。");
+        }
+        continue;
+      }
+
+      // datetimepicker 選択後の postback（LINE は postback.params に date/time/datetime を付与）
+      if (action === "pick_datetime") {
+        try {
+          // ev.postback.params: { date?: "YYYY-MM-DD", time?: "HH:mm", datetime?: "YYYY-MM-DDTHH:mm" }
+          const p = ev.postback?.params || {};
+          const flow = params.get("flow") || "create"; // create | edit (将来拡張)
+          const dt: string = p.datetime || (p.date && p.time ? `${p.date}T${p.time}` : p.date) || "";
+          if (!dt) {
+            await replyText(ev.replyToken, "（日時未選択）もう一度選んでください。");
+            continue;
+          }
+          // 既定の長さ 60 分
+          const start = coerceToJstWall(`${dt}+09:00`);
+          const s = new Date(start);
+          const e = new Date(s);
+          e.setMinutes(e.getMinutes() + 60);
+          const end = e.toISOString();
+
+          const payloadJson = JSON.stringify({
+            summary: "予定",
+            start,
+            end,
+            location: "",
+            description: "LINE日時選択",
+          });
+          await sendScheduleConfirm(
+            ev.replyToken,
+            "予定",
+            start,
+            end,
+            "",
+            payloadJson,
+          );
+        } catch (e) {
+          console.error("pick_datetime error", e);
+          await replyText(ev.replyToken, "（失敗）日時処理でエラーが発生しました");
         }
         continue;
       }

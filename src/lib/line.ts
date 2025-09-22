@@ -32,6 +32,39 @@ export async function replyText(replyToken: string, text: string) {
   await lineFetch(body);
 }
 
+// Quick Reply support (datetimepickerなど)
+export type QuickReplyAction =
+  | { type: "postback"; label: string; data: string }
+  | { type: "message"; label: string; text: string }
+  | { type: "uri"; label: string; uri: string }
+  | {
+      type: "datetimepicker";
+      label: string;
+      data: string; // postback.data に入る（postback.params に date/time/datetime が付与される）
+      mode: "date" | "time" | "datetime";
+      initial?: string; // YYYY-MM-DD or YYYY-MM-DDThh:mm
+      max?: string;
+      min?: string;
+    };
+
+export async function replyTextWithQuickReply(
+  replyToken: string,
+  text: string,
+  items: Array<{ type: "action"; action: QuickReplyAction }>,
+) {
+  const body = {
+    replyToken,
+    messages: [
+      {
+        type: "text",
+        text,
+        quickReply: { items: items.slice(0, 13) }, // LINE上限 13
+      },
+    ],
+  } as any;
+  await lineFetch(body);
+}
+
 export async function pushText(to: string, text: string) {
   const token = process.env.CHANNEL_ACCESS_TOKEN || "";
   if (!token) throw new Error("LINE access token is missing");
