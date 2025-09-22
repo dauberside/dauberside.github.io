@@ -89,7 +89,11 @@ Use AI-powered shortcuts directly in LINE without typing long commands.
   - Send "/ai" (with no arguments) in a 1:1 or allowed group chat. The bot returns an "AIメニュー" buttons template.
   - 1:1 または許可グループのトークで「/ai」を送信すると、AIメニュー（ボタン）が表示されます。
 - Available actions (3 only) / 利用可能アクション（3項目のみ）
-  - 予定登録 (Create schedule): Start the schedule registration flow by sending a natural sentence (see examples below).
+  - 予定登録 (Create schedule):
+    - Quick Reply に日時ピッカー（ロールUI）が表示されます。まず日時を選択してください。
+    - 選択後、件名の入力を促すメッセージが届きます。メッセージ本文をそのまま件名として解釈します（例: 「打合せ @渋谷」→ 件名=打合せ, 場所=渋谷）。
+    - 返信内に「Googleカレンダーで編集（テンプレート）」リンクも表示され、ブラウザで直接編集→保存も可能です。
+    - 併せて「Webカレンダー（サイト）」の導線も表示します（/booking）。
   - 予定確認 (Check schedule): Show upcoming schedule via the existing flow.
   - 予定変更 (Edit schedule): Start the schedule-edit quick reply flow.
 - Free conversation / 自由入力での登録
@@ -100,6 +104,7 @@ Use AI-powered shortcuts directly in LINE without typing long commands.
 - Notes / 注意事項
   - Group chats must be allowed via `ALLOW_GROUP_IDS`.
   - グループで使う場合は `ALLOW_GROUP_IDS` に対象グループ ID を設定してください。
+  - 日時ピッカー選択後の「件名待ち」は KV に10分間だけ保持されます。タイムアウトしたら再度「予定登録」からやり直してください。
   - If AI responses seem slow in tests/CI, consider tuning `OPENAI_TIMEOUT_MS` (see Environment Variables).
   - テスト/CI で応答が遅い場合は `OPENAI_TIMEOUT_MS` を短めに調整してください（環境変数参照）。
   - Older buttons like "要約"、"今日の空き"、"使い方" are disabled and will respond with a notice.
