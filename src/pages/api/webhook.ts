@@ -389,6 +389,46 @@ function isoOrUndefined(s?: string) {
   return s && !isNaN(new Date(s).valueOf()) ? s : undefined;
 }
 
+// --- AI ショートカット用メニュー（Buttons テンプレート）---
+async function replyAiMenu(replyToken: string) {
+  await replyTemplate(
+    replyToken,
+    {
+      type: "buttons",
+      text: "AIメニュー",
+      actions: [
+        {
+          type: "postback",
+          label: "予定登録",
+          data: "action=ai&kind=create_schedule",
+        },
+        {
+          type: "postback",
+          label: "予定確認",
+          data: "action=ai&kind=check_schedule",
+        },
+        {
+          type: "postback",
+          label: "予定変更",
+          data: "action=ai&kind=edit_schedule",
+        },
+      ],
+    } as any,
+    "AIメニュー",
+  );
+}
+
+function aiHowtoText(): string {
+  return [
+    "自由入力の使い方",
+    "次のメッセージで、/ai に続けて質問を書いてください。",
+    "例:",
+    "・/ai 今日の議事を3行で要約して",
+    "・/ai 来週火曜の午後で空いてる時間を教えて",
+    "・/ai 10/3 19:00-20:00 で飲み会を予約 @渋谷",
+  ].join("\n");
+}
+
 // Google Calendar date wrapper: accepts "YYYY-MM-DD" or ISO datetime
 
 function toGCalDate(s: string) {
@@ -1449,6 +1489,7 @@ export default async function handler(
       const params = new URLSearchParams(data);
       const action = params.get("action") || "";
       const id = params.get("id") || "";
+  const kind = params.get("kind") || "";
 
       if (action === "cancel" && id) {
         try {
@@ -1469,6 +1510,49 @@ export default async function handler(
             ev.replyToken,
             `（取消失敗）${e?.message || "理由不明"}\nID: ${id}`,
           );
+        }
+        continue;
+      }
+
+      // AI quick actions (postback from AI menu)
+      if (action === "ai") {
+        try {
+          if (kind === "create_schedule") {
+            // 予定登録のガイドを表示（自由入力 or /ai book フローの案内）
+            await replyText(
+              ev.replyToken,
+              [
+                "予定登録: 登録したい予定をこのまま送ってください。",
+                "例1: 8/23 20:30-21:00 食事 @渋谷",
+                "例2: 10/3 19:00-20:00 ミーティング @表参道",
+                "ヒント: '/ai 予約 10/3 19:00-20:00 ミーティング @表参道' の形式でも登録フローが始まります。",
+              ].join("\n"),
+            );
+          } else if (kind === "check_schedule") {
+            await handleScheduleIntent(
+              "予定の確認",
+              ev.replyToken,
+              process.env.CALENDAR_ID || "primary",
+              groupOrRoomId,
+            );
+          } else if (kind === "edit_schedule") {
+            await sendScheduleSelectionQuickReply(
+              ev.replyToken,
+              src.userId || "",
+              groupOrRoomId,
+            );
+          } else if (kind === "summary" || kind === "slots_today" || kind === "howto") {
+            // 過去メニューからの古い postback 対応: 機能閉鎖メッセージ
+            await replyText(
+              ev.replyToken,
+              "この機能は現在無効です。『予定登録』『予定確認』『予定変更』をご利用ください。",
+            );
+          } else {
+            await replyAiMenu(ev.replyToken);
+          }
+        } catch (e) {
+          console.error("AI quick action error", e);
+          await replyText(ev.replyToken, "（AI）処理中にエラーが発生しました。");
         }
         continue;
       }
@@ -2294,8 +2378,17 @@ export default async function handler(
       }
 
       // /ai（予定スニペット & 要約対応）
-      if (/^\/ai\b/i.test(text)) {
-        const q = text.replace(/^\/ai\s*/i, "").trim() || "こんにちは。";
+      if (/^\/ai\b|^ai$/i.test(text)) {
+        const bareAi = /^ai$/i.test(text);
+        const q0 = bareAi ? "" : text.replace(/^\/ai\s*/i, "").trim();
+
+        // 入力なし → メニュー表示
+        if (!q0) {
+          await replyAiMenu(ev.replyToken);
+          await replyText(ev.replyToken, aiHowtoText());
+          continue;
+        }
+        const q = q0;
 
         // 即時登録（代行登録）: "/ai book ..." または 日本語の「予約」「登録」「作成」キーワードで開始する場合
         // Note: \b doesn't work for Japanese; check start then space, colon, or EOL
@@ -2444,12 +2537,12 @@ export default async function handler(
         } catch {}
 
         if (gcalSnippet) ctx = gcalSnippet + ctx;
-        // Cloudflare AI が未設定なら穏当に案内して落ちないようにする
+        // OpenAI が未設定なら穏当に案内して落ちないようにする
         try {
           if (typeof isCfAiConfigured === "function" && !isCfAiConfigured()) {
             await replyText(
               ev.replyToken,
-              "（AI未設定）Cloudflare AI の環境変数が未設定です。管理者は CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN / CF_AI_MODEL を設定してください。",
+              "（AI未設定）OpenAI の環境変数が未設定です。管理者は OPENAI_API_KEY（必要に応じて OPENAI_MODEL / OPENAI_BASE_URL）を設定してください。",
             );
             continue;
           }
@@ -2458,10 +2551,10 @@ export default async function handler(
         try {
           answer = await callCfChat(ctx + finalPrompt);
         } catch (e) {
-          console.error("CF AI error", e);
+          console.error("OpenAI error", e);
           await replyText(
             ev.replyToken,
-            "（AI応答不可）Cloudflare AI への接続に失敗しました。環境変数の設定をご確認ください。",
+            "（AI応答不可）OpenAI への接続に失敗しました。環境変数や課金状況をご確認ください。",
           );
           continue;
         }

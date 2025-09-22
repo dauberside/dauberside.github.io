@@ -1,0 +1,7 @@
+# pnpm settings (even for single-project repos)
+# Allow only specific dependencies to run install scripts during pnpm install.
+# This resolves warnings like:
+#   Ignored build scripts: unrs-resolver. Run "pnpm approve-builds" ...
+
+onlyBuiltDependencies:
+  - unrs-resolver

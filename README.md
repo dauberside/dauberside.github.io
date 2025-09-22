@@ -9,6 +9,8 @@ Vercel (Git integration).
 - [Development](#development)
 - [Deployment](#deployment)
 - [Operations](#operations)
+- [LINE AI shortcuts](#line-ai-shortcuts)
+- [Security: Trusted builds](#security-trusted-builds)
 - [Environment Variables](#environment-variables)
 - [Contributing](#contributing)
 - [License](#license)
@@ -78,6 +80,41 @@ Tips:
   - Primary: `www` subdomain; apex redirects to `www`.
   - DNS is managed at your registrar; verify CNAME and A/ALIAS as documented by
     Vercel.
+
+## LINE AI shortcuts
+
+Use AI-powered shortcuts directly in LINE without typing long commands.
+
+- How to open the menu / メニューの開き方
+  - Send "/ai" (with no arguments) in a 1:1 or allowed group chat. The bot returns an "AIメニュー" buttons template.
+  - 1:1 または許可グループのトークで「/ai」を送信すると、AIメニュー（ボタン）が表示されます。
+- Available actions (3 only) / 利用可能アクション（3項目のみ）
+  - 予定登録 (Create schedule): Start the schedule registration flow by sending a natural sentence (see examples below).
+  - 予定確認 (Check schedule): Show upcoming schedule via the existing flow.
+  - 予定変更 (Edit schedule): Start the schedule-edit quick reply flow.
+- Free conversation / 自由入力での登録
+  - You can directly send a natural sentence to register: e.g. "8/23 20:30-21:00 食事 @渋谷" or "10/3 19:00-20:00 ミーティング @表参道".
+  - 自然文の送信だけでも登録できます（例: "8/23 20:30-21:00 食事 @渋谷"、"10/3 19:00-20:00 ミーティング @表参道"）。
+  - The classic format also works: "/ai 予約 10/3 19:00-20:00 ミーティング @表参道".
+  - 旧来の書式（例: "/ai 予約 10/3 19:00-20:00 ミーティング @表参道"）も利用可能です。
+- Notes / 注意事項
+  - Group chats must be allowed via `ALLOW_GROUP_IDS`.
+  - グループで使う場合は `ALLOW_GROUP_IDS` に対象グループ ID を設定してください。
+  - If AI responses seem slow in tests/CI, consider tuning `OPENAI_TIMEOUT_MS` (see Environment Variables).
+  - テスト/CI で応答が遅い場合は `OPENAI_TIMEOUT_MS` を短めに調整してください（環境変数参照）。
+  - Older buttons like "要約"、"今日の空き"、"使い方" are disabled and will respond with a notice.
+  - 旧ボタン（要約/今日の空き/使い方）は無効化されており、押下時は案内メッセージが返ります。
+
+For admin operations and smoke tests, see: `docs/operations/line-ai-menu.md`.
+（運用者向け手順とスモークテストは `docs/operations/line-ai-menu.md` を参照）
+
+## Security: Trusted builds
+
+依存パッケージのインストールスクリプトは原則ブロックし、必要最小限のみ許可しています。
+
+- 設定ファイル: `pnpm-workspace.yaml` の `onlyBuiltDependencies`
+- 現在の許可: `unrs-resolver`
+- 運用と監査の詳細: `docs/security/trusted-builds.md`
 
 ## Environment Variables
 
@@ -158,13 +195,26 @@ Used by: `src/pages/api/webhook.ts`, `src/lib/line.ts`
 
 Used by: `src/lib/gcal.ts`, `src/pages/api/webhook.ts`
 
-### Cloudflare AI (optional)
+### OpenAI (default)
+
+- `OPENAI_API_KEY` — Required
+- `OPENAI_MODEL` — Default `gpt-4o-mini` if not set
+- `OPENAI_BASE_URL` — Default `https://api.openai.com/v1` if not set
+- `OPENAI_PROJECT` — Optional
+- `OPENAI_TIMEOUT_MS` — Optional; fetch timeout for AI calls (default: 6000ms)
+
+Used by: `src/lib/ai.ts`
+
+### Cloudflare AI (optional / legacy)
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_API_TOKEN`
 - `CF_AI_MODEL` — Default `@cf/meta/llama-3.1-8b-instruct` if not set
 
-Used by: `src/lib/ai.ts`
+Note: The current implementation uses OpenAI by default. Cloudflare Workers AI
+settings are kept for legacy compatibility but are not required.
+
+Used by: (legacy paths only)
 
 ### Misc
 

@@ -180,6 +180,26 @@ export class MultiIntentProcessor {
     return MultiIntentProcessor.instance;
   }
 
+  private log(
+    level: "error" | "warn" | "info",
+    message: string,
+    error?: unknown,
+  ) {
+    if (process.env.NODE_ENV === "test") return;
+
+    const logger: Record<typeof level, (...args: unknown[]) => void> = {
+      error: console.error.bind(console),
+      warn: console.warn.bind(console),
+      info: console.log.bind(console),
+    };
+
+    if (error !== undefined) {
+      logger[level](message, error);
+    } else {
+      logger[level](message);
+    }
+  }
+
   /**
    * Process multiple intents from user input
    */
@@ -225,7 +245,7 @@ export class MultiIntentProcessor {
         startTime,
       );
     } catch (error) {
-      console.error("Multi-intent processing failed:", error);
+      this.log("error", "Multi-intent processing failed:", error);
       const errMsg = error instanceof Error ? error.message : String(error);
       const sysErr = createSystemError(
         ErrorType.CLOUDFLARE_AI_ERROR,
@@ -285,7 +305,7 @@ export class MultiIntentProcessor {
       }
       return capped;
     } catch (error) {
-      console.error("Intent detection failed, using fallback:", error);
+      this.log("error", "Intent detection failed, using fallback:", error);
       return await this.fallbackIntentDetection(text, context);
     }
   }
@@ -479,7 +499,7 @@ JSONフォーマットで正確に返答してください。`;
 
       return JSON.parse(jsonMatch[0]);
     } catch (error) {
-      console.error("Failed to parse multi-intent response:", error);
+      this.log("error", "Failed to parse multi-intent response:", error);
       return { intents: [] };
     }
   }

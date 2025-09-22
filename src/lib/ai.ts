@@ -233,16 +233,25 @@ export async function sendScheduleCreated(
 }
 
 export function isCfAiConfigured() {
-  // ここはあなたの指定どおりに統一
-  return !!(
-    process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_API_TOKEN
-  );
+  // Retain the original export name for compatibility with existing callers
+  return !!process.env.OPENAI_API_KEY;
 }
 
 export async function callCfChat(
   prompt: unknown,
   system?: unknown,
 ): Promise<string> {
+  // Cross-runtime env getter (Node/Deno)
+  const getEnv = (name: string): string | undefined => {
+    const p = (globalThis as any).process?.env?.[name];
+    if (p !== undefined) return p as string;
+    try {
+      const d = (globalThis as any).Deno?.env?.get?.(name);
+      if (d !== undefined) return d as string;
+    } catch {}
+    return undefined;
+  };
+
   // Coerce inputs to strings to avoid "unknown object"/[object Object] issues
   const toStr = (x: unknown): string => {
     if (typeof x === "string") return x;
@@ -256,54 +265,72 @@ export async function callCfChat(
   const sys = system !== undefined ? toStr(system) : "";
 
   if (!isCfAiConfigured()) {
-    throw new Error("Cloudflare Workers AI is not configured");
+    throw new Error("OpenAI API is not configured");
   }
 
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID as string;
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN as string;
-  // Cloudflare expects the model slug to appear with slashes intact (e.g. @cf/meta/llama-3.1-8b-instruct)
-  const model = (
-    process.env.CF_AI_MODEL || "@cf/meta/llama-3.1-8b-instruct"
-  ).replace(/^["']|["']$/g, "");
-  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
+  const apiKey = (getEnv("OPENAI_API_KEY") || "") as string;
+  const baseUrl = (getEnv("OPENAI_BASE_URL") || "https://api.openai.com/v1").trim();
+  const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
+  const model = (getEnv("OPENAI_MODEL") || "gpt-4o-mini").replace(/^["']|["']$/g, "");
+  const url = `${normalizedBaseUrl}/chat/completions`;
+  const timeoutMs = Math.max(1000, parseInt(getEnv("OPENAI_TIMEOUT_MS") || "6000", 10) || 6000);
 
   // Use messages shape; ensure content is plain string
-  const body: any = {
+  const body: Record<string, unknown> = {
+    model,
     messages: [
       sys ? { role: "system", content: sys } : undefined,
       { role: "user", content: p },
     ].filter(Boolean),
+    temperature: 0.2,
   };
 
   try {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort("timeout"), timeoutMs);
     const resp = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      // Deno/Node both support AbortController
+      signal: ac.signal as any,
     });
+    clearTimeout(timer);
 
     if (!resp.ok) {
       const text = await resp.text().catch(() => "");
-      throw new Error(`CF-AI HTTP ${resp.status}: ${text.slice(0, 400)}`);
+      throw new Error(`OpenAI HTTP ${resp.status}: ${text.slice(0, 400)}`);
     }
 
     const json: any = await resp.json();
-    const out =
-      json?.result?.response ||
-      json?.result?.output_text ||
-      json?.result?.text ||
-      json?.response ||
-      json?.text;
-    if (typeof out === "string" && out.trim()) return out;
+    const message = json?.choices?.[0]?.message;
+    if (message) {
+      if (typeof message.content === "string" && message.content.trim()) {
+        return message.content;
+      }
+
+      if (Array.isArray(message.content)) {
+        const aggregated = message.content
+          .map((part: any) => {
+            if (part == null) return "";
+            if (typeof part === "string") return part;
+            if (typeof part?.text === "string") return part.text;
+            return "";
+          })
+          .join("")
+          .trim();
+        if (aggregated) return aggregated;
+      }
+    }
 
     // Fallback: stringify the entire payload to ensure a string response
     return typeof json === "string" ? json : JSON.stringify(json);
   } catch (e: any) {
     const msg = e?.message ? String(e.message) : String(e);
-    throw new Error(`CF-AI call failed: ${msg}`);
+    throw new Error(`OpenAI call failed: ${msg}`);
   }
 }
 
