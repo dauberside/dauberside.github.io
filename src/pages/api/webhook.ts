@@ -482,6 +482,25 @@ async function incrStat(kv: any, key: string, reqCid?: string, extra?: any) {
   }
 }
 
+// --- Awaiting debug log (KV ring buffer) ---
+async function logAwaitingEvent(evt: {
+  action: string;
+  awaitKey: string;
+  cid: string;
+  meta?: any;
+  path?: string;
+  retry?: boolean;
+  ts?: number;
+}) {
+  try {
+    const doc = { ...evt, ts: Date.now() };
+    await (kv as any).lpush("debug:dtpicker:events", JSON.stringify(doc));
+    await (kv as any).ltrim("debug:dtpicker:events", 0, 300); // keep latest 301 entries
+  } catch (e) {
+    // swallow
+  }
+}
+
 /** 表示用: JSTで "YYYY/MM/DD HH:MM:SS" を返す（ISOが不正なら原文） */
 function formatJst(iso?: string): string {
   if (!iso) return "";
@@ -1878,6 +1897,7 @@ export default async function handler(
                 incrStat(kv, `stats:dtpicker:present:ver:${meta.lineVer}`, reqCid);
                 incrStat(kv, `stats:dtpicker:present:os:${meta.os}`, reqCid);
                 console.log("[CID] awaiting:set", reqCid, { awaitKey, meta });
+                logAwaitingEvent({ action: "set", awaitKey, cid: reqCid, meta });
               } catch (e2) {
                 console.error("[CID] awaiting:set error", reqCid, e2);
               }
@@ -1935,6 +1955,7 @@ export default async function handler(
                   incrStat(kv, `stats:dtpicker:present:ver:${meta.lineVer}`, reqCid);
                   incrStat(kv, `stats:dtpicker:present:os:${meta.os}`, reqCid);
                   console.log("[CID] awaiting:set", reqCid, { awaitKey, retry: true, meta });
+                  logAwaitingEvent({ action: "set", awaitKey, cid: reqCid, meta, retry: true });
                 } catch (e3) {
                   console.error("[CID] awaiting:set error", reqCid, e3);
                 }
@@ -1988,6 +2009,7 @@ export default async function handler(
                   if (meta.os) incrStat(kv, `stats:dtpicker:missing:os:${meta.os}`, reqCid);
                   try { await (kv as any).del(awaitKey); } catch {}
                   console.log("[CID] awaiting:missing", reqCid, { awaitKey, path: "help", meta });
+                  logAwaitingEvent({ action: "missing", awaitKey, cid: reqCid, meta, path: "help" });
                 }
               } catch (em) {
                 console.error("[CID] awaiting:missing check error", reqCid, em);
@@ -2204,6 +2226,7 @@ export default async function handler(
             if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
             if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
             console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_date_time", meta });
+            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_date_time" });
           } catch (ecl) {
             console.error("[CID] awaiting:clear error", reqCid, ecl);
           }
@@ -2298,6 +2321,7 @@ export default async function handler(
             if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
             if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
             console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_datetime", meta });
+            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_datetime" });
           } catch (ecl) {
             console.error("[CID] awaiting:clear error", reqCid, ecl);
           }
@@ -2421,6 +2445,7 @@ export default async function handler(
             if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
             if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
             console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_datetime_manual", meta });
+            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_datetime_manual" });
           } catch (ecl) {
             console.error("[CID] awaiting:clear error", reqCid, ecl);
           }
