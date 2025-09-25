@@ -27,9 +27,19 @@ export function verifyLineSignature(req: NextApiRequest, raw: Buffer): boolean {
   return mac === sig;
 }
 
-export async function replyText(replyToken: string, text: string) {
+export async function replyText(
+  replyToken: string,
+  text: string,
+  opts?: { cid?: string },
+) {
   const body = { replyToken, messages: [{ type: "text", text }] };
   await lineFetch(body);
+  try {
+    console.log("[LINE] replyText ok", {
+      bytes: JSON.stringify(body).length,
+      cid: opts?.cid,
+    });
+  } catch {}
 }
 
 // Quick Reply support (datetimepickerなど)
@@ -51,6 +61,7 @@ export async function replyTextWithQuickReply(
   replyToken: string,
   text: string,
   items: Array<{ type: "action"; action: QuickReplyAction }>,
+  opts?: { cid?: string },
 ) {
   const body = {
     replyToken,
@@ -63,6 +74,9 @@ export async function replyTextWithQuickReply(
     ],
   } as any;
   await lineFetch(body);
+  try {
+    console.log("[LINE] replyQuick ok", { items: items.length, cid: opts?.cid });
+  } catch {}
 }
 
 export async function pushText(to: string, text: string) {
@@ -97,7 +111,8 @@ type CarouselTemplate = {
   type: "carousel";
   columns: Array<{
     text: string; // 60文字制限
-    actions: Array<{ type: "postback"; label: string; data: string }>;
+    // テンプレートのカラムでも postback/message/uri/datetimepicker が利用可能
+    actions: Array<QuickReplyAction>;
   }>;
 };
 
@@ -136,6 +151,7 @@ export async function replyTemplate(
   replyToken: string,
   template: ButtonsTemplate | CarouselTemplate | ConfirmTemplate,
   altText = "確認",
+  opts?: { cid?: string },
 ) {
   const safe = sanitizeTemplate(template);
   const derivedAlt = (() => {
@@ -152,6 +168,32 @@ export async function replyTemplate(
     messages: [{ type: "template", altText: derivedAlt, template: safe }],
   };
   await lineFetch(body);
+  try {
+    console.log("[LINE] replyTemplate ok", { alt: derivedAlt, cid: opts?.cid });
+  } catch {}
+}
+
+// Send multiple messages in a single reply API call to avoid reusing replyToken
+export async function replyMessages(
+  replyToken: string,
+  messages: Array<any>,
+  opts?: { cid?: string },
+) {
+  // sanitize templates inside messages
+  const sanitized = messages.map((m) => {
+    if (m && m.type === "template" && m.template) {
+      return {
+        ...m,
+        template: sanitizeTemplate(m.template as any),
+      };
+    }
+    return m;
+  });
+  const body = { replyToken, messages: sanitized };
+  await lineFetch(body);
+  try {
+    console.log("[LINE] replyMessages ok", { count: sanitized.length, cid: opts?.cid });
+  } catch {}
 }
 
 export async function replyConfirm(
@@ -160,6 +202,7 @@ export async function replyConfirm(
   ok: { label: string; data: string },
   cancel?: { label: string; text: string },
   altText = "確認",
+  opts?: { cid?: string },
 ) {
   const template: ConfirmTemplate = {
     type: "confirm",
@@ -171,7 +214,7 @@ export async function replyConfirm(
         : { type: "message", label: "キャンセル", text: "キャンセル" },
     ],
   };
-  await replyTemplate(replyToken, template, altText);
+  await replyTemplate(replyToken, template, altText, opts);
 }
 
 async function lineFetch(body: unknown) {

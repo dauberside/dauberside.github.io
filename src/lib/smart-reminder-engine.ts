@@ -441,6 +441,20 @@ export class SmartReminderEngine {
       }
     }
 
+    // For high-importance events, add an extra short-notice reminder (e.g., 10 min before)
+    if (eventContext.importance === "high") {
+      const m = 10;
+      const t = eventStart - m * 60 * 1000;
+      if (t > now)
+        timings.push({
+          reminderAt: t,
+          type: ReminderType.STANDARD,
+          message: this.generateReminderMessage(eventData, ReminderType.STANDARD),
+          priority: NotificationPriority.HIGH,
+          contextFactors: ["high_importance"],
+        });
+    }
+
     const ets = this.getEventTypeSettings(
       eventContext.eventType,
       notificationPrefs,
@@ -649,26 +663,25 @@ export class SmartReminderEngine {
     preferences: any,
   ): "low" | "normal" | "high" | "critical" {
     let score = 0;
-    const text =
-      `${eventData.summary} ${eventData.description || ""}`.toLowerCase();
-    const important = [
-      "重要",
-      "緊急",
-      "至急",
-      "urgent",
-      "important",
-      "critical",
-    ];
-    const high = ["会議", "面談", "ceo", "役員", "board"];
-    if (important.some((w) => text.includes(w))) score += 3;
-    if (high.some((w) => text.includes(w))) score += 2;
-    const duration =
-      new Date(eventData.end).getTime() - new Date(eventData.start).getTime();
+    const text = `${eventData.summary} ${eventData.description || ""}`.toLowerCase();
+    const urgentKeywords = ["重要", "緊急", "至急", "urgent", "critical"]; // "important" 単語のみでは過剰判定しない
+    const highKeywords = ["会議", "ミーティング", "面談", "ceo", "役員", "board", "interview"]; // 高重要ワード
+
+    const hasUrgent = urgentKeywords.some((w) => text.includes(w));
+    const hasHigh = highKeywords.some((w) => text.includes(w));
+
+    // 重み付けを控えめにして、安易に critical にしない
+    if (hasUrgent) score += 2;
+    if (hasHigh) score += 2;
+
+    const duration = new Date(eventData.end).getTime() - new Date(eventData.start).getTime();
     if (duration > 2 * 60 * 60 * 1000) score += 1;
-    const startHour = new Date(eventData.start).getHours();
-    if (startHour >= 9 && startHour <= 17) score += 1;
-    if (score >= 4) return "critical";
-    if (score >= 2) return "high";
+
+    // 「勤務時間帯」などの緩い要因では加点しない（過剰トリガー回避）
+
+    // しきい値: 5以上=critical, 3以上=high, 1以上=normal
+    if (score >= 5) return "critical";
+    if (score >= 3) return "high";
     if (score >= 1) return "normal";
     return "low";
   }

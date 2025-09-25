@@ -5,19 +5,30 @@ Vercel (Git integration).
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Development](#development)
-- [Deployment](#deployment)
-- [Operations](#operations)
-- [LINE AI shortcuts](#line-ai-shortcuts)
-- [Security: Trusted builds](#security-trusted-builds)
-- [Environment Variables](#environment-variables)
-- [Contributing](#contributing)
-- [License](#license)
+
+## LINE 予定登録トラブルシュート（日時ピッカーが反応しない時）
+
+一部端末・クライアントで LINE の datetimepicker が無反応になることがあります。以下のいずれかの方法で回避できます。
+
+- うまく開かない → 日付だけ選ぶ → 時間ボタンを選ぶ（09:00/10:00/13:00/15:00/19:00 など）
+  - 日付確定後に時間クイックボタンを押すと、KV に pending(start/end) が保存され、件名入力→登録確認に進めます。
+  - サーバーログ目印: `[CID] pick_date`, `pending:set path: "pick_date_time"` → `[LINE] replyQuick ok { cid }`
+- うまく開かない → 今から1時間 / 今夜(19-20) / 明日午前(10-11)
+  - 即時に pending が保存され、確認導線が出ます。
+  - サーバーログ目印: `[CID] pending:set path: "pick_datetime_manual"`
+- テキストで送る（例）
+  - `9/25 18:00-19:00 打合せ @渋谷`
+  - 件名・場所（@の後）を含めると確認画面まで自動誘導します。
+  - サーバーログ目印: 受信テキスト → 確認テンプレ送信
+
+補足:
+
+- 返信ログには相関ID(CID)が付与されます。`[CID] start …` と `[LINE] reply… ok { cid: "..." }` が同一 ID で紐づきます。
+- 選択後に無反応な場合、サーバーログに postback が来ていない可能性があります。`[CID] postback raw` が出ていないかをご確認ください。
+- グループ制限を有効化している場合は `ALLOW_GROUP_IDS` に対象グループIDが含まれている必要があります。
 
 ## Installation
 
-1. Clone the repository:
    ```sh
    git clone https://github.com/dauberside/dauberside.github.io.git
    ```
@@ -93,7 +104,7 @@ Use AI-powered shortcuts directly in LINE without typing long commands.
     - Quick Reply に日時ピッカー（ロールUI）が表示されます。まず日時を選択してください。
     - 選択後、件名の入力を促すメッセージが届きます。メッセージ本文をそのまま件名として解釈します（例: 「打合せ @渋谷」→ 件名=打合せ, 場所=渋谷）。
     - 返信内に「Googleカレンダーで編集（テンプレート）」リンクも表示され、ブラウザで直接編集→保存も可能です。
-    - 併せて「Webカレンダー（サイト）」の導線も表示します（/booking）。
+  - Google カレンダーの直接リンク（TEMPLATE/日ビュー）を案内します。必要に応じて「Webカレンダー（サイト）」(/booking) も併記します。
   - 予定確認 (Check schedule): Show upcoming schedule via the existing flow.
   - 予定変更 (Edit schedule): Start the schedule-edit quick reply flow.
 - Free conversation / 自由入力での登録
@@ -112,6 +123,12 @@ Use AI-powered shortcuts directly in LINE without typing long commands.
 
 For admin operations and smoke tests, see: `docs/operations/line-ai-menu.md`.
 （運用者向け手順とスモークテストは `docs/operations/line-ai-menu.md` を参照）
+
+## Deploy & Smoke Test
+
+- How to deploy and verify production quickly:
+  - See `docs/operations/deploy-and-smoke.md` for a concise, step-by-step guide.
+  - 本番反映とスモークテストの手順は `docs/operations/deploy-and-smoke.md` を参照してください。
 
 ## Security: Trusted builds
 

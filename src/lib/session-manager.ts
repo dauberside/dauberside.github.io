@@ -523,7 +523,14 @@ export async function getEditSession(
     const sessionData = await popPostbackPayload(sessionId);
     if (!sessionData) return null;
 
-    const session: EditSession = JSON.parse(sessionData);
+    let session: EditSession | null = null;
+    try {
+      session = JSON.parse(sessionData || "null");
+    } catch (e) {
+      console.error("Session parse error:", e);
+      session = null;
+    }
+    if (!session) return null;
 
     // 有効期限チェック
     if (Date.now() > session.expiresAt) {
@@ -534,7 +541,7 @@ export async function getEditSession(
     await stashPostbackPayload(
       sessionId,
       JSON.stringify(session),
-      Math.ceil((session.expiresAt - Date.now()) / 1000),
+      Math.max(1, Math.ceil((session.expiresAt - Date.now()) / 1000)),
     );
 
     return session;
