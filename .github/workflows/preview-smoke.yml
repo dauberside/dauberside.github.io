@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      SMOKE_INTERNAL_API_TOKEN: ${{ secrets.SMOKE_INTERNAL_API_TOKEN }}
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,7 +53,7 @@ jobs:
         run: |
           code=$(curl -si -X POST "${{ steps.deploy.outputs.preview_url }}/api/agent/run" \
             -H 'Content-Type: application/json' \
-            -H "x-internal-token: ${SMOKE_INTERNAL_API_TOKEN}" \
+            -H "x-internal-token: ${INTERNAL_API_TOKEN}" \
             --data '{"input":"smoke from CI"}' | head -n 1 | awk '{print $2}')
           echo "run status: $code"
           if [ "$code" != "200" ] && [ "$code" != "500" ]; then
@@ -63,4 +63,4 @@ jobs:
 
       - name: Smoke (verbose log)
         run: |
-          node scripts/agent-builder/smoke.mjs --base "${{ steps.deploy.outputs.preview_url }}" --token "${SMOKE_INTERNAL_API_TOKEN}" --input 'smoke from CI' --health-timeout 60 --no-mock || true
+          node scripts/agent-builder/smoke.mjs --base "${{ steps.deploy.outputs.preview_url }}" --token "${INTERNAL_API_TOKEN}" --input 'smoke from CI' --health-timeout 60 --no-mock || true
