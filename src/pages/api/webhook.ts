@@ -1,4 +1,17 @@
 /* eslint-disable no-console */
+import crypto from "node:crypto";
+import { kv } from "@vercel/kv";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { verifyLineSignature, replyText, replyTextWithQuickReply, replyTemplate, replyMessages } from "@/lib/line";
+import { createGoogleCalendarEvent, deleteGoogleCalendarEvent, listGoogleCalendarEvents } from "@/lib/gcal";
+import { addReminder, removeReminderByEventId, chatKey, eventListKey, getRecentMessagesKV, kvAvailable, loadRecentEventRefsKV, pruneEventRefFromKV, saveEventRefKV, saveMessageKV, searchMessagesKV } from "@/lib/kv";
+import { savePendingCreate, loadPendingCreate, clearPendingCreate, pendingCreateKey } from "@/lib/pending";
+import { aiAutoRegisterSchedule, callCfChat, isCfAiConfigured, sendScheduleConfirm } from "@/lib/ai";
+import { extractEventFromText, normStr } from "@/lib/parser";
+import { handleScheduleEditPostback, handleTextInput, sendScheduleSelectionQuickReply } from "@/lib/schedule-edit";
+// 型補助
+type PostbackAction = { type: "postback"; label: string; data: string };
+type CarouselColumn = { text: string; actions: PostbackAction[] };
 /**
  * 自然文から「取消/キャンセル」の意図を検知し、対象イベントを特定して削除する。
  * 成功・失敗いずれでも返信まで行う。処理した場合は true を返す（以降の分岐を止める）。
@@ -24,11 +37,11 @@ async function tryCancelFromText(
         if (groupId) {
           try {
             await pruneEventRefFromKV(groupId, tokenLike);
-          } catch {}
+          } catch { }
         }
         try {
           await removeReminderByEventId(tokenLike);
-        } catch {}
+        } catch { }
         await replyText(
           replyToken,
           `🗑 予定をキャンセルしました\nID: ${tokenLike}`,
@@ -68,7 +81,7 @@ async function tryCancelFromText(
   if (groupId) {
     try {
       refs = await loadRecentEventRefsKV(groupId, 30);
-    } catch {}
+    } catch { }
   }
 
   const contains = (hay: string, arr: string[]) => containsAny(hay, arr);
@@ -92,14 +105,14 @@ async function tryCancelFromText(
       timeMax,
       maxResults: 50,
     });
-  } catch {}
+  } catch { }
 
   const gMatched = (gcalEvents || []).filter((e) =>
     kws.length
       ? contains(
-          `${e.summary || ""} ${e.location || ""} ${e.description || ""}`,
-          kws,
-        )
+        `${e.summary || ""} ${e.location || ""} ${e.description || ""}`,
+        kws,
+      )
       : true,
   );
 
@@ -166,11 +179,11 @@ async function tryCancelFromText(
     if (groupId) {
       try {
         await pruneEventRefFromKV(groupId, target.id!);
-      } catch {}
+      } catch { }
     }
     try {
       await removeReminderByEventId(target.id!);
-    } catch {}
+    } catch { }
     await replyText(
       replyToken,
       `🗑 予定をキャンセルしました\n${target.summary || ""}\nID: ${target.id}`,
@@ -183,52 +196,6 @@ async function tryCancelFromText(
   }
   return true;
 }
-import crypto from "node:crypto";
-
-import { kv } from "@vercel/kv";
-import type { NextApiRequest, NextApiResponse } from "next";
-// === 分割済みライブラリ ===
-type PostbackAction = { type: "postback"; label: string; data: string };
-type CarouselColumn = { text: string; actions: PostbackAction[] };
-// === 分割済みライブラリ ===
-import {
-  aiAutoRegisterSchedule,
-  callCfChat,
-  isCfAiConfigured,
-  sendScheduleConfirm,
-} from "@/lib/ai";
-import { replyMessages } from "@/lib/line";
-import {
-  createGoogleCalendarEvent,
-  deleteGoogleCalendarEvent,
-  listGoogleCalendarEvents,
-} from "@/lib/gcal";
-import {
-  chatKey,
-  eventListKey,
-  getRecentMessagesKV,
-  kvAvailable,
-  loadRecentEventRefsKV,
-  pruneEventRefFromKV,
-  saveEventRefKV,
-  saveMessageKV,
-  searchMessagesKV,
-} from "@/lib/kv";
-// extend kv helpers: addReminder/removeReminderByEventId are exported from the same module
-// (note: duplicate import lines are acceptable but we keep one consolidated above)
-import { addReminder, removeReminderByEventId } from "@/lib/kv";
-import {
-  replyTemplate,
-  replyText,
-  verifyLineSignature,
-  replyTextWithQuickReply,
-} from "@/lib/line";
-import { extractEventFromText, normStr } from "@/lib/parser";
-import {
-  handleScheduleEditPostback,
-  handleTextInput,
-  sendScheduleSelectionQuickReply,
-} from "@/lib/schedule-edit";
 // slots generation (CommonJS module) → dynamic import to avoid no-require-imports lint
 let _slotsGen: any = null;
 async function getSlotsGen() {
@@ -248,10 +215,10 @@ declare module "@/lib/interpret" {
 }
 let _extractScheduleReal:
   | ((t: string) => Promise<{
-      intent?: string;
-      date_range?: { start?: string; end?: string };
-      keywords?: string[];
-    }>)
+    intent?: string;
+    date_range?: { start?: string; end?: string };
+    keywords?: string[];
+  }>)
   | null = null;
 async function extractScheduleQuery(text: string): Promise<{
   intent?: string;
@@ -296,6 +263,19 @@ function coerceToJstWall(iso?: string): string {
   return s;
 }
 
+// Date(内部UTC)からJST壁時計の日時(+09:00)ISO短縮形式(秒省略)を生成
+function formatJstOffset(dt: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  // JST壁時計値を得るため +9h シフトした仮想Date から UTC getter を使う
+  const j = new Date(dt.getTime() + 9 * 60 * 60 * 1000);
+  const Y = j.getUTCFullYear();
+  const M = pad(j.getUTCMonth() + 1);
+  const D = pad(j.getUTCDate());
+  const h = pad(j.getUTCHours());
+  const m = pad(j.getUTCMinutes());
+  return `${Y}-${M}-${D}T${h}:${m}+09:00`;
+}
+
 /**
  * JSTの現在時刻を指定分解能できれいに丸めた "YYYY-MM-DDThh:mm"（タイムゾーン指定なし）を返す。
  * 例: 10:07 → 10:30 / 10:45 → 11:00
@@ -313,43 +293,6 @@ function jstRoundedLocalDatetime(stepMin = 30): string {
   const h = pad(d.getUTCHours());
   const mi = pad(d.getUTCMinutes());
   return `${Y}-${M}-${D}T${h}:${mi}`;
-}
-
-/** ISO日時からLINE datetimepicker用の "YYYY-MM-DDThh:mm"（JST壁時計）を作る */
-function toLineDatetimepickerInitialFromIso(iso?: string): string {
-  if (!iso) return jstRoundedLocalDatetime(30);
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return jstRoundedLocalDatetime(30);
-  const parts = new Intl.DateTimeFormat("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(d);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value || "";
-  const Y = get("year");
-  const M = get("month");
-  const D = get("day");
-  const h = get("hour");
-  const m = get("minute");
-  return `${Y}-${M}-${D}T${h}:${m}`;
-}
-
-/** ISO日時の曜日（JST）を短縮で返す（例: 日/月/火…） */
-function jstWeekdayShort(iso?: string): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  const parts = new Intl.DateTimeFormat("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    weekday: "short",
-  }).formatToParts(d);
-  const wd = parts.find((p) => p.type === "weekday")?.value || "";
-  // "(水)" のように括弧は付けず文字だけ返す
-  return wd.replace("曜日", "");
 }
 
 function publicBaseUrl(): string | undefined {
@@ -429,77 +372,7 @@ function googleCalendarTemplateUrl(opts: {
 }
 
 // --- Pending create (KV) ---
-function pendingCreateKey(groupOrRoomId?: string, userId?: string) {
-  return `pending:create:${groupOrRoomId || "solo"}:${userId || "anon"}`;
-}
-
-// --- Awaiting datetimepicker marker (to detect missing postback) ---
-function awaitingDatetimepickerKey(groupOrRoomId?: string, userId?: string) {
-  return `awaiting:dtpicker:${groupOrRoomId || "solo"}:${userId || "anon"}`;
-}
-
-// Extract lightweight client meta from a user-agent string (no full retention)
-function extractClientMeta(uaRaw: unknown) {
-  const ua = String(Array.isArray(uaRaw) ? uaRaw[0] : uaRaw || "").slice(0, 400); // cap length
-  const lineVer = (() => {
-    const m = ua.match(/Line\/([0-9.]+)/i);
-    return m ? m[1] : "unknown";
-  })();
-  const os = /Android/i.test(ua)
-    ? "android"
-    : /(iPhone|iPad|iOS)/i.test(ua)
-      ? "ios"
-      : /Macintosh|Mac OS X/i.test(ua)
-        ? "mac"
-        : /Windows/i.test(ua)
-          ? "windows"
-          : "other";
-  // cheap hash (not cryptographically strong; for grouping only)
-  const uaHash = (() => {
-    if (!ua) return "none";
-    let h = 0;
-    for (let i = 0; i < ua.length; i++) {
-      h = (h * 31 + ua.charCodeAt(i)) >>> 0;
-    }
-    return h.toString(36);
-  })();
-  return { lineVer, os, uaHash };
-}
-
-// --- Stats increment helper ---
-async function incrStat(kv: any, key: string, reqCid?: string, extra?: any) {
-  try {
-    if (typeof kv.incr === "function") {
-      await kv.incr(key);
-    } else {
-      const curRaw = await kv.get(key);
-      const cur = parseInt((curRaw as any) || "0", 10) || 0;
-      await kv.set(key, String(cur + 1));
-    }
-    if (reqCid) console.log("[CID] stats", reqCid, { key, op: "incr", ...(extra || {}) });
-  } catch (e) {
-    console.error("[CID] stats error", reqCid, { key, e });
-  }
-}
-
-// --- Awaiting debug log (KV ring buffer) ---
-async function logAwaitingEvent(evt: {
-  action: string;
-  awaitKey: string;
-  cid: string;
-  meta?: any;
-  path?: string;
-  retry?: boolean;
-  ts?: number;
-}) {
-  try {
-    const doc = { ...evt, ts: Date.now() };
-    await (kv as any).lpush("debug:dtpicker:events", JSON.stringify(doc));
-    await (kv as any).ltrim("debug:dtpicker:events", 0, 300); // keep latest 301 entries
-  } catch (e) {
-    // swallow
-  }
-}
+// pendingCreateKey moved to '@/lib/pending'
 
 /** 表示用: JSTで "YYYY/MM/DD HH:MM:SS" を返す（ISOが不正なら原文） */
 function formatJst(iso?: string): string {
@@ -662,7 +535,7 @@ function extractEventIdFromInput(raw: string): string | undefined {
       const decoded = Buffer.from(b64, "base64").toString("utf8"); // "eventId calendarId"
       const eventId = decoded.split(" ")[0];
       if (eventId) return eventId;
-    } catch {}
+    } catch { }
   }
   // 4) bare token
   const tokenLike = cleaned.match(/[A-Za-z0-9_-]{12,}/)?.[0];
@@ -680,7 +553,7 @@ async function cacheEventsToKV(groupId: string | undefined, events: any[]) {
         start: ev.start?.dateTime || ev.start?.date || "",
         end: ev.end?.dateTime || ev.end?.date || "",
       });
-    } catch {}
+    } catch { }
   }
 }
 
@@ -755,7 +628,7 @@ function guessSummaryJa(
         new RegExp(locationGuess.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
         " ",
       );
-    } catch {}
+    } catch { }
   }
 
   // 日付・時間系の除去
@@ -1150,18 +1023,6 @@ function extractDayRangeJa(
   return {};
 }
 
-/** 自由入力から日時ウィンドウが素直に読み取れた場合に、JST壁時計の start/end(+09:00) を返す（なければ null） */
-function buildStartEndFromTextForPending(raw: string): { start: string; end: string } | null {
-  const dr = extractDayRangeJa(raw);
-  if (!dr.start || !dr.end) return null;
-  const tw = extractTimeWindowJa(raw);
-  if (!tw || tw.sh === undefined) return null; // 時間帯まで読めない場合はここでは扱わない
-  const narrowed = applyTimeWindowToRange(dr.start, dr.end, tw);
-  const start = coerceToJstWall(narrowed.start);
-  const end = coerceToJstWall(narrowed.end);
-  return { start, end };
-}
-
 async function handleScheduleIntent(
   text: string,
   replyToken: string,
@@ -1199,12 +1060,9 @@ async function handleScheduleIntent(
     )
       intent = "check_schedule";
     else if (
-      /(入れておいて|入れて|入れといて|入れとく|入れる|追加|登録|作成|予約|とって|押さえ|セット)/.test(
-        text,
-      ) ||
+      /(入れておいて|入れて|入れといて|入れとく|入れる|追加|登録|作成|予約|とって|押さえ|セット)/.test(text) ||
       /(\d{1,2}[:：]\d{2})/.test(text)
-    )
-      intent = "create_event";
+    ) intent = "create_event";
     else if (/(ある|空き|空いて|予定|いつ|何時)/.test(text))
       intent = "check_schedule";
   }
@@ -1239,7 +1097,7 @@ async function handleScheduleIntent(
   if (!keywords.length) {
     try {
       keywords.push(...extractHeuristicKeywordsJa(text, placeWords));
-    } catch {}
+    } catch { }
   }
   // 辞書のイベント語彙も keywords に反映
   for (const w of dict.events) {
@@ -1267,11 +1125,11 @@ async function handleScheduleIntent(
   // 3) キーワードで軽く突合
   const matched = keywords.length
     ? events.filter((ev) =>
-        containsAny(
-          `${ev.summary || ""} ${ev.location || ""} ${ev.description || ""}`,
-          keywords,
-        ),
-      )
+      containsAny(
+        `${ev.summary || ""} ${ev.location || ""} ${ev.description || ""}`,
+        keywords,
+      ),
+    )
     : events;
 
   // 4) 意図に応じて分岐
@@ -1284,7 +1142,7 @@ async function handleScheduleIntent(
       return;
     }
 
-  await cacheEventsToKV(groupOrRoomId, matched);
+    await cacheEventsToKV(groupOrRoomId, matched);
 
     // JSTで見やすく整形（終日は日付のみ、時間帯は M/D HH:MM 形式）
     const toMd = (dateOnly?: string) => {
@@ -1397,11 +1255,11 @@ async function handleScheduleIntent(
     if (groupOrRoomId) {
       try {
         await pruneEventRefFromKV(groupOrRoomId, target.id!);
-      } catch {}
+      } catch { }
     }
     try {
       await removeReminderByEventId(target.id!);
-    } catch {}
+    } catch { }
     await replyText(
       replyToken,
       `🗑 予定をキャンセルしました\n${target.summary}`,
@@ -1444,12 +1302,12 @@ async function handleScheduleIntent(
       if (groupOrRoomId) {
         try {
           await pruneEventRefFromKV(groupOrRoomId, target.id!);
-        } catch {}
+        } catch { }
       }
       try {
         await removeReminderByEventId(target.id!);
-      } catch {}
-    } catch {}
+      } catch { }
+    } catch { }
 
     const newSummary = (
       guessSummaryJa(text, keywords, locationGuess, placeWords) ||
@@ -1491,7 +1349,7 @@ async function handleScheduleIntent(
           reminderAt: remindAt,
         });
       }
-    } catch {}
+    } catch { }
     const sDisp = formatJst(created.start?.dateTime || created.start?.date);
     const eDisp = formatJst(created.end?.dateTime || created.end?.date);
     await replyText(
@@ -1578,11 +1436,12 @@ export default async function handler(
 ) {
   // Correlation ID for this request for easier tracing across logs
   const reqCid = `cid_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const BUILD_VERSION = process.env.BUILD_ID || process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || "dev-local";
+  // --- Feature flags (deploy time) ---
+  // 手動プリセット（日付プリセットボタン）と無題確認機能を停止
+  const FEATURE_MANUAL_PRESETS_ENABLED = process.env.FEATURE_MANUAL_PRESETS === '1';
+  const FEATURE_CONFIRM_NO_TITLE_ENABLED = process.env.FEATURE_CONFIRM_NO_TITLE === '1';
   console.log("[CID] start", reqCid, { path: req.url, method: req.method });
-  const userAgentHeader = req.headers["user-agent"] || req.headers["x-user-agent"];
-  if (userAgentHeader) {
-    console.log("[CID] ua", reqCid, { ua: Array.isArray(userAgentHeader) ? userAgentHeader[0] : userAgentHeader });
-  }
   // Healthcheck only (snippet API moved to /api/gcal/snippet)
   if (req.method === "GET") {
     res.status(200).send("ok");
@@ -1603,11 +1462,11 @@ export default async function handler(
     const ok = verifyLineSignature
       ? verifyLineSignature(req, raw)
       : (() => {
-          if (!signatureHeader || !secret) return false;
-          const hmac = crypto.createHmac("sha256", secret);
-          hmac.update(raw);
-          return hmac.digest("base64") === signatureHeader;
-        })();
+        if (!signatureHeader || !secret) return false;
+        const hmac = crypto.createHmac("sha256", secret);
+        hmac.update(raw);
+        return hmac.digest("base64") === signatureHeader;
+      })();
     if (!ok) {
       console.error(
         "✗ signature mismatch (verify failed). rawLength=",
@@ -1642,6 +1501,41 @@ export default async function handler(
 
     console.log("[CID] src", reqCid, { groupOrRoomId, isGroupLike, allow });
 
+    // (A) 全 postback 生ログ + (B) KV バッファ保存
+    if (ev.type === "postback") {
+      try {
+        const rawParams: any = ev.postback?.params || null;
+        const dataStr = ev.postback?.data || "";
+        const paramKeys = rawParams ? Object.keys(rawParams) : [];
+        console.log("[CID] postback:raw", reqCid, {
+          data: dataStr,
+          hasParams: !!rawParams,
+          paramKeys,
+          webhookEventId: ev.webhookEventId,
+          mode: ev.mode,
+        });
+        // KV ログ (日付単位 100件リングバッファ)
+        try {
+          const dayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+          const kvKey = `postback_log:${dayKey}`;
+          await kv.lpush(kvKey, JSON.stringify({
+            t: Date.now(),
+            cid: reqCid,
+            data: dataStr,
+            params: rawParams,
+            keys: paramKeys,
+            id: ev.webhookEventId,
+            gid: groupOrRoomId,
+          }));
+          await kv.ltrim(kvKey, 0, 99);
+        } catch (e) {
+          console.warn("[CID] postback:raw log-kv-fail", reqCid, e);
+        }
+      } catch (e) {
+        console.warn("[CID] postback:raw log-error", reqCid, e);
+      }
+    }
+
     if (isGroupLike && allow.length && !allow.includes(groupOrRoomId)) {
       console.warn("⚠ 許可外IDからのイベント:", groupOrRoomId);
       continue;
@@ -1671,106 +1565,9 @@ export default async function handler(
       continue;
     }
 
-    // postback（テンプレ・Flex・クイック返信のボタン押下）
-    // まず replyToken の有無に関わらず生ログだけ出す（観測性向上）
-    if (ev.type === "postback" && !ev.replyToken) {
-      try {
-        console.warn("[CID] postback without replyToken", reqCid, {
-          data: ev.postback?.data,
-          params: ev.postback?.params,
-          webhookEventId: ev.webhookEventId,
-        });
-      } catch {}
-      continue;
-    }
-    if (ev.type === "postback" && ev.replyToken) {
-      try {
-        console.log("[CID] postback raw", reqCid, {
-          data: ev.postback?.data,
-          params: ev.postback?.params,
-          webhookEventId: ev.webhookEventId,
-        });
-        // 補足: AIメニュー等の通常postbackでは params は付かない（datetimepickerのみ付与）。
-        if (String(ev.postback?.data || "").startsWith("action=ai") && !ev.postback?.params) {
-          console.log("[CID] note", reqCid, "AIメニューのpostbackでは params は undefined（想定通り）");
-        }
-      } catch {}
-      const data = String(ev.postback?.data || "");
-
-      // Fallback: LINEのdatetimepickerが action 文字列と無関係に postback.params を付与するケースを拾う
-      if (ev.postback?.params && (ev.postback.params.datetime || ev.postback.params.date)) {
-        console.log("[CID] pick_datetime(fallback)", reqCid, ev.postback.params);
-        try {
-          const p = ev.postback.params as any;
-          const dtLocal: string =
-            p.datetime ||
-            (p.date && p.time
-              ? `${p.date}T${p.time}`
-              : p.date
-                ? `${p.date}T09:00`
-                : "");
-          if (!dtLocal) {
-            await replyText(ev.replyToken, "（日時未選択）もう一度選んでください。");
-            continue;
-          }
-          const startWall = coerceToJstWall(dtLocal);
-          const s = new Date(startWall);
-          if (isNaN(s.getTime())) {
-            await replyText(ev.replyToken, "（日時不正）もう一度選んでください。");
-            continue;
-          }
-          const e = new Date(s.getTime() + 60 * 60000);
-          const start = s.toISOString();
-          const end = e.toISOString();
-              try {
-                const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-                await (kv as any).del(awaitKey);
-                incrStat(kv, "stats:dtpicker:success", reqCid, { path: "params-fallback" });
-                console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "params-fallback" });
-              } catch (ec) {
-                console.error("[CID] awaiting:clear error", reqCid, ec);
-              }
-
-          try {
-            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-            await (kv as any).set(
-              key,
-              JSON.stringify({ start, end, location: "" }),
-              { ex: 600 },
-            );
-            console.log("[CID] pending:set", reqCid, { key, start, end, path: "params-fallback" });
-            try {
-              const verify = await (kv as any).get(key);
-              console.log("[CID] pending:verify", reqCid, { key, ok: !!verify, type: typeof verify });
-            } catch (ee) {
-              console.error("[CID] pending:verify error", reqCid, ee);
-            }
-          } catch (e) {
-            console.error("[CID] pending:set error", reqCid, e);
-          }
-
-          const gcalTpl = googleCalendarTemplateUrl({ title: "(件名を入力)", start, end, tz: "Asia/Tokyo" });
-          const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-          const sDisp = `${formatJst(start)}（${jstWeekdayShort(start)}）`;
-          const eDisp = `${formatJst(end)}（${jstWeekdayShort(end)}）`;
-          const initialAgain = toLineDatetimepickerInitialFromIso(start);
-          await replyTextWithQuickReply(
-            ev.replyToken,
-            `日時を受け取りました。\n開始: ${sDisp}\n終了: ${eDisp}\n件名を入力して送信すると登録確認に進みます（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`,
-            [
-              { type: "action", action: { type: "postback", label: "日時を確認", data: "action=show_pending_datetime" } },
-              { type: "action", action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl } },
-              { type: "action", action: { type: "postback", label: "（無題で）登録確認", data: confirmNoTitleData } },
-              { type: "action", action: { type: "message", label: "件名なしで登録", text: "件名なしで登録" } },
-              { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
-            ],
-          );
-        } catch (e) {
-          console.error("[CID] pick_datetime fallback error", reqCid, e);
-          await replyText(ev.replyToken, "（失敗）日時処理でエラーが発生しました");
-        }
-        continue;
-      }
+    // postback（テンプレ・Flexのボタン押下）
+    if (ev.type === "postback" && ev.postback?.data && ev.replyToken) {
+      const data = String(ev.postback.data);
 
       // 予定変更機能のpostback処理
       if (
@@ -1801,7 +1598,7 @@ export default async function handler(
       const params = new URLSearchParams(data);
       const action = params.get("action") || "";
       const id = params.get("id") || "";
-  const kind = params.get("kind") || "";
+      const kind = params.get("kind") || "";
 
       if (action === "cancel" && id) {
         try {
@@ -1812,7 +1609,7 @@ export default async function handler(
           await pruneEventRefFromKV(groupOrRoomId, id);
           try {
             await removeReminderByEventId(id);
-          } catch {}
+          } catch { }
           await replyText(
             ev.replyToken,
             `🗑 予定をキャンセルしました\nID: ${id}`,
@@ -1831,138 +1628,103 @@ export default async function handler(
         console.log("[CID] ai postback", reqCid, { kind });
         try {
           if (kind === "create_schedule") {
-            // 簡易ボタン（クイック返信）のみで提示
             const initial = jstRoundedLocalDatetime(30); // "YYYY-MM-DDThh:mm"
-            try {
-              await replyTextWithQuickReply(
-                ev.replyToken,
-                "予定登録: 下のボタンから選択してください\n（ヒント）日時ピッカーが開かない場合は『9/25 18:00-19:00 打合せ @渋谷』のようにテキストで送ってください",
-                (() => {
-                  const arr: any[] = [
-                    {
-                      type: "action",
-                      action: {
-                        type: "datetimepicker",
-                        label: "日時を選ぶ",
-                        mode: "datetime",
-                        data: "action=pick_datetime&flow=create",
-                        initial,
-                      },
-                    },
-                  ];
-                  if (process.env.ENABLE_SIMPLIFIED_RESCUE === "1") {
-                    arr.push(
-                      { type: "action", action: { type: "postback", label: "今から1時間", data: "action=pick_datetime_manual&kind=now1h" } },
-                      { type: "action", action: { type: "postback", label: "今夜(19-20)", data: "action=pick_datetime_manual&kind=tonight" } },
-                      { type: "action", action: { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" } },
-                    );
-                  }
-                  arr.push(
-                    {
-                      type: "action",
-                      action: {
-                        type: "postback",
-                        label: process.env.ENABLE_SIMPLIFIED_RESCUE === "1" ? "ヘルプ" : "うまく開かない",
-                        data: "action=datetimepicker_help",
-                      },
-                    },
-                    {
-                      type: "action",
-                      action: {
-                        type: "uri",
-                        label: "全体ビュー",
-                        uri: googleCalendarBaseUrl(),
-                      },
-                    },
-                    {
-                      type: "action",
-                      action: {
-                        type: "message",
-                        label: "やめる",
-                        text: "キャンセル",
-                      },
-                    },
-                  );
-                  return arr;
-                })(),
-                { cid: reqCid },
-              );
-              console.log("[CID] ai:create_schedule replied (quick)", reqCid);
-              // Set awaiting datetimepicker marker & increment present stat
-              try {
-                const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-                const meta = extractClientMeta(userAgentHeader);
-                await (kv as any).set(awaitKey, JSON.stringify({ ts: Date.now(), cid: reqCid, meta }), { ex: 300 });
-                incrStat(kv, "stats:dtpicker:present", reqCid, { retry: false });
-                incrStat(kv, `stats:dtpicker:present:ver:${meta.lineVer}`, reqCid);
-                incrStat(kv, `stats:dtpicker:present:os:${meta.os}`, reqCid);
-                console.log("[CID] awaiting:set", reqCid, { awaitKey, meta });
-                logAwaitingEvent({ action: "set", awaitKey, cid: reqCid, meta });
-              } catch (e2) {
-                console.error("[CID] awaiting:set error", reqCid, e2);
-              }
-            } catch (e) {
-              console.error("[CID] quick-reply send failed, retrying once", reqCid, e);
-              try {
-                await new Promise((r) => setTimeout(r, 300));
-                await replyTextWithQuickReply(
-                  ev.replyToken,
-                  "予定登録: 下のボタンから選択してください\n（ヒント）日時ピッカーが開かない場合は『9/25 18:00-19:00 打合せ @渋谷』のようにテキストで送ってください",
-                  [
-                    {
-                      type: "action",
-                      action: {
-                        type: "datetimepicker",
-                        label: "日時を選ぶ",
-                        mode: "datetime",
-                        data: "action=pick_datetime&flow=create",
-                        initial,
-                      },
-                    },
-                    {
-                      type: "action",
-                      action: {
-                        type: "postback",
-                        label: "うまく開かない",
-                        data: "action=datetimepicker_help",
-                      },
-                    },
-                    {
-                      type: "action",
-                      action: {
-                        type: "uri",
-                        label: "全体ビュー",
-                        uri: googleCalendarBaseUrl(),
-                      },
-                    },
-                    {
-                      type: "action",
-                      action: {
-                        type: "message",
-                        label: "やめる",
-                        text: "キャンセル",
-                      },
-                    },
+            const quickReplyItems = [
+              {
+                type: "action",
+                action: {
+                  type: "datetimepicker",
+                  label: "日時を選ぶ",
+                  mode: "datetime",
+                  data: "action=pick_datetime&flow=create",
+                  initial,
+                },
+              },
+
+              //不要箇所__１
+
+              // {
+              //   type: "action",
+              //   action: {
+              //     type: "postback",
+              //     label: "今から1時間",
+              //     data: "action=pick_datetime_manual&kind=now1h",
+              //   },
+              // },
+              // {
+              //   type: "action",
+              //   action: {
+              //     type: "postback",
+              //     label: "今夜（19:00-20:00）",
+              //     data: "action=pick_datetime_manual&kind=tonight",
+              //   },
+              // },
+              // {
+              //   type: "action",
+              //   action: {
+              //     type: "postback",
+              //     label: "明日午前（10:00-11:00）",
+              //     data: "action=pick_datetime_manual&kind=tomorrow_am",
+              //   },
+              // },
+              // {
+              //   type: "action",
+              //   action: {
+              //     type: "message",
+              //     label: "手入力する",
+              //     text: "#cal 8/23 20:30-21:00 件名 @場所",
+              //   },
+              // },
+
+              //不要箇所__１
+
+              {
+                type: "action",
+                action: {
+                  type: "uri",
+                  label: "Googleカレンダー（全体）",
+                  uri: googleCalendarBaseUrl(),
+                },
+              },
+            ];
+            // 1回の reply API で text(quickReply) + buttons template を同時送信
+            await replyMessages(ev.replyToken, [
+              {
+                type: "text",
+                text: `登録する日時を選んでください（ピッカーが無反応な場合は下の候補を使うか 例: 9/26 14:30 打合せ のように直接入力してください）\n(ver:${BUILD_VERSION})`,
+                quickReply: { items: quickReplyItems },
+              },
+              {
+                type: "template",
+                altText: "日時候補 (フォールバック)",
+                template: {
+                  type: "buttons",
+                  text: truncateForButtons("日時候補: こちらから選択できます。"),
+                  actions: [
+                    { type: "datetimepicker", label: "日時を選択", data: "action=pick_datetime&flow=create", mode: "datetime", initial },
+                    //不要箇所__２
+                    // { type: "postback", label: "今から1h", data: "action=pick_datetime_manual&kind=now1h" },
+                    // { type: "postback", label: "今夜(19-20)", data: "action=pick_datetime_manual&kind=tonight" },
+                    // { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" },
+                    //不要箇所__２
                   ],
-                  { cid: reqCid },
-                );
-                console.log("[CID] ai:create_schedule replied (quick, retry)", reqCid);
-                try {
-                  const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-                  const meta = extractClientMeta(userAgentHeader);
-                  await (kv as any).set(awaitKey, JSON.stringify({ ts: Date.now(), cid: reqCid, retry: true, meta }), { ex: 300 });
-                  incrStat(kv, "stats:dtpicker:present", reqCid, { retry: true });
-                  incrStat(kv, `stats:dtpicker:present:ver:${meta.lineVer}`, reqCid);
-                  incrStat(kv, `stats:dtpicker:present:os:${meta.os}`, reqCid);
-                  console.log("[CID] awaiting:set", reqCid, { awaitKey, retry: true, meta });
-                  logAwaitingEvent({ action: "set", awaitKey, cid: reqCid, meta, retry: true });
-                } catch (e3) {
-                  console.error("[CID] awaiting:set error", reqCid, e3);
-                }
-              } catch (ee) {
-                console.error("[CID] quick-reply retry failed", reqCid, ee);
-              }
+                },
+              },
+            ]);
+            try { console.log("[CID] qr:create_schedule", reqCid, { ver: BUILD_VERSION, items: quickReplyItems.length }); } catch { }
+            // awaiting_pick 記録（2分TTL）
+            try {
+              const awaitingKey = `awaiting_pick:${groupOrRoomId}:${src.userId || "anon"}`;
+              await kv.set(awaitingKey, Date.now(), { ex: 120 });
+              console.log("[CID] awaiting_pick set", reqCid, { awaitingKey });
+              const metaKey = `awaiting_pick_meta:${groupOrRoomId}:${src.userId || "anon"}`;
+              const meta = { createdAt: Date.now(), flow: "create", version: BUILD_VERSION };
+              await kv.set(metaKey, JSON.stringify(meta), { ex: 300 });
+              console.log("[CID] awaiting_pick_meta set", reqCid, { metaKey, meta });
+            } catch (e) {
+              console.warn("[CID] awaiting_pick set-failed", reqCid, e);
             }
+            console.log("[CID] ai:create_schedule replied", reqCid);
           } else if (kind === "check_schedule") {
             console.log("[CID] ai:check_schedule", reqCid);
             await handleScheduleIntent(
@@ -1994,297 +1756,80 @@ export default async function handler(
         continue;
       }
 
-      // datetimepicker が開けない/paramsが届かない場合のフォールバック案内
-      if (action === "datetimepicker_help") {
-        try {
-              // If we were awaiting a datetimepicker selection, treat this help invocation as a "missing" occurrence
-              try {
-                const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-                const awaitingRaw = await (kv as any).get(awaitKey);
-                if (awaitingRaw) {
-                  let meta: any = {};
-                  try { meta = JSON.parse(String(awaitingRaw) || "{}").meta || {}; } catch {}
-                  incrStat(kv, "stats:dtpicker:missing", reqCid, { path: "help" });
-                  if (meta.lineVer) incrStat(kv, `stats:dtpicker:missing:ver:${meta.lineVer}`, reqCid);
-                  if (meta.os) incrStat(kv, `stats:dtpicker:missing:os:${meta.os}`, reqCid);
-                  try { await (kv as any).del(awaitKey); } catch {}
-                  console.log("[CID] awaiting:missing", reqCid, { awaitKey, path: "help", meta });
-                  logAwaitingEvent({ action: "missing", awaitKey, cid: reqCid, meta, path: "help" });
-                }
-              } catch (em) {
-                console.error("[CID] awaiting:missing check error", reqCid, em);
-              }
-              const initial = jstRoundedLocalDatetime(30);
-              const simplified = process.env.ENABLE_SIMPLIFIED_RESCUE === "1";
-              if (simplified) {
-                console.log("[CID] rescue:unified", reqCid, { mode: "simplified" });
-                await replyTextWithQuickReply(
-                  ev.replyToken,
-                  "日時ピッカーが反応しない場合は以下から選んでください。",
-                  [
-                    { type: "action", action: { type: "postback", label: "今から1時間", data: "action=pick_datetime_manual&kind=now1h" } },
-                    { type: "action", action: { type: "postback", label: "今夜(19-20)", data: "action=pick_datetime_manual&kind=tonight" } },
-                    { type: "action", action: { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" } },
-                    { type: "action", action: { type: "datetimepicker", label: "日付→時間", mode: "date", data: "action=pick_date" } },
-                    { type: "action", action: { type: "message", label: "書式例", text: "9/25 18:00-19:00 打合せ @渋谷" } },
-                    { type: "action", action: { type: "datetimepicker", label: "再試行", mode: "datetime", data: "action=pick_datetime&flow=create", initial } },
-                  ],
-                  { cid: reqCid },
-                );
-              } else {
-                console.log("[CID] rescue:legacy", reqCid, { mode: "full" });
-                await replyTextWithQuickReply(
-                  ev.replyToken,
-                  "日時選択が開けない場合は以下をお試しください。",
-                  [
-                    { type: "action", action: { type: "postback", label: "今日の日付", data: "action=pick_day_preset&kind=today" } },
-                    { type: "action", action: { type: "postback", label: "明日の日付", data: "action=pick_day_preset&kind=tomorrow" } },
-                    { type: "action", action: { type: "postback", label: "今から1時間", data: "action=pick_datetime_manual&kind=now1h" } },
-                    { type: "action", action: { type: "postback", label: "今夜(19-20)", data: "action=pick_datetime_manual&kind=tonight" } },
-                    { type: "action", action: { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" } },
-                    { type: "action", action: { type: "datetimepicker", label: "日付だけ選ぶ", mode: "date", data: "action=pick_date" } },
-                    { type: "action", action: { type: "datetimepicker", label: "日時を選ぶ(再)", mode: "datetime", data: "action=pick_datetime&flow=create", initial } },
-                  ],
-                  { cid: reqCid },
-                );
-              }
-        } catch (e) {
-          console.error("[CID] datetimepicker_help error", reqCid, e);
-          await replyText(ev.replyToken, "（案内失敗）もう一度お試しください。");
-        }
-        continue;
-      }
-
-      // 代替フロー(1b): 日付プリセット（今日/明日）→ 時間ボタン
-      if (action === "pick_day_preset") {
-        if (process.env.ENABLE_SIMPLIFIED_RESCUE === "1") {
-          console.log("[CID] legacy-path-hit", reqCid, { action: "pick_day_preset" });
-        }
-        try {
-          const kind = params.get("kind") || "today";
-          const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
-          const pad = (n: number) => String(n).padStart(2, "0");
-          const mkDateStr = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
-          let base = new Date(jstNow);
-          if (kind === "tomorrow") {
-            base.setUTCDate(base.getUTCDate() + 1);
-          }
-          const date = mkDateStr(base);
-
-          const disp = base.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
-          const build = (h: number, m = 0, durMin = 60) => {
-            const start = `${date}T${pad(h)}:${pad(m)}+09:00`;
-            const s = new Date(start);
-            const e = new Date(s.getTime() + durMin * 60000);
-            return {
-              label: `${pad(h)}:${pad(m)}-${pad(e.getUTCHours())}:${pad(e.getUTCMinutes())}`,
-              data: `action=pick_date_time&date=${encodeURIComponent(date)}&h=${h}&m=${m}&dur=${durMin}`,
-            };
-          };
-          const choices = [build(9), build(10), build(13), build(15), build(19)];
-
-          await replyTextWithQuickReply(
-            ev.replyToken,
-            `日付を受け取りました: ${disp}\n時間を選んでください（60分）`,
-            [
-              { type: "action", action: { type: "postback", label: choices[0].label, data: choices[0].data } },
-              { type: "action", action: { type: "postback", label: choices[1].label, data: choices[1].data } },
-              { type: "action", action: { type: "postback", label: choices[2].label, data: choices[2].data } },
-              { type: "action", action: { type: "postback", label: choices[3].label, data: choices[3].data } },
-              { type: "action", action: { type: "postback", label: choices[4].label, data: choices[4].data } },
-              { type: "action", action: { type: "message", label: "時間を手入力", text: `${date} 18:30-19:30` } },
-            ],
-            { cid: reqCid },
-          );
-        } catch (e) {
-          console.error("[CID] pick_day_preset error", reqCid, e);
-          await replyText(ev.replyToken, "（失敗）日付処理でエラーが発生しました", { cid: reqCid });
-        }
-        continue;
-      }
-
-      // 代替フロー(1): 日付だけ選ぶ → 時間はボタンから選択
-      if (action === "pick_date") {
-        if (process.env.ENABLE_SIMPLIFIED_RESCUE === "1") {
-          console.log("[CID] legacy-path-hit", reqCid, { action: "pick_date" });
-        }
-        console.log("[CID] pick_date", reqCid, ev.postback?.params);
-        try {
-          const p = ev.postback?.params || {};
-          const date = String(p.date || ""); // YYYY-MM-DD
-          if (!date) {
-            await replyText(ev.replyToken, "（日付未選択）もう一度選んでください。", { cid: reqCid });
-            continue;
-          }
-          const disp = (() => {
-            try {
-              const dd = new Date(`${date}T00:00:00+09:00`);
-              return dd.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" });
-            } catch { return date; }
-          })();
-          const build = (h: number, m = 0, durMin = 60) => {
-            const pad = (n: number) => String(n).padStart(2, "0");
-            const start = `${date}T${pad(h)}:${pad(m)}+09:00`;
-            const s = new Date(start);
-            const e = new Date(s.getTime() + durMin * 60000);
-            const end = `${e.getUTCFullYear()}-${pad(e.getUTCMonth() + 1)}-${pad(e.getUTCDate())}T${pad(e.getUTCHours())}:${pad(e.getUTCMinutes())}+09:00`;
-            return {
-              label: `${pad(h)}:${pad(m)}-${pad((e.getUTCHours()))}:${pad(e.getUTCMinutes())}`,
-              data: `action=pick_date_time&date=${encodeURIComponent(date)}&h=${h}&m=${m}&dur=${durMin}`,
-            };
-          };
-
-          const choices = [build(9), build(10), build(13), build(15), build(19)];
-          await replyTextWithQuickReply(
-            ev.replyToken,
-            `日付を受け取りました: ${disp}\n時間を選んでください（60分）`,
-            [
-              { type: "action", action: { type: "postback", label: choices[0].label, data: choices[0].data } },
-              { type: "action", action: { type: "postback", label: choices[1].label, data: choices[1].data } },
-              { type: "action", action: { type: "postback", label: choices[2].label, data: choices[2].data } },
-              { type: "action", action: { type: "postback", label: choices[3].label, data: choices[3].data } },
-              { type: "action", action: { type: "postback", label: choices[4].label, data: choices[4].data } },
-              { type: "action", action: { type: "message", label: "時間を手入力", text: `${date} 18:30-19:30` } },
-            ],
-            { cid: reqCid },
-          );
-        } catch (e) {
-          console.error("[CID] pick_date error", reqCid, e);
-          await replyText(ev.replyToken, "（失敗）日付処理でエラーが発生しました", { cid: reqCid });
-        }
-        continue;
-      }
-
-      // 代替フロー(2): 日付＋時間ボタン → pending保存＋確認導線
-      if (action === "pick_date_time") {
-        if (process.env.ENABLE_SIMPLIFIED_RESCUE === "1") {
-          console.log("[CID] legacy-path-hit", reqCid, { action: "pick_date_time" });
-        }
-        try {
-          const date = params.get("date") || "";
-          const h = Math.max(0, Math.min(23, parseInt(params.get("h") || "9", 10) || 9));
-          const m = Math.max(0, Math.min(59, parseInt(params.get("m") || "0", 10) || 0));
-          const dur = Math.max(15, Math.min(240, parseInt(params.get("dur") || "60", 10) || 60));
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            await replyText(ev.replyToken, "（不正）日付形式が正しくありません。", { cid: reqCid });
-            continue;
-          }
-          const pad = (n: number) => String(n).padStart(2, "0");
-          const startWall = `${date}T${pad(h)}:${pad(m)}+09:00`;
-          const s = new Date(startWall);
-          if (isNaN(s.getTime())) {
-            await replyText(ev.replyToken, "（不正）日時の組み立てに失敗しました。", { cid: reqCid });
-            continue;
-          }
-          const e = new Date(s.getTime() + dur * 60000);
-          const start = s.toISOString();
-          const end = e.toISOString();
-
-          try {
-            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-            await (kv as any).set(
-              key,
-              JSON.stringify({ start, end, location: "" }),
-              { ex: 600 },
-            );
-            console.log("[CID] pending:set", reqCid, { key, start, end, path: "pick_date_time" });
-            try {
-              const verify = await (kv as any).get(key);
-              console.log("[CID] pending:verify", reqCid, { key, ok: !!verify, type: typeof verify });
-            } catch (ee) {
-              console.error("[CID] pending:verify error", reqCid, ee);
-            }
-          } catch (e) {
-            console.error("[CID] pending:set error", reqCid, e);
-          }
-
-          const gcalTpl = googleCalendarTemplateUrl({ title: "(件名を入力)", start, end, tz: "Asia/Tokyo" });
-          const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-          const sDisp = `${formatJst(start)}（${jstWeekdayShort(start)}）`;
-          const eDisp = `${formatJst(end)}（${jstWeekdayShort(end)}）`;
-
-          await replyTextWithQuickReply(
-            ev.replyToken,
-            `日時を受け取りました。\n開始: ${sDisp}\n終了: ${eDisp}\n件名を入力して送信すると登録確認に進みます（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`,
-            [
-              { type: "action", action: { type: "postback", label: "日時を確認", data: "action=show_pending_datetime" } },
-              { type: "action", action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl } },
-              { type: "action", action: { type: "postback", label: "（無題で）登録確認", data: confirmNoTitleData } },
-              { type: "action", action: { type: "message", label: "件名なしで登録", text: "件名なしで登録" } },
-              { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
-            ],
-            { cid: reqCid },
-          );
-          console.log("[CID] pick_date_time replied", reqCid, { start, end });
-          try {
-            const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-            const raw = await (kv as any).get(awaitKey);
-            let meta: any = {};
-            try { meta = JSON.parse(String(raw) || "{}").meta || {}; } catch {}
-            await (kv as any).del(awaitKey); // any successful path clears awaiting
-            incrStat(kv, "stats:dtpicker:success", reqCid, { path: "pick_date_time" });
-            if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
-            if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
-            console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_date_time", meta });
-            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_date_time" });
-          } catch (ecl) {
-            console.error("[CID] awaiting:clear error", reqCid, ecl);
-          }
-        } catch (e) {
-          console.error("[CID] pick_date_time error", reqCid, e);
-          await replyText(ev.replyToken, "（失敗）日時処理でエラーが発生しました", { cid: reqCid });
-        }
-        continue;
-      }
-
       // datetimepicker 選択後の postback（LINE は postback.params に date/time/datetime を付与）
       if (action === "pick_datetime") {
         console.log("[CID] pick_datetime", reqCid, ev.postback?.params);
+        // 追加デバッグ: postback 生データ & 想定外パターン検査
+        try {
+          console.log("[CID] pick_datetime raw-postback", reqCid, {
+            data: ev.postback?.data,
+            params: ev.postback?.params,
+            // params が undefined のケース調査用に type / keys を出力
+            paramsType: typeof ev.postback?.params,
+            paramKeys: ev.postback?.params ? Object.keys(ev.postback.params as any) : [],
+          });
+        } catch (e) {
+          console.warn("[CID] pick_datetime raw-postback-log-error", reqCid, e);
+        }
         try {
           // ev.postback.params: { date?: "YYYY-MM-DD", time?: "HH:mm", datetime?: "YYYY-MM-DDTHH:mm" }
           const p = ev.postback?.params || {};
           const flow = params.get("flow") || "create"; // create | edit (将来拡張)
-          const dtLocal: string =
-            p.datetime ||
-            (p.date && p.time
-              ? `${p.date}T${p.time}`
-              : p.date
-                ? `${p.date}T09:00` // 時間が無い場合は 09:00 を既定
-                : "");
-          if (!dtLocal) {
-            await replyText(ev.replyToken, "（日時未選択）もう一度選んでください。");
+          const dt: string = p.datetime || (p.date && p.time ? `${p.date}T${p.time}` : p.date) || "";
+          if (!dt) {
+            // デバッグ補助: 取得できなかった理由を可視化し、すぐ manual フォールバック候補を提示
+            console.warn("[CID] pick_datetime missing-dt", reqCid, { p, flow });
+            await replyTextWithQuickReply(
+              ev.replyToken,
+              "（日時未選択）端末が日時ピッカー値を送信しませんでした。\n" +
+              "PC/一部端末では未対応の可能性があります。下記ボタンから選択してください。\n" +
+              "再試行: 『ピッカー再試行』 / もしくは手動候補を使用。",
+              [
+                //不要箇所__３
+
+                // {
+                //   type: "action",
+                //   action: { type: "postback", label: "今から1時間", data: "action=pick_datetime_manual&kind=now1h" },
+                // },
+                // {
+                //   type: "action",
+                //   action: { type: "postback", label: "今夜(19-20時)", data: "action=pick_datetime_manual&kind=tonight" },
+                // },
+                // {
+                //   type: "action",
+                //   action: { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" },
+                // },
+                // {
+                //   type: "action",
+                //   action: { type: "postback", label: "日時再試行", data: "action=ai&kind=create_schedule" },
+                // },
+
+                //不要箇所__３
+                { type: "action", action: { type: "message", label: "キャンセル", text: "キャンセル" } },
+              ],
+              { cid: reqCid },
+            );
             continue;
           }
-          // JST壁時計で固定（オフセットが無ければ +09:00 を付与）
-          const startWall = coerceToJstWall(dtLocal);
-          const s = new Date(startWall);
-          if (isNaN(s.getTime())) {
-            await replyText(ev.replyToken, "（日時不正）もう一度選んでください。");
-            continue;
+          // 既定の長さ 60 分
+          const start = coerceToJstWall(`${dt}+09:00`);
+          const s = new Date(start);
+          const e = new Date(s);
+          e.setMinutes(e.getMinutes() + 60);
+          // end も +09:00 形式に正規化（以前は Z 形式になり不統一だった）
+          const end = formatJstOffset(e);
+
+          // 成功したので awaiting_pick をクリア（存在すれば）
+          try {
+            const awaitingKey = `awaiting_pick:${groupOrRoomId}:${src.userId || "anon"}`;
+            await kv.del(awaitingKey);
+            console.log("[CID] awaiting_pick cleared", reqCid, { awaitingKey });
+          } catch (e) {
+            console.warn("[CID] awaiting_pick clear-failed", reqCid, e);
           }
-          // 既定の長さ 60 分（UTCでISOに正規化して保存）
-          const e = new Date(s.getTime() + 60 * 60000);
-          const start = s.toISOString();
-          const end = e.toISOString();
 
           // タイトル誘導: まずKVに pending を保存し、ユーザーに件名入力を促す
-          try {
-            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-            await (kv as any).set(
-              key,
-              JSON.stringify({ start, end, location: "" }),
-              { ex: 600 },
-            ); // 10分で期限切れ
-            console.log("[CID] pending:set", reqCid, { key, start, end, path: "pick_datetime" });
-            try {
-              const verify = await (kv as any).get(key);
-              console.log("[CID] pending:verify", reqCid, { key, ok: !!verify, type: typeof verify });
-            } catch (ee) {
-              console.error("[CID] pending:verify error", reqCid, ee);
-            }
-          } catch (e) {
-            console.error("[CID] pending:set error", reqCid, e);
-          }
+          await savePendingCreate(groupOrRoomId, src.userId || "", { start, end, location: "" });
 
           const gcalTpl = googleCalendarTemplateUrl({
             title: "(件名を入力)",
@@ -2294,37 +1839,54 @@ export default async function handler(
           });
 
           const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-          const sDisp = `${formatJst(start)}（${jstWeekdayShort(start)}）`;
-          const eDisp = `${formatJst(end)}（${jstWeekdayShort(end)}）`;
-          const initialAgain = toLineDatetimepickerInitialFromIso(start);
 
           await replyTextWithQuickReply(
             ev.replyToken,
-            `日時を受け取りました。\n開始: ${sDisp}\n終了: ${eDisp}\n件名を入力して送信すると登録確認に進みます（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`,
+            (() => {
+              // 人間可読のJST表示を追加
+              const toHuman = (iso: string) => {
+                try {
+                  const d = new Date(iso);
+                  // isoは +09:00 付き想定。UTC換算後にJSTへ戻すより単純表示。
+                  const pad = (n: number) => String(n).padStart(2, "0");
+                  const y = d.getFullYear();
+                  const m = pad(d.getMonth() + 1);
+                  const da = pad(d.getDate());
+                  const hh = pad(d.getHours());
+                  const mi = pad(d.getMinutes());
+                  return `${m}/${da} ${hh}:${mi}`; // 年は省略
+                } catch {
+                  return iso;
+                }
+              };
+              const human = `${toHuman(start)} - ${toHuman(end)}`;
+              return `日時を受け取りました (${human} JST)。\n件名を入力してください（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`;
+            })(),
             [
-              { type: "action", action: { type: "postback", label: "日時を確認", data: "action=show_pending_datetime" } },
-              { type: "action", action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl } },
-              { type: "action", action: { type: "postback", label: "（無題で）登録確認", data: confirmNoTitleData } },
-              { type: "action", action: { type: "message", label: "件名なしで登録", text: "件名なしで登録" } },
-              { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
+              {
+                type: "action",
+                action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl },
+              },
+              {
+                type: "action",
+                action: {
+                  type: "postback",
+                  label: "(無題で)登録",
+                  data: `action=quick_create&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`,
+                },
+              },
+              {
+                type: "action",
+                action: {
+                  type: "message",
+                  label: "やめる",
+                  text: "キャンセル",
+                },
+              },
             ],
             { cid: reqCid },
           );
           console.log("[CID] pick_datetime replied", reqCid, { start, end });
-          try {
-            const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-            const raw = await (kv as any).get(awaitKey);
-            let meta: any = {};
-            try { meta = JSON.parse(String(raw) || "{}").meta || {}; } catch {}
-            await (kv as any).del(awaitKey);
-            incrStat(kv, "stats:dtpicker:success", reqCid, { path: "pick_datetime" });
-            if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
-            if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
-            console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_datetime", meta });
-            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_datetime" });
-          } catch (ecl) {
-            console.error("[CID] awaiting:clear error", reqCid, ecl);
-          }
         } catch (e) {
           console.error("[CID] pick_datetime error", reqCid, e);
           await replyText(ev.replyToken, "（失敗）日時処理でエラーが発生しました");
@@ -2334,6 +1896,11 @@ export default async function handler(
 
       // datetimepicker フォールバック（プリセット時刻）
       if (action === "pick_datetime_manual") {
+        if (!FEATURE_MANUAL_PRESETS_ENABLED) {
+          console.log("[CID] pick_datetime_manual disabled", reqCid, { kind: params.get("kind") });
+          await replyText(ev.replyToken, "手動プリセット選択機能は現在無効です。日時ピッカーをご利用ください。");
+          continue;
+        }
         try {
           const kind = params.get("kind") || "now1h";
           // JST壁時計での時間帯を直接組み立て（+09:00を付与）
@@ -2392,23 +1959,7 @@ export default async function handler(
           }
 
           // KV pending 保存
-          try {
-            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-            await (kv as any).set(
-              key,
-              JSON.stringify({ start, end, location: "" }),
-              { ex: 600 },
-            ); // 10分
-            console.log("[CID] pending:set", reqCid, { key, start, end, path: "pick_datetime_manual" });
-            try {
-              const verify = await (kv as any).get(key);
-              console.log("[CID] pending:verify", reqCid, { key, ok: !!verify, type: typeof verify });
-            } catch (ee) {
-              console.error("[CID] pending:verify error", reqCid, ee);
-            }
-          } catch (e) {
-            console.error("[CID] pending:set error", reqCid, e);
-          }
+          await savePendingCreate(groupOrRoomId, src.userId || "", { start, end, location: "" });
 
           const gcalTpl = googleCalendarTemplateUrl({
             title: "(件名を入力)",
@@ -2418,37 +1969,27 @@ export default async function handler(
           });
 
           const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-          const sDisp = `${formatJst(start)}（${jstWeekdayShort(start)}）`;
-          const eDisp = `${formatJst(end)}（${jstWeekdayShort(end)}）`;
-          const initialAgain = toLineDatetimepickerInitialFromIso(start);
 
           await replyTextWithQuickReply(
             ev.replyToken,
-            `日時を受け取りました。\n開始: ${sDisp}\n終了: ${eDisp}\n件名を入力して送信すると登録確認に進みます（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`,
+            (() => {
+              const toHuman = (iso: string) => {
+                try {
+                  const d = new Date(iso);
+                  const pad = (n: number) => String(n).padStart(2, "0");
+                  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                } catch { return iso; }
+              };
+              return `日時を受け取りました (${toHuman(start)} - ${toHuman(end)} JST)。\n件名を入力してください（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。`;
+            })(),
             [
-              { type: "action", action: { type: "postback", label: "日時を確認", data: "action=show_pending_datetime" } },
               { type: "action", action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl } },
-              { type: "action", action: { type: "postback", label: "（無題で）登録確認", data: confirmNoTitleData } },
-              { type: "action", action: { type: "message", label: "件名なしで登録", text: "件名なしで登録" } },
+              { type: "action", action: { type: "postback", label: "(無題で)登録", data: `action=quick_create&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}` } },
               { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
             ],
             { cid: reqCid },
           );
           console.log("[CID] pick_datetime_manual replied", reqCid, { start, end, kind });
-          try {
-            const awaitKey = awaitingDatetimepickerKey(groupOrRoomId, src.userId || "");
-            const raw = await (kv as any).get(awaitKey);
-            let meta: any = {};
-            try { meta = JSON.parse(String(raw) || "{}").meta || {}; } catch {}
-            await (kv as any).del(awaitKey);
-            incrStat(kv, "stats:dtpicker:success", reqCid, { path: "pick_datetime_manual" });
-            if (meta.lineVer) incrStat(kv, `stats:dtpicker:success:ver:${meta.lineVer}`, reqCid);
-            if (meta.os) incrStat(kv, `stats:dtpicker:success:os:${meta.os}`, reqCid);
-            console.log("[CID] awaiting:clear", reqCid, { awaitKey, path: "pick_datetime_manual", meta });
-            logAwaitingEvent({ action: "clear", awaitKey, cid: reqCid, meta, path: "pick_datetime_manual" });
-          } catch (ecl) {
-            console.error("[CID] awaiting:clear error", reqCid, ecl);
-          }
         } catch (e) {
           console.error("[CID] pick_datetime_manual error", reqCid, e);
           await replyText(ev.replyToken, "（失敗）日時処理でエラーが発生しました");
@@ -2456,81 +1997,13 @@ export default async function handler(
         continue;
       }
 
-      // 保存済みの pending 日時を再表示する
-      if (action === "show_pending_datetime") {
-        console.log("[CID] show_pending_datetime", reqCid, { groupOrRoomId, userId: src.userId });
-        try {
-          const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-          const pendingRaw = await (kv as any).get(key);
-          if (!pendingRaw) {
-            await replyText(
-              ev.replyToken,
-              "（未設定）現在、確認できる日時はありません。『予定登録』からやり直してください。",
-            );
-            continue;
-          }
-          let obj: any = {};
-          if (typeof pendingRaw === "string") {
-            try {
-              obj = JSON.parse(pendingRaw || "{}");
-            } catch {
-              obj = {};
-            }
-          } else if (pendingRaw && typeof pendingRaw === "object") {
-            obj = pendingRaw as any;
-          }
-          const s = String(obj.start || "");
-          const e = String(obj.end || "");
-          if (!s || !e) {
-            await replyText(
-              ev.replyToken,
-              "（未設定）日時情報が見つかりません。『予定登録』から選び直してください。",
-            );
-            continue;
-          }
-          const disp = `現在の選択日時\n開始: ${formatJst(s)}（${jstWeekdayShort(s)}）\n終了: ${formatJst(e)}（${jstWeekdayShort(e)}）`;
-
-          const initial = toLineDatetimepickerInitialFromIso(s);
-          const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`;
-
-          await replyTextWithQuickReply(ev.replyToken, disp, [
-            {
-              type: "action",
-              action: {
-                type: "datetimepicker",
-                label: "日時を選び直す",
-                mode: "datetime",
-                data: "action=pick_datetime&flow=create",
-                initial,
-              },
-            },
-            {
-              type: "action",
-              action: {
-                type: "uri",
-                label: "日ビューを開く",
-                uri: googleCalendarDayViewUrl(s),
-              },
-            },
-            {
-              type: "action",
-              action: {
-                type: "postback",
-                label: "（無題で）登録確認",
-                data: confirmNoTitleData,
-              },
-            },
-            { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
-          ], { cid: reqCid });
-        } catch (e) {
-          console.error("[CID] show_pending_datetime error", reqCid, e);
-          await replyText(ev.replyToken, "（失敗）日時の確認に失敗しました");
-        }
-        continue;
-      }
-
       // KVを経由せず（無題）で確認に進むフォールバック
       if (action === "confirm_no_title") {
+        if (!FEATURE_CONFIRM_NO_TITLE_ENABLED) {
+          console.log("[CID] confirm_no_title disabled", reqCid);
+          await replyText(ev.replyToken, "（無題で登録）機能は現在無効です。件名を入力してください。");
+          continue;
+        }
         try {
           const start = params.get("start") || "";
           const end = params.get("end") || "";
@@ -2546,6 +2019,42 @@ export default async function handler(
         } catch (e) {
           console.error("[CID] confirm_no_title error", reqCid, e);
           await replyText(ev.replyToken, "（失敗）確認生成でエラーが発生しました");
+        }
+        continue;
+      }
+
+      // 簡略二択フロー: (無題) ですぐ登録
+      if (action === "quick_create") {
+        try {
+          const start = params.get("start") || "";
+          const end = params.get("end") || "";
+          if (!start || !end) {
+            await replyText(ev.replyToken, "（登録不可）start/end が不足しています。再度日時を選択してください。");
+            continue;
+          }
+          const summary = "(無題)";
+          const location = "";
+          const description = "LINE日時選択(無題・quick)";
+          const payloadJson = JSON.stringify({ summary, start, end, location, description });
+          // 既存の CREATE_EVENT と同様ルートを使うより直接 createGoogleCalendarEvent 呼び出し
+          const created = await createGoogleCalendarEvent({
+            calendarId: process.env.CALENDAR_ID || "primary",
+            input: {
+              summary,
+              start: toGCalDate(start),
+              end: toGCalDate(end),
+              location,
+              description,
+            },
+          });
+          await replyText(
+            ev.replyToken,
+            `📅 (無題) を登録しました\n開始: ${formatJst(start)}\n終了: ${formatJst(end)}${created.htmlLink ? `\n${created.htmlLink}` : ""}`,
+          );
+          console.log("[CID] quick_create success", reqCid, { start, end, id: created.id });
+        } catch (e: any) {
+          console.error("[CID] quick_create error", reqCid, e);
+          await replyText(ev.replyToken, `（失敗）簡易登録に失敗しました: ${e?.message || 'unknown'}`);
         }
         continue;
       }
@@ -2591,11 +2100,11 @@ export default async function handler(
             sample: String(twice).slice(0, 160),
             fields: obj
               ? {
-                  summary: obj.summary,
-                  start: obj.start,
-                  end: obj.end,
-                  location: obj.location,
-                }
+                summary: obj.summary,
+                start: obj.start,
+                end: obj.end,
+                location: obj.location,
+              }
               : null,
           });
 
@@ -2613,51 +2122,35 @@ export default async function handler(
           const location = obj.location ? String(obj.location) : "";
           const description = obj.description ? String(obj.description) : "";
 
-          // // Normalize to JST wall-clock if needed (e.g., payload ended with 'Z')
-          // let startNorm = coerceToJstWall(startISO);
-          // let endNorm = coerceToJstWall(endISO);
-          // console.log("CREATE_EVENT normalized (JST wall):", {
-          //   summary,
-          //   startNorm,
-          //   endNorm,
-          //   location,
-          //   description,
-          // });
+          // Normalize to JST wall-clock if needed (e.g., payload ended with 'Z')
+          let startNorm = coerceToJstWall(startISO);
+          let endNorm = coerceToJstWall(endISO);
+          console.log("CREATE_EVENT normalized (JST wall):", {
+            summary,
+            startNorm,
+            endNorm,
+            location,
+            description,
+          });
 
-          // // Basic sanity: start &lt; end（等しい/逆転は90分とみなす簡易補正）
-          // try {
-          //   const s = new Date(startNorm).getTime();
-          //   const e = new Date(endNorm).getTime();
-          //   if (!(isFinite(s) && isFinite(e)) || s >= e) {
-          //     const sj = isFinite(s) ? new Date(s) : new Date();
-          //     const ej = new Date(sj);
-          //     ej.setMinutes(sj.getMinutes() + 90);
-          //     startNorm = sj.toISOString();
-          //     endNorm = ej.toISOString();
-          //   }
-          // } catch {
-          //   const sj = new Date();
-          //   const ej = new Date(sj);
-          //   ej.setMinutes(sj.getMinutes() + 90);
-          //   startNorm = sj.toISOString();
-          //   endNorm = ej.toISOString();
-          // }
-          // Keep ISO values as absolute instants; do not re-coerce timezone here.
-            let startNorm = startISO;
-            let endNorm = endISO;
-            console.log("CREATE_EVENT normalized:", {
-            summary, startNorm, endNorm, location, description,
-            });
-
-            // Basic sanity: ensure valid/ordered timestamps; if invalid, default to 90 minutes.
-            let s = Date.parse(startNorm);
-            let e = Date.parse(endNorm);
-            if (!isFinite(s) || !isFinite(e) || s >= e) {
-            const base = isFinite(s) ? new Date(s) : new Date();
-            const end = new Date(base.getTime() + 90 * 60000);
-            startNorm = base.toISOString();
-            endNorm = end.toISOString();
+          // Basic sanity: start &lt; end（等しい/逆転は90分とみなす簡易補正）
+          try {
+            const s = new Date(startNorm).getTime();
+            const e = new Date(endNorm).getTime();
+            if (!(isFinite(s) && isFinite(e)) || s >= e) {
+              const sj = isFinite(s) ? new Date(s) : new Date();
+              const ej = new Date(sj);
+              ej.setMinutes(sj.getMinutes() + 90);
+              startNorm = sj.toISOString();
+              endNorm = ej.toISOString();
             }
+          } catch {
+            const sj = new Date();
+            const ej = new Date(sj);
+            ej.setMinutes(sj.getMinutes() + 90);
+            startNorm = sj.toISOString();
+            endNorm = ej.toISOString();
+          }
 
           const reqObj = {
             calendarId: process.env.CALENDAR_ID || "primary",
@@ -2731,7 +2224,7 @@ export default async function handler(
             // also warm the cache using the "official" path
             try {
               await cacheEventsToKV(groupOrRoomId, [created]);
-            } catch {}
+            } catch { }
             // schedule reminder 30 minutes before start
             try {
               const startMs = new Date(startNorm).getTime();
@@ -2746,7 +2239,7 @@ export default async function handler(
                   reminderAt: remindAt,
                 });
               }
-            } catch {}
+            } catch { }
           }
 
           const dispStart = formatJst(
@@ -2756,7 +2249,6 @@ export default async function handler(
           await replyText(
             ev.replyToken,
             `📅 登録しました: ${created.summary}\n開始: ${dispStart}\n終了: ${dispEnd}${created.htmlLink ? `\n${created.htmlLink}` : ""}`,
-          { cid: reqCid },
           );
         } catch (e: any) {
           console.error("CREATE_EVENT postback error", e);
@@ -2773,43 +2265,49 @@ export default async function handler(
       const text: string = (ev.message.text || "").trim();
       const calendarId = process.env.CALENDAR_ID || "primary";
 
+      // --- awaiting_pick 自動フォールバック判定 ---
+      try {
+        const awaitingKey = `awaiting_pick:${groupOrRoomId}:${src.userId || "anon"}`;
+        const ts = await kv.get<number>(awaitingKey as any);
+        if (ts) {
+          // pick_datetime が来ていないままユーザーが別テキストを送ったと判断し、manual 選択肢を再提示
+          // ここでキーを削除して重複を防止
+          await kv.del(awaitingKey as any);
+          console.log("[CID] awaiting_pick fallback", reqCid, { awaitingKey, ts });
+          await replyTextWithQuickReply(
+            ev.replyToken,
+            "（日時を選ぶ未応答）端末で日時が送信されなかったようです。候補から選ぶか '9/26 14:30 打合せ' のように直接入力してください。",
+            [
+
+              //不要箇所__６
+              // { type: "action", action: { type: "postback", label: "今から1時間", data: "action=pick_datetime_manual&kind=now1h" } },
+              // { type: "action", action: { type: "postback", label: "今夜(19-20)", data: "action=pick_datetime_manual&kind=tonight" } },
+              // { type: "action", action: { type: "postback", label: "明日午前(10-11)", data: "action=pick_datetime_manual&kind=tomorrow_am" } },
+              //不要箇所__６
+
+              { type: "action", action: { type: "postback", label: "日時を選ぶ", data: "action=ai&kind=create_schedule" } },
+              { type: "action", action: { type: "message", label: "キャンセル", text: "キャンセル" } },
+            ],
+            { cid: reqCid },
+          );
+          return res.status(200).end();
+        }
+      } catch (e) {
+        console.warn("[CID] awaiting_pick fallback-check-error", reqCid, e);
+      }
+
       // 件名待ち（pending create）がある場合の最優先処理
       {
         const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-        let pendingRaw: unknown;
-        try {
-          pendingRaw = await (kv as any).get(key);
-        } catch (e) {
-          // KV取得失敗は以降の通常処理にフォールバック（ただしログは残す）
-          console.error("[CID] pending:kv-get-error", reqCid, { key, e });
-        }
-        if (pendingRaw) {
+        const pending = await loadPendingCreate(groupOrRoomId, src.userId || "");
+        if (pending) {
           console.log("[CID] pending:hit", reqCid, { key });
           try {
-            // ユーザーの入力を件名/ロケーションとして扱う
-            const obj: any = (() => {
-              try {
-                if (typeof pendingRaw === "string") {
-                  return JSON.parse(pendingRaw || "{}") || {};
-                }
-                if (pendingRaw && typeof pendingRaw === "object") {
-                  return pendingRaw as any;
-                }
-                // その他（number/booleanなど）は文字列化して最後の手段で試す
-                return JSON.parse(String(pendingRaw) || "{}") || {};
-              } catch (e) {
-                console.error("[CID] pending:parse-error", reqCid, { key, e, rawLen: String(pendingRaw).length });
-                return {};
-              }
-            })();
-
-            const start = String((obj as any).start || "");
-            const end = String((obj as any).end || "");
+            const start = String((pending as any).start || "");
+            const end = String((pending as any).end || "");
             if (!start || !end) {
               console.warn("[CID] pending:invalid", reqCid, { key, start, end });
-              try {
-                await (kv as any).del(key);
-              } catch {}
+              await clearPendingCreate(groupOrRoomId, src.userId || "");
               await replyText(
                 ev.replyToken,
                 "（失敗）日時情報が見つかりませんでした。もう一度『予定登録』から日時を選び直してください。",
@@ -2822,9 +2320,7 @@ export default async function handler(
             const content = trimmed.replace(/^件名[:：]\s*/i, "");
             // 明示キャンセル（全体取消ではなく pending のみを破棄）
             if (/^(キャンセル|やめる|中止)$/i.test(trimmed)) {
-              try {
-                await (kv as any).del(key);
-              } catch {}
+              await clearPendingCreate(groupOrRoomId, src.userId || "");
               console.log("[CID] pending:cancelled", reqCid, { key });
               await replyText(ev.replyToken, "（中断）入力を破棄しました。もう一度始める場合は『予定登録』からどうぞ。");
               return res.status(200).end();
@@ -2854,9 +2350,7 @@ export default async function handler(
               location,
               payloadJson,
             );
-            try {
-              await (kv as any).del(key);
-            } catch {}
+            await clearPendingCreate(groupOrRoomId, src.userId || "");
             console.log("[CID] pending:confirm-sent", reqCid, { summary, start, end, location });
             return res.status(200).end();
           } catch (e) {
@@ -2942,7 +2436,7 @@ export default async function handler(
                 start: startISO,
                 end: endISO,
               });
-            } catch {}
+            } catch { }
           }
 
           await replyText(
@@ -3097,9 +2591,9 @@ export default async function handler(
               .map((r: any, i: number) => {
                 const when = r.start
                   ? new Date(r.start).toLocaleString("ja-JP", {
-                      hour12: false,
-                      timeZone: "Asia/Tokyo",
-                    })
+                    hour12: false,
+                    timeZone: "Asia/Tokyo",
+                  })
                   : "";
                 return `${i + 1}) ${String(r.id).slice(0, 10)}… ${r.summary || ""}${when ? ` (${when})` : ""}`;
               })
@@ -3114,9 +2608,9 @@ export default async function handler(
             .map((r: any, i: number) => {
               const when = r.start
                 ? new Date(r.start).toLocaleString("ja-JP", {
-                    hour12: false,
-                    timeZone: "Asia/Tokyo",
-                  })
+                  hour12: false,
+                  timeZone: "Asia/Tokyo",
+                })
                 : "";
               return `${i + 1}) ${String(r.id).slice(0, 10)}… ${r.summary || ""}${when ? ` (${when})` : ""}`;
             })
@@ -3377,9 +2871,9 @@ export default async function handler(
               .map((r: any, i: number) => {
                 const when = r.start
                   ? new Date(r.start).toLocaleString("ja-JP", {
-                      hour12: false,
-                      timeZone: "Asia/Tokyo",
-                    })
+                    hour12: false,
+                    timeZone: "Asia/Tokyo",
+                  })
                   : "";
                 return `${i + 1}) ${String(r.id).slice(0, 10)}… ${r.summary || ""} ${when ? `(${when})` : ""}`;
               })
@@ -3387,8 +2881,8 @@ export default async function handler(
             await replyText(
               ev.replyToken,
               "（取消）対象を特定できませんでした。\n" +
-                "例: /cancel last, /cancel 1, /cancel <id先頭>, /cancel <タイトルの一部>\n" +
-                (preview ? `\n候補:\n${preview}` : ""),
+              "例: /cancel last, /cancel 1, /cancel <id先頭>, /cancel <タイトルの一部>\n" +
+              (preview ? `\n候補:\n${preview}` : ""),
             );
             continue;
           }
@@ -3434,7 +2928,7 @@ export default async function handler(
               await pruneEventRefFromKV(groupOrRoomId, eventId);
               try {
                 await removeReminderByEventId(eventId);
-              } catch {}
+              } catch { }
               await replyText(
                 ev.replyToken,
                 `🗑 予定をキャンセルしました\nID: ${eventId}`,
@@ -3510,7 +3004,7 @@ export default async function handler(
             const res = await aiAutoRegisterSchedule(
               // strip the leading command + optional separators
               q.replace(/^(?:book|予約|登録|作成)(?:\s+|:|：)?/i, "").trim() ||
-                q,
+              q,
               process.env.CALENDAR_ID || "primary",
               groupOrRoomId,
             );
@@ -3542,7 +3036,7 @@ export default async function handler(
             );
             continue;
           }
-        } catch {}
+        } catch { }
         const wantSummary = /要約|まとめ|サマリ|ダイジェスト|整理/i.test(q);
         const wantSchedule =
           /予定|スケジュール|会議|ミーティング|mtg|ランチ|食事|空き|空いて|いつ|何時/i.test(
@@ -3586,17 +3080,16 @@ export default async function handler(
                   const sRaw = e.start?.dateTime || e.start?.date || "";
                   const s = sRaw
                     ? new Date(sRaw).toLocaleString("ja-JP", {
-                        hour12: false,
-                        timeZone: "Asia/Tokyo",
-                      })
+                      hour12: false,
+                      timeZone: "Asia/Tokyo",
+                    })
                     : "(未定)";
                   const loc = e.location ? ` @${e.location}` : "";
                   return `- ${s} ${e.summary || "(無題)"}${loc}`;
                 })
                 .join("\n");
-              gcalSnippet = `次の30日以内のGoogleカレンダー予定（${
-                kw ? "キーワード: " + kw + " ／ " : ""
-              }最大10件）\n${lines}\n\n`;
+              gcalSnippet = `次の30日以内のGoogleカレンダー予定（${kw ? "キーワード: " + kw + " ／ " : ""
+                }最大10件）\n${lines}\n\n`;
             }
           } catch (e) {
             console.error("GCal snippet 構築失敗", e);
@@ -3647,7 +3140,7 @@ export default async function handler(
               ].join("\n");
             }
           }
-        } catch {}
+        } catch { }
 
         if (gcalSnippet) ctx = gcalSnippet + ctx;
         // OpenAI が未設定なら穏当に案内して落ちないようにする
@@ -3659,7 +3152,7 @@ export default async function handler(
             );
             continue;
           }
-        } catch {}
+        } catch { }
         let answer: string;
         try {
           answer = await callCfChat(ctx + finalPrompt);
@@ -3747,65 +3240,6 @@ export default async function handler(
             console.error("slot suggest error", e);
           }
         }
-
-        // シンプルな「日付+時間帯」だけの入力は、即 pending を作って件名入力に誘導
-        try {
-          const built = buildStartEndFromTextForPending(text);
-          if (built && built.start && built.end) {
-            const key = pendingCreateKey(groupOrRoomId, src.userId || "");
-            try {
-              await (kv as any).set(
-                key,
-                JSON.stringify({ start: built.start, end: built.end, location: "" }),
-                { ex: 600 },
-              );
-            } catch {}
-
-            const gcalTpl = googleCalendarTemplateUrl({
-              title: "(件名を入力)",
-              start: built.start,
-              end: built.end,
-              tz: "Asia/Tokyo",
-            });
-            const confirmNoTitleData = `action=confirm_no_title&start=${encodeURIComponent(built.start)}&end=${encodeURIComponent(built.end)}`;
-
-            await replyTextWithQuickReply(
-              ev.replyToken,
-              "日時を受け取りました。件名を入力してください（例: 打合せ @渋谷）。Googleカレンダーで開いて編集/保存もできます。",
-              [
-                { type: "action", action: { type: "postback", label: "日時を確認", data: "action=show_pending_datetime" } },
-                { type: "action", action: { type: "uri", label: "Googleカレンダーで編集", uri: gcalTpl } },
-                { type: "action", action: { type: "uri", label: "Googleカレンダー（日ビュー）", uri: googleCalendarDayViewUrl(built.start) } },
-                { type: "action", action: { type: "postback", label: "（無題で）登録確認", data: confirmNoTitleData } },
-                { type: "action", action: { type: "message", label: "件名なしで登録", text: "件名なしで登録" } },
-                { type: "action", action: { type: "message", label: "やめる", text: "キャンセル" } },
-              ],
-            );
-            continue;
-          }
-        } catch {}
-
-        // 日付だけの入力は、日時ピッカーで時間選択に誘導（初期値はその日の00:00）
-        try {
-          const dr = extractDayRangeJa(text);
-          if (dr.start && dr.end) {
-            const initial = toLineDatetimepickerInitialFromIso(dr.start);
-            await replyTextWithQuickReply(ev.replyToken, "時間を選んでください（この日付に対して）", [
-              {
-                type: "action",
-                action: {
-                  type: "datetimepicker",
-                  label: "日時を選ぶ",
-                  mode: "datetime",
-                  data: "action=pick_datetime&flow=create",
-                  initial,
-                },
-              },
-              { type: "action", action: { type: "uri", label: "日ビューを開く", uri: googleCalendarDayViewUrl(dr.start) } },
-            ]);
-            continue;
-          }
-        } catch {}
         try {
           await handleScheduleIntent(
             text,

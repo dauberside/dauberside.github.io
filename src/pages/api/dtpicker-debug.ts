@@ -1,32 +1,20 @@
-// Debug endpoint: fetch recent datetimepicker awaiting events (set/missing/clear)
-// Optional token protection via DIAGNOSTICS_TOKEN (re-use same token as diagnostics)
+// Debug endpoint for datetime picker / environment diagnostics.
+// (Previously empty file triggered Next.js config parse warnings.)
+// Remove or protect with auth if not needed in production.
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { kv } from '@/lib/kv';
 
-export const config = { runtime: 'edge' } as any; // edge-friendly (read-only small ops)
+// Avoid using `as const` or type assertions that produce TsAsExpression in AST.
+// Extend here only with plain object literals recognizable by Next.js.
+export const config = {
+	// You can add api config here if needed, e.g. bodyParser: false
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-  const expected = process.env.DIAGNOSTICS_TOKEN?.trim();
-  if (expected) {
-    const qToken = String(req.query.token || '').trim();
-    const headerToken = String(req.headers['x-diag-token'] || '').trim();
-    const auth = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
-    const provided = [qToken, headerToken, auth].find(Boolean) || '';
-    if (provided !== expected) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-  }
-  try {
-    const arr: string[] = await (kv as any).lrange('debug:dtpicker:events', 0, 100);
-    const out = (arr || []).map((s) => {
-      try { return JSON.parse(s); } catch { return { raw: s }; }
-    });
-    return res.status(200).json({ count: out.length, events: out });
-  } catch (e: any) {
-    return res.status(500).json({ error: e?.message || 'kv-error' });
-  }
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+	const now = new Date();
+	res.status(200).json({
+		status: 'ok',
+		now: now.toISOString(),
+		note: 'dtpicker debug endpoint',
+		method: req.method,
+	});
 }

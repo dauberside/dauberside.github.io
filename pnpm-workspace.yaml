@@ -3,5 +3,8 @@
 # This resolves warnings like:
 #   Ignored build scripts: unrs-resolver. Run "pnpm approve-builds" ...
 
+packages:
+  - .
+
 onlyBuiltDependencies:
   - unrs-resolver

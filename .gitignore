@@ -83,3 +83,4 @@ package-lock.json
 *.tsbuildinfo
 # env
 .env*
+.env.local

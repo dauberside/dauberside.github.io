@@ -10,6 +10,7 @@
   - Google Calendar: CALENDAR_ID（または GC_CALENDAR_ID）, GC_*（OAuth/ServiceAccount 経由の場合）
   - KV: KV_REST_API_URL, KV_REST_API_TOKEN（任意）
   - OpenAI: OPENAI_API_KEY（既定モデルは gpt-4o-mini）
+  - 安全弁（Mock）: 本番では `AGENT_MOCK_MODE` は未設定（または `0`）。`?mock=1` も無効化される（サーバ側で強制無効）。
 
 ### デプロイ手順（いずれか）
 
@@ -26,6 +27,8 @@
 ### ポストデプロイ健全性チェック（1分）
 
 - API 稼働確認: /api/diagnostics が 200 を返す（Vercel Logs に INFO が出力される）
+- 内部API（開発/ステージングのみ）: /api/agent/run は `x-internal-token` 付与時に 200/`{output}` を返す
+  - 本番では Mock は無効。OpenAI キー未設定やネットワーク問題時は 500 を返す
 - Vercel Logs を開き、以下のエラーが無いことを確認
   - Invalid reply token（修正済み: /ai 無入力時の二重返信を排除）
   - Session retrieval error: Cannot read properties of null (reading 'expiresAt')（修正済み: セッション取得時の null/parse ガード）
@@ -76,3 +79,4 @@
 
 - 一部テストではモックにより console.warn/console.error を意図的に出力しています（CIログ）。本番ログと混同しないようにしてください。
 - LINE のボタン本文は文字数制限が厳しいため、文面は短縮表示されます。
+ - モックモード（`AGENT_MOCK_MODE=1` や `?mock=1`）は開発/検証専用です。本番ではサーバ側で無効化されます。
