@@ -80,3 +80,47 @@
 - 一部テストではモックにより console.warn/console.error を意図的に出力しています（CIログ）。本番ログと混同しないようにしてください。
 - LINE のボタン本文は文字数制限が厳しいため、文面は短縮表示されます。
  - モックモード（`AGENT_MOCK_MODE=1` や `?mock=1`）は開発/検証専用です。本番ではサーバ側で無効化されます。
+
+---
+
+## 自動スモーク（Production）
+
+本番デプロイの外形監視として、GitHub Actions のワークフロー `production-smoke` を追加しています。
+
+- ファイル: `.github/workflows/prod-smoke.yml`
+- トリガー:
+  - `push` to `main`/`master`
+  - 手動実行（`workflow_dispatch`）
+  - 定期実行（`cron: 0 */4 * * *`）
+- チェック内容:
+  1) `GET /api/healthz` が 200
+  2) `POST /api/agent/run` に `x-internal-token` を付与して 200（既定）
+     - 既定は「200 のみ成功」。手動実行時に `allow500=true` を指定した場合のみ 500 も成功扱い（本番で OPENAI_API_KEY を敢えて未設定にしているケースを許容）
+     - 401/429 は失敗（トークン不一致 or レート制限）。429 は 1 回自動リトライ。
+
+必要なシークレット:
+
+- `INTERNAL_API_TOKEN`: 本番サーバと一致する内部トークン
+- （任意）`SLACK_WEBHOOK_URL`: 失敗時に Slack 通知を投げる先（Incoming Webhook）
+
+任意設定:
+
+- ワークフロー入力 `base`: 本番ベース URL を上書き可能（未指定時は `https://www.xn--rn8h03a.st`）
+
+実行方法（手動）:
+
+1) GitHub → Actions → `production-smoke` → `Run workflow`
+2) 必要なら `base` に `https://example.com` を入力
+  - OPENAI_API_KEY を未設定にしている本番で 500 を許容したい場合は `allow500=true` を選択
+3) 実行後、`Health check` と `Run /api/agent/run` のステップ結果を確認
+
+トラブルシュート:
+
+- 401: `INTERNAL_API_TOKEN` が一致していません（Vercel Production の値と GitHub Secret の値を確認）
+- 429: リクエストが近接しすぎ。ワークフロー内部で 1 回リトライしますが、継続する場合は間隔を延ばす
+- タイムアウト: ネットワーク要因の可能性。数分後に再実行、またはダッシュボードから Redeploy 後に実施
+
+通知/アラート:
+
+- 失敗時に `SLACK_WEBHOOK_URL` が設定されていれば Slack に通知します。
+- 失敗時には自動で GitHub Issue（labels: ops/smoke/production）を起票します。

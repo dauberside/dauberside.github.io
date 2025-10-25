@@ -1,0 +1,77 @@
+name: Production Deploy (Vercel)
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch: {}
+
+concurrency:
+  group: prod-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Vercel (production)
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel environment info (production)
+        run: npx -y vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Build with Vercel (prebuilt)
+        run: npx -y vercel@latest build --token=$VERCEL_TOKEN
+
+      - name: Deploy to Vercel (production)
+        id: deploy
+        run: |
+          url=$(npx -y vercel@latest deploy --prebuilt --prod --token=$VERCEL_TOKEN | tail -n1)
+          echo "prod_url=$url" >> $GITHUB_OUTPUT
+          echo "Production URL: $url"
+
+      - name: Smoke - healthz must be 200
+        run: |
+          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/api/healthz" -o /dev/null
+
+      - name: Smoke - run endpoint (status may be 200 or 500)
+        env:
+          URL: ${{ steps.deploy.outputs.prod_url }}
+          INTERNAL_API_TOKEN: ${{ env.INTERNAL_API_TOKEN }}
+        run: |
+          if [ -z "${INTERNAL_API_TOKEN:-}" ]; then
+            echo "INTERNAL_API_TOKEN not set, skipping /api/agent/run smoke" >&2
+            exit 0
+          fi
+          code=$(curl -si -X POST "$URL/api/agent/run" \
+            -H 'Content-Type: application/json' \
+            -H "x-internal-token: ${INTERNAL_API_TOKEN}" \
+            --data '{"input":"smoke from CI (prod)"}' | head -n 1 | awk '{print $2}')
+          echo "run status: $code"
+          if [ "$code" != "200" ] && [ "$code" != "500" ]; then
+            echo "Unexpected status for /api/agent/run: $code" >&2
+            exit 1
+          fi
+
+      - name: Output deployment URL
+        run: |
+          echo "Production deployed: ${{ steps.deploy.outputs.prod_url }}"

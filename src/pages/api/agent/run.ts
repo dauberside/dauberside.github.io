@@ -9,12 +9,60 @@ const RATE_LIMIT_WINDOW_MS = 500; // allow ~2 req/sec per token
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const rid = (req.headers['x-request-id'] as string) || randomUUID();
-    if (req.method !== 'POST') return res.status(405).end();
+    // Provide a friendly usage hint on GET to avoid confusion when clicking the URL in a browser
+    if (req.method === 'GET') {
+        res.setHeader('Allow', 'POST');
+        return res.status(200).json({
+            ok: true,
+            endpoint: '/api/agent/run',
+            expected: {
+                method: 'POST',
+                headers: {
+                    'x-internal-token': '<INTERNAL_API_TOKEN>',
+                    'content-type': 'application/json',
+                },
+                body: { input: 'say hello' },
+            },
+            notes: [
+                'This endpoint requires x-internal-token to match the server env INTERNAL_API_TOKEN.',
+                'In production, mock mode is disabled; set OPENAI_API_KEY to execute real runs.',
+                'Optional x-request-id header is logged for tracing.',
+            ],
+        });
+    }
+    if (req.method !== 'POST') {
+        res.setHeader('Allow', 'POST');
+        return res.status(405).json({ error: 'method_not_allowed' });
+    }
     const tokenHeader = req.headers['x-internal-token'];
-    const token = Array.isArray(tokenHeader) ? tokenHeader[0] : tokenHeader;
-    if (token !== process.env.INTERNAL_API_TOKEN) {
-        console.warn(`[api/agent/run] rid=${rid} unauthorized`);
-        return res.status(401).json({ error: 'unauthorized' });
+    const headerToken = Array.isArray(tokenHeader) ? tokenHeader[0] : tokenHeader;
+    // Also accept Authorization: Bearer <token> (or Token <token>) as fallback
+    let token = headerToken;
+    if (!token) {
+        const authHeader = (req.headers['authorization'] || req.headers['Authorization' as any]) as string | undefined;
+        if (typeof authHeader === 'string') {
+            const v = authHeader.trim();
+            const lower = v.toLowerCase();
+            if (lower.startsWith('bearer ')) token = v.slice(7);
+            else if (lower.startsWith('token ')) token = v.slice(6);
+        }
+    }
+
+    // Normalize tokens (trim whitespace and surrounding quotes) to avoid common misconfig
+    const normalize = (v: unknown) =>
+        (typeof v === 'string' ? v : '').trim().replace(/^['"]|['"]$/g, '');
+    const envTokenRaw = process.env.INTERNAL_API_TOKEN;
+    if (!envTokenRaw || normalize(envTokenRaw) === '') {
+        console.error(`[api/agent/run] rid=${rid} missing INTERNAL_API_TOKEN on server`);
+        return res.status(500).json({ error: 'server_misconfig' });
+    }
+    const envToken = normalize(envTokenRaw);
+    const reqToken = normalize(token);
+    if (reqToken !== envToken) {
+        const reason = reqToken === '' ? 'missing_token' : 'mismatch';
+        console.warn(`[api/agent/run] rid=${rid} unauthorized reason=${reason}`);
+        res.setHeader('WWW-Authenticate', 'Bearer realm="internal", error="invalid_token"');
+        return res.status(401).json({ error: 'unauthorized', reason });
     }
 
     // simple rate limit by token

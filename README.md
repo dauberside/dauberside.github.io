@@ -7,8 +7,10 @@ Vercel (Git integration).
 
 - [Installation](#installation)
 - [Development](#development)
+  - See also: `docs/requirements/dev-environment.md`
 - [Deployment](#deployment)
 - [Operations](#operations)
+  - See also: `docs/requirements/tasks.md`
 - [LINE AI shortcuts](#line-ai-shortcuts)
 - [Deploy & Smoke Test](#deploy--smoke-test)
 - [Security: Trusted builds](#security-trusted-builds)
@@ -46,6 +48,8 @@ Helpful scripts:
 - Test: `pnpm test`
 - Build: `pnpm build`
 - Format: `pnpm format`
+
+More details about local ports, environment variables, PM2 usage, KB builder, and protected routes: `docs/requirements/dev-environment.md`.
 
 ## Deployment
 
@@ -113,6 +117,9 @@ Use AI-powered shortcuts directly in LINE without typing long commands.
 
 For admin operations and smoke tests, see: `docs/operations/line-ai-menu.md`.
 （運用者向け手順とスモークテストは `docs/operations/line-ai-menu.md` を参照）
+
+Task definition and workflow conventions: `docs/requirements/tasks.md`.
+（タスクの要件定義とワークフロー規約は `docs/requirements/tasks.md` を参照）
 
 ## Deploy & Smoke Test
 

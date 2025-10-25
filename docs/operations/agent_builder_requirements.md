@@ -92,8 +92,24 @@
 - 注: 初期は CLI で充分。Phase 2 で Web UI（/builder）検討。
 
 ## 9. API・データ契約（初期）
-- 本 Builder 自体はローカル CLI 前提のため公開 API は持たない。
-- 将来 UI 化時は内部 API（`/api/agent/builder/*`）を追加し、CSRF/認証/レート制御を適用。
+
+### 9.1 実行 API（内部・開発者向け）
+
+- `POST /api/agent/run`
+  - 認証: `x-internal-token`（または `Authorization: Bearer`）必須（`INTERNAL_API_TOKEN` と一致）
+  - レート制限: トークン単位 500ms 窓
+  - モック: 本番では強制無効（開発では `AGENT_MOCK_MODE=1` または `?mock=1`）
+  - 入力: `{ input: string }`（簡易）
+  - 出力: `{ output: string }`
+
+- `POST /api/agent/workflow`（新規）
+  - 目的: Zod で型安全な入出力のワークフロー実行（既存の生成済み `agent` を利用）
+  - 認証/レート/モック: 上記 `/api/agent/run` と同一ポリシー（本番モック無効、500ms 窓）
+  - 入力スキーマ（Zod v3）: `TextWorkflowInput = { input_as_text: string(min:1,max:2000) }`
+  - 出力スキーマ（Zod v3）: `TextWorkflowOutput = { output_text: string }`
+  - GET アクセス時はガイド JSON を 200 で返し、使い方/スキーマを表示
+
+注: 将来的に `/api/agent/builder/*` を追加する場合は CSRF/認証/レートを適用する。
 
 ## 10. 環境変数
 - `OPENAI_API_KEY`: OpenAI 実キー（本番/実行時必須）
@@ -113,6 +129,9 @@
 - [x] `POST /api/agent/run?mock=1` に `x-internal-token` を付与して `200 OK` / `output` が返る（dev 環境）。
 - [x] 本番環境ではモックが無効（未設定/`0`）である（E2E 確認済み: `?mock=1` でも 500=OPENAI_API_KEY 未設定）。
 - [x] 短時間連打で `429` が返る（レート制限有効）（E2E 確認済み: 1発目 500→直後 429）。
+- [x] `POST /api/agent/workflow` が Zod スキーマで入力検証され、200（正常）または 500（本番で OPENAI_API_KEY 未設定時）を返す。
+  - [x] 認証トークン不一致は 401（`WWW-Authenticate` 応答つき）
+  - [x] `GET /api/agent/workflow` は 200 で使い方/スキーマガイドを返す
 
 ### 付記（便利スクリプト）
 - 一括: `pnpm agent:builder:all`（validate→generate→build）
