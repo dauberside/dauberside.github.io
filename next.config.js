@@ -14,6 +14,17 @@ const nextConfig = {
       },
     ],
   },
+  // 全ページに X-Robots-Tag を付与して検索インデックスを抑止
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

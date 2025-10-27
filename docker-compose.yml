@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  kb-api:
+    build:
+      context: ./services/kb-api
+      dockerfile: Dockerfile
+    container_name: kb-api
+    environment:
+      - NODE_ENV=production
+      - PORT=4040
+      - KB_API_PORT=4040
+      # Mounts ./kb -> /app/kb; default relative resolve also works, but we pin the path
+      - KB_INDEX_PATH=/app/kb/index/embeddings.json
+      - KB_EMBED_MODE=${KB_EMBED_MODE:-hash}
+      - KB_EMBED_DIM=${KB_EMBED_DIM:-256}
+      - KB_API_MOCK=${KB_API_MOCK:-0}
+      - KB_API_TOKEN=${KB_API_TOKEN:-}
+      - KB_API_BASIC=${KB_API_BASIC:-0}
+      - ADMIN_BASIC_USERS=${ADMIN_BASIC_USERS:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+    volumes:
+      - ./kb:/app/kb:ro
+    expose:
+      - "4040"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4040/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  mcp:
+    build:
+      context: ./services/mcp
+      dockerfile: Dockerfile
+    container_name: mcp
+    depends_on:
+      kb-api:
+        condition: service_started
+    environment:
+      - NODE_ENV=production
+      - PORT=5050
+      - MCP_PORT=5050
+      - KB_API_URL=http://kb-api:4040
+      - KB_API_TOKEN=${KB_API_TOKEN:-}
+      - MCP_API_TOKEN=${MCP_API_TOKEN:-}
+      - MCP_API_BASIC=${MCP_API_BASIC:-0}
+      - ADMIN_BASIC_USERS=${ADMIN_BASIC_USERS:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+    ports:
+      - "5050:5050"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5050/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  default:
+    name: internal-net

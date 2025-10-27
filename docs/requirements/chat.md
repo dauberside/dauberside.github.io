@@ -27,7 +27,7 @@
 - セキュリティ: OPENAI_API_KEY はサーバ側のみ。UIはプロキシ経由。
 - プロバイダ: OpenAI API のみ（`@openai/agents` 経由）。他ランタイム（LangChain 等）は現時点では対象外（Deferred）。
 - 保護: `ADMIN_ENABLE_PROTECTION=1` で IP/BASIC ガード。`ADMIN_BASIC_USERS="user:pass,..."` で複数ユーザー対応。
-- インデクス/キャッシュ抑止: `X-Robots-Tag=noindex,nofollow,noarchive` と `Cache-Control=no-store` を常時付与（middleware と meta）。
+- インデクス/キャッシュ抑止: サイト全体に `X-Robots-Tag=noindex,nofollow,noarchive` を付与し（`next.config.js` の `headers()`）、`public/robots.txt` は `Disallow: /` を設定。保護対象については `middleware` でも `noindex` + `no-store` を重ねて付与する（冗長でも安全側）。
 - パフォーマンス: レイテンシ P95 < 3s 目安。
 - 互換性: PC/モバイル（縦長）。
 
@@ -54,6 +54,10 @@
 - 保護有効時は IP または BASIC（複数ユーザー定義）でのみアクセス可能。
 - コンテキストメニューが PC/モバイル双方で動作し、引用プレビューに「引用」ラベルが表示される（「返信」の語をUIに表示しない）。
 
+## 環境変数（UI 表示の制御）
+- `NEXT_PUBLIC_SHOW_KB_REFS`: 既定 `0`。`1` で応答下部の「引用（KB）」ブロックを表示。
+- `NEXT_PUBLIC_HIDE_SPEC_OUTPUT`: 既定 `1`。`1` でエージェント応答中の「要件定義/仕様/ADR/Context Capsule」等のドキュメント様式コンテンツをチャット画面から非表示にする（内部ログやAPI応答には残る）。
+
 ## 拡張方針（段階的）
 - Step1: 非ストリーミング（現状）
 - Step2: レスポンスストリーミング（SSE）に差し替え（ChatService を置換）
@@ -61,7 +65,7 @@
 - Step4: 添付/ツール呼び出し、ロール/権限
 
 ---
-ドキュメント最終更新日: 2025-10-25
+ドキュメント最終更新日: 2025-10-27
 
 ### 関連ドキュメント
 - OpenAI Agents SDK 要件定義: [docs/requirements/openai-agents-sdk.md](./openai-agents-sdk.md)

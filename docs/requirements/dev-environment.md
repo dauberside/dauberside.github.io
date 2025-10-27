@@ -1,6 +1,6 @@
 # 開発環境 要件定義（Dev Environment Requirements)
 
-最終更新: 2025-10-25
+最終更新: 2025-10-27
 
 本書は当リポジトリのローカル開発・検証・運用に共通する「開発環境」の要件を定義する。実装・運用手順は operations ドキュメント（例: `docs/operations/kb-setup.md`）と併読のこと。
 
@@ -17,7 +17,7 @@
 - ストレージ（最小構成）: JSON（KB インデックス `kb/index/embeddings.json`）
 
 ## 2. ポート / URL / ネットワーク
-- 既定ポート: 3030 に統一
+- 既定ポート: 3030 に統一（本番/PM2）。開発は衝突回避のため 3001 等の代替ポート推奨。
 - ローカル: `http://localhost:3030`
 - Tailscale（同一 tailnet 端末から）:
   - IP 直: `http://<tailnet-ip>:3030`（例: `http://100.102.85.62:3030`）
@@ -34,17 +34,18 @@
   - KB 関連: `KB_SOURCES`, `KB_INDEX_PATH`, `KB_INCLUDE_CANVAS=1`, `KB_INCLUDE_BASE=1`
   - 夜間ビルド: `KB_NIGHTLY_TIME="HH:MM"`（例: `03:30`）
   - kb-api 連携（任意）: `KB_API_URL`（例: `http://127.0.0.1:4040`）、`KB_API_PROXY=1`（未設定でも `KB_API_URL` があれば有効）
+  - Chat 表示制御: `NEXT_PUBLIC_SHOW_KB_REFS=0|1`（KB引用の表示）、`NEXT_PUBLIC_HIDE_SPEC_OUTPUT=1|0`（仕様/ADR様式の出力をUIから隠す）
 
 ## 4. ローカル開発（Dev）
-- 起動（既定ポート）: `pnpm dev`（3030）
-  - 本番 PM2 が同ポートで稼働中の場合は 3030 衝突。開発では 3031 などに切替: `pnpm dev -p 3031`
+- 起動（推奨ポート）: `pnpm dev -p 3001`
+  - 3030 は PM2 本番と衝突しやすいため、開発は 3001 等に切り替える。
 - 型チェック: `pnpm typecheck`
 - Lint: `pnpm lint` / `pnpm lint:next`
 - テスト: `pnpm test`（Jest）
 - ビルド: `pnpm build`
 - 最低限の検証:
   - ルート: `/` が 200
-  - KB API: `/api/kb/search?q=Hello&topK=2` が `{ hits: [...] }` を返す
+  - KB API: `/api/kb/search?q=Hello&topK=2` が `{ hits: [...] }` を返す（または `mcp` 経由の `/kb/search`）
   - 保護ページ: `/agent/workflow` は 401（保護有効時）
 
 ## 5. 本番/常駐（PM2）
@@ -59,6 +60,11 @@
   - ログ: `npx pm2 logs next-app --lines 200`
 - 注意: ビルド更新後は Next を再起動して静的アセットのズレを解消（CSS 404 防止）。
 
+### 5.1 インデックス抑止（全体方針）
+- `next.config.js` の `headers()` で全ページに `X-Robots-Tag=noindex,nofollow,noarchive` を付与。
+- `public/robots.txt` は `Disallow: /`（サイト全体のクロール抑止）。
+- 保護対象は `middleware.ts` でも `noindex` + `no-store` を付与（冗長でも安全側）。
+
 ## 6. KB（ナレッジベース）
 - ビルダー: `scripts/kb/build.mjs`（`pnpm -s kb:build`）
   - 既定で `docs/` の `.md/.mdx` を対象にチャンク→埋め込み→`kb/index/embeddings.json` を出力
@@ -66,6 +72,14 @@
   - 任意: `KB_INCLUDE_CANVAS=1`（.canvas）/`KB_INCLUDE_BASE=1`（.base）
 - 検索 API: `/api/kb/search`（GET: `?q=...&topK=5` / POST: `{ query, topK }`）
 - ランタイム: 検索時も OpenAI Embeddings を1回呼ぶ（クエリエンコード）
+
+### 6.1 Docker Compose での補助サービス起動（任意）
+- ルート `docker-compose.yml` により `kb-api(:4040)` と `mcp(:5050)` を一括起動可能。
+- 例:
+  - 起動: `docker compose up -d`
+  - ログ: `docker compose logs -f mcp`
+  - 終了: `docker compose down`
+-- セキュリティ: `KB_API_TOKEN`/`MCP_API_TOKEN` を設定。外部公開不要なら `ports` を外して内部ネットワークのみ。
 
 ## 7. Chat UI × KB 連携
 - フロー: ユーザー送信時に KB 上位3件を検索 → `kb_snippets` としてサーバのワークフローに渡す → 応答下部に「引用（KB）」表示

@@ -1,6 +1,6 @@
 # Services 要件定義（services/）
 
-最終更新: 2025-10-25
+最終更新: 2025-10-27
 
 本書は `services/` 配下の常駐運用（PM2 管理）に関する要件と設計方針を定義する。初期対象は Next.js 本体の常駐（`next-app`）であり、将来的に `kb-api/` や `mcp/` を追加できる。
 
@@ -19,7 +19,8 @@
   - Basic 認証（`ADMIN_BASIC_USERS="user:pass,..."`）も併用可能。
 - CORS は 3030 を反映し、VPN 直アクセス/ローカルの双方を許容。
   - `ALLOWED_ORIGINS="http://<tailnet-ip>:3030,http://localhost:3030,http://127.0.0.1:3030"`
-- 保護ルートは常に noindex + no-store（インデックス抑止・キャッシュ禁止）。
+- インデックス抑止はサイト全体に適用（`next.config.js` で `X-Robots-Tag=noindex,nofollow,noarchive`、`public/robots.txt` は `Disallow: /`）。
+- 保護ルートは引き続き `middleware` で `noindex` + `no-store` を付与（冗長でも安全側）。
 - ドキュメントと実装の一貫性: `services/README.md` と本要件を参照基準とする。
 
 ## 機能要件（Functional Requirements）
@@ -32,7 +33,7 @@
 - FR-4: `/agent/workflow`, `/api/agent/workflow`, `/api/agent/workflow-proxy` は保護対象。
 - FR-5: `ADMIN_IP_ALLOWLIST` に含まれるクライアントは 401 なしでアクセス可。
 - FR-6: Basic 認証を設定した場合、正しい資格情報で 200、誤りで 401。
-- FR-7: 保護レスポンス/通過レスポンスの双方で `X-Robots-Tag: noindex, nofollow, noarchive` と `Cache-Control: no-store` を適用。
+- FR-7: 保護レスポンス/通過レスポンスの双方で `X-Robots-Tag: noindex, nofollow, noarchive` と `Cache-Control: no-store` を適用（全体方針に加え middleware でも担保）。
 
 3) CORS
 - FR-8: `ALLOWED_ORIGINS` に一致する Origin からのリクエストに CORS ヘッダを付与。
@@ -60,6 +61,11 @@
  - （KB API 用）`KB_API_PORT`（既定 4040）, `KB_INDEX_PATH`
  - （MCP 用）`MCP_PORT`（既定 5050）
  - （Next→kb-api プロキシ）`KB_API_URL`（例: `http://127.0.0.1:4040`）, `KB_API_PROXY=1`
+
+### Docker Compose（任意）
+- ルートの `docker-compose.yml` で `kb-api(:4040)` と `mcp(:5050)` を一括起動可能。
+- セキュリティ: 既定で `kb-api` は内向き公開（expose のみ）、`mcp` は `5050:5050` を外出し。必要に応じて `ports` を削除し、ゼロトラスト（Tailscale）やリバプロ配下で運用。
+- 認証: `KB_API_TOKEN` / `MCP_API_TOKEN` を必ず設定（または BASIC: `*_API_BASIC=1` + `ADMIN_BASIC_USERS`）。
 
 ## 受け入れ基準（Acceptance Criteria）
 - AC-1: `pm2 describe next-app` に `... next start -p 3030` が表示される。
