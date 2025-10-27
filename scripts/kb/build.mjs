@@ -84,6 +84,8 @@ function forceExtractKey(p, name) {
 if (!process.env.OPENAI_API_KEY && fsSync.existsSync(ENV_LOCAL)) forceExtractKey(ENV_LOCAL, 'OPENAI_API_KEY');
 if (!process.env.OPENAI_API_KEY && fsSync.existsSync(ENV_FILE)) forceExtractKey(ENV_FILE, 'OPENAI_API_KEY');
 
+const EMBED_MODE = (process.env.KB_EMBED_MODE || 'openai').toLowerCase(); // 'openai' | 'hash'
+const EMBED_DIM = Number(process.env.KB_EMBED_DIM || 256);
 const MODEL = process.env.KB_EMBEDDING_MODEL || 'text-embedding-3-small';
 const SOURCES = (process.env.KB_SOURCES || 'docs').split(',').map(s => s.trim());
 const INCLUDE_CANVAS = /^(1|true)$/i.test(process.env.KB_INCLUDE_CANVAS || '0');
@@ -91,7 +93,7 @@ const INCLUDE_BASE = /^(1|true)$/i.test(process.env.KB_INCLUDE_BASE || '0');
 const OUT_DIR = path.join(ROOT, 'kb', 'index');
 const OUT_FILE = process.env.KB_INDEX_PATH || path.join(OUT_DIR, 'embeddings.json');
 
-if (!process.env.OPENAI_API_KEY) {
+if (EMBED_MODE === 'openai' && !process.env.OPENAI_API_KEY) {
   const tried = [];
   tried.push(`${ENV_LOCAL}:${fsSync.existsSync(ENV_LOCAL) ? 'exists' : 'missing'}`);
   tried.push(`${ENV_FILE}:${fsSync.existsSync(ENV_FILE) ? 'exists' : 'missing'}`);
@@ -210,20 +212,64 @@ function chunkText(text, size = 1200, overlap = 200) {
 }
 
 async function embedBatch(inputs) {
-  const res = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({ model: MODEL, input: inputs }),
-  });
-  if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(`Embeddings failed: HTTP ${res.status} ${t}`);
+  if (EMBED_MODE === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({ model: MODEL, input: inputs }),
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error(`Embeddings failed: HTTP ${res.status} ${t}`);
+    }
+    const json = await res.json();
+    return json.data.map(d => d.embedding);
   }
-  const json = await res.json();
-  return json.data.map(d => d.embedding);
+  // Local hash-based embedding (no external API, no data egress)
+  return inputs.map((text) => hashEmbed(text, EMBED_DIM));
+}
+
+// --- Local embedding utilities ---
+function tokenize(s) {
+  return (s || '')
+    .toLowerCase()
+    .replace(/[\u0000-\u001f]/g, ' ')
+    .split(/[^a-z0-9]+/i)
+    .filter(Boolean);
+}
+
+// Simple FNV-1a 32-bit hash
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0; // unsigned
+}
+
+function hashEmbed(text, dim = 256) {
+  const v = new Float32Array(dim);
+  const toks = tokenize(text);
+  if (toks.length === 0) return Array.from(v);
+  // term frequency weighting
+  const tf = new Map();
+  for (const t of toks) tf.set(t, (tf.get(t) || 0) + 1);
+  for (const [t, f] of tf.entries()) {
+    const h = fnv1a(t);
+    const idx = h % dim;
+    const w = 1 + Math.log(1 + f); // damp frequency
+    v[idx] += w;
+  }
+  // L2 normalize
+  let norm = 0;
+  for (let i = 0; i < dim; i++) norm += v[i] * v[i];
+  norm = Math.sqrt(norm) || 1;
+  for (let i = 0; i < dim; i++) v[i] = v[i] / norm;
+  return Array.from(v);
 }
 
 async function main() {
@@ -271,11 +317,14 @@ async function main() {
 
   await fs.mkdir(OUT_DIR, { recursive: true });
   const out = {
-    model: MODEL,
+    model: EMBED_MODE === 'openai' ? MODEL : `hash-${EMBED_DIM}`,
+    embed_mode: EMBED_MODE,
+    embed_dim: EMBED_DIM,
     created_at: new Date().toISOString(),
     root: ROOT,
     files: files.length,
     chunks: all.length,
+    items: all,
     data: all,
   };
   await fs.writeFile(OUT_FILE, JSON.stringify(out));

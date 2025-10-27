@@ -8,6 +8,7 @@ import type { Message } from '@/types/chat';
 import { sendToAgent } from '@/lib/chat/service';
 
 export default function AgentWorkflowPage() {
+    const SHOW_KB_REFS = process.env.NEXT_PUBLIC_SHOW_KB_REFS === '1';
     // Tokenless UI: calls server-side proxy protected by middleware
     const [mock, setMock] = React.useState(false);
     const [username, setUsername] = React.useState<string>('You');
@@ -56,14 +57,15 @@ export default function AgentWorkflowPage() {
             } catch {}
 
             // 2) Agent 呼び出し（KB 文脈を添付）
-            const { output_text } = await sendToAgent(text, { mock, kbSnippets });
+            const { output_text, raw } = await sendToAgent(text, { mock, kbSnippets });
             const agentMsg: Message = {
                 id: Date.now() + 1,
                 created_at: new Date().toISOString(),
                 content: output_text,
                 user_id: 'agent',
                 username: 'Agent',
-                kbRefs: kbSnippets,
+                kbRefs: SHOW_KB_REFS ? kbSnippets : undefined,
+                actions: Array.isArray(raw?.actions) ? raw.actions.slice(0, 5) : undefined,
             };
             setMessages((prev) => [...prev, agentMsg]);
             } catch (err: any) {

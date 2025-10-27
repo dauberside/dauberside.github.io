@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomUUID } from 'crypto';
 import { TextWorkflowInputSchema, TextWorkflowOutputSchema } from '@/lib/agent/workflows/schemas';
 import { runWorkflow } from '@/lib/agent/workflows/text-workflow';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const rid = (req.headers['x-request-id'] as string) || randomUUID();
@@ -55,12 +57,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { input_as_text, kb_snippets } = parse.data as any;
 
+  // Best-effort: in dev, try to hydrate OPENAI_API_KEY from .env.local if missing
+  if (process.env.NODE_ENV !== 'production' && !process.env.OPENAI_API_KEY) {
+    try {
+      const root = process.cwd();
+      const envLocal = path.join(root, '.env.local');
+      const envFile = path.join(root, '.env');
+      const tryExtract = (p: string) => {
+        try {
+          if (!fs.existsSync(p)) return;
+          const txt = fs.readFileSync(p, 'utf8');
+          const m = txt.replace(/[\uFEFF\u200B]/g, '').match(/(?:^|\n)\s*(?:export\s+)?OPENAI_API_KEY\s*=\s*(.+)/m);
+          if (m) {
+            let v = m[1].trim();
+            if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith('\'') && v.endsWith('\''))) v = v.slice(1, -1);
+            if (v) process.env.OPENAI_API_KEY = v;
+          }
+        } catch {}
+      };
+      tryExtract(envLocal); if (!process.env.OPENAI_API_KEY) tryExtract(envFile);
+    } catch {}
+  }
+
   // Mock handling mirrors other routes
   const mockRequested = process.env.AGENT_MOCK_MODE === '1' || String((req.query as any)?.mock) === '1';
   const isProd = process.env.NODE_ENV === 'production';
   const mockEnabled = !isProd && mockRequested;
   if (mockEnabled) {
-    const mock = { output_text: `mock:${input_as_text}` };
+    const mock = { output_text: `mock:${input_as_text}`, actions: [
+      { type: 'open_url', label: 'KB を検索', url: `/api/kb/search?q=${encodeURIComponent(input_as_text.slice(0,64))}` },
+    ] } as const;
     const outParse = TextWorkflowOutputSchema.safeParse(mock);
     if (!outParse.success) { done(500, { path: 'mock', reason: 'invalid_output' }); return res.status(500).json({ error: 'mock_output_invalid' }); }
     done(200, { path: 'mock' });
@@ -69,6 +95,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!process.env.OPENAI_API_KEY) {
     console.error(`[api/agent/workflow-proxy] rid=${rid} missing OPENAI_API_KEY`);
+    const mockAllowed = process.env.NODE_ENV !== 'production' && process.env.AGENT_MOCK_MODE === '1';
+    if (mockAllowed) {
+      const mock = { output_text: `mock:${input_as_text}`, actions: [
+        { type: 'open_url', label: 'KB を検索', url: `/api/kb/search?q=${encodeURIComponent(input_as_text.slice(0,64))}` },
+      ] } as const;
+      const outParse = TextWorkflowOutputSchema.safeParse(mock);
+      if (!outParse.success) { done(500, { path: 'mock-fallback', reason: 'invalid_output' }); return res.status(500).json({ error: 'mock_output_invalid' }); }
+      done(200, { path: 'mock-fallback' });
+      return res.status(200).json(mock);
+    }
     done(500, { path: 'precheck', error: 'missing_OPENAI_API_KEY' });
     return res.status(500).json({ error: 'missing_OPENAI_API_KEY (set in .env.local and restart server)' });
   }

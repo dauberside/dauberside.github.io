@@ -29,7 +29,17 @@ export async function sendToAgent(text: string, options: SendOptions = {}): Prom
     json = {};
   }
   if (!res.ok) {
-    const msg = json?.error || `HTTP ${res.status}`;
+    // Surface Zod errors (400) nicely when available
+    let msg = json?.error || `HTTP ${res.status}`;
+    if (res.status === 400 && json?.details) {
+      try {
+        const d = json.details;
+        const fieldErrors = d?.fieldErrors || {};
+        const firstField = Object.keys(fieldErrors)[0];
+        const firstMsg = firstField ? String((fieldErrors as any)[firstField]?.[0] || '') : '';
+        if (firstMsg) msg = `invalid_input: ${firstField}: ${firstMsg}`;
+      } catch {}
+    }
     throw Object.assign(new Error(String(msg)), { status: res.status, raw: json });
   }
   const output = json?.output_text ?? json?.output ?? json?.data ?? "";

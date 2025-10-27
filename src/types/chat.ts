@@ -16,4 +16,12 @@ export interface Message {
     text: string;
     score?: number;
   }>;
+  // アクション候補（エージェント提案による簡易オペレーション）
+  actions?: Array<{
+    type: 'open_url' | 'call_api' | 'navigate' | 'copy';
+    label: string;
+    url?: string;
+    method?: 'GET' | 'POST';
+    body?: any;
+  }>;
 }

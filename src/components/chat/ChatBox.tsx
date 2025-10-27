@@ -10,6 +10,8 @@ interface ChatBoxProps {
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onDeleteMessage }) => {
+  const SHOW_KB_REFS = process.env.NEXT_PUBLIC_SHOW_KB_REFS === '1';
+  const HIDE_SPEC_OUTPUT = process.env.NEXT_PUBLIC_HIDE_SPEC_OUTPUT === '1';
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -89,9 +91,25 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
     setMenu((m) => ({ ...m, open: false }));
   }, [menu.message, onDeleteMessage]);
 
+  // 指定パターンに一致する「要件/ADR系のドキュメント出力」を検出して隠す
+  const specLike = useCallback((text: string | undefined | null) => {
+    if (!text) return false;
+    const patterns = [
+      /\bADR-\d{3,4}\b/i,
+      /docs\/decisions\/ADR/i,
+      /docs\/requirements\//i,
+      /要件定義|要項定義|Context Capsule|コンテキストカプセル/i,
+    ];
+    return patterns.some((re) => re.test(text));
+  }, []);
+
+  const visibleMessages = HIDE_SPEC_OUTPUT
+    ? messages.filter((m) => !(m.user_id === "agent" && specLike(m.content)))
+    : messages;
+
   return (
     <div ref={containerRef} className="relative rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto">
-      {messages.map((message) => {
+      {visibleMessages.map((message) => {
         const isAgent = message.user_id === "agent";
         return (
           <div
@@ -124,7 +142,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
                 </div>
               )}
               <div>{message.content}</div>
-              {message.kbRefs && message.kbRefs.length > 0 && (
+              {SHOW_KB_REFS && message.kbRefs && message.kbRefs.length > 0 && (
                 <div
                   className={`mt-2 text-xs rounded border-l-2 pl-2 py-1 opacity-90 ${
                     isAgent ? 'border-white/60' : 'border-gray-400/60'
@@ -138,6 +156,64 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
                         <div className="mt-0.5">
                           {k.text.slice(0, 140)}{k.text.length > 140 ? '…' : ''}
                         </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {message.actions && message.actions.length > 0 && (
+                <div
+                  className={`mt-2 text-xs rounded border-l-2 pl-2 py-1 opacity-90 ${
+                    isAgent ? 'border-white/60' : 'border-gray-400/60'
+                  }`}
+                >
+                  <div className="font-semibold mb-1">アクション</div>
+                  <ul className="space-y-1 pl-1">
+                    {message.actions.slice(0, 5).map((a, idx) => (
+                      <li key={idx} className="flex items-center gap-2 flex-wrap">
+                        {(a.type === 'open_url' || a.type === 'navigate') && a.url ? (
+                          <a
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            href={a.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={a.url}
+                          >
+                            {a.label}
+                          </a>
+                        ) : a.type === 'copy' ? (
+                          <button
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(typeof a.body === 'string' ? a.body : JSON.stringify(a.body ?? {}, null, 2));
+                              } catch {}
+                            }}
+                          >
+                            {a.label}
+                          </button>
+                        ) : a.type === 'call_api' && a.url ? (
+                          <button
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            onClick={async () => {
+                              // POST は安全のためコピー用の curl をクリップボードへ、GET は新しいタブで開く
+                              const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                              const url = a.url || '';
+                              const full = url.startsWith('http') ? url : origin + url;
+                              if ((a.method || 'GET') === 'GET') {
+                                window.open(full, '_blank', 'noopener,noreferrer');
+                                return;
+                              }
+                              const curl = `curl -si -X ${a.method || 'POST'} \n  '${full}' \\n+  -H 'Content-Type: application/json' \\n+  -H 'x-internal-token: <INTERNAL_API_TOKEN>' \\n+  --data '${JSON.stringify(a.body ?? {}, null, 0)}'`;
+                              try { await navigator.clipboard.writeText(curl); } catch {}
+                            }}
+                          >
+                            {a.label}
+                          </button>
+                        ) : (
+                          <span className="opacity-70">{a.label}</span>
+                        )}
                       </li>
                     ))}
                   </ul>

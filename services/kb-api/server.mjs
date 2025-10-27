@@ -8,6 +8,8 @@ import os from 'node:os';
 
 const PORT = Number(process.env.PORT || process.env.KB_API_PORT || 4040);
 const KB_INDEX_PATH = process.env.KB_INDEX_PATH || path.join(process.cwd(), '..', '..', 'kb', 'index', 'embeddings.json');
+const KB_EMBED_MODE = (process.env.KB_EMBED_MODE || 'openai').toLowerCase(); // 'openai' | 'hash' | 'mock'
+const KB_EMBED_DIM = Number(process.env.KB_EMBED_DIM || 256);
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const KB_API_MOCK = (process.env.KB_API_MOCK || '0') === '1';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -78,8 +80,14 @@ async function loadKB() {
   }
   const raw = await readFile(KB_INDEX_PATH, 'utf8');
   const data = JSON.parse(raw);
-  // Support various shapes: { items: [...] } or [ ... ]
-  const arr = Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : [];
+  // Support various shapes: [ ... ], { items: [...] }, or { data: [...] }
+  const arr = Array.isArray(data)
+    ? data
+    : Array.isArray(data.items)
+      ? data.items
+      : Array.isArray(data.data)
+        ? data.data
+        : [];
   const items = arr.map((it) => {
     const embedding = it.embedding || it.vector || it.values || [];
     const text = it.text || it.content || it.chunk || '';
@@ -98,11 +106,12 @@ async function embedQuery(text) {
     // Mock embedding for smoke tests: single-dimension vector
     return [1];
   }
+  if (KB_EMBED_MODE === 'hash') {
+    return hashEmbed(text, KB_EMBED_DIM);
+  }
+  // default: openai
   if (!OPENAI_API_KEY) throw new Error('missing OPENAI_API_KEY');
-  const body = {
-    model: 'text-embedding-3-small',
-    input: text,
-  };
+  const body = { model: 'text-embedding-3-small', input: text };
   let lastErr;
   for (let attempt = 0; attempt <= EMBED_RETRIES; attempt++) {
     const controller = new AbortController();
@@ -135,6 +144,36 @@ async function embedQuery(text) {
     }
   }
   throw lastErr || new Error('embed failed');
+}
+
+// --- Local embedding utilities (must match builder) ---
+function tokenize(s) {
+  return (s || '')
+    .toLowerCase()
+    .replace(/[\u0000-\u001f]/g, ' ')
+    .split(/[^a-z0-9]+/i)
+    .filter(Boolean);
+}
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+function hashEmbed(text, dim = 256) {
+  const v = new Float32Array(dim);
+  const toks = tokenize(text);
+  if (toks.length === 0) return Array.from(v);
+  const tf = new Map();
+  for (const t of toks) tf.set(t, (tf.get(t) || 0) + 1);
+  for (const [t, f] of tf.entries()) {
+    const h = fnv1a(t);
+    const idx = h % dim;
+    const w = 1 + Math.log(1 + f);
+    v[idx] += w;
+  }
+  let norm = 0; for (let i = 0; i < dim; i++) norm += v[i] * v[i];
+  norm = Math.sqrt(norm) || 1; for (let i = 0; i < dim; i++) v[i] = v[i] / norm;
+  return Array.from(v);
 }
 
 function corsHeaders(origin) {
