@@ -1,0 +1,116 @@
+{
+  "name": "MCP KB Answer (Webhook POST) v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mcp-kb-answer",
+        "httpMethod": "POST",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-answer-post-1",
+      "name": "Webhook (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const b = (typeof $json === 'object' && $json) ? $json : {}; const inner = (typeof b.body === 'object' && b.body) ? b.body : {}; const q0 = b.q ?? b.query ?? inner.q ?? inner.query ?? 'hello'; const top0 = b.topK ?? inner.topK; const topK = Number.isFinite(Number(top0)) ? Number(top0) : 5; const compact = Boolean(b.compact ?? inner.compact ?? true); const q = String(q0 || 'hello').trim() || 'hello'; return [{ q, topK, compact }];"
+      },
+      "id": "code-prepare-answer-1",
+      "name": "Prepare Params",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Accept", "value": "application/json" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "rawBody": "={{ JSON.stringify({ q: $json.q, topK: $json.topK }) }}",
+        "responseFormat": "json"
+      },
+      "id": "http-mcp-search-post-1",
+      "name": "HTTP Request (MCP /kb/search POST)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const hits = Array.isArray($json.hits) ? $json.hits : []; const limit = 3; const top = hits.slice(0, limit); const lines = top.map((h, i) => { const score = typeof h.score === 'number' ? h.score.toFixed(3) : h.score; const src = h.source || ''; const txt = (h.text || '').replace(/\n+/g, ' ').slice(0, 280); return `${i+1}. [${score}] ${src} — ${txt}`; }); const message = lines.length ? `Top ${lines.length} hits:\n` + lines.join('\n') : 'No results.'; return [{ ok: true, q: $item(0).$node[\"Prepare Params\"].json.q, topK: $item(0).$node[\"Prepare Params\"].json.topK, count: hits.length, hits, message }];"
+      },
+      "id": "code-build-answer-1",
+      "name": "Build Answer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook (POST)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Params": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (MCP /kb/search POST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (MCP /kb/search POST)": {
+      "main": [
+        [
+          {
+            "node": "Build Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-answer-webhook-post-v1-0",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

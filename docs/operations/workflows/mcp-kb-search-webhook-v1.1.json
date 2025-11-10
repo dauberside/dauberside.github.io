@@ -1,0 +1,93 @@
+{
+  "name": "MCP KB Search (Webhook) v1.1",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mcp-kb-search",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        360,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const queryObj = (typeof $json.query === 'object' && $json.query) ? $json.query : {};\\nconst bodyObj = (typeof $json.body === 'object' && $json.body) ? $json.body : {};\\n\\nlet q = (typeof $json.q === 'string' && $json.q) || (typeof queryObj.q === 'string' && queryObj.q) || (typeof $query.q === 'string' && $query.q) || (typeof bodyObj.q === 'string' && bodyObj.q) || (typeof bodyObj.query === 'string' && bodyObj.query) || (typeof $json.query === 'string' && $json.query) || 'hello';\\nq = String(q).trim() || 'hello';\\n\\nconst topKRaw = $json.topK ?? queryObj.topK ?? $query.topK ?? bodyObj.topK;\\nconst topK = Number.isFinite(Number(topKRaw)) ? Number(topKRaw) : 5;\\nreturn [{ q, topK }];"
+      },
+      "id": "code-prepare-1",
+      "name": "Prepare Params",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendQuery": true,
+        "queryParametersUi": {
+          "parameter": [
+            { "name": "q", "value": "={{ $json.q }}" },
+            { "name": "topK", "value": "={{ $json.topK }}" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "http-1",
+      "name": "HTTP Request (MCP /kb/search)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Params": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (MCP /kb/search)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-search-webhook-v1-1",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

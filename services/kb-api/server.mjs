@@ -284,6 +284,7 @@ const server = http.createServer(async (req, res) => {
     const headers = {
       ...corsHeaders(origin),
       'Access-Control-Max-Age': '86400',
+      'Content-Type': 'application/json',
     };
     res.writeHead(204, headers);
     res.end();

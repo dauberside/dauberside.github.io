@@ -11,6 +11,7 @@ export default function AgentWorkflowPage() {
     const SHOW_KB_REFS = process.env.NEXT_PUBLIC_SHOW_KB_REFS === '1';
     // Tokenless UI: calls server-side proxy protected by middleware
     const [mock, setMock] = React.useState(false);
+    const [useTestWebhook, setUseTestWebhook] = React.useState(process.env.NEXT_PUBLIC_N8N_CHAT_TEST === '1');
     const [username, setUsername] = React.useState<string>('You');
     const [messages, setMessages] = React.useState<Message[]>([]);
     const [loading, setLoading] = React.useState(false);
@@ -28,7 +29,7 @@ export default function AgentWorkflowPage() {
         if (typeof window !== 'undefined') localStorage.setItem('username', name);
     }, []);
 
-        const onSendMessage = React.useCallback(async (text: string, options?: { replyTo?: Message }) => {
+        const onSendMessage = React.useCallback(async (text: string, options?: { replyTo?: Message; file?: File | null }) => {
         if (!text.trim()) return;
         setError(null);
         const now = new Date().toISOString();
@@ -57,7 +58,7 @@ export default function AgentWorkflowPage() {
             } catch {}
 
             // 2) Agent 呼び出し（KB 文脈を添付）
-            const { output_text, raw } = await sendToAgent(text, { mock, kbSnippets });
+            const { output_text, raw } = await sendToAgent(text, { mock, test: useTestWebhook, kbSnippets, file: options?.file || null });
             const agentMsg: Message = {
                 id: Date.now() + 1,
                 created_at: new Date().toISOString(),
@@ -103,6 +104,14 @@ export default function AgentWorkflowPage() {
                         mock=1（開発のみ / 本番無効）
                     </label>
                 </div>
+                                {process.env.NODE_ENV !== 'production' && (
+                                    <div className="mb-2 flex items-center gap-4 text-sm">
+                                        <label className="inline-flex items-center gap-2">
+                                            <input type="checkbox" checked={useTestWebhook} onChange={(e) => setUseTestWebhook(e.target.checked)} />
+                                            n8n Test URL（?test=1 にルーティング）
+                                        </label>
+                                    </div>
+                                )}
                 {error && (
                     <div className="mb-3 text-red-300 text-sm">{error}</div>
                 )}
@@ -119,9 +128,11 @@ export default function AgentWorkflowPage() {
                     <div className="text-xs text-white/70">Agent is thinking…</div>
                 )}
                 <div className="mt-4 text-xs text-white/60">
-                    ・サーバプロキシ経由（/api/agent/workflow-proxy）で実行します。<br />
+                    ・サーバブリッジ経由（/api/agent/chat → n8n Webhook）で実行します。<br />
+                    ・テスト時は上のトグルで ?test=1 を付け、キャンバスの Waiting 中の Test URL へ送ります。<br />
                     ・本番では mock は無効。OPENAI_API_KEY 未設定時は 500 になります。<br />
-                    ・簡易レート制限（500ms/トークン）により連続実行で 429 となる場合があります。
+                    ・簡易レート制限（500ms/トークン）により連続実行で 429 となる場合があります。<br />
+                    ・添付: 画像/音声/テキスト/PDF/JSON を1件まで添付可能（10MBまで）。テキスト系は本文プレビューを文脈に注入します。
                 </div>
             </main>
             <Footer />

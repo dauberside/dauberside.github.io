@@ -1,0 +1,209 @@
+{
+  "name": "MCP SEVER AGENT",
+  "nodes": [
+    
+    {
+      "parameters": {
+  "functionCode": "return items.map(item => { const binary = item.binary || {}; const previews = []; const keys = Object.keys(binary); for (const k of keys) { const b = binary[k] || {}; const mime = b.mimeType || ''; const name = b.fileName || k; const data = b.data; let text; let size; try { const buf = data ? Buffer.from(data, 'base64') : undefined; size = buf ? buf.length : undefined; let isTextLike = false; if (typeof mime === 'string') { if (mime.startsWith('text/')) { isTextLike = true; } else { const textMimes = ['application/json','application/xml','application/x-yaml','application/csv','text/markdown']; if (textMimes.indexOf(mime) !== -1) isTextLike = true; } } if (!isTextLike && typeof name === 'string') { const dot = name.lastIndexOf('.'); if (dot >= 0) { const ext = name.slice(dot + 1).toLowerCase(); const textExts = ['md','txt','csv','json','xml','yaml','yml']; if (textExts.indexOf(ext) !== -1) isTextLike = true; } } if (buf && isTextLike) { text = buf.toString('utf8'); if (mime === 'application/json') { try { const obj = JSON.parse(text); text = JSON.stringify(obj, null, 2); } catch (e2) {} } } } catch (e) {} previews.push({ key: k, fileName: name, mimeType: mime, size, hasText: !!text, text: text ? (text.length > 32000 ? text.slice(0,32000) : text) : undefined }); } item.json = item.json || {}; item.json._attachment = { count: keys.length, previews }; return item; });"
+      },
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -144
+      ],
+      "id": "a3f9b3a0-1d8f-4e6a-b0e0-6e8c2d2f2a1c",
+      "name": "Extract Attachments"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ (function(){ const msg = $json.body?.message || $json.message || $json.input_as_text || $json.text || ''; const prev = ($json._attachment && $json._attachment.previews) || []; if (!prev.length) return msg; const parts = prev.filter(p => p.hasText && p.text).slice(0,3).map(p => ('【' + (p.fileName||'file') + ' (' + (p.mimeType||'unknown') + ', ' + (p.size||'?') + ' bytes)】\\n' + p.text)); const block = parts.join('\\n\\n-----\\n\\n'); return msg + '\\n\\n[添付ファイルプレビュー]\\n' + (block.length > 6000 ? block.slice(0,6000) : block); })() }}",
+        "options": {
+          "systemMessage": "あなたは最新情報の取得と外部ツールの活用に長けた効率的な自動化アシスタントです。\n\n[ツール使用ポリシー] \n- 回答に \"最新/今日/現在/速報/アップデート\" 等の意図が含まれる、出来事や製品リリースなどの最新性が重要、または内部KBに根拠が無い/弱い場合は、必ず Web 検索ツールを使用する。\n- ツールは listTools で確認 → 必要なものを executeTool の順で実行する。\n- web 検索には Brave Search MCP を用いる。日本語クエリの既定は {search_lang: 'ja', count: 5, freshness: 'day'}。十分でない場合は freshness を 'week' → 'month' の順で広げる。\n- 位置依存の問いは brave_local_search を用い、lat/lon/radius_km を適切に設定する。\n- 添付ファイルがある場合、_attachment.previews のテキスト抜粋も根拠として活用し、必要最小限を引用する。\n\n[回答スタイル] \n1) 要点を短く日本語で要約\n2) 実行した手順/利用ツールの簡潔な説明\n3) 出典リンク（タイトル + URL、可能なら日時）。最低2件を目標とし、独立した出典を優先\n4) 不確実な点は明示し、追加の確認手段や次のアクションを提案\n\n[パラメータ方針] \n- brave_web_search の query はユーザー質問をそのまま用いる（必要に応じてキーワードを抽出/短縮）。\n- search_lang は日本語質問では 'ja' を既定。count は 5 を既定。速報性が高ければ freshness='day' を優先する。\n- 取得結果が乏しい場合は、英語クエリも試行して比較する。\n\n[制約] \n- 出典が確認できない内容は断定しない。推測は避け、追加調査を提案する。\n- 事実と意見を区別して書く。\n\n以上を常に守り、必要なときは確実にツールを呼び出して最新情報を確認した上で回答する。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -144
+      ],
+      "id": "3de4272f-68eb-4d85-807f-529f2a012342",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        80
+      ],
+      "id": "73fd550f-c335-49cf-8f34-0034ff7637d5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "seovgav03VpNBnCv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{$json.sessionId || ($json.headers && $json.headers['x-session-id']) || $executionId}}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        80
+      ],
+      "id": "e6eb4666-65d8-452e-b470-23f2945d16dd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        80
+      ],
+      "id": "cacd9b24-422d-439a-ac80-c1744c72f249",
+      "name": "MCP Client",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "T79i2hIT0bRE4pQK",
+          "name": "MCP Client (STDIO) account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeTool",
+        "toolName": "={{ \n  $json.tool && ['brave_web_search','brave_local_search'].includes($json.tool) \n    ? $json.tool \n    : 'brave_web_search' \n}}",
+  "toolParameters": "={{\n (() => {\n  const raw = $json.Tool_Parameters ?? $fromAI('Tool_Parameters', 'JSON payload for the selected tool', 'json', {});\n  const p = (typeof raw === 'string') ? ( (()=>{ try {return JSON.parse(raw);} catch { return {}; }})() ) : (raw || {});\n  const tool = $json.tool || 'brave_web_search';\n  const cleaned = Object.fromEntries(Object.entries(p).filter(([_,v]) => v !== undefined && v !== null));\n  const coerceInt = (v) => typeof v === 'string' ? (parseInt(v,10) || undefined) : (typeof v === 'number' ? v : undefined);\n  const toJson = (obj) => { try { return JSON.stringify(obj); } catch(_) { return '{}'; } };\n  if (tool === 'brave_web_search') {\n    const query = cleaned.query ?? cleaned.q ?? $json.message ?? '';\n    const count = coerceInt(cleaned.count ?? cleaned.num);\n    const search_lang = cleaned.search_lang ?? cleaned.language ?? cleaned.lang;\n    const freshness = cleaned.freshness; // 'day'|'week'|'month' 等\n    const out = { query, count, search_lang, freshness };\n    Object.keys(out).forEach(k => (out[k] === undefined || out[k] === null || out[k] === '') && delete out[k]);\n    return toJson(out);\n  }\n  if (tool === 'brave_local_search') {\n    const query = cleaned.query ?? cleaned.q ?? $json.message ?? '';\n    const lat = typeof cleaned.lat === 'string' ? parseFloat(cleaned.lat) : cleaned.lat;\n    const lon = typeof cleaned.lon === 'string' ? parseFloat(cleaned.lon) : cleaned.lon;\n    const radius_km = typeof cleaned.radius_km === 'string' ? parseFloat(cleaned.radius_km) : cleaned.radius_km;\n    const out = { query, lat, lon, radius_km };\n    Object.keys(out).forEach(k => (out[k] === undefined || out[k] === null || out[k] === '') && delete out[k]);\n    return toJson(out);\n  }\n  return toJson(cleaned);\n })()\n}}"
+      },
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        80
+      ],
+      "id": "db91f56c-0487-4a75-8145-c77f0d2d3de4",
+      "name": "MCP Client1",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "T79i2hIT0bRE4pQK",
+          "name": "MCP Client (STDIO) account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "=POST",
+        "path": "mcp-agent-chat",
+        "responseMode": "=lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        -240
+      ],
+      "id": "e634a2ec-fbc0-47b0-89c5-d3a2236decc9",
+      "name": "Webhook (POST)",
+      "webhookId": "815e63a7-3652-4efa-9202-633d6a45dd54"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook (POST)": {
+      "main": [
+        [
+          {
+            "node": "Extract Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Attachments": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "86315c35-4ffa-49be-b211-7f957c19c907",
+  "meta": {
+    "instanceId": "50cab3fbf80de73a35d8f9ca27fac67d4fb4e2dc578c9b59d8415cc35c0a4ac6"
+  },
+  "id": "vQ3jPohv1K856HMR",
+  "tags": []
+}

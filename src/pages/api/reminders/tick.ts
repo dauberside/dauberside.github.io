@@ -10,8 +10,6 @@ import { claimReminder, kvAvailable, listDueReminders } from "@/lib/kv";
 import { pushText } from "@/lib/line";
 import {
   processDueReminders,
-  updateTrafficDependentReminders,
-  updateWeatherDependentReminders,
 } from "@/lib/smart-reminder-engine";
 
 export default async function handler(
@@ -76,14 +74,7 @@ export default async function handler(
   // Update context-dependent reminders periodically (every 5th run)
   const shouldUpdateContext = Math.random() < 0.2; // 20% chance
   if (shouldUpdateContext) {
-    try {
-      await Promise.all([
-        updateWeatherDependentReminders(),
-        updateTrafficDependentReminders(),
-      ]);
-    } catch (error) {
-      console.error("Failed to update context-dependent reminders:", error);
-    }
+    // No-op for now: context-dependent reminder updaters are not implemented.
   }
 
   res.status(200).json({

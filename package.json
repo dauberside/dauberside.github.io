@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "pnpm -s agent:builder:validate && pnpm -s agent:builder:generate",
   "postbuild": "node ./scripts/postbuild.mjs",
-  "dev": "next dev -p 3030",
+  "dev": "next dev --hostname 0.0.0.0 --port 3000",
   "agent:dev": "next dev -p 3030",
     "agent:dev:3030": "next dev -p 3030",
     "build": "next build",

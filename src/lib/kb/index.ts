@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-
-const MODEL = process.env.KB_EMBEDDING_MODEL || 'text-embedding-3-small';
+import { embedQuery } from './embedding';
 
 export interface KBChunk {
   id: number;
@@ -25,24 +24,6 @@ export async function loadKBIndex(indexPath?: string): Promise<KBIndex> {
   const p = indexPath || process.env.KB_INDEX_PATH || path.join(root, 'kb', 'index', 'embeddings.json');
   const raw = await fs.readFile(p, 'utf8');
   return JSON.parse(raw);
-}
-
-async function embedQuery(text: string): Promise<number[]> {
-  if (!process.env.OPENAI_API_KEY) throw new Error('missing OPENAI_API_KEY');
-  const res = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({ model: MODEL, input: text }),
-  });
-  if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(`Embeddings failed: HTTP ${res.status} ${t}`);
-  }
-  const json: any = await res.json();
-  return json.data?.[0]?.embedding as number[];
 }
 
 function cosine(a: number[], b: number[]): number {

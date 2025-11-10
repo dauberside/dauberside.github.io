@@ -1,0 +1,92 @@
+{
+  "name": "MCP KB Search (Webhook POST) v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mcp-kb-search-post",
+        "httpMethod": "POST",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-post-1",
+      "name": "Webhook (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        360,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const b = (typeof $json === 'object' && $json) ? $json : {}; const inner = (typeof b.body === 'object' && b.body) ? b.body : {}; const q0 = b.q ?? b.query ?? inner.q ?? inner.query ?? 'hello'; const top0 = b.topK ?? inner.topK; const q = String(q0 || 'hello').trim() || 'hello'; const topK = Number.isFinite(Number(top0)) ? Number(top0) : 5; return [{ q, topK }];"
+      },
+      "id": "code-prepare-post-1",
+      "name": "Prepare Params",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Accept", "value": "application/json" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "rawBody": "={{ JSON.stringify({ q: $json.q, topK: $json.topK }) }}",
+        "responseFormat": "json"
+      },
+      "id": "http-post-1",
+      "name": "HTTP Request (MCP /kb/search POST)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        820,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook (POST)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Params": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (MCP /kb/search POST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-search-webhook-post-v1-0",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

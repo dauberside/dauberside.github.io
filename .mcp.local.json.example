@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "OBSIDIAN_HOST",
+        "-e",
+        "OBSIDIAN_PORT",
+        "-e",
+        "OBSIDIAN_API_KEY",
+        "mcp/obsidian"
+      ],
+      "env": {
+        "OBSIDIAN_HOST": "host.docker.internal",
+        "OBSIDIAN_PORT": "27123",
+        "OBSIDIAN_API_KEY": "your-obsidian-api-key-here"
+      }
+    },
+    "local-kb": {
+      "command": "node",
+      "args": ["./services/mcp/server.mjs"],
+      "env": {
+        "PORT": "5050",
+        "KB_API_URL": "http://127.0.0.1:4040",
+        "KB_API_TOKEN": "your-kb-api-token-here"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_your_github_token_here"
+      }
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-vercel"],
+      "env": {
+        "VERCEL_API_TOKEN": "your_vercel_token_here"
+      }
+    }
+  }
+}

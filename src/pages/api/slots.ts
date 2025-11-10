@@ -1,4 +1,4 @@
-// GET /api/slots (TypeScript)
+// GET /api/slots
 // Contract: spec/specs/003-my-feature/contracts/booking.openapi.yml
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -6,9 +6,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 type Slot = { start: string; end: string };
 type SlotsResponse = { slots: Slot[] };
 
-function pickFirst(v: string | string[] | undefined): string | undefined {
-  if (Array.isArray(v)) return v[0];
-  return v;
+interface GCalEventTime {
+  dateTime?: string;
+  date?: string;
+}
+interface GCalEvent {
+  start: GCalEventTime;
+  end: GCalEventTime;
 }
 
 export default async function handler(
@@ -20,50 +24,52 @@ export default async function handler(
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const qDate = pickFirst(req.query?.date as any);
-  const qDuration = pickFirst(req.query?.duration as any);
-  const qTz = pickFirst(req.query?.tz as any);
-
-  const toInt = (v: unknown): number => {
-    const n = typeof v === "string" ? Number.parseInt(v, 10) : Number(v);
-    return Number.isFinite(n) ? n : Number.NaN;
+  const { date, duration, tz } = req.query as {
+    date?: string;
+    duration?: string | string[];
+    tz?: string;
   };
 
-  if (qDate !== undefined) {
-    if (typeof qDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(qDate)) {
+  // date validation (YYYY-MM-DD)
+  if (date !== undefined) {
+    if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return res.status(400).json({ message: "Invalid date format" });
     }
-    const parsed = Date.parse(`${qDate}T00:00:00Z`);
+    const parsed = Date.parse(`${date}T00:00:00Z`);
     if (Number.isNaN(parsed)) {
       return res.status(400).json({ message: "Invalid date value" });
     }
   }
 
-  if (qDuration !== undefined) {
+  // duration validation (15,30,45,60)
+  let durationMin: number | undefined;
+  if (duration !== undefined) {
     const allowed = new Set([15, 30, 45, 60]);
-    const dur = toInt(qDuration);
-    if (!allowed.has(dur)) {
+    const d = Array.isArray(duration) ? parseInt(duration[0], 10) : parseInt(String(duration), 10);
+    if (!allowed.has(d)) {
       return res.status(400).json({ message: "Invalid duration" });
     }
+    durationMin = d;
   }
 
-  if (qTz !== undefined) {
-    if (typeof qTz !== "string" || qTz.trim() === "") {
+  // tz validation (IANA)
+  if (tz !== undefined) {
+    if (typeof tz !== "string" || tz.trim() === "") {
       return res.status(400).json({ message: "Invalid timezone" });
     }
     try {
-      new Intl.DateTimeFormat("en-US", { timeZone: qTz }).format(new Date());
+      new Intl.DateTimeFormat("en-US", { timeZone: tz }).format(new Date());
     } catch {
       return res.status(400).json({ message: "Invalid timezone" });
     }
   }
 
-  const SITE_TZ =
-    typeof qTz === "string" && qTz ? qTz : process.env.SITE_TZ || "Asia/Tokyo";
-  const durationMin = qDuration !== undefined ? toInt(qDuration) : 30;
+  const SITE_TZ = typeof tz === "string" && tz ? tz : process.env.SITE_TZ || "Asia/Tokyo";
+  const durMin = durationMin ?? 30;
 
+  // Resolve anchor date
   const anchorDate = (() => {
-    if (typeof qDate === "string" && qDate) return qDate;
+    if (typeof date === "string" && date) return date;
     const now = new Date();
     try {
       const parts = new Intl.DateTimeFormat("en-CA", {
@@ -83,81 +89,56 @@ export default async function handler(
     return `${y}-${m}-${d}`;
   })();
 
-  function toIsoZ(dateStr: string, h: number, min: number): string {
-    return new Date(
-      `${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`,
-    ).toISOString();
-  }
+  const toIsoZ = (dateStr: string, h: number, min: number) => {
+    return new Date(`${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`).toISOString();
+  };
 
-  function generateDefaultSlots(dateStr: string, durMin: number): Slot[] {
+  const generateDefaultSlots = (dateStr: string, minutes: number): Slot[] => {
     const slots: Slot[] = [];
-    const step =
-      Number.isFinite(durMin) && durMin > 0 ? Math.floor(durMin) : 30;
-    const startTotal = 9 * 60;
-    const endTotal = 17 * 60;
-    for (let t = startTotal; t + step <= endTotal; t += step) {
+    const startTotal = 9 * 60; // 09:00Z
+    const endTotal = 17 * 60; // 17:00Z
+    for (let t = startTotal; t + minutes <= endTotal; t += minutes) {
       const sh = Math.floor(t / 60);
       const sm = t % 60;
-      const eh = Math.floor((t + step) / 60);
-      const em = (t + step) % 60;
-      slots.push({
-        start: toIsoZ(anchorDate, sh, sm),
-        end: toIsoZ(anchorDate, eh, em),
-      });
+      const eh = Math.floor((t + minutes) / 60);
+      const em = (t + minutes) % 60;
+      slots.push({ start: toIsoZ(anchorDate, sh, sm), end: toIsoZ(anchorDate, eh, em) });
     }
     return slots;
-  }
+  };
 
-  // Best-effort GCal filtering
-  let events: Array<{ start?: any; end?: any }> = [];
+  // Try to list Google Calendar events to filter conflicts (best-effort)
+  let events: GCalEvent[] = [];
   try {
     const timeMin = new Date(`${anchorDate}T00:00:00.000Z`).toISOString();
     const timeMax = new Date(`${anchorDate}T23:59:59.999Z`).toISOString();
-    // dynamic ESM import to keep optional dependency and satisfy lint rules
-    const mod: any = await import("../../lib/gcal");
-    if (
-      mod &&
-      typeof mod.listGoogleCalendarEvents === "function" &&
-      process.env.GC_CALENDAR_ID
-    ) {
-      events = await mod.listGoogleCalendarEvents({
-        calendarId: process.env.GC_CALENDAR_ID,
-        timeMin,
-        timeMax,
-        maxResults: 50,
-      });
+    const mod = await import("../../lib/gcal");
+    const list = (mod as any)?.listGoogleCalendarEvents as (args: any) => Promise<GCalEvent[]>;
+    if (typeof list === "function" && process.env.GC_CALENDAR_ID) {
+      events = await list({ calendarId: process.env.GC_CALENDAR_ID, timeMin, timeMax, maxResults: 50 });
     }
   } catch {
     // ignore
   }
 
-  const allSlots = generateDefaultSlots(anchorDate, durationMin);
-  if (!events || events.length === 0) {
+  const allSlots = generateDefaultSlots(anchorDate, durMin);
+  if (!events?.length) {
     return res.status(200).json({ slots: allSlots });
   }
 
-  const parseEventTime = (part: any): number | null => {
-    if (!part) return null;
+  const parseEventTime = (part?: GCalEventTime | null) => {
+    if (!part) return null as number | null;
     if (part.dateTime) return Date.parse(part.dateTime);
     if (part.date) return Date.parse(part.date + "T00:00:00Z");
-    return null;
+    return null as number | null;
   };
-  const overlaps = (
-    aStartMs: number,
-    aEndMs: number,
-    bStartMs: number,
-    bEndMs: number,
-  ) => aStartMs < bEndMs && bStartMs < aEndMs;
+
+  const overlaps = (aStartMs: number, aEndMs: number, bStartMs: number, bEndMs: number) =>
+    aStartMs < bEndMs && bStartMs < aEndMs;
 
   const busy = events
-    .map((ev) => ({
-      start: parseEventTime(ev.start),
-      end: parseEventTime(ev.end),
-    }))
-    .filter(
-      (x): x is { start: number; end: number } =>
-        typeof x.start === "number" && typeof x.end === "number",
-    );
+    .map((ev) => ({ start: parseEventTime(ev.start), end: parseEventTime(ev.end) }))
+    .filter((x): x is { start: number; end: number } => typeof x.start === "number" && typeof x.end === "number");
 
   const available = allSlots.filter((s) => {
     const st = Date.parse(s.start);

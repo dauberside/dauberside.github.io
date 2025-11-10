@@ -1,0 +1,69 @@
+{
+  "name": "MCP KB Search (Webhook) v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mcp-kb-search",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        420,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendQuery": true,
+        "queryParametersUi": {
+          "parameter": [
+            { "name": "q", "value": "={{ $json.query || $json.q || $query.q || 'hello' }}" },
+            { "name": "topK", "value": "={{ $json.topK || $query.topK || 5 }}" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "http-1",
+      "name": "HTTP Request (MCP /kb/search)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        760,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (MCP /kb/search)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-search-webhook",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

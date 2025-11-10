@@ -4,6 +4,13 @@ import { TextWorkflowInputSchema, TextWorkflowOutputSchema } from '@/lib/agent/w
 import { runWorkflow } from '@/lib/agent/workflows/text-workflow';
 import fs from 'node:fs';
 import path from 'node:path';
+// Note: import formidable dynamically to avoid TS type requirement at build time
+
+export const config = {
+  api: {
+    bodyParser: false, // allow multipart/form-data via formidable
+  },
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const rid = (req.headers['x-request-id'] as string) || randomUUID();
@@ -45,17 +52,104 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const contentType = (req.headers['content-type'] || '').toString().toLowerCase();
-  if (!contentType.includes('application/json')) {
-    done(415, { path: 'validate', reason: 'content_type' });
-    return res.status(415).json({ error: 'invalid_content_type' });
-  }
+  let input_as_text: string = '';
+  let kb_snippets: Array<{ source: string; text: string; score?: number | null }>|undefined = undefined;
+  const isMultipart = contentType.includes('multipart/form-data');
 
-  const parse = TextWorkflowInputSchema.safeParse(req.body);
-  if (!parse.success) {
-    done(400, { path: 'validate', reason: 'zod' });
-    return res.status(400).json({ error: 'invalid_input', details: parse.error.flatten() });
+  if (isMultipart) {
+    // Handle multipart upload (single file supported initially)
+    try {
+      const formidable = (await import('formidable')).default as any;
+      const form = formidable({
+        multiples: false,
+        maxFileSize: 10 * 1024 * 1024, // 10MB
+        filter: (part: any) => !!part.mimetype && (part.mimetype.startsWith('image/') || part.mimetype.startsWith('audio/') || part.mimetype === 'text/plain' || part.mimetype === 'application/json' || part.mimetype === 'application/pdf'),
+      });
+
+      const { fields, files } = await new Promise<{ fields: any; files: any }>((resolve, reject) => {
+        form.parse(req, (err: any, fields: any, files: any) => {
+          if (err) return reject(err);
+          resolve({ fields, files });
+        });
+      });
+
+  const pickField = (v: any) => Array.isArray(v) ? v[0] : v;
+  const textFieldRaw = pickField(fields.input_as_text ?? fields.message ?? fields.text ?? fields.input);
+  input_as_text = typeof textFieldRaw === 'string' ? textFieldRaw : '';
+      const kbField = Array.isArray(fields.kb_snippets) ? fields.kb_snippets[0] : (fields.kb_snippets as any);
+      if (typeof kbField === 'string') {
+        try { kb_snippets = JSON.parse(kbField); } catch {}
+      }
+
+      // minimal validation using Zod by constructing object
+      const preCheck = TextWorkflowInputSchema.safeParse({ input_as_text, kb_snippets });
+      if (!preCheck.success) {
+        done(400, { path: 'validate-multipart', reason: 'zod' });
+        return res.status(400).json({ error: 'invalid_input', details: preCheck.error.flatten() });
+      }
+
+      const fileAny = (files as any)?.file || (Object.values(files)[0] as any);
+      if (fileAny) {
+        const { filepath, originalFilename, mimetype, size } = fileAny || {};
+        const fname = String(originalFilename || 'attachment');
+        const mtype = String(mimetype || 'application/octet-stream');
+        const sz = Number(size || 0);
+
+        // Best-effort preview for text-like files, capped to 2000 chars
+        let preview: string | null = null;
+        try {
+          if (mtype.startsWith('text/') || mtype === 'application/json') {
+            const buf = fs.readFileSync(filepath);
+            const txt = buf.toString('utf8');
+            preview = txt.slice(0, 2000);
+          }
+        } catch {}
+
+        const attachNote = `添付ファイル: ${fname} (${mtype}, ${Math.round(sz/1024)}KB)` + (preview ? `\n内容プレビュー:\n${preview}` : '\n(このファイルはプレビューされていません)');
+        const extra = { source: `attachment:${fname}`, text: attachNote } as const;
+        kb_snippets = Array.isArray(kb_snippets) ? [...kb_snippets, extra] : [extra];
+      }
+    } catch (e: any) {
+      console.error(`[api/agent/workflow-proxy] rid=${rid} multipart_error`, e);
+      done(415, { path: 'multipart', error: e?.message });
+      return res.status(415).json({ error: 'invalid_multipart' });
+    }
+  } else {
+    if (!contentType.includes('application/json')) {
+      done(415, { path: 'validate', reason: 'content_type' });
+      return res.status(415).json({ error: 'invalid_content_type' });
+    }
+    // bodyParser is disabled; manually read and parse JSON
+    try {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req as any) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      const raw = Buffer.concat(chunks).toString('utf8');
+      let body: any = {};
+      try { body = raw ? JSON.parse(raw) : {}; } catch { body = {}; }
+
+      // Accept alias keys and normalize to input_as_text
+      const alias = body?.input_as_text ?? body?.message ?? body?.text ?? body?.input ?? '';
+      input_as_text = typeof alias === 'string' ? alias : '';
+      const kbField = body?.kb_snippets;
+      if (Array.isArray(kbField)) {
+        kb_snippets = kbField as any;
+      } else if (typeof kbField === 'string') {
+        try { kb_snippets = JSON.parse(kbField); } catch {}
+      }
+
+      const parse = TextWorkflowInputSchema.safeParse({ input_as_text, kb_snippets });
+      if (!parse.success) {
+        done(400, { path: 'validate', reason: 'zod' });
+        return res.status(400).json({ error: 'invalid_input', details: parse.error.flatten() });
+      }
+      ({ input_as_text, kb_snippets } = parse.data as any);
+    } catch (e: any) {
+      done(400, { path: 'validate', reason: 'json_parse', error: e?.message });
+      return res.status(400).json({ error: 'invalid_json' });
+    }
   }
-  const { input_as_text, kb_snippets } = parse.data as any;
 
   // Best-effort: in dev, try to hydrate OPENAI_API_KEY from .env.local if missing
   if (process.env.NODE_ENV !== 'production' && !process.env.OPENAI_API_KEY) {

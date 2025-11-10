@@ -241,17 +241,6 @@ export async function callCfChat(
   prompt: unknown,
   system?: unknown,
 ): Promise<string> {
-  // Cross-runtime env getter (Node/Deno)
-  const getEnv = (name: string): string | undefined => {
-    const p = (globalThis as any).process?.env?.[name];
-    if (p !== undefined) return p as string;
-    try {
-      const d = (globalThis as any).Deno?.env?.get?.(name);
-      if (d !== undefined) return d as string;
-    } catch {}
-    return undefined;
-  };
-
   // Coerce inputs to strings to avoid "unknown object"/[object Object] issues
   const toStr = (x: unknown): string => {
     if (typeof x === "string") return x;
@@ -268,12 +257,11 @@ export async function callCfChat(
     throw new Error("OpenAI API is not configured");
   }
 
-  const apiKey = (getEnv("OPENAI_API_KEY") || "") as string;
-  const baseUrl = (getEnv("OPENAI_BASE_URL") || "https://api.openai.com/v1").trim();
+  const apiKey = process.env.OPENAI_API_KEY as string;
+  const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").trim();
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
-  const model = (getEnv("OPENAI_MODEL") || "gpt-4o-mini").replace(/^["']|["']$/g, "");
+  const model = (process.env.OPENAI_MODEL || "gpt-4o-mini").replace(/^["']|["']$/g, "");
   const url = `${normalizedBaseUrl}/chat/completions`;
-  const timeoutMs = Math.max(1000, parseInt(getEnv("OPENAI_TIMEOUT_MS") || "6000", 10) || 6000);
 
   // Use messages shape; ensure content is plain string
   const body: Record<string, unknown> = {
@@ -286,8 +274,6 @@ export async function callCfChat(
   };
 
   try {
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort("timeout"), timeoutMs);
     const resp = await fetch(url, {
       method: "POST",
       headers: {
@@ -295,10 +281,7 @@ export async function callCfChat(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-      // Deno/Node both support AbortController
-      signal: ac.signal as any,
     });
-    clearTimeout(timer);
 
     if (!resp.ok) {
       const text = await resp.text().catch(() => "");

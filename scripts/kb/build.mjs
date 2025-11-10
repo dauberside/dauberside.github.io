@@ -275,7 +275,8 @@ function hashEmbed(text, dim = 256) {
 async function main() {
   const files = [];
   for (const src of SOURCES) {
-    const dir = path.join(ROOT, src);
+    // Handle both absolute and relative paths
+    const dir = path.isAbsolute(src) ? src : path.join(ROOT, src);
     try {
       const stat = await fs.stat(dir);
       if (stat.isDirectory()) {

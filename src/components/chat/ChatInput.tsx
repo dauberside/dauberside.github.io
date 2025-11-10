@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import type { Message } from "@/types/chat";
 
 interface ChatInputProps {
   username: string;
   onUsernameChange: (username: string) => void;
-  onSendMessage: (text: string, options?: { replyTo?: Message }) => void;
+  onSendMessage: (text: string, options?: { replyTo?: Message; file?: File | null }) => void;
   isLoading?: boolean;
   replyTo?: Message | null;
   onCancelReply?: () => void;
@@ -19,18 +19,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onCancelReply,
 }) => {
   const [message, setMessage] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (message.trim()) {
-        onSendMessage(message, replyTo ? { replyTo } : undefined);
+        onSendMessage(message, replyTo ? { replyTo, file } : { file });
         setMessage("");
+        setFile(null);
         // 送信後に返信モードを解除
         onCancelReply?.();
       }
     },
-    [message, onSendMessage, replyTo, onCancelReply],
+    [message, onSendMessage, replyTo, onCancelReply, file],
   );
 
   const handleUsernameChange = useCallback(
@@ -46,6 +49,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     },
     [],
   );
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setFile(f);
+  }, []);
+
+  const clearFile = useCallback(() => setFile(null), []);
 
   return (
     <form onSubmit={handleSubmit} className="mb-4 space-y-2 ">
@@ -92,15 +102,45 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
           📝📝📝
         </label>
-        <input
-          id="message"
-          type="text"
-          value={message}
-          onChange={handleMessageChange}
-          placeholder="メッセージを入力"
-          className="w-full p-2 border text-black border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-          required
-        />
+        <div className="relative">
+          <input
+            id="message"
+            type="text"
+            value={message}
+            onChange={handleMessageChange}
+            placeholder="メッセージを入力"
+            className="w-full p-2 pr-10 border text-black border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+          {/* hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,audio/*,text/plain,application/pdf,application/json"
+            onChange={handleFileChange}
+            className="hidden"
+            aria-hidden
+            tabIndex={-1}
+          />
+          {/* paperclip trigger inside the input */}
+          <button
+            type="button"
+            aria-label="ファイルを添付"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            disabled={isLoading}
+          >
+            📎
+          </button>
+        </div>
+        {file && (
+          <div className="mt-1 text-xs text-black flex items-center justify-between bg-gray-50 border border-gray-300 rounded p-2">
+            <div className="truncate">選択中: {file.name} ({Math.round(file.size/1024)} KB)</div>
+            <button type="button" className="text-blue-700 underline ml-2" onClick={clearFile}>
+              クリア
+            </button>
+          </div>
+        )}
       </div>
       <button
         type="submit"

@@ -1,0 +1,92 @@
+{
+  "name": "MCP KB Search (GET/POST) v1.1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.MCP_API_URL}}/kb/search?q=hello&topK=5",
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "http-get-1",
+      "name": "HTTP Request (GET)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        820,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersUi": {
+          "parameter": [
+            { "name": "query", "value": "n8n からの検索" },
+            { "name": "topK", "value": 5 }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "http-post-1",
+      "name": "HTTP Request (POST)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        820,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (GET)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request (POST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-search-get-post",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

@@ -30,46 +30,6 @@ export function verifyLineSignature(req: NextApiRequest, raw: Buffer): boolean {
 export async function replyText(replyToken: string, text: string) {
   const body = { replyToken, messages: [{ type: "text", text }] };
   await lineFetch(body);
-  try {
-    console.log("[LINE] replyText ok", { bytes: JSON.stringify(body).length });
-  } catch {}
-}
-
-// Quick Reply support (datetimepickerなど)
-export type QuickReplyAction =
-  | { type: "postback"; label: string; data: string }
-  | { type: "message"; label: string; text: string }
-  | { type: "uri"; label: string; uri: string }
-  | {
-      type: "datetimepicker";
-      label: string;
-      data: string; // postback.data に入る（postback.params に date/time/datetime が付与される）
-      mode: "date" | "time" | "datetime";
-      initial?: string; // YYYY-MM-DD or YYYY-MM-DDThh:mm
-      max?: string;
-      min?: string;
-    };
-
-export async function replyTextWithQuickReply(
-  replyToken: string,
-  text: string,
-  items: Array<{ type: "action"; action: QuickReplyAction }>,
-  opts?: { cid?: string },
-) {
-  const body = {
-    replyToken,
-    messages: [
-      {
-        type: "text",
-        text,
-        quickReply: { items: items.slice(0, 13) }, // LINE上限 13
-      },
-    ],
-  } as any;
-  await lineFetch(body);
-  try {
-    console.log("[LINE] replyQuick ok", { items: items.length, cid: opts?.cid });
-  } catch {}
 }
 
 export async function pushText(to: string, text: string) {
@@ -159,31 +119,6 @@ export async function replyTemplate(
     messages: [{ type: "template", altText: derivedAlt, template: safe }],
   };
   await lineFetch(body);
-  try {
-    console.log("[LINE] replyTemplate ok", { alt: derivedAlt });
-  } catch {}
-}
-
-// Send multiple messages in a single reply API call to avoid reusing replyToken
-export async function replyMessages(
-  replyToken: string,
-  messages: Array<any>,
-) {
-  // sanitize templates inside messages
-  const sanitized = messages.map((m) => {
-    if (m && m.type === "template" && m.template) {
-      return {
-        ...m,
-        template: sanitizeTemplate(m.template as any),
-      };
-    }
-    return m;
-  });
-  const body = { replyToken, messages: sanitized };
-  await lineFetch(body);
-  try {
-    console.log("[LINE] replyMessages ok", { count: sanitized.length });
-  } catch {}
 }
 
 export async function replyConfirm(

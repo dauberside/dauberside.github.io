@@ -58,8 +58,7 @@
       "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "jest.setup.js"],
       "env": { "jest": true },
       "rules": {
-        "@typescript-eslint/no-require-imports": "off",
-        "@typescript-eslint/no-namespace": "off"
+        "@typescript-eslint/no-require-imports": "off"
       }
     },
     {

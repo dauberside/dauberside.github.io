@@ -94,7 +94,7 @@ const server = http.createServer((req, res) => {
   const origin = req.headers['origin'];
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    const ph = { ...corsHeaders(origin), 'Access-Control-Max-Age': '86400' };
+    const ph = { ...corsHeaders(origin), 'Access-Control-Max-Age': '86400', 'Content-Type': 'application/json' };
     res.writeHead(204, ph); res.end();
     const t1 = process.hrtime.bigint(); rec('OPTIONS', 204, Number(t1 - t0) / 1e6); return;
   }
@@ -108,8 +108,32 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, headers); res.end(JSON.stringify({ ok: true }));
     const t1 = process.hrtime.bigint(); rec('/healthz', 200, Number(t1 - t0) / 1e6); return;
   }
+  if (u.pathname === '/') {
+    res.writeHead(200, headers);
+    res.end(JSON.stringify({
+      name: 'mcp-server',
+      version: '0.0.1',
+      ok: true,
+      endpoints: {
+        healthz: '/healthz',
+        info: '/info',
+        metrics: '/metrics',
+        kb_search: '/kb/search'
+      }
+    }));
+    const t1 = process.hrtime.bigint(); rec('/', 200, Number(t1 - t0) / 1e6); return;
+  }
   if (u.pathname === '/info') {
-    res.writeHead(200, headers); res.end(JSON.stringify({ name: 'mcp-server', version: '0.0.1' }));
+    res.writeHead(200, headers); res.end(JSON.stringify({
+      name: 'mcp-server',
+      version: '0.0.1',
+      features: {
+        kbSearch: {
+          getQueryKeys: ['q', 'topK'],
+          postBodyKeys: ['query', 'q', 'topK']
+        }
+      }
+    }));
     const t1 = process.hrtime.bigint(); rec('/info', 200, Number(t1 - t0) / 1e6); return;
   }
   if (u.pathname === '/metrics') {
@@ -146,10 +170,12 @@ const server = http.createServer((req, res) => {
         try {
           const raw = Buffer.concat(chunks).toString('utf8');
           const body = raw ? JSON.parse(raw) : {};
+          const bodyQuery = body.query || body.q || '';
+          const bodyTopK = body.topK ?? (topK ? Number(topK) : undefined);
           const resp = await fetch(`${KB_API_BASE}/search`, {
             method: 'POST',
             headers: { ...outHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: body.query || q || '', topK: body.topK || (topK ? Number(topK) : undefined) }),
+            body: JSON.stringify({ query: bodyQuery || q || '', topK: bodyTopK }),
           });
           const text = await resp.text();
           if (!resp.ok) return done(resp.status, { error: 'kb_api_error', body: text });
