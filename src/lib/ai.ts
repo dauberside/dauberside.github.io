@@ -258,9 +258,14 @@ export async function callCfChat(
   }
 
   const apiKey = process.env.OPENAI_API_KEY as string;
-  const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").trim();
+  const baseUrl = (
+    process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
+  ).trim();
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
-  const model = (process.env.OPENAI_MODEL || "gpt-4o-mini").replace(/^["']|["']$/g, "");
+  const model = (process.env.OPENAI_MODEL || "gpt-4o-mini").replace(
+    /^["']|["']$/g,
+    "",
+  );
   const url = `${normalizedBaseUrl}/chat/completions`;
 
   // Use messages shape; ensure content is plain string

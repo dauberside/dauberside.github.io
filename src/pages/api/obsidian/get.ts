@@ -1,13 +1,20 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getNote } from '@/lib/obsidian';
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const pathParam = String((req.query.path as string) || '').trim();
-  if (!pathParam) return res.status(400).json({ ok: false, error: 'missing_path' });
+import { getNote } from "@/lib/obsidian";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const pathParam = String((req.query.path as string) || "").trim();
+  if (!pathParam)
+    return res.status(400).json({ ok: false, error: "missing_path" });
 
   // 期待するのは URL エンコード済みのパス（スペースやスラッシュを含むため）
   // 未エンコードらしき場合は最小限のエンコードを試みる
-  const encoded = /%[0-9A-Fa-f]{2}/.test(pathParam) ? pathParam : encodeURIComponent(pathParam).replace(/%2F/g, '/');
+  const encoded = /%[0-9A-Fa-f]{2}/.test(pathParam)
+    ? pathParam
+    : encodeURIComponent(pathParam).replace(/%2F/g, "/");
 
   try {
     const note = await getNote(encoded);

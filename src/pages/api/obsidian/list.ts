@@ -1,7 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { listRoot } from '@/lib/obsidian';
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
+import { listRoot } from "@/lib/obsidian";
+
+export default async function handler(
+  _req: NextApiRequest,
+  res: NextApiResponse,
+) {
   try {
     const data = await listRoot();
     res.status(200).json({ ok: true, data });

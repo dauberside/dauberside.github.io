@@ -1,8 +1,9 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import { ObsidianNote } from '@/types/obsidian';
-import { embedBatch } from '@/lib/kb/embedding';
+import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+
+import { embedBatch } from "@/lib/kb/embedding";
+import type { ObsidianNote } from "@/types/obsidian";
 
 /** Index JSON minimal structure (subset) */
 interface KBIndexHeader {
@@ -14,11 +15,11 @@ interface KBIndexHeader {
 }
 
 export interface KBIndexChunk {
-  id: number;               // stable numeric id
-  source: string;           // file path
-  chunk_index: number;      // position within file
-  text: string;             // original text
-  embedding: number[];      // vector
+  id: number; // stable numeric id
+  source: string; // file path
+  chunk_index: number; // position within file
+  text: string; // original text
+  embedding: number[]; // vector
   // future: hash?
 }
 
@@ -39,14 +40,14 @@ export interface DiffInputNote extends ObsidianNote {
 }
 
 export interface DiffResult {
-  toEmbed: DiffInputNote[];  // notes requiring (re)embedding
-  skipped: DiffInputNote[];  // unchanged notes
+  toEmbed: DiffInputNote[]; // notes requiring (re)embedding
+  skipped: DiffInputNote[]; // unchanged notes
   errors: { path: string; reason: string }[];
 }
 
 /** Compute sha256 hex of content */
 export function computeContentHash(content: string): string {
-  return crypto.createHash('sha256').update(content, 'utf8').digest('hex');
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
 }
 
 /**
@@ -70,17 +71,24 @@ export function chunkText(text: string, size = 1200, overlap = 200): string[] {
 }
 
 /** Convenience: chunk a note's content and return [{chunk_index, text}] */
-export function chunkNote(note: DiffInputNote, size = 1200, overlap = 200): { chunk_index: number; text: string }[] {
-  const pieces = chunkText(note.content || '', size, overlap);
+export function chunkNote(
+  note: DiffInputNote,
+  size = 1200,
+  overlap = 200,
+): { chunk_index: number; text: string }[] {
+  const pieces = chunkText(note.content || "", size, overlap);
   return pieces.map((t, idx) => ({ chunk_index: idx, text: t }));
 }
 
 /** Load existing KB index (embeddings.json). Returns empty skeleton if missing. */
 export async function loadKBIndex(indexPath?: string): Promise<KBIndex> {
   const root = process.cwd();
-  const p = indexPath || process.env.KB_INDEX_PATH || path.join(root, 'kb', 'index', 'embeddings.json');
+  const p =
+    indexPath ||
+    process.env.KB_INDEX_PATH ||
+    path.join(root, "kb", "index", "embeddings.json");
   try {
-    const raw = await fs.readFile(p, 'utf8');
+    const raw = await fs.readFile(p, "utf8");
     const json = JSON.parse(raw);
     if (Array.isArray(json.data)) {
       return { header: json, data: json.data } as KBIndex;
@@ -91,8 +99,11 @@ export async function loadKBIndex(indexPath?: string): Promise<KBIndex> {
     }
     return { header: json, data: [] };
   } catch (err: any) {
-    if (err.code === 'ENOENT') {
-      return { header: { model: 'unknown', created_at: new Date().toISOString() }, data: [] };
+    if (err.code === "ENOENT") {
+      return {
+        header: { model: "unknown", created_at: new Date().toISOString() },
+        data: [],
+      };
     }
     throw err;
   }
@@ -103,13 +114,13 @@ function buildFileHashApprox(index: KBIndex): Map<string, string> {
   const map = new Map<string, crypto.Hash>();
   for (const c of index.data) {
     if (!map.has(c.source)) {
-      map.set(c.source, crypto.createHash('sha256'));
+      map.set(c.source, crypto.createHash("sha256"));
     }
     map.get(c.source)!.update(c.text);
   }
   const result = new Map<string, string>();
   for (const [k, h] of map.entries()) {
-    result.set(k, h.digest('hex'));
+    result.set(k, h.digest("hex"));
   }
   return result;
 }
@@ -123,7 +134,10 @@ export function diffNotes(notes: DiffInputNote[], index: KBIndex): DiffResult {
 
   for (const note of notes) {
     if (!note.path || !note.content) {
-      errors.push({ path: note.path || '(unknown)', reason: 'missing path or content' });
+      errors.push({
+        path: note.path || "(unknown)",
+        reason: "missing path or content",
+      });
       continue;
     }
     const hash = note.hash || computeContentHash(note.content);
@@ -146,17 +160,30 @@ export interface PersistOptions {
  * Persist updated index. This is a stub that simply merges new chunks placeholder.
  * Actual embedding computation is not implemented here; caller should supply vectors.
  */
-export async function persistIndex(index: KBIndex, opts: PersistOptions = {}): Promise<void> {
+export async function persistIndex(
+  index: KBIndex,
+  opts: PersistOptions = {},
+): Promise<void> {
   const root = process.cwd();
-  const p = opts.indexPath || process.env.KB_INDEX_PATH || path.join(root, 'kb', 'index', 'embeddings.json');
-  const header = { ...index.header, updated_at: new Date().toISOString(), chunks: index.data.length };
+  const p =
+    opts.indexPath ||
+    process.env.KB_INDEX_PATH ||
+    path.join(root, "kb", "index", "embeddings.json");
+  const header = {
+    ...index.header,
+    updated_at: new Date().toISOString(),
+    chunks: index.data.length,
+  };
   const out = { ...header, data: index.data };
   await fs.mkdir(path.dirname(p), { recursive: true });
-  await fs.writeFile(p, JSON.stringify(out, null, 2), 'utf8');
+  await fs.writeFile(p, JSON.stringify(out, null, 2), "utf8");
 }
 
 /** High-level pipeline stub: diff notes then (placeholder) embed and persist */
-export async function processNotesDelta(notes: DiffInputNote[], opts: { indexPath?: string } = {}) {
+export async function processNotesDelta(
+  notes: DiffInputNote[],
+  opts: { indexPath?: string } = {},
+) {
   const index = await loadKBIndex(opts.indexPath);
   const diff = diffNotes(notes, index);
   // Placeholder embedding: we do not call OpenAI here (to be implemented)
@@ -172,17 +199,21 @@ export async function processNotesDelta(notes: DiffInputNote[], opts: { indexPat
       plan: [],
       embeddedNotes: 0,
       embeddedChunks: 0,
-      message: 'No new/changed notes to embed',
+      message: "No new/changed notes to embed",
     } as const;
   }
 
   // Determine starting id (max existing id + 1)
-  let nextId = index.data.reduce((m, c) => c && typeof c.id === 'number' && c.id > m ? c.id : m, -1) + 1;
+  let nextId =
+    index.data.reduce(
+      (m, c) => (c && typeof c.id === "number" && c.id > m ? c.id : m),
+      -1,
+    ) + 1;
   const appended: KBIndexChunk[] = [];
   const plan = [] as { path: string; chunks: number }[];
 
   for (const note of diff.toEmbed) {
-    const pieces = chunkText(note.content || '');
+    const pieces = chunkText(note.content || "");
     plan.push({ path: note.path, chunks: pieces.length });
     if (pieces.length === 0) continue;
     // Embed in batches, fallback automatically handled inside embedBatch
@@ -223,6 +254,6 @@ export async function processNotesDelta(notes: DiffInputNote[], opts: { indexPat
     plan,
     embeddedNotes: diff.toEmbed.length,
     embeddedChunks: appended.length,
-    message: 'Embeddings generated and index persisted',
+    message: "Embeddings generated and index persisted",
   } as const;
 }

@@ -1,8 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Zod schemas for the text workflow
 export const TextWorkflowInputSchema = z.object({
-  input_as_text: z.string().min(1, 'input_as_text is required').max(4000, 'input_as_text must be <= 4000 characters'),
+  input_as_text: z
+    .string()
+    .min(1, "input_as_text is required")
+    .max(4000, "input_as_text must be <= 4000 characters"),
   kb_snippets: z
     .array(
       z.object({
@@ -10,7 +13,7 @@ export const TextWorkflowInputSchema = z.object({
         text: z.string(),
         // 一部実装で null が入るケースがあるため許容（未指定扱い）
         score: z.number().nullable().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -20,8 +23,12 @@ const HttpOrRelativeUrl = z
   .string()
   .trim()
   .refine(
-    (s) => s === '' || s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/'),
-    'url must be absolute http(s) or a relative path starting with /'
+    (s) =>
+      s === "" ||
+      s.startsWith("http://") ||
+      s.startsWith("https://") ||
+      s.startsWith("/"),
+    "url must be absolute http(s) or a relative path starting with /",
   );
 
 export const TextWorkflowOutputSchema = z.object({
@@ -29,12 +36,14 @@ export const TextWorkflowOutputSchema = z.object({
   actions: z
     .array(
       z.object({
-        type: z.enum(['open_url', 'call_api', 'navigate', 'copy']).default('open_url'),
+        type: z
+          .enum(["open_url", "call_api", "navigate", "copy"])
+          .default("open_url"),
         label: z.string().min(1),
         url: HttpOrRelativeUrl.optional(),
-        method: z.enum(['GET', 'POST']).optional(),
+        method: z.enum(["GET", "POST"]).optional(),
         body: z.any().optional(),
-      })
+      }),
     )
     .optional(),
 });

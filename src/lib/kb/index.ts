@@ -1,6 +1,7 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { embedQuery } from './embedding';
+import fs from "node:fs/promises";
+import path from "node:path";
+
+import { embedQuery } from "./embedding";
 
 export interface KBChunk {
   id: number;
@@ -21,13 +22,18 @@ export interface KBIndex {
 
 export async function loadKBIndex(indexPath?: string): Promise<KBIndex> {
   const root = process.cwd();
-  const p = indexPath || process.env.KB_INDEX_PATH || path.join(root, 'kb', 'index', 'embeddings.json');
-  const raw = await fs.readFile(p, 'utf8');
+  const p =
+    indexPath ||
+    process.env.KB_INDEX_PATH ||
+    path.join(root, "kb", "index", "embeddings.json");
+  const raw = await fs.readFile(p, "utf8");
   return JSON.parse(raw);
 }
 
 function cosine(a: number[], b: number[]): number {
-  let dot = 0, na = 0, nb = 0;
+  let dot = 0,
+    na = 0,
+    nb = 0;
   for (let i = 0; i < a.length; i++) {
     const x = a[i];
     const y = b[i];
@@ -45,7 +51,10 @@ export interface SearchHit {
   score: number;
 }
 
-export async function searchKB(query: string, opts?: { topK?: number; indexPath?: string }): Promise<SearchHit[]> {
+export async function searchKB(
+  query: string,
+  opts?: { topK?: number; indexPath?: string },
+): Promise<SearchHit[]> {
   const topK = opts?.topK ?? 5;
   const index = await loadKBIndex(opts?.indexPath);
   const q = await embedQuery(query);

@@ -1,7 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { ping } from '@/lib/obsidian';
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
+import { ping } from "@/lib/obsidian";
+
+export default async function handler(
+  _req: NextApiRequest,
+  res: NextApiResponse,
+) {
   try {
     const r = await ping();
     res.status(200).json(r);

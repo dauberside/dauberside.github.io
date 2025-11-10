@@ -1,10 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { searchNotes } from '@/lib/obsidian';
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const q = String((req.query.q as string) || '').trim();
+import { searchNotes } from "@/lib/obsidian";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const q = String((req.query.q as string) || "").trim();
   const limit = Number(req.query.limit ?? 10) || 10;
-  if (!q) return res.status(400).json({ ok: false, error: 'missing_query' });
+  if (!q) return res.status(400).json({ ok: false, error: "missing_query" });
   try {
     const results = await searchNotes(q, limit);
     res.status(200).json({ ok: true, q, results });

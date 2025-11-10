@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Message } from "@/types/chat";
 
@@ -9,9 +9,14 @@ interface ChatBoxProps {
   onDeleteMessage?: (id: number) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onDeleteMessage }) => {
-  const SHOW_KB_REFS = process.env.NEXT_PUBLIC_SHOW_KB_REFS === '1';
-  const HIDE_SPEC_OUTPUT = process.env.NEXT_PUBLIC_HIDE_SPEC_OUTPUT === '1';
+const ChatBox: React.FC<ChatBoxProps> = ({
+  messages,
+  onReply,
+  currentUserId,
+  onDeleteMessage,
+}) => {
+  const SHOW_KB_REFS = process.env.NEXT_PUBLIC_SHOW_KB_REFS === "1";
+  const HIDE_SPEC_OUTPUT = process.env.NEXT_PUBLIC_HIDE_SPEC_OUTPUT === "1";
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -56,16 +61,23 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
       e.preventDefault();
       openMenu(e.clientX, e.clientY, message);
     },
-    [openMenu]
+    [openMenu],
   );
 
-  const handlePointerDown = useCallback((e: React.PointerEvent, message: Message) => {
-    if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
-    // 500ms 長押しでメニュー
-    longPressTimer.current = window.setTimeout(() => {
-      openMenu(e.clientX || (e as any).pageX || 0, e.clientY || (e as any).pageY || 0, message);
-    }, 500);
-  }, [openMenu]);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, message: Message) => {
+      if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
+      // 500ms 長押しでメニュー
+      longPressTimer.current = window.setTimeout(() => {
+        openMenu(
+          e.clientX || (e as any).pageX || 0,
+          e.clientY || (e as any).pageY || 0,
+          message,
+        );
+      }, 500);
+    },
+    [openMenu],
+  );
 
   const clearLongPress = useCallback(() => {
     if (longPressTimer.current) {
@@ -108,7 +120,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
     : messages;
 
   return (
-    <div ref={containerRef} className="relative rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto">
+    <div
+      ref={containerRef}
+      className="relative rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto"
+    >
       {visibleMessages.map((message) => {
         const isAgent = message.user_id === "agent";
         return (
@@ -118,9 +133,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
           >
             <div
               className={`max-w-[80%] rounded-lg px-3 py-2 whitespace-pre-wrap break-words ${
-                isAgent
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
+                isAgent ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
               }`}
               onContextMenu={(e) => handleContextMenu(e, message)}
               onPointerDown={(e) => handlePointerDown(e, message)}
@@ -137,7 +150,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
                     isAgent ? "border-white/60" : "border-gray-400/60"
                   }`}
                 >
-                  ↪︎ {message.replyTo.username || "Anonymous"}: {message.replyTo.content.slice(0, 80)}
+                  ↪︎ {message.replyTo.username || "Anonymous"}:{" "}
+                  {message.replyTo.content.slice(0, 80)}
                   {message.replyTo.content.length > 80 ? "…" : ""}
                 </div>
               )}
@@ -145,16 +159,19 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
               {SHOW_KB_REFS && message.kbRefs && message.kbRefs.length > 0 && (
                 <div
                   className={`mt-2 text-xs rounded border-l-2 pl-2 py-1 opacity-90 ${
-                    isAgent ? 'border-white/60' : 'border-gray-400/60'
+                    isAgent ? "border-white/60" : "border-gray-400/60"
                   }`}
                 >
                   <div className="font-semibold mb-1">引用（KB）</div>
                   <ul className="space-y-1 list-disc pl-4">
                     {message.kbRefs.slice(0, 5).map((k, idx) => (
                       <li key={idx} className="opacity-90">
-                        <span className="font-mono text-[11px]">{k.source}</span>
+                        <span className="font-mono text-[11px]">
+                          {k.source}
+                        </span>
                         <div className="mt-0.5">
-                          {k.text.slice(0, 140)}{k.text.length > 140 ? '…' : ''}
+                          {k.text.slice(0, 140)}
+                          {k.text.length > 140 ? "…" : ""}
                         </div>
                       </li>
                     ))}
@@ -165,16 +182,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
               {message.actions && message.actions.length > 0 && (
                 <div
                   className={`mt-2 text-xs rounded border-l-2 pl-2 py-1 opacity-90 ${
-                    isAgent ? 'border-white/60' : 'border-gray-400/60'
+                    isAgent ? "border-white/60" : "border-gray-400/60"
                   }`}
                 >
                   <div className="font-semibold mb-1">アクション</div>
                   <ul className="space-y-1 pl-1">
                     {message.actions.slice(0, 5).map((a, idx) => (
-                      <li key={idx} className="flex items-center gap-2 flex-wrap">
-                        {(a.type === 'open_url' || a.type === 'navigate') && a.url ? (
+                      <li
+                        key={idx}
+                        className="flex items-center gap-2 flex-wrap"
+                      >
+                        {(a.type === "open_url" || a.type === "navigate") &&
+                        a.url ? (
                           <a
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? "border-white/60 hover:bg-white/10" : "border-gray-400/60 hover:bg-gray-100"}`}
                             href={a.url}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -182,31 +203,46 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
                           >
                             {a.label}
                           </a>
-                        ) : a.type === 'copy' ? (
+                        ) : a.type === "copy" ? (
                           <button
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? "border-white/60 hover:bg-white/10" : "border-gray-400/60 hover:bg-gray-100"}`}
                             onClick={async () => {
                               try {
-                                await navigator.clipboard.writeText(typeof a.body === 'string' ? a.body : JSON.stringify(a.body ?? {}, null, 2));
+                                await navigator.clipboard.writeText(
+                                  typeof a.body === "string"
+                                    ? a.body
+                                    : JSON.stringify(a.body ?? {}, null, 2),
+                                );
                               } catch {}
                             }}
                           >
                             {a.label}
                           </button>
-                        ) : a.type === 'call_api' && a.url ? (
+                        ) : a.type === "call_api" && a.url ? (
                           <button
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? 'border-white/60 hover:bg-white/10' : 'border-gray-400/60 hover:bg-gray-100'}`}
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] ${isAgent ? "border-white/60 hover:bg-white/10" : "border-gray-400/60 hover:bg-gray-100"}`}
                             onClick={async () => {
                               // POST は安全のためコピー用の curl をクリップボードへ、GET は新しいタブで開く
-                              const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                              const url = a.url || '';
-                              const full = url.startsWith('http') ? url : origin + url;
-                              if ((a.method || 'GET') === 'GET') {
-                                window.open(full, '_blank', 'noopener,noreferrer');
+                              const origin =
+                                typeof window !== "undefined"
+                                  ? window.location.origin
+                                  : "";
+                              const url = a.url || "";
+                              const full = url.startsWith("http")
+                                ? url
+                                : origin + url;
+                              if ((a.method || "GET") === "GET") {
+                                window.open(
+                                  full,
+                                  "_blank",
+                                  "noopener,noreferrer",
+                                );
                                 return;
                               }
-                              const curl = `curl -si -X ${a.method || 'POST'} \n  '${full}' \\n+  -H 'Content-Type: application/json' \\n+  -H 'x-internal-token: <INTERNAL_API_TOKEN>' \\n+  --data '${JSON.stringify(a.body ?? {}, null, 0)}'`;
-                              try { await navigator.clipboard.writeText(curl); } catch {}
+                              const curl = `curl -si -X ${a.method || "POST"} \n  '${full}' \\n+  -H 'Content-Type: application/json' \\n+  -H 'x-internal-token: <INTERNAL_API_TOKEN>' \\n+  --data '${JSON.stringify(a.body ?? {}, null, 0)}'`;
+                              try {
+                                await navigator.clipboard.writeText(curl);
+                              } catch {}
                             }}
                           >
                             {a.label}
@@ -235,12 +271,35 @@ const ChatBox: React.FC<ChatBoxProps> = ({ messages, onReply, currentUserId, onD
             style={{ left: menu.x, top: menu.y }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm" onClick={doReply}>リプライ</button>
-            <button className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm" onClick={doCopy}>コピー</button>
-            {menu.message && currentUserId && menu.message.user_id === currentUserId && onDeleteMessage && (
-              <button className="w-full text-left px-3 py-2 hover:bg-red-50 text-sm text-red-600" onClick={doDelete}>削除</button>
-            )}
-            <button className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm" onClick={() => setMenu((m) => ({ ...m, open: false }))}>キャンセル</button>
+            <button
+              className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+              onClick={doReply}
+            >
+              リプライ
+            </button>
+            <button
+              className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+              onClick={doCopy}
+            >
+              コピー
+            </button>
+            {menu.message &&
+              currentUserId &&
+              menu.message.user_id === currentUserId &&
+              onDeleteMessage && (
+                <button
+                  className="w-full text-left px-3 py-2 hover:bg-red-50 text-sm text-red-600"
+                  onClick={doDelete}
+                >
+                  削除
+                </button>
+              )}
+            <button
+              className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+              onClick={() => setMenu((m) => ({ ...m, open: false }))}
+            >
+              キャンセル
+            </button>
           </div>
         </div>
       )}

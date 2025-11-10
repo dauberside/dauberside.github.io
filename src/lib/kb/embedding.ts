@@ -3,16 +3,16 @@
  * Supports both OpenAI embeddings and local hash-based embeddings
  */
 
-const OPENAI_MODEL = process.env.KB_EMBEDDING_MODEL || 'text-embedding-3-small';
-const EMBED_MODE = (process.env.KB_EMBED_MODE || 'openai').toLowerCase();
-const EMBED_DIM = parseInt(process.env.KB_EMBED_DIM || '256', 10);
+const OPENAI_MODEL = process.env.KB_EMBEDDING_MODEL || "text-embedding-3-small";
+const EMBED_MODE = (process.env.KB_EMBED_MODE || "openai").toLowerCase();
+const EMBED_DIM = parseInt(process.env.KB_EMBED_DIM || "256", 10);
 
 // --- Local hash-based embedding (no external API, no data egress) ---
 
 function tokenize(s: string): string[] {
-  return (s || '')
+  return (s || "")
     .toLowerCase()
-    .replace(/[\u0000-\u001f]/g, ' ')
+    .replace(/[\u0000-\u001f]/g, " ")
     .split(/[^a-z0-9]+/i)
     .filter(Boolean);
 }
@@ -56,20 +56,20 @@ function hashEmbed(text: string, dim = 256): number[] {
 
 async function openaiEmbed(text: string): Promise<number[]> {
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('missing OPENAI_API_KEY');
+    throw new Error("missing OPENAI_API_KEY");
   }
 
-  const res = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
+  const res = await fetch("https://api.openai.com/v1/embeddings", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({ model: OPENAI_MODEL, input: text }),
   });
 
   if (!res.ok) {
-    const t = await res.text().catch(() => '');
+    const t = await res.text().catch(() => "");
     throw new Error(`Embeddings failed: HTTP ${res.status} ${t}`);
   }
 
@@ -86,7 +86,7 @@ async function openaiEmbed(text: string): Promise<number[]> {
  * - 'openai': OpenAI embeddings API (default)
  */
 export async function embedQuery(text: string): Promise<number[]> {
-  if (EMBED_MODE === 'hash') {
+  if (EMBED_MODE === "hash") {
     return hashEmbed(text, EMBED_DIM);
   }
 
@@ -105,4 +105,24 @@ export function getEmbedMode(): string {
  */
 export function getEmbedDim(): number {
   return EMBED_DIM;
+}
+
+/**
+ * Batch embed multiple texts
+ * @param texts Array of texts to embed
+ * @returns Array of embedding vectors
+ */
+export async function embedBatch(texts: string[]): Promise<number[][]> {
+  if (EMBED_MODE === "hash") {
+    // Hash mode can process all at once
+    return texts.map((text) => hashEmbed(text, EMBED_DIM));
+  }
+
+  // OpenAI mode - process one by one to avoid rate limits
+  const embeddings: number[][] = [];
+  for (const text of texts) {
+    const embedding = await openaiEmbed(text);
+    embeddings.push(embedding);
+  }
+  return embeddings;
 }

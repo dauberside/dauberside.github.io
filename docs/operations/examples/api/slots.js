@@ -21,7 +21,8 @@ module.exports = async function handler(req, res) {
 
   if (duration !== undefined) {
     const allowed = new Set([15, 30, 45, 60]);
-    const dur = typeof duration === "string" ? parseInt(duration, 10) : duration;
+    const dur =
+      typeof duration === "string" ? parseInt(duration, 10) : duration;
     if (!allowed.has(dur)) {
       return res.status(400).json({ message: "Invalid duration" });
     }
@@ -38,14 +39,25 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  const SITE_TZ = typeof tz === "string" && tz ? tz : process.env.SITE_TZ || "Asia/Tokyo";
-  const durationMin = duration !== undefined ? (typeof duration === "string" ? parseInt(duration, 10) : duration) : 30;
+  const SITE_TZ =
+    typeof tz === "string" && tz ? tz : process.env.SITE_TZ || "Asia/Tokyo";
+  const durationMin =
+    duration !== undefined
+      ? typeof duration === "string"
+        ? parseInt(duration, 10)
+        : duration
+      : 30;
 
   const anchorDate = (() => {
     if (typeof date === "string" && date) return date;
     const now = new Date();
     try {
-      const parts = new Intl.DateTimeFormat("en-CA", { timeZone: SITE_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: SITE_TZ,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(now);
       const y = parts.find((p) => p.type === "year")?.value;
       const m = parts.find((p) => p.type === "month")?.value;
       const d = parts.find((p) => p.type === "day")?.value;
@@ -58,7 +70,9 @@ module.exports = async function handler(req, res) {
   })();
 
   function toIsoZ(dateStr, h, min) {
-    return new Date(`${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`).toISOString();
+    return new Date(
+      `${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`,
+    ).toISOString();
   }
 
   function generateDefaultSlots(dateStr, durMin) {
@@ -70,7 +84,10 @@ module.exports = async function handler(req, res) {
       const sm = t % 60;
       const eh = Math.floor((t + durMin) / 60);
       const em = (t + durMin) % 60;
-      slots.push({ start: toIsoZ(dateStr, sh, sm), end: toIsoZ(dateStr, eh, em) });
+      slots.push({
+        start: toIsoZ(dateStr, sh, sm),
+        end: toIsoZ(dateStr, eh, em),
+      });
     }
     return slots;
   }
@@ -80,13 +97,23 @@ module.exports = async function handler(req, res) {
     const timeMin = new Date(`${anchorDate}T00:00:00.000Z`).toISOString();
     const timeMax = new Date(`${anchorDate}T23:59:59.999Z`).toISOString();
     const mod = await import("../../../../src/lib/gcal");
-    if (mod && typeof mod.listGoogleCalendarEvents === "function" && process.env.GC_CALENDAR_ID) {
-      events = await mod.listGoogleCalendarEvents({ calendarId: process.env.GC_CALENDAR_ID, timeMin, timeMax, maxResults: 50 });
+    if (
+      mod &&
+      typeof mod.listGoogleCalendarEvents === "function" &&
+      process.env.GC_CALENDAR_ID
+    ) {
+      events = await mod.listGoogleCalendarEvents({
+        calendarId: process.env.GC_CALENDAR_ID,
+        timeMin,
+        timeMax,
+        maxResults: 50,
+      });
     }
   } catch {}
 
   const allSlots = generateDefaultSlots(anchorDate, durationMin);
-  if (!events || events.length === 0) return res.status(200).json({ slots: allSlots });
+  if (!events || events.length === 0)
+    return res.status(200).json({ slots: allSlots });
 
   function parseEventTime(part) {
     if (!part) return null;
@@ -99,7 +126,10 @@ module.exports = async function handler(req, res) {
   }
 
   const busy = events
-    .map((ev) => ({ start: parseEventTime(ev.start), end: parseEventTime(ev.end) }))
+    .map((ev) => ({
+      start: parseEventTime(ev.start),
+      end: parseEventTime(ev.end),
+    }))
     .filter((x) => typeof x.start === "number" && typeof x.end === "number");
 
   const available = allSlots.filter((s) => {
