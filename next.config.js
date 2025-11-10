@@ -39,7 +39,8 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {},
+  experimental: {
+  },
 };
 
 module.exports = nextConfig;

@@ -1,6 +1,6 @@
 # 要件定義（Requirements）インデックス
 
-最終更新: 2025-11-09
+最終更新: 2025-10-29
 
 本リポジトリの要件定義書を横断的に参照できるインデックスです。過去の要件定義との整合性を保つため、下記の“不変条件”を全ドキュメントの前提に統一しました。
 
@@ -18,16 +18,10 @@
     - `NEXT_PUBLIC_HIDE_SPEC_OUTPUT=1|0`（仕様/ADR/Context Capsule 様式の出力を UI から隠す）
 - OpenAI Agents SDK 要件定義: [openai-agents-sdk.md](./openai-agents-sdk.md)
 - KB（最小RAG）要件定義: [kb.md](./kb.md)
-- Obsidian統合 要件定義: [obsidian.md](./obsidian.md)
-  - Obsidian Local REST API連携
-  - HTTPS接続・自己署名証明書対応
-  - KB Buildでの絶対パス対応
 - ホットパス最適化（Direct Agent Path）: [hot-path-optimization.md](./hot-path-optimization.md)
 - BASIC 認証要件定義: [basic-auth.md](./basic-auth.md)
 - サービス運用（PM2/ポート/CORS）: [services.md](./services.md)
 - 開発環境（Dev/本番・ポート/CI）: [dev-environment.md](./dev-environment.md)
-- n8n 要件定義: [n8n.md](./n8n.md)
-- Tailscale 要件定義: [tailscale.md](./tailscale.md)
 - LangChain（参考・Deferred）: [langchain.md](./langchain.md)
 
 ## 補助サービス / 実行基盤（最新）

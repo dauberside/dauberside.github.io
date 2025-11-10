@@ -1,58 +1,11 @@
-version: "3.9"
+# Docker Compose 簡素版（プラン A: 最小構成）
+# KB API と MCP HTTP サーバーを削除し、n8n のみを保持
+# KB 検索と Obsidian 操作は Next.js API (/api/kb/*, /api/obsidian/*) 経由で実行
 
 services:
-  kb-api:
-    build:
-      context: ./services/kb-api
-      dockerfile: Dockerfile
-    container_name: kb-api
-    environment:
-      - NODE_ENV=production
-      - PORT=4040
-      - KB_API_PORT=4040
-      # Mounts ./kb -> /app/kb; default relative resolve also works, but we pin the path
-      - KB_INDEX_PATH=/app/kb/index/embeddings.json
-      - KB_EMBED_MODE=${KB_EMBED_MODE:-hash}
-      - KB_EMBED_DIM=${KB_EMBED_DIM:-256}
-      - KB_API_MOCK=${KB_API_MOCK:-0}
-      - KB_API_TOKEN=${KB_API_TOKEN:-}
-      - KB_API_BASIC=${KB_API_BASIC:-0}
-      - ADMIN_BASIC_USERS=${ADMIN_BASIC_USERS:-}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
-    volumes:
-      - ./kb:/app/kb:ro
-    expose:
-      - "4040"
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:4040/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-    restart: unless-stopped
-
-  mcp:
-    image: node:20-alpine
-    working_dir: /app
-    command: ["node", "services/mcp/server.mjs"]
-    ports:
-      - "5050:5050"
-    environment:
-      - TZ=Asia/Tokyo
-      - MCP_API_TOKEN=${MCP_API_TOKEN:-dev-token}
-      - KB_API_URL=${KB_API_URL:-http://kb-api:4040}
-      - ALLOWED_ORIGINS=*
-    volumes:
-      - ./:/app
-    restart: unless-stopped
-    # depends_on:
-    #   - kb-api
-
   n8n:
     image: n8nio/n8n:1.116.2
     container_name: n8n
-    depends_on:
-      mcp:
-        condition: service_started
     environment:
       - TZ=Asia/Tokyo
       - GENERIC_TIMEZONE=Asia/Tokyo
@@ -71,9 +24,9 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-0}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-}
-      # Pass MCP endpoint/token into n8n (usable via {{$env.MCP_API_URL}} etc.)
-      - MCP_API_URL=http://mcp:5050
-      - MCP_API_TOKEN=${MCP_API_TOKEN:-}
+      # Next.js API endpoints (n8n から直接アクセス)
+      - NEXT_API_URL=http://host.docker.internal:3001
+      - INTERNAL_API_TOKEN=${INTERNAL_API_TOKEN:-}
       # Google Calendar credentials for workflows
       - GC_CLIENT_ID=${GC_CLIENT_ID:-}
       - GC_CLIENT_SECRET=${GC_CLIENT_SECRET:-}

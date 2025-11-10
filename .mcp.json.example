@@ -1,5 +1,15 @@
 {
   "mcpServers": {
+    "dauberside": {
+      "command": "node",
+      "args": ["/Volumes/Extreme Pro/dauberside.github.io-1/services/mcp/stdio-bridge.mjs"],
+      "env": {
+        "NEXT_API_URL": "http://localhost:3001",
+        "OBSIDIAN_API_URL": "https://127.0.0.1:8445",
+        "OBSIDIAN_API_KEY": "your-obsidian-api-key-here",
+        "INTERNAL_API_TOKEN": "your-internal-api-token-here"
+      }
+    },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],

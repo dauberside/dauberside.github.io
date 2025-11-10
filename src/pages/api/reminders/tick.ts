@@ -8,7 +8,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { claimReminder, kvAvailable, listDueReminders } from "@/lib/kv";
 import { pushText } from "@/lib/line";
-import { processDueReminders } from "@/lib/smart-reminder-engine";
+import {
+  processDueReminders,
+} from "@/lib/smart-reminder-engine";
 
 export default async function handler(
   req: NextApiRequest,

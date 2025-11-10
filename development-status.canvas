@@ -101,6 +101,18 @@
       "color": "3"
     }
   ],
+  "nodes:addendum": [
+    {
+      "id": "viz-notes",
+      "type": "text",
+      "text": "## 可視化の読み方 / 現状サマリー\n\n### 読み方\n- 各ブロックは領域別（MCP, セキュリティ, Agent, KB/Obsidian, Docs, CI/CD, メタ）\n- エッジは依存/連携（例: Agent → KB は拡張検索の利用）\n- 色の目安: 1=MCP, 2=Agent, 3=KB, 4=Docs, 5=Security, 6=Meta\n\n### 現状サマリー\n- MCP統合: `.mcp.json` は未配置。HTTPスケルトン(services/mcp)はあり。→ 次: `.mcp.json` 追加と Obsidian/Next への proxy 追記\n- セキュリティ: site-wide noindex/robots OK。Middleware で IP/BASIC 可。→ 次: .env 秘密値のローテーション & 履歴除去、ingest レート制限\n- Agent System: 直結/ワークフロー系 API あり。→ 次: Hot Path の遅延計測・メトリクス可視化\n- KB + Obsidian: 差分・チャンク・埋め込み(hash/OpenAI)・永続化実装済。→ 次: テスト/冪等・index バージョン/Integrity Hash\n- Docs: Claude Code セットアップ追加。→ 次: obsidian-ingest.md / adaptation plan / mapping 反映\n- CI/CD: lint/type/test/build/secret-scan/preview-smoke あり。→ 次: kb-smoke（ingest の最小検証）と secret-scan 強化\n\n### メモ\n- 運用は hash 埋め込みが既定 (KB_EMBED_MODE=hash)。OpenAI へ切替可能。\n- Obsidian API はローカルプラグイン前提。Docker MCP を使う場合は `host.docker.internal` + 27123 を想定（要 README 確認）。",
+      "x": 980,
+      "y": -650,
+      "width": 460,
+      "height": 520,
+      "color": "6"
+    }
+  ],
   "edges": [
     {
       "id": "edge-1",

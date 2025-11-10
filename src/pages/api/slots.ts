@@ -45,9 +45,7 @@ export default async function handler(
   let durationMin: number | undefined;
   if (duration !== undefined) {
     const allowed = new Set([15, 30, 45, 60]);
-    const d = Array.isArray(duration)
-      ? parseInt(duration[0], 10)
-      : parseInt(String(duration), 10);
+    const d = Array.isArray(duration) ? parseInt(duration[0], 10) : parseInt(String(duration), 10);
     if (!allowed.has(d)) {
       return res.status(400).json({ message: "Invalid duration" });
     }
@@ -66,8 +64,7 @@ export default async function handler(
     }
   }
 
-  const SITE_TZ =
-    typeof tz === "string" && tz ? tz : process.env.SITE_TZ || "Asia/Tokyo";
+  const SITE_TZ = typeof tz === "string" && tz ? tz : process.env.SITE_TZ || "Asia/Tokyo";
   const durMin = durationMin ?? 30;
 
   // Resolve anchor date
@@ -93,9 +90,7 @@ export default async function handler(
   })();
 
   const toIsoZ = (dateStr: string, h: number, min: number) => {
-    return new Date(
-      `${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`,
-    ).toISOString();
+    return new Date(`${dateStr}T${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}:00.000Z`).toISOString();
   };
 
   const generateDefaultSlots = (dateStr: string, minutes: number): Slot[] => {
@@ -107,10 +102,7 @@ export default async function handler(
       const sm = t % 60;
       const eh = Math.floor((t + minutes) / 60);
       const em = (t + minutes) % 60;
-      slots.push({
-        start: toIsoZ(anchorDate, sh, sm),
-        end: toIsoZ(anchorDate, eh, em),
-      });
+      slots.push({ start: toIsoZ(anchorDate, sh, sm), end: toIsoZ(anchorDate, eh, em) });
     }
     return slots;
   };
@@ -121,16 +113,9 @@ export default async function handler(
     const timeMin = new Date(`${anchorDate}T00:00:00.000Z`).toISOString();
     const timeMax = new Date(`${anchorDate}T23:59:59.999Z`).toISOString();
     const mod = await import("../../lib/gcal");
-    const list = (mod as any)?.listGoogleCalendarEvents as (
-      args: any,
-    ) => Promise<GCalEvent[]>;
+    const list = (mod as any)?.listGoogleCalendarEvents as (args: any) => Promise<GCalEvent[]>;
     if (typeof list === "function" && process.env.GC_CALENDAR_ID) {
-      events = await list({
-        calendarId: process.env.GC_CALENDAR_ID,
-        timeMin,
-        timeMax,
-        maxResults: 50,
-      });
+      events = await list({ calendarId: process.env.GC_CALENDAR_ID, timeMin, timeMax, maxResults: 50 });
     }
   } catch {
     // ignore
@@ -148,22 +133,12 @@ export default async function handler(
     return null as number | null;
   };
 
-  const overlaps = (
-    aStartMs: number,
-    aEndMs: number,
-    bStartMs: number,
-    bEndMs: number,
-  ) => aStartMs < bEndMs && bStartMs < aEndMs;
+  const overlaps = (aStartMs: number, aEndMs: number, bStartMs: number, bEndMs: number) =>
+    aStartMs < bEndMs && bStartMs < aEndMs;
 
   const busy = events
-    .map((ev) => ({
-      start: parseEventTime(ev.start),
-      end: parseEventTime(ev.end),
-    }))
-    .filter(
-      (x): x is { start: number; end: number } =>
-        typeof x.start === "number" && typeof x.end === "number",
-    );
+    .map((ev) => ({ start: parseEventTime(ev.start), end: parseEventTime(ev.end) }))
+    .filter((x): x is { start: number; end: number } => typeof x.start === "number" && typeof x.end === "number");
 
   const available = allSlots.filter((s) => {
     const st = Date.parse(s.start);

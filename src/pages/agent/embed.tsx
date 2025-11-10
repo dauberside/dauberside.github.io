@@ -1,10 +1,9 @@
-import Head from "next/head";
-import React from "react";
-
-import ChatBox from "@/components/chat/ChatBox";
-import ChatInput from "@/components/chat/ChatInput";
-import { sendToAgent } from "@/lib/chat/service";
-import type { Message } from "@/types/chat";
+import React from 'react';
+import Head from 'next/head';
+import ChatBox from '@/components/chat/ChatBox';
+import ChatInput from '@/components/chat/ChatInput';
+import type { Message } from '@/types/chat';
+import { sendToAgent } from '@/lib/chat/service';
 
 /**
  * Embeddable chat page for iframe usage.
@@ -17,14 +16,14 @@ export default function AgentEmbedPage() {
   const [loading, setLoading] = React.useState(false);
   const [replyTo, setReplyTo] = React.useState<Message | null>(null);
   const [error, setError] = React.useState<string | null>(null);
-  const [username, setUsername] = React.useState<string>("You");
+  const [username, setUsername] = React.useState<string>('You');
 
   // Read ?test=1 from query to route to n8n test webhook during development
   const [useTestWebhook, setUseTestWebhook] = React.useState<boolean>(false);
   React.useEffect(() => {
     try {
       const u = new URL(window.location.href);
-      setUseTestWebhook(u.searchParams.get("test") === "1");
+      setUseTestWebhook(u.searchParams.get('test') === '1');
     } catch {}
   }, []);
 
@@ -32,76 +31,52 @@ export default function AgentEmbedPage() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const postHeight = () => {
-      const h =
-        containerRef.current?.scrollHeight || document.body.scrollHeight || 0;
-      try {
-        window.parent.postMessage(
-          { type: "agent-embed:height", height: h },
-          "*",
-        );
-      } catch {}
+      const h = containerRef.current?.scrollHeight || document.body.scrollHeight || 0;
+      try { window.parent.postMessage({ type: 'agent-embed:height', height: h }, '*'); } catch {}
     };
     postHeight();
     const id = setInterval(postHeight, 500);
     return () => clearInterval(id);
   }, [messages, loading]);
 
-  const onSendMessage = React.useCallback(
-    async (
-      text: string,
-      options?: { replyTo?: Message; file?: File | null },
-    ) => {
-      if (!text.trim()) return;
-      setError(null);
-      const now = new Date().toISOString();
-      const userMsg: Message = {
-        id: Date.now(),
-        created_at: now,
-        content: text,
-        user_id: "user",
-        username: username || "You",
-        replyTo: options?.replyTo,
+  const onSendMessage = React.useCallback(async (text: string, options?: { replyTo?: Message; file?: File | null }) => {
+    if (!text.trim()) return;
+    setError(null);
+    const now = new Date().toISOString();
+    const userMsg: Message = {
+      id: Date.now(),
+      created_at: now,
+      content: text,
+      user_id: 'user',
+      username: username || 'You',
+      replyTo: options?.replyTo,
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+    try {
+      const { output_text, raw } = await sendToAgent(text, { test: useTestWebhook, kbSnippets: [], file: options?.file || null });
+      const agentMsg: Message = {
+        id: Date.now() + 1,
+        created_at: new Date().toISOString(),
+        content: output_text,
+        user_id: 'agent',
+        username: 'Agent',
+        kbRefs: SHOW_KB_REFS ? [] : undefined,
+        actions: Array.isArray(raw?.actions) ? raw.actions.slice(0, 5) : undefined,
       };
-      setMessages((prev) => [...prev, userMsg]);
-      setLoading(true);
-      try {
-        const { output_text, raw } = await sendToAgent(text, {
-          test: useTestWebhook,
-          kbSnippets: [],
-          file: options?.file || null,
-        });
-        const agentMsg: Message = {
-          id: Date.now() + 1,
-          created_at: new Date().toISOString(),
-          content: output_text,
-          user_id: "agent",
-          username: "Agent",
-          kbRefs: SHOW_KB_REFS ? [] : undefined,
-          actions: Array.isArray(raw?.actions)
-            ? raw.actions.slice(0, 5)
-            : undefined,
-        };
-        setMessages((prev) => [...prev, agentMsg]);
-      } catch (err: any) {
-        const msg = String(err?.message || "request failed");
-        setError(msg);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now() + 1,
-            created_at: new Date().toISOString(),
-            content: msg,
-            user_id: "agent",
-            username: "Agent",
-          },
-        ]);
-      } finally {
-        setLoading(false);
-        setReplyTo(null);
-      }
-    },
-    [useTestWebhook, username],
-  );
+      setMessages((prev) => [...prev, agentMsg]);
+    } catch (err: any) {
+      const msg = String(err?.message || 'request failed');
+      setError(msg);
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, created_at: new Date().toISOString(), content: msg, user_id: 'agent', username: 'Agent' },
+      ]);
+    } finally {
+      setLoading(false);
+      setReplyTo(null);
+    }
+  }, [useTestWebhook, username]);
 
   return (
     <div ref={containerRef} className="min-h-[420px] w-full bg-transparent">
@@ -119,7 +94,7 @@ export default function AgentEmbedPage() {
           replyTo={replyTo}
           onCancelReply={() => setReplyTo(null)}
         />
-        {process.env.NODE_ENV !== "production" && (
+        {process.env.NODE_ENV !== 'production' && (
           <div className="mt-2 text-[11px] text-white/60">
             Embed: 右上のURLに `?test=1` を付けると n8n の Test URL に送ります。
           </div>

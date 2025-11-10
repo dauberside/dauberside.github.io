@@ -1,14 +1,10 @@
 import React, { useCallback, useRef, useState } from "react";
-
 import type { Message } from "@/types/chat";
 
 interface ChatInputProps {
   username: string;
   onUsernameChange: (username: string) => void;
-  onSendMessage: (
-    text: string,
-    options?: { replyTo?: Message; file?: File | null },
-  ) => void;
+  onSendMessage: (text: string, options?: { replyTo?: Message; file?: File | null }) => void;
   isLoading?: boolean;
   replyTo?: Message | null;
   onCancelReply?: () => void;
@@ -54,13 +50,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     [],
   );
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-      setFile(f);
-    },
-    [],
-  );
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setFile(f);
+  }, []);
 
   const clearFile = useCallback(() => setFile(null), []);
 
@@ -71,8 +64,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           <div className="text-xs">
             <div className="font-semibold mb-1">引用</div>
             <div className="opacity-80">
-              ↪︎ {replyTo.username || "Anonymous"}:{" "}
-              {replyTo.content.slice(0, 100)}
+              ↪︎ {replyTo.username || "Anonymous"}: {replyTo.content.slice(0, 100)}
               {replyTo.content.length > 100 ? "…" : ""}
             </div>
           </div>
@@ -143,14 +135,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         </div>
         {file && (
           <div className="mt-1 text-xs text-black flex items-center justify-between bg-gray-50 border border-gray-300 rounded p-2">
-            <div className="truncate">
-              選択中: {file.name} ({Math.round(file.size / 1024)} KB)
-            </div>
-            <button
-              type="button"
-              className="text-blue-700 underline ml-2"
-              onClick={clearFile}
-            >
+            <div className="truncate">選択中: {file.name} ({Math.round(file.size/1024)} KB)</div>
+            <button type="button" className="text-blue-700 underline ml-2" onClick={clearFile}>
               クリア
             </button>
           </div>

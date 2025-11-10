@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run CI pipeline (skip tests temporarily due to Babel parser issue)
-        run: pnpm lint && pnpm typecheck && pnpm build
+      - name: Run CI pipeline
+        run: pnpm run ci
 
   # spec-validator job removed (spec/ directory retired)
