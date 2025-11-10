@@ -32,12 +32,12 @@ open ~/Library/Application\ Support/Claude/claude_desktop_config.json
   "mcpServers": {
     "dauberside": {
       "command": "node",
-      "args": ["/Volumes/Extreme Pro/dauberside.github.io-1/services/mcp/stdio-bridge.mjs"],
+      "args": ["/ABSOLUTE/PATH/TO/dauberside.github.io-1/services/mcp/stdio-bridge.mjs"],
       "env": {
         "NEXT_API_URL": "http://localhost:3001",
         "OBSIDIAN_API_URL": "https://127.0.0.1:8445",
-        "OBSIDIAN_API_KEY": "270cc55355f7e4747e643100df3f121cf1360d8c191c92d5765f24962db88e66",
-        "INTERNAL_API_TOKEN": "77dfaeac7af352007c6b2acad3d8d7395eb309ace9a6c102479fd690a6594fe5"
+        "OBSIDIAN_API_KEY": "YOUR_OBSIDIAN_API_KEY_FROM_DOT_ENV_LOCAL",
+        "INTERNAL_API_TOKEN": "YOUR_INTERNAL_API_TOKEN_FROM_DOT_ENV_LOCAL"
       }
     }
   }
@@ -45,8 +45,9 @@ open ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 **重要**：
-- `args` のパスは**絶対パス**で指定してください
-- `OBSIDIAN_API_KEY` と `INTERNAL_API_TOKEN` は `.env.local` から取得してください
+- `args` のパスは**絶対パス**で指定してください（プロジェクトルートの実際のパスに置き換え）
+- `OBSIDIAN_API_KEY` と `INTERNAL_API_TOKEN` は **`.env.local` ファイルから取得した実際の値に置き換えてください**
+- **この設定ファイルには機密情報が含まれます。Git にコミットしないでください**
 
 ### 2. Claude Desktop を再起動
 
