@@ -1,0 +1,172 @@
+{
+  "nodes": [
+    {
+      "id": "project-root",
+      "type": "text",
+      "text": "# dauberside.github.io\n\n**Branch**: chore/agentbuilder-ci-smoke\n**Base**: master\n\n現在の開発フェーズ",
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 200,
+      "color": "6"
+    },
+    {
+      "id": "mcp-integration",
+      "type": "text",
+      "text": "## MCP統合\n\n- .mcp.json設定\n- Obsidian MCP server\n- GitHub MCP server\n- IDE integration",
+      "x": -600,
+      "y": -400,
+      "width": 300,
+      "height": 250,
+      "color": "1"
+    },
+    {
+      "id": "security",
+      "type": "text",
+      "text": "## セキュリティ/プライバシー\n\n- Site-wide noindex (X-Robots-Tag)\n- robots.txt Disallow:/\n- Docker Compose setup\n- Protected routes (IP allowlist + BASIC auth)\n- Token secrecy enforcement",
+      "x": 500,
+      "y": -400,
+      "width": 350,
+      "height": 280,
+      "color": "5"
+    },
+    {
+      "id": "agent-system",
+      "type": "text",
+      "text": "## Agent System\n\n### Direct Path (Hot Path)\n- `/api/agent/direct`\n- Low latency execution\n- KB augmentation\n\n### Workflow Path\n- `/api/agent/workflow`\n- n8n integration\n- Complex orchestration",
+      "x": -600,
+      "y": 300,
+      "width": 320,
+      "height": 320,
+      "color": "2"
+    },
+    {
+      "id": "kb-obsidian",
+      "type": "text",
+      "text": "## KB + Obsidian統合\n\n- Embedding system (OpenAI/hash mode)\n- Delta detection (SHA256)\n- Obsidian vault ingestion\n- `/api/obsidian/ingest`\n- Incremental KB builds",
+      "x": 500,
+      "y": 300,
+      "width": 350,
+      "height": 280,
+      "color": "3"
+    },
+    {
+      "id": "docs",
+      "type": "text",
+      "text": "## ドキュメント整備\n\n### Requirements\n- README with invariants\n- hot-path-optimization.md\n- n8n.md, obsidian.md\n\n### Operations\n- MCP setup guides\n- Claude Code workflows\n- OpenAPI specs\n\n### Decisions\n- ADR-0002 (hot path)",
+      "x": -200,
+      "y": -700,
+      "width": 350,
+      "height": 350,
+      "color": "4"
+    },
+    {
+      "id": "ci-cd",
+      "type": "text",
+      "text": "## CI/CD\n\n- AgentBuilder pipelines\n- Preview smoke workflow\n- Secret scanning\n- Validation gates:\n  - typecheck\n  - lint\n  - test\n  - build",
+      "x": -200,
+      "y": 700,
+      "width": 300,
+      "height": 280,
+      "color": "1"
+    },
+    {
+      "id": "recent-commits",
+      "type": "text",
+      "text": "## 最近のコミット\n\n1. **aa796737**: sitewide noindex + docker-compose\n2. **31938ce4**: hide spec output + KB hash-embed\n3. **30e5c789**: something\n4. **0f820711**: AgentBuilder pipelines\n5. **c1ef342f**: preview smoke workflow",
+      "x": 200,
+      "y": -50,
+      "width": 450,
+      "height": 250,
+      "color": "6"
+    },
+    {
+      "id": "modified-files",
+      "type": "text",
+      "text": "## 主要な変更ファイル\n\n### Core Libraries\n- src/lib/ai.ts\n- src/lib/chat/\n- src/lib/kb/\n- src/lib/agent/\n- src/lib/obsidian.ts\n\n### API Routes\n- src/pages/api/agent/\n- src/pages/api/obsidian/\n- src/pages/api/webhook.ts\n\n### Config\n- next.config.js\n- jest.config.js\n- docker-compose.yml",
+      "x": -650,
+      "y": -50,
+      "width": 400,
+      "height": 350,
+      "color": "2"
+    },
+    {
+      "id": "new-files",
+      "type": "text",
+      "text": "## 新規ファイル\n\n- .mcp.json (MCP config)\n- CLAUDE.md (project guide)\n- scripts/claude.sh\n- spec/ (specifications)\n- src/lib/agent/direct/\n- src/lib/kb/embedding.ts\n- src/lib/obsidian.ts\n- docs/operations/workflows/\n- docs/operations/openapi/",
+      "x": 200,
+      "y": 700,
+      "width": 350,
+      "height": 320,
+      "color": "3"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "fromNode": "project-root",
+      "fromSide": "left",
+      "toNode": "mcp-integration",
+      "toSide": "right"
+    },
+    {
+      "id": "edge-2",
+      "fromNode": "project-root",
+      "fromSide": "right",
+      "toNode": "security",
+      "toSide": "left"
+    },
+    {
+      "id": "edge-3",
+      "fromNode": "project-root",
+      "fromSide": "bottom",
+      "toNode": "agent-system",
+      "toSide": "top"
+    },
+    {
+      "id": "edge-4",
+      "fromNode": "project-root",
+      "fromSide": "bottom",
+      "toNode": "kb-obsidian",
+      "toSide": "top"
+    },
+    {
+      "id": "edge-5",
+      "fromNode": "project-root",
+      "fromSide": "top",
+      "toNode": "docs",
+      "toSide": "bottom"
+    },
+    {
+      "id": "edge-6",
+      "fromNode": "project-root",
+      "fromSide": "bottom",
+      "toNode": "ci-cd",
+      "toSide": "top"
+    },
+    {
+      "id": "edge-7",
+      "fromNode": "mcp-integration",
+      "fromSide": "bottom",
+      "toNode": "kb-obsidian",
+      "toSide": "left",
+      "label": "Obsidian MCP"
+    },
+    {
+      "id": "edge-8",
+      "fromNode": "agent-system",
+      "fromSide": "right",
+      "toNode": "kb-obsidian",
+      "toSide": "left",
+      "label": "KB augmentation"
+    },
+    {
+      "id": "edge-9",
+      "fromNode": "docs",
+      "fromSide": "right",
+      "toNode": "security",
+      "toSide": "top",
+      "label": "requirements"
+    }
+  ]
+}

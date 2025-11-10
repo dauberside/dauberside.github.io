@@ -83,3 +83,8 @@ package-lock.json
 *.tsbuildinfo
 # env
 .env*
+.env.local
+
+# MCP local configuration (private, not version controlled)
+.mcp.local.json
+.mcp.json

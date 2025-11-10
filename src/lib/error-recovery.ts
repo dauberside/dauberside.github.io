@@ -302,10 +302,8 @@ export class ErrorRecoveryManager {
     // Generate recovery actions based on error type and context
     const recoveryActions = await this.generateRecoveryActions(error, context);
 
-    // Try automated recovery actions first (only RETRY is auto-executed)
-    for (const action of recoveryActions.filter(
-      (a) => a.automated && a.type === RecoveryType.RETRY,
-    )) {
+    // Try automated recovery actions first
+    for (const action of recoveryActions.filter((a) => a.automated)) {
       try {
         const result = await action.execute(context);
         if (result.success) {
@@ -341,9 +339,7 @@ export class ErrorRecoveryManager {
     const actions: RecoveryAction[] = [];
 
     // Add retry action if applicable
-    const retryCfg = DEFAULT_RETRY_CONFIGS[error.type];
-    const isTypeRetriable = !!retryCfg && retryCfg.maxAttempts > 0;
-    if (error.retryable || isTypeRetriable) {
+    if (error.retryable) {
       actions.push(this.createRetryAction(error, context));
     }
 
@@ -399,26 +395,11 @@ export class ErrorRecoveryManager {
     return {
       type: RecoveryType.RETRY,
       description: `Retry operation with exponential backoff (attempt ${currentAttempts + 1}/${config.maxAttempts})`,
-      userFriendlyDescription:
-        currentAttempts < config.maxAttempts
-          ? "自動的に再試行します"
-          : "手動で再試行してください",
+      userFriendlyDescription: "自動的に再試行します",
       automated: currentAttempts < config.maxAttempts,
       riskLevel: RiskLevel.SAFE,
       estimatedSuccessRate: Math.max(0.1, 0.8 - currentAttempts * 0.2),
       execute: async (ctx: OperationContext) => {
-        if (currentAttempts >= config.maxAttempts) {
-          // Exceeded automatic attempts: return manual retry recommendation
-          return {
-            success: false,
-            message:
-              "Maximum retry attempts reached. Please retry manually later.",
-            userMessage:
-              "再試行上限に達しました。しばらく時間をおいてから手動で再試行してください。",
-            shouldRetry: false,
-          };
-        }
-
         const delay = this.calculateRetryDelay(config, currentAttempts);
         this.retryAttempts.set(attemptKey, currentAttempts + 1);
 
@@ -480,7 +461,7 @@ export class ErrorRecoveryManager {
       type: RecoveryType.RESTART_SESSION,
       description: "Restart user session",
       userFriendlyDescription: "新しいセッションを開始します",
-      automated: false,
+      automated: true,
       riskLevel: RiskLevel.LOW_RISK,
       estimatedSuccessRate: 0.95,
       execute: async (ctx: OperationContext) => {
@@ -516,7 +497,7 @@ export class ErrorRecoveryManager {
       type: RecoveryType.ALTERNATIVE_FLOW,
       description: "Suggest alternative time slots",
       userFriendlyDescription: "空いている時間帯を提案します",
-      automated: false,
+      automated: true,
       riskLevel: RiskLevel.SAFE,
       estimatedSuccessRate: 0.8,
       execute: async (ctx: OperationContext) => {
@@ -614,25 +595,16 @@ export class ErrorRecoveryManager {
    * Calculate retry delay with exponential backoff and jitter
    */
   private calculateRetryDelay(config: RetryConfig, attempt: number): number {
-    // Base delay with exponential backoff, clamped to max
-    const preJitter = Math.min(
-      config.baseDelay * Math.pow(config.backoffMultiplier, attempt),
-      config.maxDelay,
-    );
+    let delay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt);
+    delay = Math.min(delay, config.maxDelay);
 
     if (config.jitter) {
-      // Apply jitter within [-25%, +25%] around the computed delay,
-      // but clamp to a safe floor/ceiling to avoid too-small values that break expectations.
-      const jitterRange = preJitter * 0.25;
-      const jittered = preJitter + (Math.random() - 0.5) * 2 * jitterRange;
-
-      // Enforce bounds: at least 80% of the pre-jitter delay, at most 125%
-      const minDelay = preJitter * 0.8;
-      const maxDelay = preJitter * 1.25;
-      return Math.round(Math.min(Math.max(jittered, minDelay), maxDelay));
+      // Add random jitter (±25%)
+      const jitterRange = delay * 0.25;
+      delay += (Math.random() - 0.5) * 2 * jitterRange;
     }
 
-    return Math.round(preJitter);
+    return Math.round(delay);
   }
 
   /**

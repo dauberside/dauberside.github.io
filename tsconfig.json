@@ -25,9 +25,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@/lib/*": ["src/lib/*"]
-    },
-    "types": ["jest", "node", "@testing-library/jest-dom"]
+      "@/lib/*": ["src/lib/*"],
+      "@/types/*": ["src/types/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "pages/**/*.ts", "pages/**/*.tsx"],
   "exclude": [
@@ -35,6 +35,7 @@
     "src/**/__tests__/**",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "src/**/__mocks__/**"
+    "src/**/__mocks__/**",
+    "src/pages/chat.tsx"
   ]
 }

@@ -1,5 +1,5 @@
 // src/lib/smart-reminder-engine.ts
-// Clean, minimal, and compile-safe smart reminder engine to unblock tests
+// Smart reminder engine with intelligent timing and context awareness
 
 import type { ContextAdjustment } from "./context-aware-scheduler";
 import { contextAwareScheduler } from "./context-aware-scheduler";
@@ -10,26 +10,33 @@ import {
   removeReminderByEventId,
   stashPostbackPayload,
 } from "./kv";
-import { pushText } from "./line";
 import { multiStageReminderManager } from "./multi-stage-reminder";
 import type { NotificationContext } from "./notification-system";
 import { customizableNotificationSystem } from "./notification-system";
 import { getUserPreferences } from "./preferences-api";
-import { DeliveryStatus, ReminderType, ResponseType } from "./reminder-types";
 import type { EventTypeNotificationSettings } from "./user-preferences";
 import { NotificationPriority } from "./user-preferences";
 
+/**
+ * Enhanced reminder with smart features
+ */
 export interface SmartReminder {
   id: string;
   eventId: string;
   userId: string;
   groupId?: string;
+
+  // Basic reminder info
   summary: string;
   eventStart: string;
   reminderAt: number;
+
+  // Smart features
   reminderType: ReminderType;
   priority: NotificationPriority;
   customMessage?: string;
+
+  // Context information
   eventContext: EventContext;
   weatherDependent: boolean;
   trafficDependent: boolean;
@@ -37,16 +44,38 @@ export interface SmartReminder {
   contextAdjustment?: ContextAdjustment;
   isMultiStage?: boolean;
   stageId?: string;
+
+  // Delivery tracking
   deliveryStatus: DeliveryStatus;
   deliveryAttempts: number;
   lastDeliveryAttempt?: number;
+
+  // User interaction
   userResponse?: UserResponse;
   snoozeCount: number;
   snoozedUntil?: number;
+
+  // Metadata
   createdAt: number;
   updatedAt: number;
 }
 
+/**
+ * Types of smart reminders
+ */
+export enum ReminderType {
+  STANDARD = "standard",
+  PREPARATION = "preparation",
+  DEPARTURE = "departure",
+  WEATHER_ALERT = "weather_alert",
+  TRAFFIC_ALERT = "traffic_alert",
+  FOLLOW_UP = "follow_up",
+  ESCALATION = "escalation",
+}
+
+/**
+ * Event context for smart reminders
+ */
 export interface EventContext {
   location?: LocationInfo;
   attendees?: string[];
@@ -57,14 +86,23 @@ export interface EventContext {
   requiresTravel?: boolean;
 }
 
+/**
+ * Location information
+ */
 export interface LocationInfo {
   name: string;
   address?: string;
-  coordinates?: { latitude: number; longitude: number };
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   travelTimeMinutes?: number;
   transportMode?: "walking" | "driving" | "transit" | "cycling";
 }
 
+/**
+ * Weather information
+ */
 export interface WeatherInfo {
   condition: string;
   temperature: number;
@@ -74,6 +112,9 @@ export interface WeatherInfo {
   recommendation?: string;
 }
 
+/**
+ * Traffic information
+ */
 export interface TrafficInfo {
   duration: number;
   durationInTraffic: number;
@@ -83,12 +124,41 @@ export interface TrafficInfo {
   recommendation?: string;
 }
 
+/**
+ * Delivery status
+ */
+export enum DeliveryStatus {
+  PENDING = "pending",
+  SENT = "sent",
+  DELIVERED = "delivered",
+  FAILED = "failed",
+  SNOOZED = "snoozed",
+  CANCELLED = "cancelled",
+}
+
+/**
+ * User response to reminder
+ */
 export interface UserResponse {
   type: ResponseType;
   timestamp: number;
   data?: any;
 }
 
+/**
+ * Response types
+ */
+export enum ResponseType {
+  ACKNOWLEDGED = "acknowledged",
+  SNOOZED = "snoozed",
+  DISMISSED = "dismissed",
+  RESCHEDULED = "rescheduled",
+  CANCELLED = "cancelled",
+}
+
+/**
+ * Reminder timing calculation result
+ */
 export interface ReminderTiming {
   reminderAt: number;
   type: ReminderType;
@@ -97,18 +167,25 @@ export interface ReminderTiming {
   contextFactors: string[];
 }
 
+/**
+ * Smart Reminder Engine
+ */
 export class SmartReminderEngine {
   private static instance: SmartReminderEngine;
-  private readonly REMINDER_TTL = 7 * 24 * 60 * 60; // seconds
+  private readonly REMINDER_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
 
   private constructor() {}
 
   static getInstance(): SmartReminderEngine {
-    if (!SmartReminderEngine.instance)
+    if (!SmartReminderEngine.instance) {
       SmartReminderEngine.instance = new SmartReminderEngine();
+    }
     return SmartReminderEngine.instance;
   }
 
+  /**
+   * Schedule smart reminder for an event
+   */
   async scheduleSmartReminder(
     eventId: string,
     userId: string,
@@ -120,13 +197,18 @@ export class SmartReminderEngine {
       description?: string;
     },
     groupId?: string,
-    useMultiStage: boolean = false,
+    useMultiStage: boolean = true,
   ): Promise<string[]> {
     try {
+      // Get user preferences
       const preferences = await getUserPreferences(userId);
+
+      // Build event context
       const eventContext = await this.buildEventContext(eventData, preferences);
 
       let reminderIds: string[] = [];
+
+      // Use multi-stage reminders for important events or when explicitly requested
       if (
         useMultiStage &&
         (eventContext.importance === "high" ||
@@ -141,19 +223,27 @@ export class SmartReminderEngine {
               eventContext,
               groupId,
             );
-        } catch (e) {
+        } catch (error) {
+          console.error(
+            "Multi-stage reminder creation failed, falling back to standard:",
+            error,
+          );
           useMultiStage = false;
         }
       }
 
+      // Fall back to standard reminders if multi-stage is not used or failed
       if (!useMultiStage || reminderIds.length === 0) {
+        // Calculate optimal reminder timings
         const reminderTimings = await this.calculateOptimalReminderTimes(
           eventData,
           eventContext,
           preferences,
         );
+
+        // Create smart reminders for each timing
         for (const timing of reminderTimings) {
-          const id = await this.createSmartReminder(
+          const reminderId = await this.createSmartReminder(
             eventId,
             userId,
             eventData,
@@ -161,17 +251,33 @@ export class SmartReminderEngine {
             eventContext,
             groupId,
           );
-          reminderIds.push(id);
+          reminderIds.push(reminderId);
         }
       }
 
+      console.log(
+        `Scheduled ${reminderIds.length} smart reminders for event ${eventId}`,
+      );
       return reminderIds;
     } catch (error) {
-      // Tests expect a plain Error with this message
-      throw new Error("Failed to schedule smart reminder");
+      console.error("Failed to schedule smart reminder:", error);
+      throw createSystemError(
+        ErrorType.SYSTEM_ERROR,
+        "Failed to schedule smart reminder",
+        {
+          userId,
+          operationType: "schedule_reminder",
+          operationStep: "scheduling",
+          additionalData: { eventId },
+        },
+        error as Error,
+      );
     }
   }
 
+  /**
+   * Update reminders when event changes
+   */
   async updateRemindersForEvent(
     eventId: string,
     userId: string,
@@ -184,13 +290,23 @@ export class SmartReminderEngine {
     },
   ): Promise<void> {
     try {
-      // Cancel legacy/queued reminders for the event
-      await removeReminderByEventId(eventId);
-      const existing = await this.getEventReminders(eventId);
-      for (const r of existing) await this.cancelReminder(r.id);
+      // Get existing reminders
+      const existingReminders = await this.getEventReminders(eventId);
+
+      // Cancel existing reminders
+      for (const reminder of existingReminders) {
+        await this.cancelReminder(reminder.id);
+      }
+
+      // Get updated event data
       const eventData = await this.getEventData(eventId, changes);
+
+      // Schedule new reminders with updated data
       await this.scheduleSmartReminder(eventId, userId, eventData);
+
+      console.log(`Updated reminders for event ${eventId}`);
     } catch (error) {
+      console.error("Failed to update reminders:", error);
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to update reminders",
@@ -205,12 +321,23 @@ export class SmartReminderEngine {
     }
   }
 
+  /**
+   * Cancel all reminders for an event
+   */
   async cancelRemindersForEvent(eventId: string): Promise<void> {
     try {
+      // Remove from KV reminder system
       await removeReminderByEventId(eventId);
+
+      // Get and cancel smart reminders
       const smartReminders = await this.getEventReminders(eventId);
-      for (const r of smartReminders) await this.cancelReminder(r.id);
+      for (const reminder of smartReminders) {
+        await this.cancelReminder(reminder.id);
+      }
+
+      console.log(`Cancelled all reminders for event ${eventId}`);
     } catch (error) {
+      console.error("Failed to cancel reminders:", error);
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to cancel reminders",
@@ -224,27 +351,23 @@ export class SmartReminderEngine {
     }
   }
 
-  // Minimal helper to obtain event data when updating reminders
-  private async getEventData(eventId: string, changes: any): Promise<any> {
-    return {
-      id: eventId,
-      summary: changes?.summary || "Updated Event",
-      start: changes?.start || new Date().toISOString(),
-      end: changes?.end || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-      location: changes?.location,
-      description: changes?.description,
-    };
-  }
-
+  /**
+   * Process user response to reminder
+   */
   async processUserResponse(
     reminderId: string,
     response: UserResponse,
   ): Promise<void> {
     try {
       const reminder = await this.getSmartReminder(reminderId);
-      if (!reminder) throw new Error("Reminder not found");
+      if (!reminder) {
+        throw new Error("Reminder not found");
+      }
+
+      // Update reminder with user response
       reminder.userResponse = response;
       reminder.updatedAt = Date.now();
+
       switch (response.type) {
         case ResponseType.SNOOZED:
           await this.snoozeReminder(
@@ -252,21 +375,23 @@ export class SmartReminderEngine {
             response.data?.snoozeMinutes || 10,
           );
           break;
+
         case ResponseType.DISMISSED:
           reminder.deliveryStatus = DeliveryStatus.CANCELLED;
           break;
+
         case ResponseType.RESCHEDULED:
           await this.rescheduleReminder(reminder, response.data?.newTime);
           break;
+
         case ResponseType.ACKNOWLEDGED:
           reminder.deliveryStatus = DeliveryStatus.DELIVERED;
           break;
       }
+
       await this.updateSmartReminder(reminder);
     } catch (error) {
-      if (error instanceof Error && /Reminder not found/.test(error.message)) {
-        throw error;
-      }
+      console.error("Failed to process user response:", error);
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to process user response",
@@ -280,9 +405,13 @@ export class SmartReminderEngine {
     }
   }
 
+  /**
+   * Get reminder statistics for user
+   */
   async getReminderStats(userId: string): Promise<any> {
     try {
       const reminders = await this.getUserReminders(userId);
+
       const stats = {
         total: reminders.length,
         byType: {} as Record<ReminderType, number>,
@@ -291,30 +420,48 @@ export class SmartReminderEngine {
         snoozeRate: 0,
         deliveryRate: 0,
       };
+
       let totalResponseTime = 0;
       let responseCount = 0;
       let snoozeCount = 0;
       let deliveredCount = 0;
-      for (const r of reminders) {
-        stats.byType[r.reminderType] = (stats.byType[r.reminderType] || 0) + 1;
-        stats.byStatus[r.deliveryStatus] =
-          (stats.byStatus[r.deliveryStatus] || 0) + 1;
-        if (r.userResponse) {
-          totalResponseTime += r.userResponse.timestamp - r.reminderAt;
+
+      for (const reminder of reminders) {
+        // Count by type
+        stats.byType[reminder.reminderType] =
+          (stats.byType[reminder.reminderType] || 0) + 1;
+
+        // Count by status
+        stats.byStatus[reminder.deliveryStatus] =
+          (stats.byStatus[reminder.deliveryStatus] || 0) + 1;
+
+        // Calculate response metrics
+        if (reminder.userResponse) {
+          const responseTime =
+            reminder.userResponse.timestamp - reminder.reminderAt;
+          totalResponseTime += responseTime;
           responseCount++;
-          if (r.userResponse.type === ResponseType.SNOOZED) snoozeCount++;
+
+          if (reminder.userResponse.type === ResponseType.SNOOZED) {
+            snoozeCount++;
+          }
         }
-        if (r.deliveryStatus === DeliveryStatus.DELIVERED) deliveredCount++;
+
+        if (reminder.deliveryStatus === DeliveryStatus.DELIVERED) {
+          deliveredCount++;
+        }
       }
-      stats.averageResponseTime = responseCount
-        ? totalResponseTime / responseCount
-        : 0;
-      stats.snoozeRate = reminders.length ? snoozeCount / reminders.length : 0;
-      stats.deliveryRate = reminders.length
-        ? deliveredCount / reminders.length
-        : 0;
+
+      stats.averageResponseTime =
+        responseCount > 0 ? totalResponseTime / responseCount : 0;
+      stats.snoozeRate =
+        reminders.length > 0 ? snoozeCount / reminders.length : 0;
+      stats.deliveryRate =
+        reminders.length > 0 ? deliveredCount / reminders.length : 0;
+
       return stats;
-    } catch {
+    } catch (error) {
+      console.error("Failed to get reminder stats:", error);
       return {
         total: 0,
         byType: {},
@@ -324,8 +471,10 @@ export class SmartReminderEngine {
         deliveryRate: 0,
       };
     }
-  }
-
+  } /**
+  
+   * Calculate optimal reminder times based on context
+     */
   private async calculateOptimalReminderTimes(
     eventData: any,
     eventContext: EventContext,
@@ -334,24 +483,29 @@ export class SmartReminderEngine {
     const timings: ReminderTiming[] = [];
     const eventStart = new Date(eventData.start).getTime();
     const now = Date.now();
-    const notificationPrefs = preferences.notifications || {};
+
+    // Get user's notification preferences
+    const notificationPrefs = preferences.notifications;
     const defaultMinutes = notificationPrefs.defaultReminderMinutes || 30;
 
+    // Context-aware standard reminder
     try {
-      const adj = await contextAwareScheduler.calculateContextAwareReminder(
-        eventStart,
-        eventContext,
-        preferences.userId || "default",
-        defaultMinutes,
-      );
-      if (adj.adjustedTime > now) {
+      const contextAdjustment =
+        await contextAwareScheduler.calculateContextAwareReminder(
+          eventStart,
+          eventContext,
+          preferences.userId || "default",
+          defaultMinutes,
+        );
+
+      if (contextAdjustment.adjustedTime > now) {
         timings.push({
-          reminderAt: adj.adjustedTime,
+          reminderAt: contextAdjustment.adjustedTime,
           type: ReminderType.STANDARD,
           message: this.generateContextAwareMessage(
             eventData,
             ReminderType.STANDARD,
-            adj,
+            contextAdjustment,
           ),
           priority: NotificationPriority.NORMAL,
           contextFactors: [
@@ -362,11 +516,16 @@ export class SmartReminderEngine {
           ],
         });
       }
-    } catch {
-      const t = eventStart - defaultMinutes * 60 * 1000;
-      if (t > now)
+    } catch (error) {
+      console.error(
+        "Failed to calculate context-aware timing, using standard:",
+        error,
+      );
+      // Fallback to standard timing
+      const standardReminderTime = eventStart - defaultMinutes * 60 * 1000;
+      if (standardReminderTime > now) {
         timings.push({
-          reminderAt: t,
+          reminderAt: standardReminderTime,
           type: ReminderType.STANDARD,
           message: this.generateReminderMessage(
             eventData,
@@ -375,45 +534,57 @@ export class SmartReminderEngine {
           priority: NotificationPriority.NORMAL,
           contextFactors: ["user_preference"],
         });
+      }
     }
 
+    // Preparation reminder for events that need preparation
     if (eventContext.hasPreparation) {
-      const prep = this.calculatePreparationTime(eventContext);
-      const t = eventStart - prep - defaultMinutes * 60 * 1000;
-      if (t > now)
+      const preparationTime = this.calculatePreparationTime(eventContext);
+      const preparationReminderTime =
+        eventStart - preparationTime - defaultMinutes * 60 * 1000;
+
+      if (preparationReminderTime > now) {
         timings.push({
-          reminderAt: t,
+          reminderAt: preparationReminderTime,
           type: ReminderType.PREPARATION,
           message: this.generateReminderMessage(
             eventData,
             ReminderType.PREPARATION,
-            { preparationTime: prep },
+            { preparationTime },
           ),
           priority: NotificationPriority.NORMAL,
           contextFactors: ["preparation_needed"],
         });
+      }
     }
 
+    // Context-aware departure reminder for events requiring travel
     if (
       eventContext.requiresTravel &&
       eventContext.location?.travelTimeMinutes
     ) {
       try {
-        const base = eventContext.location.travelTimeMinutes * 60 * 1000;
-        const adj = await contextAwareScheduler.calculateContextAwareReminder(
-          eventStart,
-          eventContext,
-          preferences.userId || "default",
-          Math.round(base / 60000) + 15,
-        );
-        if (adj.adjustedTime > now) {
+        // Calculate departure time with traffic consideration
+        const baseTravelTime =
+          eventContext.location.travelTimeMinutes * 60 * 1000;
+        const baseDepartureTime = eventStart - baseTravelTime - 15 * 60 * 1000; // 15 min buffer
+
+        const departureAdjustment =
+          await contextAwareScheduler.calculateContextAwareReminder(
+            eventStart,
+            eventContext,
+            preferences.userId || "default",
+            Math.round(baseTravelTime / (60 * 1000)) + 15, // Travel time + buffer in minutes
+          );
+
+        if (departureAdjustment.adjustedTime > now) {
           timings.push({
-            reminderAt: adj.adjustedTime,
+            reminderAt: departureAdjustment.adjustedTime,
             type: ReminderType.DEPARTURE,
             message: this.generateContextAwareMessage(
               eventData,
               ReminderType.DEPARTURE,
-              adj,
+              departureAdjustment,
             ),
             priority: NotificationPriority.HIGH,
             contextFactors: [
@@ -423,80 +594,86 @@ export class SmartReminderEngine {
             ],
           });
         }
-      } catch {
-        const travelMs = eventContext.location.travelTimeMinutes * 60 * 1000;
-        const t = eventStart - travelMs - 15 * 60 * 1000;
-        if (t > now)
+      } catch (error) {
+        console.error(
+          "Failed to calculate context-aware departure time, using standard:",
+          error,
+        );
+        // Fallback to standard departure timing
+        const travelTime = eventContext.location.travelTimeMinutes * 60 * 1000;
+        const departureReminderTime = eventStart - travelTime - 15 * 60 * 1000;
+
+        if (departureReminderTime > now) {
           timings.push({
-            reminderAt: t,
+            reminderAt: departureReminderTime,
             type: ReminderType.DEPARTURE,
             message: this.generateReminderMessage(
               eventData,
               ReminderType.DEPARTURE,
-              { travelTime: eventContext.location.travelTimeMinutes },
+              {
+                travelTime: eventContext.location.travelTimeMinutes,
+              },
             ),
             priority: NotificationPriority.HIGH,
             contextFactors: ["travel_required", "traffic_dependent"],
           });
+        }
       }
     }
 
-    // For high-importance events, add an extra short-notice reminder (e.g., 10 min before)
-    if (eventContext.importance === "high") {
-      const m = 10;
-      const t = eventStart - m * 60 * 1000;
-      if (t > now)
-        timings.push({
-          reminderAt: t,
-          type: ReminderType.STANDARD,
-          message: this.generateReminderMessage(eventData, ReminderType.STANDARD),
-          priority: NotificationPriority.HIGH,
-          contextFactors: ["high_importance"],
-        });
-    }
-
-    const ets = this.getEventTypeSettings(
+    // Event-type specific reminders
+    const eventTypeSettings = this.getEventTypeSettings(
       eventContext.eventType,
       notificationPrefs,
     );
-    if (ets) {
-      for (const m of ets.reminderMinutes) {
-        const t = eventStart - m * 60 * 1000;
-        if (t > now)
+    if (eventTypeSettings) {
+      for (const minutes of eventTypeSettings.reminderMinutes) {
+        const reminderTime = eventStart - minutes * 60 * 1000;
+        if (reminderTime > now) {
           timings.push({
-            reminderAt: t,
+            reminderAt: reminderTime,
             type: ReminderType.STANDARD,
             message:
-              ets.customMessage ||
+              eventTypeSettings.customMessage ||
               this.generateReminderMessage(eventData, ReminderType.STANDARD),
-            priority: ets.priority,
+            priority: eventTypeSettings.priority,
             contextFactors: ["event_type_specific"],
           });
+        }
       }
     }
 
+    // High importance events get additional reminders
     if (eventContext.importance === "critical") {
-      const crit = [24 * 60, 4 * 60, 60, 15];
-      for (const m of crit) {
-        const t = eventStart - m * 60 * 1000;
-        if (t > now)
+      const criticalReminders = [
+        { minutes: 24 * 60, type: ReminderType.STANDARD }, // 1 day before
+        { minutes: 4 * 60, type: ReminderType.STANDARD }, // 4 hours before
+        { minutes: 60, type: ReminderType.STANDARD }, // 1 hour before
+        { minutes: 15, type: ReminderType.STANDARD }, // 15 minutes before
+      ];
+
+      for (const reminder of criticalReminders) {
+        const reminderTime = eventStart - reminder.minutes * 60 * 1000;
+        if (reminderTime > now) {
           timings.push({
-            reminderAt: t,
-            type: ReminderType.STANDARD,
-            message: this.generateReminderMessage(
-              eventData,
-              ReminderType.STANDARD,
-            ),
+            reminderAt: reminderTime,
+            type: reminder.type,
+            message: this.generateReminderMessage(eventData, reminder.type),
             priority: NotificationPriority.HIGH,
             contextFactors: ["high_importance"],
           });
+        }
       }
     }
 
-    // Do not de-duplicate; tests expect standard + event-type reminders even at same minute
-    return timings.sort((a, b) => a.reminderAt - b.reminderAt);
+    // Remove duplicates and sort by time
+    const uniqueTimings = this.deduplicateTimings(timings);
+    return uniqueTimings.sort((a, b) => a.reminderAt - b.reminderAt);
   }
 
+  /**
+   * Build event context from event data and preferences
+   */
   private async buildEventContext(
     eventData: any,
     preferences: any,
@@ -504,25 +681,31 @@ export class SmartReminderEngine {
     const context: EventContext = {
       eventType: this.detectEventType(eventData.summary, eventData.description),
       importance: this.calculateImportance(eventData, preferences),
-      isRecurring: false,
+      isRecurring: false, // Would need to check calendar data
       hasPreparation: this.needsPreparation(eventData),
-      // compute requiresTravel after building location info to use travelTimeMinutes
-      requiresTravel: false,
+      requiresTravel:
+        !!eventData.location && eventData.location !== "オンライン",
     };
+
+    // Build location info if present
     if (eventData.location) {
       context.location = await this.buildLocationInfo(
         eventData.location,
         preferences,
       );
-      const travelMin = context.location?.travelTimeMinutes || 0;
-      // Treat short familiar locations (<=10min) as not requiring a departure reminder
-      context.requiresTravel = travelMin > 10;
     }
-    if (eventData.description)
+
+    // Extract attendees if present
+    if (eventData.description) {
       context.attendees = this.extractAttendees(eventData.description);
+    }
+
     return context;
   }
 
+  /**
+   * Create a smart reminder
+   */
   private async createSmartReminder(
     eventId: string,
     userId: string,
@@ -531,23 +714,32 @@ export class SmartReminderEngine {
     eventContext: EventContext,
     groupId?: string,
   ): Promise<string> {
-    const id = this.id();
-    let adj: ContextAdjustment | undefined;
+    const reminderId = this.generateReminderId();
+
+    // Get context adjustment if this is a context-aware reminder
+    let contextAdjustment: ContextAdjustment | undefined;
     if (
       timing.contextFactors.includes("weather") ||
       timing.contextFactors.includes("traffic")
     ) {
       try {
-        adj = await contextAwareScheduler.calculateContextAwareReminder(
-          new Date(eventData.start).getTime(),
-          eventContext,
-          userId,
-          30,
+        contextAdjustment =
+          await contextAwareScheduler.calculateContextAwareReminder(
+            new Date(eventData.start).getTime(),
+            eventContext,
+            userId,
+            30, // Default base minutes
+          );
+      } catch (error) {
+        console.error(
+          "Failed to get context adjustment for reminder storage:",
+          error,
         );
-      } catch {}
+      }
     }
+
     const reminder: SmartReminder = {
-      id,
+      id: reminderId,
       eventId,
       userId,
       groupId,
@@ -563,14 +755,18 @@ export class SmartReminderEngine {
       preparationTime: eventContext.hasPreparation
         ? this.calculatePreparationTime(eventContext)
         : undefined,
-      contextAdjustment: adj,
+      contextAdjustment,
       deliveryStatus: DeliveryStatus.PENDING,
       deliveryAttempts: 0,
       snoozeCount: 0,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    await this.store(reminder);
+
+    // Store smart reminder
+    await this.storeSmartReminder(reminder);
+
+    // Also add to legacy reminder system for compatibility
     await addReminder({
       eventId,
       groupId,
@@ -579,34 +775,74 @@ export class SmartReminderEngine {
       start: eventData.start,
       reminderAt: timing.reminderAt,
     });
-    return id;
+
+    return reminderId;
   }
 
+  /**
+   * Generate context-aware reminder message
+   */
   private generateContextAwareMessage(
     eventData: any,
     type: ReminderType,
-    adj: ContextAdjustment,
+    contextAdjustment: ContextAdjustment,
   ): string {
-    const base = this.generateReminderMessage(eventData, type);
-    const info: string[] = [];
-    if (adj.weatherFactor) {
-      const w = adj.weatherFactor;
-      info.push(`🌤️ 天気: ${w.condition} ${Math.round(w.temperature)}°C`);
-      if (w.precipitation > 0.5) info.push(`☔ 降水量: ${w.precipitation}mm`);
-      if (w.recommendation) info.push(`💡 ${w.recommendation}`);
+    const baseMessage = this.generateReminderMessage(eventData, type);
+    const contextInfo: string[] = [];
+
+    // Add weather information
+    if (contextAdjustment.weatherFactor) {
+      const weather = contextAdjustment.weatherFactor;
+      contextInfo.push(
+        `🌤️ 天気: ${weather.condition} ${Math.round(weather.temperature)}°C`,
+      );
+
+      if (weather.precipitation > 0.5) {
+        contextInfo.push(`☔ 降水量: ${weather.precipitation}mm`);
+      }
+
+      if (weather.recommendation) {
+        contextInfo.push(`💡 ${weather.recommendation}`);
+      }
     }
-    if (adj.trafficFactor) {
-      const t = adj.trafficFactor;
-      const delay = t.durationInTraffic - t.duration;
-      if (delay > 5) info.push(`🚗 交通: 通常より${delay}分多くかかる予想`);
-      if (t.recommendation) info.push(`🛣️ ${t.recommendation}`);
+
+    // Add traffic information
+    if (contextAdjustment.trafficFactor) {
+      const traffic = contextAdjustment.trafficFactor;
+      const delay = traffic.durationInTraffic - traffic.duration;
+
+      if (delay > 5) {
+        contextInfo.push(`🚗 交通: 通常より${delay}分多くかかる予想`);
+      }
+
+      if (traffic.recommendation) {
+        contextInfo.push(`🛣️ ${traffic.recommendation}`);
+      }
     }
-    if (adj.adjustmentMinutes > 0 && adj.reason) info.push(`⏰ ${adj.reason}`);
-    if (adj.recommendations?.length)
-      info.push(...adj.recommendations.map((r) => `📋 ${r}`));
-    return info.length ? `${base}\n\n${info.join("\n")}` : base;
+
+    // Add adjustment reason
+    if (contextAdjustment.adjustmentMinutes > 0) {
+      contextInfo.push(`⏰ ${contextAdjustment.reason}`);
+    }
+
+    // Add recommendations
+    if (contextAdjustment.recommendations.length > 0) {
+      contextInfo.push(
+        ...contextAdjustment.recommendations.map((rec) => `📋 ${rec}`),
+      );
+    }
+
+    // Combine base message with context information
+    if (contextInfo.length > 0) {
+      return `${baseMessage}\n\n${contextInfo.join("\n")}`;
+    }
+
+    return baseMessage;
   }
 
+  /**
+   * Generate reminder message based on type and context
+   */
   private generateReminderMessage(
     eventData: any,
     type: ReminderType,
@@ -621,365 +857,682 @@ export class SmartReminderEngine {
       hour: "2-digit",
       minute: "2-digit",
     });
+
     switch (type) {
-      case ReminderType.PREPARATION: {
-        const prep = Math.round((context?.preparationTime || 0) / 60000);
-        return `🔔 準備時間です: ${summary}\n開始: ${startTime}\n準備時間: ${prep}分`;
-      }
-      case ReminderType.DEPARTURE: {
-        const travel = context?.travelTime || 0;
-        return `🚗 出発時間です: ${summary}\n開始: ${startTime}\n移動時間: ${travel}分`;
-      }
+      case ReminderType.PREPARATION:
+        const prepTime = Math.round(
+          (context?.preparationTime || 0) / (60 * 1000),
+        );
+        return `🔔 準備時間です: ${summary}\n開始: ${startTime}\n準備時間: ${prepTime}分`;
+
+      case ReminderType.DEPARTURE:
+        const travelTime = context?.travelTime || 0;
+        return `🚗 出発時間です: ${summary}\n開始: ${startTime}\n移動時間: ${travelTime}分`;
+
       case ReminderType.WEATHER_ALERT:
         return `🌤️ 天気情報: ${summary}\n開始: ${startTime}\n${context?.weatherInfo || ""}`;
+
       case ReminderType.TRAFFIC_ALERT:
         return `🚦 交通情報: ${summary}\n開始: ${startTime}\n${context?.trafficInfo || ""}`;
+
       case ReminderType.FOLLOW_UP:
         return `📋 フォローアップ: ${summary}\n完了確認をお願いします`;
+
       case ReminderType.ESCALATION:
         return `🚨 重要: ${summary}\n開始: ${startTime}\n至急確認してください`;
+
       default:
         return `⏰ まもなく予定です: ${summary}\n開始: ${startTime}`;
     }
   }
 
+  /**
+   * Detect event type from title and description
+   */
   private detectEventType(summary: string, description?: string): string {
     const text = `${summary} ${description || ""}`.toLowerCase();
-    const types = [
-      { k: ["会議", "ミーティング", "meeting"], t: "meeting" },
-      { k: ["面談", "面接", "interview"], t: "interview" },
-      { k: ["研修", "セミナー", "training"], t: "training" },
-      { k: ["プレゼン", "発表", "presentation"], t: "presentation" },
-      { k: ["会食", "飲み会", "dinner"], t: "social" },
-      { k: ["移動", "出張", "travel"], t: "travel" },
-      { k: ["締切", "deadline"], t: "deadline" },
+
+    const eventTypes = [
+      { keywords: ["会議", "ミーティング", "meeting"], type: "meeting" },
+      { keywords: ["面談", "面接", "interview"], type: "interview" },
+      { keywords: ["研修", "セミナー", "training"], type: "training" },
+      { keywords: ["プレゼン", "発表", "presentation"], type: "presentation" },
+      { keywords: ["会食", "飲み会", "dinner"], type: "social" },
+      { keywords: ["移動", "出張", "travel"], type: "travel" },
+      { keywords: ["締切", "deadline"], type: "deadline" },
     ];
-    for (const e of types) if (e.k.some((w) => text.includes(w))) return e.t;
+
+    for (const eventType of eventTypes) {
+      if (eventType.keywords.some((keyword) => text.includes(keyword))) {
+        return eventType.type;
+      }
+    }
+
     return "general";
   }
 
+  /**
+   * Calculate event importance
+   */
   private calculateImportance(
     eventData: any,
     preferences: any,
   ): "low" | "normal" | "high" | "critical" {
     let score = 0;
-    const text = `${eventData.summary} ${eventData.description || ""}`.toLowerCase();
-    const urgentKeywords = ["重要", "緊急", "至急", "urgent", "critical"]; // "important" 単語のみでは過剰判定しない
-    const highKeywords = ["会議", "ミーティング", "面談", "ceo", "役員", "board", "interview"]; // 高重要ワード
 
-    const hasUrgent = urgentKeywords.some((w) => text.includes(w));
-    const hasHigh = highKeywords.some((w) => text.includes(w));
+    // Check for importance keywords
+    const text =
+      `${eventData.summary} ${eventData.description || ""}`.toLowerCase();
+    const importantKeywords = [
+      "重要",
+      "緊急",
+      "至急",
+      "urgent",
+      "important",
+      "critical",
+    ];
+    const highKeywords = ["会議", "面談", "ceo", "役員", "board"];
 
-    // 重み付けを控えめにして、安易に critical にしない
-    if (hasUrgent) score += 2;
-    if (hasHigh) score += 2;
+    if (importantKeywords.some((keyword) => text.includes(keyword))) {
+      score += 3;
+    }
 
-    const duration = new Date(eventData.end).getTime() - new Date(eventData.start).getTime();
-    if (duration > 2 * 60 * 60 * 1000) score += 1;
+    if (highKeywords.some((keyword) => text.includes(keyword))) {
+      score += 2;
+    }
 
-    // 「勤務時間帯」などの緩い要因では加点しない（過剰トリガー回避）
+    // Check duration (longer events might be more important)
+    const duration =
+      new Date(eventData.end).getTime() - new Date(eventData.start).getTime();
+    if (duration > 2 * 60 * 60 * 1000) {
+      // More than 2 hours
+      score += 1;
+    }
 
-    // しきい値: 5以上=critical, 3以上=high, 1以上=normal
-    if (score >= 5) return "critical";
-    if (score >= 3) return "high";
+    // Check if it's during working hours
+    const startHour = new Date(eventData.start).getHours();
+    if (startHour >= 9 && startHour <= 17) {
+      score += 1;
+    }
+
+    if (score >= 4) return "critical";
+    if (score >= 2) return "high";
     if (score >= 1) return "normal";
     return "low";
   }
 
+  /**
+   * Check if event needs preparation
+   */
   private needsPreparation(eventData: any): boolean {
     const text =
       `${eventData.summary} ${eventData.description || ""}`.toLowerCase();
-    // Only consider explicit preparation-related keywords; generic meetings should not trigger preparation
-    const kws = ["プレゼン", "発表", "presentation", "資料", "準備", "prepare"];
-    return kws.some((w) => text.includes(w));
+    const preparationKeywords = [
+      "プレゼン",
+      "発表",
+      "presentation",
+      "資料",
+      "準備",
+      "prepare",
+      "面談",
+      "interview",
+      "会議",
+      "meeting",
+      "研修",
+      "training",
+    ];
+
+    return preparationKeywords.some((keyword) => text.includes(keyword));
   }
 
+  /**
+   * Calculate preparation time needed
+   */
+  private calculatePreparationTime(eventContext: EventContext): number {
+    const baseTime = 15 * 60 * 1000; // 15 minutes base
+
+    switch (eventContext.eventType) {
+      case "presentation":
+        return 30 * 60 * 1000; // 30 minutes
+      case "interview":
+        return 20 * 60 * 1000; // 20 minutes
+      case "meeting":
+        return 10 * 60 * 1000; // 10 minutes
+      case "training":
+        return 15 * 60 * 1000; // 15 minutes
+      default:
+        return baseTime;
+    }
+  }
+
+  /**
+   * Build location information
+   */
   private async buildLocationInfo(
     location: string,
     preferences: any,
   ): Promise<LocationInfo> {
-    const info: LocationInfo = { name: location };
-    const frequent = preferences?.defaults?.frequentLocations || [];
-    const known = frequent.find(
-      (loc: any) => loc.name?.toLowerCase?.() === location.toLowerCase(),
+    const locationInfo: LocationInfo = {
+      name: location,
+    };
+
+    // Check if it's a known frequent location
+    const frequentLocations = preferences.defaults?.frequentLocations || [];
+    const knownLocation = frequentLocations.find(
+      (loc: any) => loc.name.toLowerCase() === location.toLowerCase(),
     );
-    if (known) {
-      info.address = known.address;
-      info.coordinates = known.coordinates;
-      info.travelTimeMinutes = known.travelTimeMinutes;
+
+    if (knownLocation) {
+      locationInfo.address = knownLocation.address;
+      locationInfo.coordinates = knownLocation.coordinates;
+      locationInfo.travelTimeMinutes = knownLocation.travelTimeMinutes;
     } else {
-      info.travelTimeMinutes = this.estimateTravelTime(location);
+      // Estimate travel time based on location type
+      locationInfo.travelTimeMinutes = this.estimateTravelTime(location);
     }
-    return info;
+
+    return locationInfo;
   }
 
+  /**
+   * Estimate travel time for unknown locations
+   */
   private estimateTravelTime(location: string): number {
-    const t = location.toLowerCase();
-    if (/オンライン|zoom|teams/.test(t)) return 0;
-    if (/会議室|オフィス/.test(t)) return 5;
-    if (/駅|空港/.test(t)) return 45;
-    return 30;
+    const text = location.toLowerCase();
+
+    if (
+      text.includes("オンライン") ||
+      text.includes("zoom") ||
+      text.includes("teams")
+    ) {
+      return 0;
+    }
+
+    if (text.includes("会議室") || text.includes("オフィス")) {
+      return 5; // 5 minutes within office
+    }
+
+    if (text.includes("駅") || text.includes("空港")) {
+      return 45; // 45 minutes for stations/airports
+    }
+
+    return 30; // Default 30 minutes
   }
 
+  /**
+   * Extract attendees from description
+   */
   private extractAttendees(description: string): string[] {
     const attendees: string[] = [];
-    const email = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
-    let m: RegExpExecArray | null;
-    while ((m = email.exec(description)) !== null) attendees.push(m[1]);
+
+    // Simple pattern matching for Japanese names and email addresses
+    const namePattern =
+      /([田中|佐藤|鈴木|高橋|渡辺|伊藤|山本|中村|小林|加藤][さん]?)/g;
+    const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+
+    let match;
+    while ((match = namePattern.exec(description)) !== null) {
+      attendees.push(match[1]);
+    }
+
+    while ((match = emailPattern.exec(description)) !== null) {
+      attendees.push(match[1]);
+    }
+
     return attendees;
   }
 
+  /**
+   * Get event type specific settings
+   */
   private getEventTypeSettings(
     eventType?: string,
     notificationPrefs?: any,
   ): EventTypeNotificationSettings | null {
-    if (!eventType || !notificationPrefs?.eventTypeSettings) return null;
+    if (!eventType || !notificationPrefs?.eventTypeSettings) {
+      return null;
+    }
+
     return (
       notificationPrefs.eventTypeSettings.find(
-        (s: EventTypeNotificationSettings) => s.eventType === eventType,
+        (setting: EventTypeNotificationSettings) =>
+          setting.eventType === eventType,
       ) || null
     );
   }
 
+  /**
+   * Check if event is weather dependent
+   */
   private isWeatherDependent(eventContext: EventContext): boolean {
     if (!eventContext.location) return false;
-    const loc = eventContext.location.name.toLowerCase();
-    return !/オンライン|会議室|オフィス/.test(loc);
+
+    const location = eventContext.location.name.toLowerCase();
+    return (
+      !location.includes("オンライン") &&
+      !location.includes("会議室") &&
+      !location.includes("オフィス")
+    );
   }
 
+  /**
+   * Check if event is traffic dependent
+   */
   private isTrafficDependent(eventContext: EventContext): boolean {
-    return !!(
-      eventContext.requiresTravel &&
-      eventContext.location?.travelTimeMinutes &&
+    return (
+      Boolean(eventContext.requiresTravel) &&
+      eventContext.location?.travelTimeMinutes !== undefined &&
       eventContext.location.travelTimeMinutes > 10
     );
   }
 
-  private dedup(timings: ReminderTiming[]): ReminderTiming[] {
+  /**
+   * Remove duplicate timings
+   */
+  private deduplicateTimings(timings: ReminderTiming[]): ReminderTiming[] {
     const seen = new Set<number>();
-    return timings.filter((t) =>
-      seen.has(t.reminderAt) ? false : (seen.add(t.reminderAt), true),
+    return timings.filter((timing) => {
+      const key = timing.reminderAt;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+
+  /**
+   * Store smart reminder
+   */
+  private async storeSmartReminder(reminder: SmartReminder): Promise<void> {
+    const key = `smart_reminder_${reminder.id}`;
+    await stashPostbackPayload(
+      key,
+      JSON.stringify(reminder),
+      this.REMINDER_TTL,
     );
+
+    // Add to user's reminder index
+    await this.addToReminderIndex(reminder.userId, reminder.id);
   }
 
-  private async store(rem: SmartReminder): Promise<void> {
-    const key = `smart_reminder_${rem.id}`;
-    await stashPostbackPayload(key, JSON.stringify(rem), this.REMINDER_TTL);
-    await this.addToIndex(rem.userId, rem.id);
-  }
-
+  /**
+   * Get smart reminder
+   */
   private async getSmartReminder(
     reminderId: string,
   ): Promise<SmartReminder | null> {
     try {
       const key = `smart_reminder_${reminderId}`;
       const data = await popPostbackPayload(key);
-      if (!data) return null;
-      const rem: SmartReminder = JSON.parse(data);
+
+      if (!data) {
+        return null;
+      }
+
+      const reminder: SmartReminder = JSON.parse(data);
+
+      // Re-store reminder
       await stashPostbackPayload(key, data, this.REMINDER_TTL);
-      return rem;
-    } catch {
+
+      return reminder;
+    } catch (error) {
+      console.error("Failed to get smart reminder:", error);
       return null;
     }
   }
 
-  private async updateSmartReminder(rem: SmartReminder): Promise<void> {
-    rem.updatedAt = Date.now();
-    const key = `smart_reminder_${rem.id}`;
-    await stashPostbackPayload(key, JSON.stringify(rem), this.REMINDER_TTL);
+  /**
+   * Update smart reminder
+   */
+  private async updateSmartReminder(reminder: SmartReminder): Promise<void> {
+    reminder.updatedAt = Date.now();
+    const key = `smart_reminder_${reminder.id}`;
+    await stashPostbackPayload(
+      key,
+      JSON.stringify(reminder),
+      this.REMINDER_TTL,
+    );
   }
 
-  private async getEventReminders(_eventId: string): Promise<SmartReminder[]> {
-    // Minimal stub for tests
+  /**
+   * Get event reminders
+   */
+  private async getEventReminders(eventId: string): Promise<SmartReminder[]> {
+    // This would require scanning reminders by event ID
+    // For now, return empty array
     return [];
   }
 
+  /**
+   * Get user reminders
+   */
   private async getUserReminders(userId: string): Promise<SmartReminder[]> {
     try {
       const indexKey = `reminder_index_${userId}`;
-      const idx = await popPostbackPayload(indexKey);
-      if (!idx) return [];
-      const ids: string[] = JSON.parse(idx);
-      const res: SmartReminder[] = [];
-      await stashPostbackPayload(indexKey, idx, this.REMINDER_TTL);
-      for (const id of ids) {
-        const r = await this.getSmartReminder(id);
-        if (r) res.push(r);
+      const indexData = await popPostbackPayload(indexKey);
+
+      if (!indexData) {
+        return [];
       }
-      return res;
-    } catch {
+
+      const reminderIds: string[] = JSON.parse(indexData);
+      const reminders: SmartReminder[] = [];
+
+      // Re-store index
+      await stashPostbackPayload(indexKey, indexData, this.REMINDER_TTL);
+
+      for (const reminderId of reminderIds) {
+        const reminder = await this.getSmartReminder(reminderId);
+        if (reminder) {
+          reminders.push(reminder);
+        }
+      }
+
+      return reminders;
+    } catch (error) {
+      console.error("Failed to get user reminders:", error);
       return [];
     }
   }
 
+  /**
+   * Cancel a smart reminder
+   */
   private async cancelReminder(reminderId: string): Promise<void> {
     try {
-      const r = await this.getSmartReminder(reminderId);
-      if (!r) return;
-      r.deliveryStatus = DeliveryStatus.CANCELLED;
-      r.updatedAt = Date.now();
-      await this.updateSmartReminder(r);
-      await this.removeFromIndex(r.userId, reminderId);
-    } catch {}
+      const reminder = await this.getSmartReminder(reminderId);
+      if (!reminder) {
+        return;
+      }
+
+      reminder.deliveryStatus = DeliveryStatus.CANCELLED;
+      reminder.updatedAt = Date.now();
+
+      await this.updateSmartReminder(reminder);
+
+      // Remove from user's reminder index
+      await this.removeFromReminderIndex(reminder.userId, reminderId);
+    } catch (error) {
+      console.error("Failed to cancel reminder:", error);
+    }
   }
 
+  /**
+   * Snooze a reminder
+   */
   private async snoozeReminder(
-    rem: SmartReminder,
-    minutes: number,
+    reminder: SmartReminder,
+    snoozeMinutes: number,
   ): Promise<void> {
-    const until = Date.now() + minutes * 60000;
-    rem.snoozedUntil = until;
-    rem.snoozeCount += 1;
-    rem.deliveryStatus = DeliveryStatus.SNOOZED;
-    rem.updatedAt = Date.now();
-    await this.updateSmartReminder(rem);
+    const snoozeUntil = Date.now() + snoozeMinutes * 60 * 1000;
+
+    reminder.snoozedUntil = snoozeUntil;
+    reminder.snoozeCount += 1;
+    reminder.deliveryStatus = DeliveryStatus.SNOOZED;
+    reminder.updatedAt = Date.now();
+
+    await this.updateSmartReminder(reminder);
+
+    // Schedule new reminder at snooze time
     await addReminder({
-      eventId: rem.eventId,
-      groupId: rem.groupId,
-      userId: rem.userId,
-      summary: rem.summary,
-      start: rem.eventStart,
-      reminderAt: until,
+      eventId: reminder.eventId,
+      groupId: reminder.groupId,
+      userId: reminder.userId,
+      summary: reminder.summary,
+      start: reminder.eventStart,
+      reminderAt: snoozeUntil,
     });
   }
 
+  /**
+   * Reschedule a reminder
+   */
   private async rescheduleReminder(
-    rem: SmartReminder,
+    reminder: SmartReminder,
     newTime: number,
   ): Promise<void> {
-    rem.reminderAt = newTime;
-    rem.updatedAt = Date.now();
-    await this.updateSmartReminder(rem);
-    await removeReminderByEventId(rem.eventId);
+    reminder.reminderAt = newTime;
+    reminder.updatedAt = Date.now();
+
+    await this.updateSmartReminder(reminder);
+
+    // Update in legacy reminder system
+    await removeReminderByEventId(reminder.eventId);
     await addReminder({
-      eventId: rem.eventId,
-      groupId: rem.groupId,
-      userId: rem.userId,
-      summary: rem.summary,
-      start: rem.eventStart,
+      eventId: reminder.eventId,
+      groupId: reminder.groupId,
+      userId: reminder.userId,
+      summary: reminder.summary,
+      start: reminder.eventStart,
       reminderAt: newTime,
     });
   }
 
-  private async addToIndex(userId: string, reminderId: string): Promise<void> {
-    try {
-      const key = `reminder_index_${userId}`;
-      const idx = await popPostbackPayload(key);
-      const ids: string[] = idx ? JSON.parse(idx) : [];
-      if (!ids.includes(reminderId)) ids.push(reminderId);
-      await stashPostbackPayload(key, JSON.stringify(ids), this.REMINDER_TTL);
-    } catch {}
+  /**
+   * Get event data with changes applied
+   */
+  private async getEventData(eventId: string, changes: any): Promise<any> {
+    // This would typically fetch from Google Calendar
+    // For now, return a mock structure with changes applied
+    return {
+      summary: changes.summary || "Updated Event",
+      start: changes.start || new Date().toISOString(),
+      end: changes.end || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      location: changes.location,
+      description: changes.description,
+    };
   }
 
-  private async removeFromIndex(
+  /**
+   * Generate unique reminder ID
+   */
+  private generateReminderId(): string {
+    return `reminder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Add reminder to user's index
+   */
+  private async addToReminderIndex(
     userId: string,
     reminderId: string,
   ): Promise<void> {
     try {
-      const key = `reminder_index_${userId}`;
-      const idx = await popPostbackPayload(key);
-      if (!idx) return;
-      let ids: string[] = JSON.parse(idx);
-      ids = ids.filter((i) => i !== reminderId);
-      await stashPostbackPayload(key, JSON.stringify(ids), this.REMINDER_TTL);
-    } catch {}
+      const indexKey = `reminder_index_${userId}`;
+      const existingData = await popPostbackPayload(indexKey);
+
+      let reminderIds: string[] = [];
+      if (existingData) {
+        reminderIds = JSON.parse(existingData);
+      }
+
+      if (!reminderIds.includes(reminderId)) {
+        reminderIds.push(reminderId);
+      }
+
+      await stashPostbackPayload(
+        indexKey,
+        JSON.stringify(reminderIds),
+        this.REMINDER_TTL,
+      );
+    } catch (error) {
+      console.error("Failed to add to reminder index:", error);
+    }
   }
 
-  async processDueSmartReminders(
-    nowMs: number = Date.now(),
-  ): Promise<{ processed: number; sent: number; failed: number }> {
-    const stats = { processed: 0, sent: 0, failed: 0 };
+  /**
+   * Remove reminder from user's index
+   */
+  private async removeFromReminderIndex(
+    userId: string,
+    reminderId: string,
+  ): Promise<void> {
     try {
-      const users = await this.getActiveReminderUsers();
-      for (const userId of users) {
+      const indexKey = `reminder_index_${userId}`;
+      const existingData = await popPostbackPayload(indexKey);
+
+      if (!existingData) {
+        return;
+      }
+
+      let reminderIds: string[] = JSON.parse(existingData);
+      reminderIds = reminderIds.filter((id) => id !== reminderId);
+
+      await stashPostbackPayload(
+        indexKey,
+        JSON.stringify(reminderIds),
+        this.REMINDER_TTL,
+      );
+    } catch (error) {
+      console.error("Failed to remove from reminder index:", error);
+    }
+  }
+
+  /**
+   * Process due smart reminders
+   * This method should be called by the reminder tick system
+   */
+  async processDueSmartReminders(nowMs: number = Date.now()): Promise<{
+    processed: number;
+    sent: number;
+    failed: number;
+  }> {
+    const stats = { processed: 0, sent: 0, failed: 0 };
+
+    try {
+      // Get all users with reminders (this is a simplified approach)
+      // In a real implementation, you'd maintain a global index of active reminders
+      const userIds = await this.getActiveReminderUsers();
+
+      for (const userId of userIds) {
         const reminders = await this.getUserReminders(userId);
-        for (const r of reminders) {
+
+        for (const reminder of reminders) {
           if (
-            r.reminderAt <= nowMs &&
-            r.deliveryStatus === DeliveryStatus.PENDING
+            reminder.reminderAt <= nowMs &&
+            reminder.deliveryStatus === DeliveryStatus.PENDING
           ) {
             stats.processed++;
+
             try {
-              await this.deliverSmartReminder(r);
+              await this.deliverSmartReminder(reminder);
               stats.sent++;
-            } catch {
+            } catch (error) {
+              console.error("Failed to deliver smart reminder:", error);
               stats.failed++;
-              r.deliveryStatus = DeliveryStatus.FAILED;
-              r.deliveryAttempts += 1;
-              r.lastDeliveryAttempt = nowMs;
-              await this.updateSmartReminder(r);
+
+              // Update delivery status
+              reminder.deliveryStatus = DeliveryStatus.FAILED;
+              reminder.deliveryAttempts += 1;
+              reminder.lastDeliveryAttempt = nowMs;
+              await this.updateSmartReminder(reminder);
             }
           }
         }
       }
-    } catch {}
+    } catch (error) {
+      console.error("Failed to process due smart reminders:", error);
+    }
+
     return stats;
   }
 
-  private async deliverSmartReminder(rem: SmartReminder): Promise<void> {
-    const to = rem.userId || rem.groupId;
-    if (!to) throw new Error("No recipient for reminder");
-
-    // If a custom message is provided, deliver it directly as plain text
-    if (rem.customMessage) {
-      await pushText(rem.userId, rem.customMessage);
-      rem.deliveryStatus = DeliveryStatus.SENT;
-      rem.deliveryAttempts += 1;
-      rem.lastDeliveryAttempt = Date.now();
-      await this.updateSmartReminder(rem);
-      return;
+  /**
+   * Deliver a smart reminder using the notification system
+   */
+  private async deliverSmartReminder(reminder: SmartReminder): Promise<void> {
+    const to = reminder.userId || reminder.groupId;
+    if (!to) {
+      throw new Error("No recipient for reminder");
     }
 
-    const ctx: NotificationContext = {
-      event: {
-        id: rem.eventId,
-        summary: rem.summary,
-        start: rem.eventStart,
-        end: rem.eventStart,
-        location: rem.eventContext.location?.name,
-        description: "",
-        duration: 60,
-      },
-      user: { id: rem.userId, timezone: "Asia/Tokyo", preferences: {} },
-      reminder: {
-        type: rem.reminderType,
-        minutesBefore: Math.round(
-          (new Date(rem.eventStart).getTime() - rem.reminderAt) / 60000,
-        ),
-        priority: rem.priority,
-      },
-      context: rem.eventContext,
-      weather: rem.contextAdjustment?.weatherFactor,
-      traffic: rem.contextAdjustment?.trafficFactor,
-    };
+    try {
+      // Build notification context
+      const notificationContext: NotificationContext = {
+        event: {
+          id: reminder.eventId,
+          summary: reminder.summary,
+          start: reminder.eventStart,
+          end: reminder.eventStart, // We don't have end time in reminder
+          location: reminder.eventContext.location?.name,
+          description: "",
+          duration: 60, // Default 1 hour
+        },
+        user: {
+          id: reminder.userId,
+          timezone: "Asia/Tokyo",
+          preferences: {},
+        },
+        reminder: {
+          type: reminder.reminderType,
+          minutesBefore: Math.round(
+            (new Date(reminder.eventStart).getTime() - reminder.reminderAt) /
+              (60 * 1000),
+          ),
+          priority: reminder.priority,
+        },
+        context: reminder.eventContext,
+        weather: reminder.contextAdjustment?.weatherFactor,
+        traffic: reminder.contextAdjustment?.trafficFactor,
+      };
 
-    let templateId = "standard_reminder";
-    if (rem.contextAdjustment?.weatherFactor && rem.weatherDependent)
-      templateId = "weather_reminder";
-    else if (rem.contextAdjustment?.trafficFactor && rem.trafficDependent)
-      templateId = "traffic_departure";
-    else if (rem.reminderType === ReminderType.PREPARATION)
-      templateId = "preparation_reminder";
-    else if (rem.reminderType === ReminderType.ESCALATION)
-      templateId = "escalation_urgent";
+      // Determine template based on reminder type and context
+      let templateId = "standard_reminder";
+      if (
+        reminder.contextAdjustment?.weatherFactor &&
+        reminder.weatherDependent
+      ) {
+        templateId = "weather_reminder";
+      } else if (
+        reminder.contextAdjustment?.trafficFactor &&
+        reminder.trafficDependent
+      ) {
+        templateId = "traffic_departure";
+      } else if (reminder.reminderType === ReminderType.PREPARATION) {
+        templateId = "preparation_reminder";
+      } else if (reminder.reminderType === ReminderType.ESCALATION) {
+        templateId = "escalation_urgent";
+      }
 
-    const result = await customizableNotificationSystem.sendNotification(
-      templateId,
-      ctx,
-      rem.userId,
-    );
-    if (!result.success)
-      throw new Error(`Notification delivery failed: ${result.error}`);
+      // Send notification using the notification system
+      const deliveryResult =
+        await customizableNotificationSystem.sendNotification(
+          templateId,
+          notificationContext,
+          reminder.userId,
+        );
 
-    rem.deliveryStatus = DeliveryStatus.SENT;
-    rem.deliveryAttempts += 1;
-    rem.lastDeliveryAttempt = Date.now();
-    await this.updateSmartReminder(rem);
+      if (!deliveryResult.success) {
+        throw new Error(
+          `Notification delivery failed: ${deliveryResult.error}`,
+        );
+      }
+
+      // Update delivery status
+      reminder.deliveryStatus = DeliveryStatus.SENT;
+      reminder.deliveryAttempts += 1;
+      reminder.lastDeliveryAttempt = Date.now();
+      await this.updateSmartReminder(reminder);
+    } catch (error) {
+      console.error("Failed to deliver smart reminder:", error);
+      throw error;
+    }
   }
 
+  /**
+   * Get users with active reminders
+   * This is a simplified implementation - in production you'd maintain a proper index
+   */
   private async getActiveReminderUsers(): Promise<string[]> {
+    // This would need to be implemented based on your user management system
+    // For now, return empty array as this is called by the tick system
     return [];
   }
+
+  /**
+   * Get reminder performance metrics
+   */
   async getReminderPerformanceMetrics(): Promise<{
     totalReminders: number;
     deliveryRate: number;
@@ -987,6 +1540,8 @@ export class SmartReminderEngine {
     snoozeRate: number;
     responseRate: number;
   }> {
+    // This would aggregate metrics across all users
+    // Implementation depends on your analytics requirements
     return {
       totalReminders: 0,
       deliveryRate: 0,
@@ -995,25 +1550,12 @@ export class SmartReminderEngine {
       responseRate: 0,
     };
   }
-
-  // Stubs referenced by tick.ts for periodic context updates
-  async updateWeatherDependentReminders(): Promise<{ updated: number }> {
-    return { updated: 0 };
-  }
-  async updateTrafficDependentReminders(): Promise<{ updated: number }> {
-    return { updated: 0 };
-  }
-
-  private id(): string {
-    return `smart_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-  }
-  private calculatePreparationTime(_context: EventContext): number {
-    return 30 * 60 * 1000;
-  }
 }
 
+// Export singleton instance
 export const smartReminderEngine = SmartReminderEngine.getInstance();
 
+// Convenience functions
 export async function scheduleSmartReminder(
   eventId: string,
   userId: string,
@@ -1026,7 +1568,7 @@ export async function scheduleSmartReminder(
   },
   groupId?: string,
 ): Promise<string[]> {
-  return smartReminderEngine.scheduleSmartReminder(
+  return await smartReminderEngine.scheduleSmartReminder(
     eventId,
     userId,
     eventData,
@@ -1039,40 +1581,35 @@ export async function updateEventReminders(
   userId: string,
   changes: any,
 ): Promise<void> {
-  return smartReminderEngine.updateRemindersForEvent(eventId, userId, changes);
+  return await smartReminderEngine.updateRemindersForEvent(
+    eventId,
+    userId,
+    changes,
+  );
 }
 
 export async function cancelEventReminders(eventId: string): Promise<void> {
-  return smartReminderEngine.cancelRemindersForEvent(eventId);
+  return await smartReminderEngine.cancelRemindersForEvent(eventId);
 }
 
 export async function processReminderResponse(
   reminderId: string,
   response: UserResponse,
 ): Promise<void> {
-  return smartReminderEngine.processUserResponse(reminderId, response);
+  return await smartReminderEngine.processUserResponse(reminderId, response);
 }
 
 export async function getReminderStats(userId: string): Promise<any> {
-  return smartReminderEngine.getReminderStats(userId);
+  return await smartReminderEngine.getReminderStats(userId);
 }
 
 export async function processDueReminders(nowMs?: number): Promise<any> {
-  return smartReminderEngine.processDueSmartReminders(nowMs);
+  return await smartReminderEngine.processDueSmartReminders(nowMs);
 }
 
-export async function updateWeatherDependentReminders(): Promise<{
-  updated: number;
-}> {
-  return smartReminderEngine.updateWeatherDependentReminders();
-}
+// The following APIs are not implemented on SmartReminderEngine; omit wrappers for now.
 
-export async function updateTrafficDependentReminders(): Promise<{
-  updated: number;
-}> {
-  return smartReminderEngine.updateTrafficDependentReminders();
-}
-
+// Multi-stage reminder exports
 export {
   createMultiStageReminders,
   getEscalationStatus,
@@ -1080,12 +1617,8 @@ export {
   postponeEvent,
   snoozeStageReminder,
 } from "./multi-stage-reminder";
-export type {
-  DoNotDisturbSettings,
-  NotificationTemplate,
-  NotificationContext as NS_NotificationContext,
-  QuietHours,
-} from "./notification-system";
+
+// Notification system exports (values)
 export {
   configureDoNotDisturb,
   configureQuietHours,
@@ -1096,5 +1629,10 @@ export {
   sendNotification,
 } from "./notification-system";
 
-// Re-export enums for backward compatibility
-export { DeliveryStatus, ReminderType, ResponseType } from "./reminder-types";
+// Notification system exports (types)
+export type {
+  DoNotDisturbSettings,
+  NotificationContext,
+  NotificationTemplate,
+  QuietHours,
+} from "./notification-system";

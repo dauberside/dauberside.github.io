@@ -1,0 +1,6 @@
+# env / logs / local deps
+.env
+logs
+pids
+*.log
+node_modules

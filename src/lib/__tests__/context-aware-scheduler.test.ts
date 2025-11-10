@@ -96,8 +96,7 @@ describe("ContextAwareScheduler", () => {
 
   beforeEach(() => {
     scheduler = ContextAwareScheduler.getInstance();
-    // Reset all mocks including implementations to avoid leakage across tests
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     scheduler.clearCaches();
 
     // Mock getUserPreferences

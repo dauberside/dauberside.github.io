@@ -158,16 +158,6 @@ export interface DefaultValues {
   defaultEventDuration: number; // Minutes
   defaultReminderTime: number; // Minutes before event
   defaultLocation?: string;
-  // Optional home location for travel calculations
-  homeLocation?: {
-    name: string;
-    address?: string;
-    coordinates?: {
-      latitude: number;
-      longitude: number;
-    };
-    travelTimeMinutes?: number;
-  };
 
   // Common locations (learned or manually set)
   frequentLocations: FrequentLocation[];
@@ -383,7 +373,6 @@ export const DEFAULT_USER_PREFERENCES: Omit<
   defaults: {
     defaultEventDuration: 60,
     defaultReminderTime: 30,
-    homeLocation: undefined,
     frequentLocations: [],
     commonEventTypes: ["会議", "ミーティング", "打合せ", "面談", "研修"],
     preferredMeetingTimes: [

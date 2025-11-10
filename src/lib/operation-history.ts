@@ -219,14 +219,7 @@ export class OperationHistoryManager {
         return [];
       }
 
-      let operationIds: string[] = [];
-      try {
-        const parsed = JSON.parse(historyData);
-        operationIds = Array.isArray(parsed) ? parsed : [];
-      } catch {
-        // Corrupted index; reset to empty
-        operationIds = [];
-      }
+      const operationIds: string[] = JSON.parse(historyData);
 
       // Re-store the history data
       await stashPostbackPayload(
@@ -298,16 +291,6 @@ export class OperationHistoryManager {
         );
       }
 
-      // 一部ケースで undoOperation が欠落している場合、reversible なら合成する
-      if (!operation.undoOperation && operation.reversible) {
-        operation.undoOperation = this.generateUndoOperation(
-          operation.type,
-          operation.beforeState,
-          operation.afterState,
-          operation.context,
-        );
-      }
-
       // Execute undo operation
       const undoResult = await this.executeUndo(operation);
 
@@ -336,23 +319,16 @@ export class OperationHistoryManager {
       return undoResult;
     } catch (error) {
       console.error(`Failed to undo operation ${operationId}:`, error);
-      // createSystemError の戻りはプレーンオブジェクトである可能性があるため、
-      // instanceof Error ではなく形（プロパティ）で SystemError を判定する
-      if (
-        error &&
-        typeof error === "object" &&
-        "type" in (error as any) &&
-        "code" in (error as any)
-      ) {
+
+      if (error instanceof Error && "type" in error) {
         return {
           success: false,
           message:
-            (error as SystemError).userMessage ||
-            (error as any).message ||
-            "Undo failed",
+            (error as unknown as SystemError).userMessage ||
+            (error as Error).message,
           restoredState: null,
           operation: null as any,
-          error: error as SystemError,
+          error: error as unknown as SystemError,
         };
       }
 
@@ -441,26 +417,22 @@ export class OperationHistoryManager {
   async getOperation(operationId: string): Promise<Operation | null> {
     try {
       const operationKey = `operation_${operationId}`;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const operationData = await popPostbackPayload(operationKey);
-        if (!operationData) {
-          continue;
-        }
-        try {
-          const operation: Operation = JSON.parse(operationData);
-          // Re-store the operation
-          await stashPostbackPayload(
-            operationKey,
-            operationData,
-            this.HISTORY_TTL_DAYS * 24 * 60 * 60,
-          );
-          return operation;
-        } catch {
-          // JSON 破損時は次の試行
-          continue;
-        }
+      const operationData = await popPostbackPayload(operationKey);
+
+      if (!operationData) {
+        return null;
       }
-      return null;
+
+      const operation: Operation = JSON.parse(operationData);
+
+      // Re-store the operation
+      await stashPostbackPayload(
+        operationKey,
+        operationData,
+        this.HISTORY_TTL_DAYS * 24 * 60 * 60,
+      );
+
+      return operation;
     } catch (error) {
       console.error(`Failed to get operation ${operationId}:`, error);
       return null;
@@ -515,15 +487,7 @@ export class OperationHistoryManager {
 
     try {
       const historyData = await popPostbackPayload(historyKey);
-      let operationIds: string[] = [];
-      if (historyData) {
-        try {
-          const parsed = JSON.parse(historyData);
-          operationIds = Array.isArray(parsed) ? parsed : [];
-        } catch {
-          operationIds = [];
-        }
-      }
+      const operationIds: string[] = historyData ? JSON.parse(historyData) : [];
 
       // Add new operation at the beginning
       operationIds.unshift(operationId);
@@ -615,13 +579,7 @@ export class OperationHistoryManager {
    * Deep clone object
    */
   private deepClone(obj: any): any {
-    if (obj === undefined || obj === null) return obj;
-    try {
-      return JSON.parse(JSON.stringify(obj));
-    } catch {
-      // Fallback to original reference if serialization fails (non-JSON-safe types)
-      return obj;
-    }
+    return JSON.parse(JSON.stringify(obj));
   }
 
   /**
@@ -641,17 +599,17 @@ export class OperationHistoryManager {
   private generateDescription(type: OperationType, afterState: any): string {
     switch (type) {
       case OperationType.CREATE_EVENT:
-        return `Created event: ${(afterState && afterState.summary) || "Untitled"}`;
+        return `Created event: ${afterState.summary || "Untitled"}`;
       case OperationType.UPDATE_EVENT:
-        return `Updated event: ${(afterState && afterState.summary) || "Untitled"}`;
+        return `Updated event: ${afterState.summary || "Untitled"}`;
       case OperationType.DELETE_EVENT:
-        return `Deleted event: ${(afterState && afterState.summary) || "Untitled"}`;
+        return `Deleted event: ${afterState.summary || "Untitled"}`;
       case OperationType.EDIT_TIME:
-        return `Changed time to: ${(afterState && afterState.start) || "N/A"} - ${(afterState && afterState.end) || "N/A"}`;
+        return `Changed time to: ${afterState.start} - ${afterState.end}`;
       case OperationType.EDIT_LOCATION:
-        return `Changed location to: ${(afterState && afterState.location) || "Unknown"}`;
+        return `Changed location to: ${afterState.location}`;
       case OperationType.EDIT_TITLE:
-        return `Changed title to: ${(afterState && afterState.summary) || "Untitled"}`;
+        return `Changed title to: ${afterState.summary}`;
       case OperationType.EDIT_DESCRIPTION:
         return `Updated description`;
       case OperationType.SET_REMINDER:

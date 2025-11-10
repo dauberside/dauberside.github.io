@@ -2,18 +2,10 @@ openapi: 3.0.3
 info:
   title: Booking API
   version: 0.1.0
-  description: Minimal booking API for slots discovery and booking creation used by LINE-native scheduling.
-  license:
-    name: MIT
-  url: https://opensource.org/licenses/MIT
-servers:
-  - url: https://example.com
-    description: Placeholder server (not used in Next.js pages/api during local dev)
 paths:
   /api/slots:
     get:
       summary: List available time slots
-      operationId: listSlots
       parameters:
         - in: query
           name: date
@@ -60,7 +52,6 @@ paths:
   /api/book:
     post:
       summary: Book a slot
-      operationId: createBooking
       requestBody:
         required: true
         content:

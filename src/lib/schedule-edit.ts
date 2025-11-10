@@ -1146,7 +1146,7 @@ export async function handleTextInput(
   userId: string,
 ): Promise<boolean> {
   try {
-    // AI編集セッションをチェック
+    // AI編集セッションをチェック (getEditSession は EditSession | null を返す)
     const aiTimeSession = await getEditSession(userId, "ai_edit_time");
     const aiLocationSession = await getEditSession(userId, "ai_edit_location");
 
@@ -1226,12 +1226,12 @@ export async function handleTextInput(
     }
 
     // 通常のテキスト入力（AI編集セッション中）
-    if (aiTimeSession && typeof (aiTimeSession as any).eventId === "string") {
+    if (aiTimeSession && (aiTimeSession as any).eventId) {
       // 時間編集セッションの入力を保存
       await storeUserInput(
         userId,
         "ai_edit_time",
-        (aiTimeSession as any).eventId as string,
+        (aiTimeSession as any).eventId,
         text,
       );
       await replyText(
@@ -1241,15 +1241,12 @@ export async function handleTextInput(
       return true;
     }
 
-    if (
-      aiLocationSession &&
-      typeof (aiLocationSession as any).eventId === "string"
-    ) {
+    if (aiLocationSession && (aiLocationSession as any).eventId) {
       // 場所編集セッションの入力を保存
       await storeUserInput(
         userId,
         "ai_edit_location",
-        (aiLocationSession as any).eventId as string,
+        (aiLocationSession as any).eventId,
         text,
       );
       await replyText(

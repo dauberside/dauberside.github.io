@@ -69,7 +69,7 @@ export interface SessionUpdate {
   preservedContext?: any;
   operationComplexity?: number;
   metadata?: Partial<SessionMetadata>;
-  // internal updates
+  // Allow updating checkpoint and error history arrays
   checkpoints?: Checkpoint[];
   errorHistory?: SessionError[];
 }
@@ -167,18 +167,16 @@ export class EnhancedSessionManager {
       },
     };
 
-    // Create initial checkpoint locally (avoid KV read before first write)
-    const initialCheckpoint: Checkpoint = {
-      id: generateCheckpointId(),
-      timestamp: now,
-      step: "initial",
-      state: JSON.parse(JSON.stringify(initialData || {})),
-      description: "Session created",
-      automatic: true,
-    };
-    session.checkpoints.push(initialCheckpoint);
+    // Create initial checkpoint
+    await this.createCheckpoint(
+      sessionId,
+      "initial",
+      initialData || {},
+      "Session created",
+      true,
+    );
 
-    // Store session including initial checkpoint
+    // Store session
     const sessionKey = `enhanced_session_${sessionId}`;
     await stashPostbackPayload(
       sessionKey,
@@ -523,14 +521,7 @@ export async function getEditSession(
     const sessionData = await popPostbackPayload(sessionId);
     if (!sessionData) return null;
 
-    let session: EditSession | null = null;
-    try {
-      session = JSON.parse(sessionData || "null");
-    } catch (e) {
-      console.error("Session parse error:", e);
-      session = null;
-    }
-    if (!session) return null;
+    const session: EditSession = JSON.parse(sessionData);
 
     // 有効期限チェック
     if (Date.now() > session.expiresAt) {
@@ -541,7 +532,7 @@ export async function getEditSession(
     await stashPostbackPayload(
       sessionId,
       JSON.stringify(session),
-      Math.max(1, Math.ceil((session.expiresAt - Date.now()) / 1000)),
+      Math.ceil((session.expiresAt - Date.now()) / 1000),
     );
 
     return session;

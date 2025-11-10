@@ -1,29 +1,3 @@
-# SpecKit usage
-
-This repository includes a lightweight SpecKit.
-
-- Source of truth lives under `spec/specs/*` (plan, research, spec, tasks)
-- Contracts under `spec/specs/*/contracts/*.openapi.yml`
-- Scripts under `spec/scripts/*`
-
-## Local commands
-
-- `pnpm spec:validate` — validate spec templates presence
-- `pnpm spec:openapi:lint` — lint booking OpenAPI
-- `pnpm spec:openapi:types` — generate TS types at `src/types/generated/booking-api.ts`
-- `pnpm test:contract` — run only contract tests
-
-Run CI pipeline locally:
-
-```zsh
-pnpm -s format:check && pnpm -s lint && pnpm -s typecheck && pnpm -s test && pnpm -s build
-```
-
-## CI
-
-- `.github/workflows/ci.yml` runs quality and spec validator on PRs
-- `.github/workflows/spec-templates.yml` keeps templates in sync and validates
-
 # spec/ — Spec Kit templates and scripts
 
 Purpose: contain Spec Kit templates, helper scripts, and minimal operational docs so teams can author feature specs, plans, and tasks without needing the external `uvx` CLI to be available.

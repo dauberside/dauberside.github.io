@@ -1,6 +1,7 @@
 // src/lib/preferences-api.ts
 // User preferences management API
 
+import { createSystemError, ErrorType } from "./errors";
 import type {
   PreferenceExport,
   PreferenceImportResult,
@@ -12,12 +13,12 @@ import type {
   EventTypeNotificationSettings,
   FrequentLocation,
   NotificationPreferences,
+  PreferenceUpdateResult,
   QuietHours,
   UIPreferences,
   UserPreferences,
 } from "./user-preferences";
-import type { PreferenceUpdateResult } from "./user-preferences";
-import { DEFAULT_USER_PREFERENCES, PreferenceUtils } from "./user-preferences";
+import { PreferenceUtils } from "./user-preferences";
 
 /**
  * Preference field update request
@@ -101,9 +102,16 @@ export class PreferencesAPI {
       return preferences;
     } catch (error) {
       console.error(`Failed to get preferences for user ${userId}:`, error);
-      // テストは Error の throw を期待するため、そのまま（または Error 包装して）伝播
-      if (error instanceof Error) throw error;
-      throw new Error("Failed to retrieve preferences");
+      throw createSystemError(
+        ErrorType.SYSTEM_ERROR,
+        "Failed to retrieve preferences",
+        {
+          userId,
+          operationType: "get_preferences",
+          operationStep: "retrieval",
+        },
+        error as Error,
+      );
     }
   }
 
@@ -126,9 +134,7 @@ export class PreferencesAPI {
 
       // Validate if requested
       if (validate) {
-        // 部分更新の検証は現状値とマージした完全オブジェクトで行う
-        const candidate = this.deepMerge(currentPreferences, updates);
-        const validationErrors = PreferenceUtils.validatePreferences(candidate);
+        const validationErrors = PreferenceUtils.validatePreferences(updates);
         if (validationErrors.length > 0) {
           return {
             success: false,
@@ -165,7 +171,6 @@ export class PreferencesAPI {
     request: BulkPreferenceUpdate,
   ): Promise<PreferenceUpdateResult> {
     try {
-      const base = await preferencesStorageManager.getUserPreferences(userId);
       const updates: any = {};
       const updatedFields: string[] = [];
 
@@ -177,8 +182,7 @@ export class PreferencesAPI {
 
       // Validate all updates if requested
       if (request.validateAll) {
-        const candidate = this.deepMerge(base, updates);
-        const validationErrors = PreferenceUtils.validatePreferences(candidate);
+        const validationErrors = PreferenceUtils.validatePreferences(updates);
         if (validationErrors.length > 0) {
           return {
             success: false,
@@ -237,8 +241,10 @@ export class PreferencesAPI {
     userId: string,
     uiPreferences: Partial<UIPreferences>,
   ): Promise<PreferenceUpdateResult> {
+    const current = await preferencesStorageManager.getUserPreferences(userId);
+    const merged: UIPreferences = { ...current.ui, ...uiPreferences };
     return await preferencesStorageManager.updatePreferences(userId, {
-      ui: uiPreferences as any,
+      ui: merged,
     });
   }
 
@@ -260,8 +266,13 @@ export class PreferencesAPI {
     userId: string,
     notificationPreferences: Partial<NotificationPreferences>,
   ): Promise<PreferenceUpdateResult> {
+    const current = await preferencesStorageManager.getUserPreferences(userId);
+    const merged: NotificationPreferences = {
+      ...current.notifications,
+      ...notificationPreferences,
+    };
     return await preferencesStorageManager.updatePreferences(userId, {
-      notifications: notificationPreferences as any,
+      notifications: merged,
     });
   }
 
@@ -399,8 +410,13 @@ export class PreferencesAPI {
     userId: string,
     aiLearningPreferences: Partial<AILearningPreferences>,
   ): Promise<PreferenceUpdateResult> {
+    const current = await preferencesStorageManager.getUserPreferences(userId);
+    const merged: AILearningPreferences = {
+      ...current.aiLearning,
+      ...aiLearningPreferences,
+    };
     return await preferencesStorageManager.updatePreferences(userId, {
-      aiLearning: aiLearningPreferences as any,
+      aiLearning: merged,
     });
   }
 
@@ -420,8 +436,13 @@ export class PreferencesAPI {
     userId: string,
     defaultValues: Partial<DefaultValues>,
   ): Promise<PreferenceUpdateResult> {
+    const current = await preferencesStorageManager.getUserPreferences(userId);
+    const merged: DefaultValues = {
+      ...current.defaults,
+      ...defaultValues,
+    } as DefaultValues;
     return await preferencesStorageManager.updatePreferences(userId, {
-      defaults: defaultValues as any,
+      defaults: merged,
     });
   }
 
@@ -546,7 +567,7 @@ export class PreferencesAPI {
   getFieldDescription(field: string): string {
     const descriptions: Record<string, string> = {
       "ui.preferredInteractionStyle":
-        "Preferred interaction style (quick replies, natural language, or mixed)",
+        "Preferred way to interact with the bot (quick replies, natural language, or mixed)",
       "ui.showDetailedConfirmations":
         "Show detailed confirmation messages for operations",
       "ui.enableSmartSuggestions": "Enable AI-powered smart suggestions",
@@ -583,8 +604,7 @@ export class PreferencesAPI {
     value: any,
   ): { valid: boolean; error?: string } {
     try {
-      // デフォルト全体に変更を適用してから検証
-      const testPrefs: any = this.deepMerge(DEFAULT_USER_PREFERENCES, {});
+      const testPrefs: any = {};
       this.setNestedValue(testPrefs, field, value);
 
       const errors = PreferenceUtils.validatePreferences(testPrefs);
@@ -694,26 +714,15 @@ export class PreferencesAPI {
   private getMinimalPreferences(
     preferences: UserPreferences,
   ): Partial<UserPreferences> {
-    // This would compare with defaults and return only changed values
-    // For now, return a subset of important preferences
-    const minimal: Partial<UserPreferences> = {
+    // Return full objects (simplifies typing) while conceptually minimal could filter in future
+    return {
       userId: preferences.userId,
       version: preferences.version,
-      ui: {
-        preferredInteractionStyle: preferences.ui.preferredInteractionStyle,
-        language: preferences.ui.language,
-        timeFormat: preferences.ui.timeFormat,
-      },
-      notifications: {
-        enabled: preferences.notifications.enabled,
-        defaultReminderMinutes:
-          preferences.notifications.defaultReminderMinutes,
-      },
-      aiLearning: {
-        enableLearning: preferences.aiLearning.enableLearning,
-      },
-    } as any;
-    return minimal;
+      ui: { ...preferences.ui },
+      notifications: { ...preferences.notifications },
+      aiLearning: { ...preferences.aiLearning },
+      defaults: { ...preferences.defaults },
+    };
   }
 
   /**
@@ -782,24 +791,6 @@ export class PreferencesAPI {
     }, obj);
     target[lastKey] = value;
   }
-
-  // シンプルなディープマージ（配列は上書き、オブジェクトは再帰）
-  private deepMerge<T>(base: T, patch: any): T {
-    if (patch === null || patch === undefined) return base;
-    if (
-      Array.isArray(base) ||
-      Array.isArray(patch) ||
-      typeof base !== "object" ||
-      typeof patch !== "object"
-    ) {
-      return patch as T;
-    }
-    const result: any = { ...base };
-    for (const key of Object.keys(patch)) {
-      result[key] = this.deepMerge((base as any)[key], patch[key]);
-    }
-    return result;
-  }
 }
 
 // Export singleton instance
@@ -819,12 +810,11 @@ export async function updatePreferenceField(
   value: any,
   validate?: boolean,
 ): Promise<PreferenceUpdateResult> {
-  const shouldValidate = validate ?? false;
   return await preferencesAPI.updatePreferenceField(
     userId,
     field,
     value,
-    shouldValidate,
+    validate,
   );
 }
 

@@ -322,7 +322,7 @@ export class ClarificationSystem {
       // Find similar patterns
       for (const data of learningData) {
         const similarity = this.calculateSimilarity(input, data.inputPattern);
-        if (similarity > 0.4) {
+        if (similarity > 0.7) {
           suggestions.push({
             interpretation: data.correctInterpretation,
             confidence: data.confidence * similarity,
@@ -723,7 +723,7 @@ export class ClarificationSystem {
           JSON.stringify(learningData),
           this.LEARNING_DATA_TTL,
         );
-        // Intentionally skip learning index update here to align with expected write counts in tests
+        await this.addToLearningIndex(learningData.userId, key);
       }
     } catch (error) {
       console.error("Failed to update learning from feedback:", error);
@@ -797,28 +797,14 @@ export class ClarificationSystem {
    * Calculate similarity between two strings
    */
   private calculateSimilarity(str1: string, str2: string): number {
-    // Bigram-based Jaccard similarity (better for Japanese with no spaces)
-    const toBigrams = (s: string) => {
-      // Normalize: lower-case, remove common Japanese particles and punctuation that don't affect meaning
-      const norm = (s || "")
-        .toLowerCase()
-        .replace(/[のにをはがでとへやも・、。,.!？?\s]/g, "");
-      const grams: string[] = [];
-      for (let i = 0; i < Math.max(0, norm.length - 1); i++) {
-        grams.push(norm.slice(i, i + 2));
-      }
-      return grams;
-    };
+    // Simple Jaccard similarity for now
+    const set1 = new Set(str1.toLowerCase().split(/\s+/));
+    const set2 = new Set(str2.toLowerCase().split(/\s+/));
 
-    const grams1 = toBigrams(str1);
-    const grams2 = toBigrams(str2);
-    if (grams1.length === 0 && grams2.length === 0) return 0;
-
-    const set1 = new Set(grams1);
-    const set2 = new Set(grams2);
     const intersection = new Set([...set1].filter((x) => set2.has(x)));
     const union = new Set([...set1, ...set2]);
-    return union.size === 0 ? 0 : intersection.size / union.size;
+
+    return intersection.size / union.size;
   }
 
   /**
@@ -971,8 +957,6 @@ export class ClarificationSystem {
    * Hash string for consistent key generation
    */
   private hashString(str: string): string {
-    // Normalize undefined/null to empty string
-    str = String(str ?? "");
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);

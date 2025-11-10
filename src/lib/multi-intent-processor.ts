@@ -150,7 +150,6 @@ export interface ExecutionSuggestion {
 export enum SuggestionType {
   MERGE_OPERATIONS = "merge_operations",
   REORDER_EXECUTION = "reorder_execution",
-  REORDER_OPERATIONS = "reorder_operations",
   PARALLELIZE = "parallelize",
   SPLIT_COMPLEX = "split_complex",
   ADD_CONFIRMATION = "add_confirmation",
@@ -180,26 +179,6 @@ export class MultiIntentProcessor {
     return MultiIntentProcessor.instance;
   }
 
-  private log(
-    level: "error" | "warn" | "info",
-    message: string,
-    error?: unknown,
-  ) {
-    if (process.env.NODE_ENV === "test") return;
-
-    const logger: Record<typeof level, (...args: unknown[]) => void> = {
-      error: console.error.bind(console),
-      warn: console.warn.bind(console),
-      info: console.log.bind(console),
-    };
-
-    if (error !== undefined) {
-      logger[level](message, error);
-    } else {
-      logger[level](message);
-    }
-  }
-
   /**
    * Process multiple intents from user input
    */
@@ -211,21 +190,18 @@ export class MultiIntentProcessor {
 
     try {
       // Detect multiple intents
-      let intents = await this.detectMultipleIntents(text, context);
+      const intents = await this.detectMultipleIntents(text, context);
 
-      // Fallback: if still no intents, try using standard NLP to get a single intent
       if (intents.length === 0) {
-        const nlpIntent = await enhancedNLPProcessor.extractIntent(
-          text,
-          context,
+        throw createSystemError(
+          ErrorType.CLOUDFLARE_AI_ERROR,
+          "No intents detected in user input",
+          { userInput: text, additionalData: { conversationContext: context } },
         );
-        intents = [nlpIntent];
       }
 
       // Handle single intent case
       if (intents.length === 1) {
-        // Validate via NLP intent extraction as well (tests may inject failure here)
-        await enhancedNLPProcessor.extractIntent(text, context);
         const entities = await enhancedNLPProcessor.extractEntities(
           text,
           context,
@@ -245,20 +221,18 @@ export class MultiIntentProcessor {
         startTime,
       );
     } catch (error) {
-      this.log("error", "Multi-intent processing failed:", error);
-      const errMsg = error instanceof Error ? error.message : String(error);
-      const sysErr = createSystemError(
+      console.error("Multi-intent processing failed:", error);
+      throw createSystemError(
         ErrorType.CLOUDFLARE_AI_ERROR,
         "Failed to process multi-intent request",
         {
           userInput: text,
-          systemState: { context },
-          additionalData: { errorMessage: errMsg },
+          additionalData: {
+            conversationContext: context,
+            errorMessage:
+              error instanceof Error ? error.message : String(error),
+          },
         },
-      );
-      throw new Error(
-        sysErr.userMessage || "Failed to process multi-intent request",
-        { cause: sysErr as unknown as Error },
       );
     }
   }
@@ -281,31 +255,18 @@ export class MultiIntentProcessor {
       const parsed = this.parseMultiIntentResponse(response);
 
       // Convert to Intent objects
-      const intents: Intent[] = (
+      const intents: Intent[] =
         parsed.intents?.map((intentData: any) => ({
           name: intentData.name,
-          // Map by name; tests provide only name and confidence
-          category: this.mapToIntentCategory(intentData.name),
-          confidence:
-            typeof intentData.confidence === "number"
-              ? intentData.confidence
-              : 0.8,
+          category: this.mapToIntentCategory(intentData.category),
+          confidence: intentData.confidence || 0.8,
+          entities: intentData.entities || [],
           parameters: intentData.parameters || {},
-        })) || []
-      )
-        // Sort by confidence desc for consistent capping
-        .sort((a: Intent, b: Intent) => b.confidence - a.confidence);
+        })) || [];
 
-      // Cap to maximum allowed intents per request
-      const MAX_INTENTS_PER_REQUEST = 5;
-      const capped = intents.slice(0, MAX_INTENTS_PER_REQUEST);
-      if (capped.length === 0) {
-        // If AI produced no intents, fallback to simple pattern-based detection
-        return await this.fallbackIntentDetection(text, context);
-      }
-      return capped;
+      return intents;
     } catch (error) {
-      this.log("error", "Intent detection failed, using fallback:", error);
+      console.error("Intent detection failed, using fallback:", error);
       return await this.fallbackIntentDetection(text, context);
     }
   }
@@ -499,7 +460,7 @@ JSONフォーマットで正確に返答してください。`;
 
       return JSON.parse(jsonMatch[0]);
     } catch (error) {
-      this.log("error", "Failed to parse multi-intent response:", error);
+      console.error("Failed to parse multi-intent response:", error);
       return { intents: [] };
     }
   }
@@ -562,8 +523,7 @@ JSONフォーマットで正確に返答してください。`;
     for (const { pattern, category } of patterns) {
       if (pattern.test(text)) {
         intents.push({
-          // Name should match category string as tests expect 'schedule_create' etc.
-          name: category,
+          name: `fallback_${category}`,
           category,
           confidence: 0.6,
           parameters: {},
@@ -574,7 +534,7 @@ JSONフォーマットで正確に返答してください。`;
     // If no patterns match, return unclear intent
     if (intents.length === 0) {
       intents.push({
-        name: "unclear",
+        name: "fallback_unclear",
         category: IntentCategory.UNCLEAR,
         confidence: 0.3,
         parameters: {},
@@ -603,7 +563,7 @@ JSONフォーマットで正確に返答してください。`;
           intent,
           entities,
           prerequisites: [],
-          estimatedDuration: this.estimateExecutionTime(intent, entities),
+          estimatedDuration: 30000, // 30 seconds default
           priority: ExecutionPriority.NORMAL,
           canParallelize: false,
         },
@@ -614,14 +574,12 @@ JSONフォーマットで正確に返答してください。`;
 
     return {
       compoundIntent,
-      processingTime: Math.max(1, processingTime),
+      processingTime,
       confidence: intent.confidence,
       warnings: [],
       suggestions: [],
       canExecuteImmediately: true,
-      // Deletion is considered risky and requires confirmation even when single-intent
-      requiresUserConfirmation:
-        intent.category === IntentCategory.SCHEDULE_DELETE,
+      requiresUserConfirmation: false,
     };
   }
 
@@ -742,10 +700,7 @@ JSONフォーマットで正確に返答してください。`;
       [IntentCategory.SMALL_TALK]: 3000,
       [IntentCategory.UNCLEAR]: 10000,
     };
-    const base = baseTime[intent.category] || 30000;
-    // Add small increments based on number of relevant entities (e.g., date/location increase work)
-    const entityIncrement = (entities?.length || 0) * 5000;
-    return base + entityIncrement;
+    return baseTime[intent.category] || 30000;
   }
 
   private calculatePriority(
@@ -774,14 +729,8 @@ JSONフォーマットで正確に返答してください。`;
     steps: ExecutionStep[],
     relationships: IntentRelationship[],
   ): ExecutionStep[] {
-    // Prioritize by calculated priority, then by presence of required prerequisites
-    return steps.sort((a, b) => {
-      const prDiff = b.priority - a.priority;
-      if (prDiff !== 0) return prDiff;
-      const aReq = a.prerequisites.length;
-      const bReq = b.prerequisites.length;
-      return aReq - bReq;
-    });
+    // Simple topological sort
+    return steps.sort((a, b) => b.priority - a.priority);
   }
 
   private async analyzeWarnings(
@@ -811,36 +760,15 @@ JSONフォーマットで正確に返答してください。`;
   ): ExecutionSuggestion[] {
     const suggestions: ExecutionSuggestion[] = [];
 
-    // Suggest merging when there are duplicated intents (e.g., multiple creates)
-    const nameCounts = compoundIntent.executionOrder.reduce<
-      Record<string, number>
-    >((acc, s) => {
-      acc[s.intent.category] = (acc[s.intent.category] || 0) + 1;
-      return acc;
-    }, {});
-    const hasDuplicates = Object.values(nameCounts).some((c) => c > 1);
-    if (hasDuplicates || compoundIntent.executionOrder.length > 2) {
+    if (compoundIntent.executionOrder.length > 2) {
       suggestions.push({
         type: SuggestionType.MERGE_OPERATIONS,
-        message: "類似の操作はまとめて実行可能です",
+        message: "複数の操作をまとめて実行できます",
         impact: SuggestionImpact.MEDIUM,
         applicableIntents: compoundIntent.executionOrder.map(
           (s) => s.intent.name,
         ),
         estimatedImprovement: 30,
-      });
-    }
-
-    // Suggest reordering for complex scenarios to improve efficiency
-    if (compoundIntent.complexity === IntentComplexity.COMPLEX) {
-      suggestions.push({
-        type: SuggestionType.REORDER_OPERATIONS,
-        message: "実行順序の最適化を提案します（作成→編集→照会の順など）",
-        impact: SuggestionImpact.LOW,
-        applicableIntents: compoundIntent.executionOrder.map(
-          (s) => s.intent.name,
-        ),
-        estimatedImprovement: 10,
       });
     }
 
@@ -903,12 +831,4 @@ export async function detectMultipleIntents(
   context: ConversationContext,
 ): Promise<Intent[]> {
   return await multiIntentProcessor.detectMultipleIntents(text, context);
-}
-
-// Backward/alternate naming used by tests
-export async function processMultipleIntents(
-  text: string,
-  context: ConversationContext,
-): Promise<MultiIntentResult> {
-  return await multiIntentProcessor.processMultiIntent(text, context);
 }

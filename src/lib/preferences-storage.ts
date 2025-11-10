@@ -83,28 +83,37 @@ export class PreferencesStorageManager {
    */
   async getUserPreferences(userId: string): Promise<UserPreferences> {
     try {
-      // Always attempt to load from storage first to avoid stale cache
+      // Check cache first
+      const cached = this.getCachedPreferences(userId);
+      if (cached) {
+        return cached;
+      }
+
+      // Load from storage
       const preferencesKey = `user_preferences_${userId}`;
       const preferencesData = await popPostbackPayload(preferencesKey);
 
       if (!preferencesData) {
-        // If no stored data, fall back to cache if available, else return defaults
-        const cached = this.getCachedPreferences(userId);
-        if (cached) return cached;
+        // Return default preferences for new users
         const defaultPrefs = PreferenceUtils.mergeWithDefaults({}, userId);
-        this.cachePreferences(userId, defaultPrefs);
+        await this.saveUserPreferences(userId, defaultPrefs);
         return defaultPrefs;
       }
 
       const storedPreferences: UserPreferences = JSON.parse(preferencesData);
 
-      // Merge with defaults to ensure all fields are present, but preserve timestamps
+      // Re-store preferences
+      await stashPostbackPayload(
+        preferencesKey,
+        preferencesData,
+        this.STORAGE_TTL,
+      );
+
+      // Merge with defaults to ensure all fields are present
       const mergedPreferences = PreferenceUtils.mergeWithDefaults(
         storedPreferences,
         userId,
       );
-      mergedPreferences.createdAt = storedPreferences.createdAt;
-      mergedPreferences.updatedAt = storedPreferences.updatedAt;
 
       // Cache the preferences
       this.cachePreferences(userId, mergedPreferences);
@@ -124,7 +133,6 @@ export class PreferencesStorageManager {
   async saveUserPreferences(
     userId: string,
     preferences: UserPreferences,
-    options?: { skipBackup?: boolean },
   ): Promise<PreferenceUpdateResult> {
     try {
       // Validate preferences
@@ -139,22 +147,8 @@ export class PreferencesStorageManager {
         };
       }
 
-      // Create backup before updating (unless explicitly skipped)
-      if (!options?.skipBackup) {
-        const backupOk = await this.createPreferenceBackup(
-          userId,
-          "before_update",
-        );
-        if (!backupOk) {
-          return {
-            success: false,
-            message: "Failed to save preferences",
-            updatedFields: [],
-            validationErrors: [],
-            warnings: [],
-          };
-        }
-      }
+      // Create backup before updating
+      await this.createPreferenceBackup(userId, "before_update");
 
       // Update timestamp
       const updatedPreferences: UserPreferences = {
@@ -244,18 +238,18 @@ export class PreferencesStorageManager {
 
       // Preserve specified fields
       for (const field of preserveFields) {
-        const value = this.getNestedValue(currentPreferences, field);
+        // Use PreferenceUtils private getNestedValue through casting since it's internal
+        // (Alternatively re-implement simple dot-walk to avoid typing issue)
+        const value = field
+          .split(".")
+          .reduce((cur: any, key: string) => cur?.[key], currentPreferences);
         if (value !== undefined) {
           PreferenceUtils.setNestedValue(defaultPreferences, field, value);
         }
       }
 
       // Save reset preferences
-      const result = await this.saveUserPreferences(
-        userId,
-        defaultPreferences,
-        { skipBackup: true },
-      );
+      const result = await this.saveUserPreferences(userId, defaultPreferences);
 
       if (result.success) {
         result.message = "Preferences reset to defaults";
@@ -377,7 +371,6 @@ export class PreferencesStorageManager {
       const saveResult = await this.saveUserPreferences(
         userId,
         targetPreferences,
-        { skipBackup: true },
       );
 
       return {
@@ -407,10 +400,7 @@ export class PreferencesStorageManager {
   /**
    * Create preference backup
    */
-  async createPreferenceBackup(
-    userId: string,
-    reason: string,
-  ): Promise<boolean> {
+  async createPreferenceBackup(userId: string, reason: string): Promise<void> {
     try {
       const preferences = await this.getUserPreferences(userId);
 
@@ -432,18 +422,17 @@ export class PreferencesStorageManager {
         JSON.stringify(backup),
         this.BACKUP_TTL,
       );
-      // Update backup index (this performs exactly one stash for the index)
+
+      // Update backup index
       await this.updateBackupIndex(userId, backupId);
 
       console.log(`Preference backup created for user ${userId}: ${backupId}`);
-      return true;
     } catch (error) {
       console.error(
         `Failed to create preference backup for user ${userId}:`,
         error,
       );
-      // Don't throw error, but signal failure to caller when needed
-      return false;
+      // Don't throw error - backup failure shouldn't block main operation
     }
   }
 
@@ -604,13 +593,6 @@ export class PreferencesStorageManager {
   }
 
   /**
-   * Get nested value from object using dot notation
-   */
-  private getNestedValue(obj: any, path: string): any {
-    return path.split(".").reduce((current, key) => current?.[key], obj);
-  }
-
-  /**
    * Get minimal preferences (only non-default values)
    */
   private getMinimalPreferences(preferences: UserPreferences): UserPreferences {
@@ -662,15 +644,7 @@ export class PreferencesStorageManager {
 
     try {
       const indexData = await popPostbackPayload(indexKey);
-      let backupIds: string[] = [];
-      if (indexData) {
-        try {
-          const parsed = JSON.parse(indexData);
-          backupIds = Array.isArray(parsed) ? parsed : [];
-        } catch {
-          backupIds = [];
-        }
-      }
+      const backupIds: string[] = indexData ? JSON.parse(indexData) : [];
 
       // Add new backup ID
       backupIds.unshift(backupId);
@@ -709,13 +683,7 @@ export class PreferencesStorageManager {
         return [];
       }
 
-      let backupIds: string[] = [];
-      try {
-        const parsed = JSON.parse(indexData);
-        backupIds = Array.isArray(parsed) ? parsed : [];
-      } catch {
-        backupIds = [];
-      }
+      const backupIds: string[] = JSON.parse(indexData);
 
       // Re-store index
       await stashPostbackPayload(indexKey, indexData, this.BACKUP_TTL);

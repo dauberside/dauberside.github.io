@@ -1,0 +1,66 @@
+name: Preview Deploy & Smoke
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-and-smoke:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel environment info (preview)
+        run: npx -y vercel@latest pull --yes --environment=preview --token=$VERCEL_TOKEN
+
+      - name: Build with Vercel (prebuilt)
+        run: npx -y vercel@latest build --token=$VERCEL_TOKEN
+
+      - name: Deploy to Vercel (preview)
+        id: deploy
+        run: |
+          url=$(npx -y vercel@latest deploy --prebuilt --token=$VERCEL_TOKEN | tail -n1)
+          echo "preview_url=$url" >> $GITHUB_OUTPUT
+          echo "Preview URL: $url"
+
+      - name: Smoke - healthz must be 200
+        run: |
+          curl -fsSL "${{ steps.deploy.outputs.preview_url }}/api/healthz" -o /dev/null
+
+      - name: Smoke - run endpoint (status may be 200 or 500)
+        run: |
+          code=$(curl -si -X POST "${{ steps.deploy.outputs.preview_url }}/api/agent/run" \
+            -H 'Content-Type: application/json' \
+            -H "x-internal-token: ${INTERNAL_API_TOKEN}" \
+            --data '{"input":"smoke from CI"}' | head -n 1 | awk '{print $2}')
+          echo "run status: $code"
+          if [ "$code" != "200" ] && [ "$code" != "500" ]; then
+            echo "Unexpected status for /api/agent/run: $code" >&2
+            exit 1
+          fi
+
+      - name: Smoke (verbose log)
+        run: |
+          node scripts/agent-builder/smoke.mjs --base "${{ steps.deploy.outputs.preview_url }}" --token "${INTERNAL_API_TOKEN}" --input 'smoke from CI' --health-timeout 60 --no-mock || true

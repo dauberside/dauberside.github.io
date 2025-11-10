@@ -51,17 +51,17 @@ export interface MessageContext {
 /**
  * Localized error message templates
  */
+type ErrorMessageTemplate = {
+  title: string;
+  description: string;
+  suggestions: readonly string[];
+  severity: "info" | "warning" | "error" | "critical";
+  contactSupport: boolean;
+};
+
+// 部分的定義（未定義の ErrorType は後でフォールバック扱い）
 const ERROR_MESSAGE_TEMPLATES: Partial<
-  Record<
-    ErrorType,
-    {
-      title: string;
-      description: string;
-      suggestions: readonly string[];
-      severity: "info" | "warning" | "error" | "critical";
-      contactSupport: boolean;
-    }
-  >
+  Record<ErrorType, ErrorMessageTemplate>
 > = {
   [ErrorType.USER_INPUT_ERROR]: {
     title: "入力エラー",
@@ -182,7 +182,7 @@ const ERROR_MESSAGE_TEMPLATES: Partial<
     severity: "critical" as const,
     contactSupport: true,
   },
-} as const;
+};
 
 /**
  * Recovery action labels in Japanese
@@ -245,7 +245,7 @@ export class ErrorMessageGenerator {
     );
 
     const personalizedSuggestions = this.personalizeSuggestions(
-      template.suggestions,
+      [...template.suggestions],
       error,
       context,
     );
@@ -258,7 +258,8 @@ export class ErrorMessageGenerator {
     return {
       title: template.title,
       description: personalizedDescription,
-      suggestions: personalizedSuggestions,
+      // suggestions は変更可能な配列が期待されるためコピーして mutable にする
+      suggestions: [...personalizedSuggestions],
       recoveryOptions,
       contactSupport: template.contactSupport,
       severity: template.severity,
@@ -269,10 +270,8 @@ export class ErrorMessageGenerator {
    * Generate suggestions based on error and context
    */
   generateSuggestions(error: SystemError, context: MessageContext): string[] {
-    const baseSuggestions: readonly string[] =
-      (ERROR_MESSAGE_TEMPLATES[error.type]?.suggestions as
-        | readonly string[]
-        | undefined) || [];
+    const base = ERROR_MESSAGE_TEMPLATES[error.type]?.suggestions || [];
+    const baseSuggestions = [...base];
 
     // Add context-specific suggestions
     const contextualSuggestions = this.getContextualSuggestions(error, context);
@@ -399,7 +398,7 @@ export class ErrorMessageGenerator {
    * Personalize suggestions based on user context
    */
   private personalizeSuggestions(
-    baseSuggestions: readonly string[],
+    baseSuggestions: string[],
     error: SystemError,
     context: MessageContext,
   ): string[] {

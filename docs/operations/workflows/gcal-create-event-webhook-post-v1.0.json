@@ -1,0 +1,134 @@
+{
+  "name": "Google Calendar: Create Event (Webhook POST) v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "gcal-create-event",
+        "httpMethod": "POST",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-post-1",
+      "name": "Webhook (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+  "functionCode": "const bAll = (typeof $json === 'object' && $json) ? $json : {}; const b = (typeof bAll.body === 'object' && bAll.body) ? bAll.body : bAll; const summary = String(b.summary || 'Untitled'); const description = String(b.description || ''); const timeZone = String(b.timezone || 'Asia/Tokyo'); const startIso = b.start || b.startDateTime || new Date().toISOString(); let endIso = b.end || b.endDateTime; const duration = Number.isFinite(Number(b.durationMinutes)) ? Number(b.durationMinutes) : 60; try { const t = new Date(startIso).getTime(); if (!endIso) { endIso = new Date(t + duration * 60000).toISOString(); } } catch(e) {} let attendees = []; if (Array.isArray(b.attendees)) { attendees = b.attendees.map(x => typeof x === 'string' ? { email: x } : x).filter(x => x && x.email); } else if (typeof b.attendees === 'string') { attendees = b.attendees.split(/[\\s,;]+/).filter(Boolean).map(email => ({ email })); } const event = { summary, description, start: { dateTime: startIso, timeZone }, end: { dateTime: endIso, timeZone } }; if (attendees.length) event.attendees = attendees; return [{ event }];"
+      },
+      "id": "code-prepare-1",
+      "name": "Prepare Params",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParametersUi": {
+          "parameter": [
+            { "name": "grant_type", "value": "refresh_token" },
+            { "name": "client_id", "value": "={{$env.GC_CLIENT_ID}}" },
+            { "name": "client_secret", "value": "={{$env.GC_CLIENT_SECRET}}" },
+            { "name": "refresh_token", "value": "={{$env.GC_REFRESH_TOKEN}}" }
+          ]
+        },
+        "responseFormat": "json"
+      },
+      "id": "http-token-1",
+      "name": "Get Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/calendar/v3/calendars/{{ $env.CALENDAR_ID ? $env.CALENDAR_ID : 'primary' }}/events",
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $node['Get Access Token'].json.access_token }}" },
+            { "name": "Accept", "value": "application/json" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "rawBody": "={{ JSON.stringify($item(0).$node['Prepare Params'].json.event) }}",
+        "responseFormat": "json"
+      },
+      "id": "http-create-1",
+      "name": "Create Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1060,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const ev = $json || {}; return [{ ok: true, id: ev.id, htmlLink: ev.htmlLink, summary: ev.summary, start: ev.start, end: ev.end }];"
+      },
+      "id": "code-format-1",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook (POST)": {
+      "main": [
+        [
+          { "node": "Prepare Params", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Prepare Params": {
+      "main": [
+        [
+          { "node": "Get Access Token", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Get Access Token": {
+      "main": [
+        [
+          { "node": "Create Event", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Create Event": {
+      "main": [
+        [
+          { "node": "Format Response", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "gcal-create-event-webhook-post-v1-0",
+  "meta": { "templateCredsSetup": [] }
+}

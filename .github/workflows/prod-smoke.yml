@@ -1,0 +1,143 @@
+name: production-smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Base URL of Production (e.g., https://www.example.com)"
+        required: false
+        type: string
+      allow500:
+        description: "Treat 500 from /api/agent/run as success (useful if OPENAI_API_KEY is intentionally not set)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: "0 */4 * * *" # every 4 hours
+
+concurrency:
+  group: prod-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Smoke test Production
+    runs-on: ubuntu-latest
+    env:
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    steps:
+      - name: Resolve BASE URL
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_INPUT="${{ github.event.inputs.base || '' }}"
+          BASE_DEFAULT="https://www.xn--rn8h03a.st"
+          BASE="$BASE_INPUT"
+          if [ -z "$BASE" ]; then BASE="$BASE_DEFAULT"; fi
+          echo "Using BASE=$BASE"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve Policy (strict vs allow500)
+        id: policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Default is strict (200 only). Allow 500 only when explicitly requested by workflow_dispatch.
+          ALLOW_500_INPUT="${{ github.event.inputs.allow500 || '' }}"
+          if [ "$ALLOW_500_INPUT" = "true" ]; then
+            echo "allow500=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allow500=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Health check /api/healthz
+        env:
+          BASE: ${{ steps.resolve.outputs.base }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "$BASE/api/healthz")
+          echo "healthz status=$code"
+          if [ "$code" != "200" ]; then
+            echo "Expected 200 from $BASE/api/healthz, got $code" >&2
+            exit 1
+          fi
+
+      - name: Run /api/agent/run
+        env:
+          BASE: ${{ steps.resolve.outputs.base }}
+          INTERNAL_API_TOKEN: ${{ env.INTERNAL_API_TOKEN }}
+          ALLOW500: ${{ steps.policy.outputs.allow500 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${INTERNAL_API_TOKEN:-}" ]; then
+            echo "INTERNAL_API_TOKEN secret is not set" >&2
+            exit 1
+          fi
+          sleep 1 # avoid tripping simple rate limiter
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            -X POST "$BASE/api/agent/run" \
+            -H 'Content-Type: application/json' \
+            -H "x-internal-token: $INTERNAL_API_TOKEN" \
+            --data '{"input":"smoke from CI"}')
+          echo "/api/agent/run status=$code"
+          if [ "$code" = "401" ]; then
+            echo "Unauthorized (401). Ensure Production INTERNAL_API_TOKEN matches the secret and server config." >&2
+            exit 1
+          fi
+          if [ "$code" = "429" ]; then
+            echo "Rate limited (429). Retrying once after backoff..."
+            sleep 1
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+              -X POST "$BASE/api/agent/run" \
+              -H 'Content-Type: application/json' \
+              -H "x-internal-token: $INTERNAL_API_TOKEN" \
+              --data '{"input":"smoke from CI (retry)"}')
+            echo "retry status=$code"
+          fi
+          if [ "$code" = "200" ]; then exit 0; fi
+          if [ "$code" = "500" ] && [ "${ALLOW500:-false}" = "true" ]; then exit 0; fi
+          echo "Unexpected status $code from /api/agent/run" >&2
+          exit 1
+
+      - name: Notify Slack on failure
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != '' }}
+        env:
+          BASE: ${{ steps.resolve.outputs.base }}
+          WEBHOOK: ${{ env.SLACK_WEBHOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload=$(jq -nc --arg text "❌ Production smoke failed on $BASE in $GITHUB_REPOSITORY@${GITHUB_REF#refs/heads/}. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" '{text:$text}')
+          curl -sS -X POST -H 'Content-Type: application/json' --data "$payload" "$WEBHOOK" || true
+
+      - name: Create issue on failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Production smoke failed: ${context.repo.owner}/${context.repo.repo}`;
+            const body = [
+              `Base: ${{ steps.resolve.outputs.base }}`,
+              `Run: ${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              `Ref: ${context.ref}`
+            ].join('\n');
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['ops', 'smoke', 'production']
+              });
+            } catch (e) {
+              core.warning(`Failed to create issue: ${e.message}`);
+            }

@@ -10,8 +10,8 @@ import {
   stashPostbackPayload,
 } from "./kv";
 import { getUserPreferences } from "./preferences-api";
-import { DeliveryStatus, ReminderType } from "./reminder-types";
 import type { EventContext, SmartReminder } from "./smart-reminder-engine";
+import { DeliveryStatus, ReminderType } from "./smart-reminder-engine";
 import type { EventTypeNotificationSettings } from "./user-preferences";
 import { NotificationPriority } from "./user-preferences";
 
@@ -212,7 +212,8 @@ export class MultiStageReminderManager {
             let adjustedTime = stageReminderTime;
             if (
               stage.reminderType === ReminderType.DEPARTURE ||
-              !!eventContext.requiresTravel
+              Boolean((eventContext as any).weatherDependent) ||
+              Boolean((eventContext as any).trafficDependent)
             ) {
               try {
                 const contextAdjustment =
@@ -222,21 +223,7 @@ export class MultiStageReminderManager {
                     userId,
                     stage.minutesBefore,
                   );
-
-                // Guard: contextAdjustment may be undefined/null or lack a numeric adjustedTime
-                if (
-                  contextAdjustment &&
-                  typeof (contextAdjustment as any).adjustedTime === "number" &&
-                  Number.isFinite((contextAdjustment as any).adjustedTime)
-                ) {
-                  adjustedTime = (contextAdjustment as any)
-                    .adjustedTime as number;
-                } else {
-                  // Soft fallback without throwing to keep reminder creation robust
-                  console.warn(
-                    "Context adjustment returned no usable adjustedTime; using standard timing",
-                  );
-                }
+                adjustedTime = contextAdjustment.adjustedTime;
               } catch (error) {
                 console.error(
                   "Context adjustment failed, using standard timing:",
@@ -266,8 +253,7 @@ export class MultiStageReminderManager {
       return reminderIds;
     } catch (error) {
       console.error("Failed to create multi-stage reminders:", error);
-      // Create structured system error for logs/telemetry
-      const sysErr = createSystemError(
+      throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to create multi-stage reminders",
         {
@@ -278,11 +264,6 @@ export class MultiStageReminderManager {
         },
         error as Error,
       );
-      // Tests expect an Error instance to be thrown
-      // Attach the structured error as the cause for richer context
-      throw new Error("Failed to create multi-stage reminders", {
-        cause: sysErr as unknown as Error,
-      });
     }
   }
 
@@ -374,9 +355,10 @@ export class MultiStageReminderManager {
       // Cancel existing reminders
       await this.cancelMultiStageReminders(eventId);
 
-      // Note: Previously computed a wrong time difference using location name as a date.
-      // For postpone we simply cancel existing reminders and recreate them for the new start time.
-      // If future logic requires diff-based adjustments, compute against the original event start time.
+      // Update config with new event time
+      const timeDifference =
+        newEventTime -
+        new Date(config.eventContext.location?.name || "").getTime();
 
       // Recreate reminders with new timing
       const newReminderIds = await this.createMultiStageReminders(

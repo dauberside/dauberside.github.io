@@ -108,8 +108,7 @@ export class SessionPersistenceManager {
       );
     } catch (error) {
       console.error(`Failed to persist session ${session.id}:`, error);
-      // テストは Error インスタンスの throw を期待するため、cause に SystemError を付与して Error を投げる
-      const cause = createSystemError(
+      throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to persist session",
         {
@@ -119,9 +118,6 @@ export class SessionPersistenceManager {
         },
         error as Error,
       );
-      const err: any = new Error("Failed to persist session");
-      err.cause = cause;
-      throw err;
     }
   }
 
@@ -392,29 +388,18 @@ export class SessionPersistenceManager {
   async getSessionBackupInfo(sessionId: string): Promise<SessionBackup | null> {
     try {
       const backupKey = `${this.BACKUP_PREFIX}${sessionId}`;
-      // 一部テストでモックキューの値が残存するため、最大3回まで一致するバックアップを探す
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const backupData = await popPostbackPayload(backupKey);
+      const backupData = await popPostbackPayload(backupKey);
 
-        if (!backupData) {
-          return null;
-        }
-
-        try {
-          const backup: SessionBackup = JSON.parse(backupData);
-          if (backup.sessionId !== sessionId) {
-            // 異なるIDのバックアップ（テスト由来の残存値）はスキップして次を試す
-            continue;
-          }
-          // Re-store backup
-          await stashPostbackPayload(backupKey, backupData, 7 * 24 * 60 * 60);
-          return backup;
-        } catch {
-          // パース失敗時も次を試す
-          continue;
-        }
+      if (!backupData) {
+        return null;
       }
-      return null;
+
+      const backup: SessionBackup = JSON.parse(backupData);
+
+      // Re-store backup
+      await stashPostbackPayload(backupKey, backupData, 7 * 24 * 60 * 60);
+
+      return backup;
     } catch (error) {
       console.error(
         `Failed to get backup info for session ${sessionId}:`,
@@ -511,22 +496,14 @@ export class SessionPersistenceManager {
 
     try {
       const indexData = await popPostbackPayload(indexKey);
-      let sessionIds: string[] = [];
-      if (indexData) {
-        try {
-          const parsed = JSON.parse(indexData);
-          sessionIds = Array.isArray(parsed) ? parsed : [];
-        } catch {
-          sessionIds = [];
-        }
-      }
+      const sessionIds: string[] = indexData ? JSON.parse(indexData) : [];
 
       if (operation === "add") {
-        if (!sessionIds || !sessionIds.includes(sessionId)) {
+        if (!sessionIds.includes(sessionId)) {
           sessionIds.push(sessionId);
         }
       } else if (operation === "remove") {
-        const index = sessionIds ? sessionIds.indexOf(sessionId) : -1;
+        const index = sessionIds.indexOf(sessionId);
         if (index > -1) {
           sessionIds.splice(index, 1);
         }
@@ -557,13 +534,7 @@ export class SessionPersistenceManager {
         return [];
       }
 
-      let sessionIds: string[] = [];
-      try {
-        const parsed = JSON.parse(indexData);
-        sessionIds = Array.isArray(parsed) ? parsed : [];
-      } catch {
-        sessionIds = [];
-      }
+      const sessionIds: string[] = JSON.parse(indexData);
 
       // Re-store index
       await stashPostbackPayload(indexKey, indexData, 30 * 24 * 60 * 60);
@@ -579,24 +550,9 @@ export class SessionPersistenceManager {
    * Get all session IDs (for migration)
    */
   private async getAllSessionIds(): Promise<string[]> {
-    // 全セッションID一覧を保持するキーから取得（簡易実装）
-    const ALL_SESSIONS_KEY = "session_list";
-    const data = await popPostbackPayload(ALL_SESSIONS_KEY);
-
-    if (!data) return [];
-
-    try {
-      const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed)) {
-        throw new Error("Invalid session list format");
-      }
-      // 再保存して TTL を延長（7日）
-      await stashPostbackPayload(ALL_SESSIONS_KEY, data, 7 * 24 * 60 * 60);
-      return parsed as string[];
-    } catch (e) {
-      // フォーマット不正やパース失敗は上位で扱う
-      throw e as Error;
-    }
+    // This is a simplified implementation
+    // In a real system, you'd need to scan all user indices
+    return [];
   }
 
   /**
@@ -611,9 +567,7 @@ export class SessionPersistenceManager {
           versionData,
           365 * 24 * 60 * 60,
         ); // 1 year
-        const parsed = JSON.parse(versionData);
-        const v = parsed?.version;
-        return typeof v === "string" && v ? v : this.CURRENT_VERSION;
+        return JSON.parse(versionData).version;
       }
       return "0.9.0"; // Default version for new installations
     } catch (error) {

@@ -1,5 +1,15 @@
 {
   "recommendations": [
-    "denoland.vscode-deno"
+    "denoland.vscode-deno",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "orta.vscode-jest",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker",
+    "ms-azuretools.vscode-docker",
+    "yzhang.markdown-all-in-one"
   ]
 }

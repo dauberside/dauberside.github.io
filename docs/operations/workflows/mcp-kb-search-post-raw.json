@@ -1,0 +1,60 @@
+{
+  "name": "MCP KB Search (POST Raw JSON) v1.1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-raw",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        480,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MCP_API_URL}}/kb/search",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "rawBody": "{\n  \"query\": \"hello\",\n  \"topK\": 5\n}",
+        "sendHeaders": true,
+        "headerParametersUi": {
+          "parameter": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.MCP_API_TOKEN }}" }
+          ]
+        },
+        "response": "json"
+      },
+      "id": "http-post-raw",
+      "name": "HTTP Request (POST Raw)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        800,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (POST Raw)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "mcp-kb-search-post-raw",
+  "meta": {
+    "templateCredsSetup": []
+  }
+}

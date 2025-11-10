@@ -214,17 +214,6 @@ export class EnhancedNLPProcessor {
     try {
       // Extract intent
       const intent = await this.extractIntent(text, context);
-      // If intent fell back due to AI error, return graceful fallback result
-      if (
-        intent.category === IntentCategory.UNCLEAR &&
-        (intent.parameters as any)?.__fallbackReason === "ai_error"
-      ) {
-        return await this.fallbackProcessing(
-          text,
-          context,
-          Math.max(1, Date.now() - startTime),
-        );
-      }
 
       // Extract entities
       const entities = await this.extractEntities(text, context);
@@ -253,16 +242,15 @@ export class EnhancedNLPProcessor {
         ambiguities,
       );
 
-      const result: NLPResult = {
+      return {
         intent,
         entities,
         confidence,
         ambiguities,
         suggestions,
         contextUsed: true,
-        processingTime: Math.max(1, Date.now() - startTime),
+        processingTime: Date.now() - startTime,
       };
-      return result;
     } catch (error) {
       console.error("Enhanced NLP processing failed:", error);
 
@@ -270,7 +258,7 @@ export class EnhancedNLPProcessor {
       return await this.fallbackProcessing(
         text,
         context,
-        Math.max(1, Date.now() - startTime),
+        Date.now() - startTime,
       );
     }
   }
@@ -292,21 +280,15 @@ export class EnhancedNLPProcessor {
       );
       const intentData = this.parseIntentResponse(response);
 
-      const parameters = intentData.parameters || {};
       return {
         name: intentData.name || "unknown",
         confidence: intentData.confidence || 0.5,
         category: this.mapToIntentCategory(intentData.name),
-        parameters,
+        parameters: intentData.parameters || {},
       };
     } catch (error) {
       console.error("Intent extraction failed:", error);
-      const intent = this.getDefaultIntent(text);
-      intent.parameters = {
-        ...intent.parameters,
-        __fallbackReason: "ai_error",
-      };
-      return intent;
+      return this.getDefaultIntent(text);
     }
   }
 
@@ -573,9 +555,9 @@ export class EnhancedNLPProcessor {
 
     // Location patterns
     const patterns = [
-      { regex: /@([^\s]+)/g, confidence: 0.95 }, // @location format should be prioritized
+      { regex: /@([^\s]+)/g, confidence: 0.9 }, // @location format
       { regex: /(会議室[A-Z0-9]?)/g, confidence: 0.8 },
-      { regex: /(\bオフィス\b|事務所)/g, confidence: 0.7 },
+      { regex: /(オフィス|事務所)/g, confidence: 0.7 },
       { regex: /(オンライン|リモート|Zoom|Teams)/g, confidence: 0.9 },
     ];
 
@@ -625,7 +607,6 @@ export class EnhancedNLPProcessor {
 
     // Person patterns (Japanese names and titles)
     const patterns = [
-      // Common Japanese surnames followed by さん. Use character class without | inside
       {
         regex: /([田中|佐藤|鈴木|高橋|渡辺|伊藤|山本|中村|小林|加藤]さん)/g,
         confidence: 0.8,
@@ -633,34 +614,6 @@ export class EnhancedNLPProcessor {
       { regex: /(部長|課長|主任|マネージャー|リーダー)/g, confidence: 0.7 },
       { regex: /([A-Za-z]+さん)/g, confidence: 0.6 },
     ];
-
-    // Fix the first regex: the prior character class incorrectly included '|' as characters.
-    // Add an additional explicit pattern for "田中さん" etc.
-    const surnameList = [
-      "田中",
-      "佐藤",
-      "鈴木",
-      "高橋",
-      "渡辺",
-      "伊藤",
-      "山本",
-      "中村",
-      "小林",
-      "加藤",
-    ];
-    for (const surname of surnameList) {
-      const regex = new RegExp(`${surname}さん`, "g");
-      let match;
-      while ((match = regex.exec(text)) !== null) {
-        entities.push({
-          type: EntityType.PERSON,
-          value: match[0],
-          confidence: 0.85,
-          startIndex: match.index,
-          endIndex: match.index + match[0].length,
-        });
-      }
-    }
 
     for (const pattern of patterns) {
       let match;
@@ -754,44 +707,6 @@ export class EnhancedNLPProcessor {
           });
         }
       }
-      // If date is present but explicit time is missing, add ambiguity
-      const hasDateLike = timeEntities.some((e) =>
-        /(今日|明日|明後日|昨日|今週|来週|再来週|\d{1,2}[\/月]\d{1,2}日?)/.test(
-          e.value,
-        ),
-      );
-      const hasExplicitTime =
-        /([0-2]?\d:[0-5]\d)|([0-2]?\d時(半|\d{1,2}分)?)|(午前|午後)\s*[0-2]?\d時?/.test(
-          text,
-        );
-      if (hasDateLike && !hasExplicitTime) {
-        ambiguities.push({
-          type: AmbiguityType.TIME_AMBIGUOUS,
-          description: "日付はありますが時間が不明確です",
-          possibleValues: await this.getTimeInterpretations("時間", context),
-          confidence: 0.75,
-        });
-      }
-    } else {
-      // No time entity but input seems to reference scheduling → missing time clarification
-      if (/会議|ミーティング|予定|打合せ/.test(text)) {
-        ambiguities.push({
-          type: AmbiguityType.TIME_AMBIGUOUS,
-          description: "時間が指定されていません",
-          possibleValues: await this.getTimeInterpretations("時間", context),
-          confidence: 0.7,
-        });
-      }
-    }
-
-    // Vague time words present in text → add ambiguity
-    if (/(朝|昼|夜|夕方|早め|遅め)/.test(text)) {
-      ambiguities.push({
-        type: AmbiguityType.TIME_AMBIGUOUS,
-        description: "時間表現が曖昧です",
-        possibleValues: await this.getTimeInterpretations("時間", context),
-        confidence: 0.8,
-      });
     }
 
     // Check for intent ambiguities
@@ -862,13 +777,12 @@ export class EnhancedNLPProcessor {
   ): number {
     let confidence = intent.confidence;
 
-    // Boost confidence if we have high-confidence entities (cap total boost)
+    // Boost confidence if we have high-confidence entities
     const highConfidenceEntities = entities.filter((e) => e.confidence > 0.8);
-    const boost = Math.min(0.15, highConfidenceEntities.length * 0.08);
-    confidence += boost;
+    confidence += highConfidenceEntities.length * 0.1;
 
-    // Reduce confidence for ambiguities (stronger penalty)
-    confidence -= ambiguities.length * 0.3;
+    // Reduce confidence for ambiguities
+    confidence -= ambiguities.length * 0.2;
 
     return Math.max(0, Math.min(1, confidence));
   }

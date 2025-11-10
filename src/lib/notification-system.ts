@@ -443,7 +443,7 @@ export class CustomizableNotificationSystem {
       // Get template
       const template = await this.getTemplate(templateId, userId);
       if (!template) {
-        throw new Error("Template not found");
+        throw new Error(`Template not found: ${templateId}`);
       }
 
       // Check quiet hours and DND
@@ -458,13 +458,6 @@ export class CustomizableNotificationSystem {
       return renderedMessage;
     } catch (error) {
       console.error("Failed to render notification:", error);
-      // Tests expect raw errors like 'Template not found'
-      if (
-        error instanceof Error &&
-        /Template not found|Notification blocked/.test(error.message)
-      ) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to render notification",
@@ -561,15 +554,6 @@ export class CustomizableNotificationSystem {
       return templateId;
     } catch (error) {
       console.error("Failed to create custom template:", error);
-      // Propagate validation errors as raw Error to match tests
-      if (
-        error instanceof Error &&
-        /Template name is required|Template content is required|Template has unmatched braces|must have name and type/.test(
-          error.message,
-        )
-      ) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.DATA_VALIDATION_ERROR,
         "Failed to create custom template",
@@ -612,12 +596,6 @@ export class CustomizableNotificationSystem {
       await this.storeTemplate(updatedTemplate, userId);
     } catch (error) {
       console.error("Failed to update custom template:", error);
-      if (
-        error instanceof Error &&
-        /Cannot modify default template|Template not found/.test(error.message)
-      ) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.DATA_VALIDATION_ERROR,
         "Failed to update custom template",
@@ -654,12 +632,6 @@ export class CustomizableNotificationSystem {
       await popPostbackPayload(key);
     } catch (error) {
       console.error("Failed to delete custom template:", error);
-      if (
-        error instanceof Error &&
-        /Cannot delete default template|Template not found/.test(error.message)
-      ) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to delete custom template",
@@ -727,9 +699,6 @@ export class CustomizableNotificationSystem {
       };
     } catch (error) {
       console.error("Failed to preview template:", error);
-      if (error instanceof Error && /Template not found/.test(error.message)) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.SYSTEM_ERROR,
         "Failed to preview template",
@@ -764,14 +733,6 @@ export class CustomizableNotificationSystem {
       );
     } catch (error) {
       console.error("Failed to configure quiet hours:", error);
-      if (
-        error instanceof Error &&
-        /Invalid start time format|Invalid end time format|Timezone is required/.test(
-          error.message,
-        )
-      ) {
-        throw error;
-      }
       throw createSystemError(
         ErrorType.DATA_VALIDATION_ERROR,
         "Failed to configure quiet hours",
@@ -925,31 +886,43 @@ export class CustomizableNotificationSystem {
     template: NotificationTemplate,
     context: NotificationContext,
   ): Promise<string> {
-    let tpl = template.template;
+    let rendered = template.template;
 
-    // First, resolve conditional blocks {{#if path}}...{{/if}} including multiline blocks.
-    const ifBlock = /\{\{#if ([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
-    tpl = tpl.replace(ifBlock, (_m, condPath: string, inner: string) => {
-      const value = this.getNestedValue(context, condPath.trim());
-      return value ? inner : "";
-    });
+    // Simple template rendering (in production, use a proper template engine like Handlebars)
+    // Replace variables with context data
+    rendered = rendered.replace(/\{\{([^}]+)\}\}/g, (match, variable) => {
+      const trimmedVar = variable.trim();
 
-    // Replace variables with optional formatter
-    tpl = tpl.replace(/\{\{([^}]+)\}\}/g, (_match, expr: string) => {
-      const trimmed = expr.trim();
-      if (trimmed.startsWith("#") || trimmed.startsWith("/")) return "";
-      if (trimmed.includes(" | ")) {
-        const [varPath, formatter] = trimmed.split(" | ");
-        const v = this.getNestedValue(context, varPath.trim());
-        return this.applyFormatter(v, formatter.trim());
+      // Handle conditional blocks
+      if (trimmedVar.startsWith("#if ")) {
+        const condition = trimmedVar.substring(4);
+        const value = this.getNestedValue(context, condition);
+        return value ? "" : "{{SKIP_BLOCK}}";
       }
-      const v = this.getNestedValue(context, trimmed);
-      return v !== undefined ? String(v) : "";
+
+      if (trimmedVar === "/if") {
+        return "";
+      }
+
+      // Handle formatters
+      if (trimmedVar.includes(" | ")) {
+        const [varPath, formatter] = trimmedVar.split(" | ");
+        const value = this.getNestedValue(context, varPath.trim());
+        return this.applyFormatter(value, formatter.trim());
+      }
+
+      // Regular variable replacement
+      const value = this.getNestedValue(context, trimmedVar);
+      return value !== undefined ? String(value) : "";
     });
 
-    // Clean extra blank lines
-    tpl = tpl.replace(/\n\s*\n/g, "\n").trim();
-    return tpl;
+    // Remove skipped conditional blocks
+    rendered = rendered.replace(/\{\{SKIP_BLOCK\}\}[^{]*\{\{\/if\}\}/g, "");
+
+    // Clean up extra whitespace
+    rendered = rendered.replace(/\n\s*\n/g, "\n").trim();
+
+    return rendered;
   }
 
   /**
@@ -1161,8 +1134,8 @@ export class CustomizableNotificationSystem {
       return false;
     }
 
-    // Don't batch urgent or critical notifications
-    if (context.reminder.priority === NotificationPriority.URGENT) {
+    // Don't batch high-priority notifications
+    if (context.reminder.priority === NotificationPriority.HIGH) {
       return false;
     }
 
@@ -1316,9 +1289,11 @@ export class CustomizableNotificationSystem {
       return true;
     }
 
-    // Allow critical notifications if configured
-    // No CRITICAL level defined; treat as not applicable
-    if (quietHours.allowCritical && false) {
+    // Allow "critical" notifications if configured (mapped to highest available level)
+    if (
+      quietHours.allowCritical &&
+      context.reminder.priority === NotificationPriority.HIGH
+    ) {
       return true;
     }
 
@@ -1339,7 +1314,7 @@ export class CustomizableNotificationSystem {
       case "urgent_only":
         return context.reminder.priority === NotificationPriority.URGENT;
       case "critical_only":
-        return false; // No CRITICAL in enum
+        return context.reminder.priority === NotificationPriority.HIGH;
       default:
         return false;
     }

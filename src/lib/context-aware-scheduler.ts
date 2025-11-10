@@ -134,7 +134,6 @@ export class ContextAwareScheduler {
     string,
     { data: TrafficInfo; timestamp: number }
   >();
-  private hadExternalError = false;
 
   private constructor() {}
 
@@ -155,82 +154,63 @@ export class ContextAwareScheduler {
     baseReminderMinutes: number = 30,
   ): Promise<ContextAdjustment> {
     try {
-      // reset error flag per invocation
-      this.hadExternalError = false;
       const originalReminderTime = eventTime - baseReminderMinutes * 60 * 1000;
       let adjustedTime = originalReminderTime;
       let adjustmentMinutes = 0;
       const recommendations: string[] = [];
+      // Use undefined rather than null for absent optional factors to align with types
       let weatherFactor: WeatherInfo | undefined;
       let trafficFactor: TrafficInfo | undefined;
       let confidence = 0.8; // Base confidence
-      let successWeather = false;
-      let successTraffic = false;
 
       // Get weather information if weather-dependent
       if (eventContext.location && this.isOutdoorEvent(eventContext)) {
-        const w = await this.getWeatherInfo(
+        const wf = await this.getWeatherInfo(
           eventContext.location,
           new Date(eventTime),
         );
-        if (w) {
-          weatherFactor = w;
+        if (wf) {
+          weatherFactor = wf;
           const weatherAdjustment = this.calculateWeatherAdjustment(
-            w,
+            wf,
             eventContext,
           );
           adjustmentMinutes += weatherAdjustment.minutes;
           recommendations.push(...weatherAdjustment.recommendations);
           confidence *= weatherAdjustment.confidence;
-          successWeather = true;
         }
       }
 
       // Get traffic information if travel is required
       if (eventContext.requiresTravel && eventContext.location) {
-        const userPrefs = await getUserPreferences(userId);
-        const homeLocation = userPrefs.defaults?.homeLocation;
-        const origin: LocationInfo =
-          homeLocation ?? ({ name: "Home" } as LocationInfo);
-
-        let t = await this.getTrafficInfo(
-          origin,
-          eventContext.location,
-          new Date(eventTime),
-        );
-        // If no external data, but we have an estimated travel time, synthesize a basic traffic info
-        if (!t && eventContext.location?.travelTimeMinutes) {
-          const base = Math.max(1, eventContext.location.travelTimeMinutes);
-          t = {
-            duration: base,
-            durationInTraffic: base + 10,
-            distance: 10,
-            route: "Estimated",
-            alerts: [],
-            recommendation: this.generateTrafficRecommendation(
-              base * 60,
-              (base + 10) * 60,
-            ),
-          } as TrafficInfo;
-        }
-        if (t) {
-          trafficFactor = t;
-          const trafficAdjustment = this.calculateTrafficAdjustment(
-            t,
-            eventContext,
+        const userPrefs = (await getUserPreferences(userId)) as any;
+        // homeLocation is not defined in DefaultValues yet; allow using first frequent location tagged 'home'
+        const homeLocation: LocationInfo | undefined =
+          userPrefs.defaults?.homeLocation ||
+          userPrefs.defaults?.frequentLocations?.find(
+            (loc: any) => loc.category === "home",
           );
-          adjustmentMinutes += trafficAdjustment.minutes;
-          recommendations.push(...trafficAdjustment.recommendations);
-          confidence *= trafficAdjustment.confidence;
-          successTraffic = true;
+
+        if (homeLocation) {
+          const tf = await this.getTrafficInfo(
+            homeLocation,
+            eventContext.location,
+            new Date(eventTime),
+          );
+          if (tf) {
+            trafficFactor = tf;
+            const trafficAdjustment = this.calculateTrafficAdjustment(
+              tf,
+              eventContext,
+            );
+            adjustmentMinutes += trafficAdjustment.minutes;
+            recommendations.push(...trafficAdjustment.recommendations);
+            confidence *= trafficAdjustment.confidence;
+          }
         }
       }
 
       // Apply time-of-day adjustments
-      // If any external API failed during this run, fall back entirely to standard timing
-      if (this.hadExternalError) {
-        throw new Error("external_api_failed");
-      }
       const timeAdjustment = this.calculateTimeOfDayAdjustment(
         new Date(eventTime),
         eventContext,
@@ -284,11 +264,11 @@ export class ContextAwareScheduler {
   async getWeatherInfo(
     location: LocationInfo,
     eventTime: Date,
-  ): Promise<WeatherInfo | null> {
+  ): Promise<WeatherInfo | undefined> {
     try {
-      if (!this.WEATHER_API_KEY && !this.isFetchMocked()) {
+      if (!this.WEATHER_API_KEY) {
         console.warn("Weather API key not configured");
-        return null;
+        return undefined;
       }
 
       const cacheKey = `${location.name}_${eventTime.toDateString()}`;
@@ -306,68 +286,41 @@ export class ContextAwareScheduler {
       const url = `https://api.weatherapi.com/v1/forecast.json?key=${this.WEATHER_API_KEY}&q=${encodeURIComponent(query)}&days=3&aqi=no&alerts=yes`;
 
       const response = await fetch(url);
-      // If fetch is mocked but not configured, it may return undefined.
-      // In that case, treat as no external data (return null) instead of throwing.
-      if (!response && this.isFetchMocked()) {
-        return null;
-      }
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.status}`);
       }
 
-      const data: any = await response.json();
-
-      // Basic schema guard – if it doesn't look like a weather payload, treat as no data
-      if (
-        !data ||
-        typeof data !== "object" ||
-        (!data.current && !data.forecast)
-      ) {
-        return null;
-      }
+      const data: WeatherApiResponse = await response.json();
 
       // Find the forecast for the event time
       const eventDate = eventTime.toISOString().split("T")[0];
-      const eventHour = eventTime.getUTCHours();
+      const eventHour = eventTime.getHours();
 
       let weatherInfo: WeatherInfo;
 
-      const typedData = data as WeatherApiResponse;
-      if (typedData.forecast) {
-        const forecastDays = typedData.forecast.forecastday;
-        const dayForecast = forecastDays.find((day) => day.date === eventDate);
+      if (data.forecast) {
+        const dayForecast = data.forecast.forecastday.find(
+          (day) => day.date === eventDate,
+        );
 
         if (dayForecast) {
-          const hourForecast = dayForecast.hour.find(
-            (hour: {
-              time: string;
-              condition: { text: string };
-              temp_c: number;
-              precip_mm: number;
-              wind_kph: number;
-            }) => {
-              // Weather API hour.time format is 'YYYY-MM-DD HH:mm' (no timezone).
-              // Interpret it as UTC to match the test fixtures using '...Z'.
-              const hourTime = new Date(`${hour.time}Z`).getUTCHours();
-              return hourTime === eventHour;
-            },
-          );
+          const hourForecast = dayForecast.hour.find((hour) => {
+            const hourTime = new Date(hour.time).getHours();
+            return hourTime === eventHour;
+          });
 
           weatherInfo = {
             condition:
-              hourForecast?.condition?.text || dayForecast.day.condition.text,
+              hourForecast?.condition.text || dayForecast.day.condition.text,
             temperature:
               hourForecast?.temp_c ||
               (dayForecast.day.maxtemp_c + dayForecast.day.mintemp_c) / 2,
             precipitation:
               hourForecast?.precip_mm || dayForecast.day.totalprecip_mm,
             windSpeed: hourForecast?.wind_kph || dayForecast.day.maxwind_kph,
-            alerts:
-              (data as WeatherApiResponse).alerts?.alert.map(
-                (alert: { headline: string }) => alert.headline,
-              ) || [],
+            alerts: data.alerts?.alert.map((alert) => alert.headline) || [],
             recommendation: this.generateWeatherRecommendation(
-              hourForecast?.condition?.text || dayForecast.day.condition.text,
+              hourForecast?.condition.text || dayForecast.day.condition.text,
               hourForecast?.temp_c ||
                 (dayForecast.day.maxtemp_c + dayForecast.day.mintemp_c) / 2,
               hourForecast?.precip_mm || dayForecast.day.totalprecip_mm,
@@ -380,10 +333,7 @@ export class ContextAwareScheduler {
             temperature: data.current.temp_c,
             precipitation: data.current.precip_mm,
             windSpeed: data.current.wind_kph,
-            alerts:
-              (data as WeatherApiResponse).alerts?.alert.map(
-                (alert: { headline: string }) => alert.headline,
-              ) || [],
+            alerts: data.alerts?.alert.map((alert) => alert.headline) || [],
             recommendation: this.generateWeatherRecommendation(
               data.current.condition.text,
               data.current.temp_c,
@@ -397,10 +347,7 @@ export class ContextAwareScheduler {
           temperature: data.current.temp_c,
           precipitation: data.current.precip_mm,
           windSpeed: data.current.wind_kph,
-          alerts:
-            (data as WeatherApiResponse).alerts?.alert.map(
-              (alert: { headline: string }) => alert.headline,
-            ) || [],
+          alerts: data.alerts?.alert.map((alert) => alert.headline) || [],
           recommendation: this.generateWeatherRecommendation(
             data.current.condition.text,
             data.current.temp_c,
@@ -418,8 +365,7 @@ export class ContextAwareScheduler {
       return weatherInfo;
     } catch (error) {
       console.error("Failed to get weather info:", error);
-      this.hadExternalError = true;
-      return null;
+      return undefined;
     }
   }
 
@@ -430,11 +376,11 @@ export class ContextAwareScheduler {
     origin: LocationInfo,
     destination: LocationInfo,
     eventTime: Date,
-  ): Promise<TrafficInfo | null> {
+  ): Promise<TrafficInfo | undefined> {
     try {
-      if (!this.GOOGLE_MAPS_API_KEY && !this.isFetchMocked()) {
+      if (!this.GOOGLE_MAPS_API_KEY) {
         console.warn("Google Maps API key not configured");
-        return null;
+        return undefined;
       }
 
       const cacheKey = `${origin.name}_${destination.name}_${eventTime.getHours()}`;
@@ -464,9 +410,6 @@ export class ContextAwareScheduler {
         `key=${this.GOOGLE_MAPS_API_KEY}`;
 
       const response = await fetch(url);
-      if (!response && this.isFetchMocked()) {
-        return null;
-      }
       if (!response.ok) {
         throw new Error(`Traffic API error: ${response.status}`);
       }
@@ -503,8 +446,7 @@ export class ContextAwareScheduler {
       return trafficInfo;
     } catch (error) {
       console.error("Failed to get traffic info:", error);
-      this.hadExternalError = true;
-      return null;
+      return undefined;
     }
   }
 
@@ -788,11 +730,6 @@ export class ContextAwareScheduler {
     this.weatherCache.clear();
     this.trafficCache.clear();
   }
-
-  private isFetchMocked(): boolean {
-    const f: any = (globalThis as any).fetch;
-    return typeof f === "function" && !!f.mock;
-  }
 }
 
 // Export singleton instance
@@ -816,7 +753,7 @@ export async function calculateContextAwareReminder(
 export async function getWeatherForEvent(
   location: LocationInfo,
   eventTime: Date,
-): Promise<WeatherInfo | null> {
+): Promise<WeatherInfo | undefined> {
   return await contextAwareScheduler.getWeatherInfo(location, eventTime);
 }
 
@@ -824,7 +761,7 @@ export async function getTrafficForEvent(
   origin: LocationInfo,
   destination: LocationInfo,
   eventTime: Date,
-): Promise<TrafficInfo | null> {
+): Promise<TrafficInfo | undefined> {
   return await contextAwareScheduler.getTrafficInfo(
     origin,
     destination,
