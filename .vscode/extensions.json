@@ -1,15 +1,30 @@
 {
   "recommendations": [
-    "denoland.vscode-deno",
     "GitHub.copilot",
     "GitHub.copilot-chat",
+
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "orta.vscode-jest",
     "usernamehw.errorlens",
-    "eamodio.gitlens",
     "streetsidesoftware.code-spell-checker",
+
+    "orta.vscode-jest",
+
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
     "ms-azuretools.vscode-docker",
-    "yzhang.markdown-all-in-one"
+
+    "yzhang.markdown-all-in-one",
+
+    "bradlc.vscode-tailwindcss",
+    "mikestead.dotenv",
+    "christian-kohler.path-intellisense",
+    "wix.vscode-import-cost",
+
+    "formulahendry.auto-rename-tag",
+    "humao.rest-client",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments"
   ]
 }
