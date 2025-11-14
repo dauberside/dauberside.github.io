@@ -85,10 +85,38 @@
   - メトリクス（p50/p95、KB ヒット率、OpenAI 失敗率、previews 採用率）を観測。
 
 ## 実装ノート（Implementation Notes）
-- 主要ファイル
-  - `src/pages/api/agent/direct.ts`: Direct Path 本体（JSON+multipart、テキスト添付プレビュー、KB 検索、LLM 呼び出し）。
-  - `src/lib/ai.ts`: `callCfChat` により OpenAI Chat Completions をラップ。
-  - `services/mcp/server.mjs`: KB 検索の HTTP エンドポイント（`/kb/search`）を提供（ローカル/PM2/Docker で運用）。
+
+### 正本情報（Authoritative - ADR-0001準拠）
+
+以下は ADR-0001「正本の境界」に該当する、変更時に PR レビューを要する情報：
+
+**API 契約**:
+- エンドポイント: `POST /api/agent/direct`
+- リクエスト形式: JSON または multipart/form-data
+- レスポンス形式: JSON（`{ response: string, rid?: string }`）
+- 添付ファイル: 最大 20MB、テキスト系のみプレビュー生成
+
+**エージェントの不変条件**:
+- KB 検索: MCP HTTP 経由で `/kb/search` を呼び出し、結果をコンテキストに注入
+- LLM 呼び出し: OpenAI API（`callCfChat`）を使用、サーバサイドキーのみ
+- 実行フロー: 入力正規化 → 添付プレビュー → KB 検索 → LLM 呼び出し → レスポンス返却
+
+**セキュリティポリシー**:
+- （前述の「セキュリティ（Security Controls）」セクション参照）
+
+### 実装詳細（Implementation Details - 変更しやすい）
+
+以下は将来的に変更される可能性が高い実装固有の情報：
+
+**主要ファイル**:
+- `src/pages/api/agent/direct.ts`: Direct Path 本体
+- `src/lib/ai.ts`: `callCfChat` により OpenAI Chat Completions をラップ
+- `services/mcp/server.mjs`: KB 検索の HTTP エンドポイント提供
+
+**インフラ構成**:
+- MCP サーバー: PM2 または Docker Compose で運用
+- KB インデックス: `kb/index/embeddings.json`（ビルド時生成）
+- ポート: 本番 3030（PM2）、開発 3001 推奨（衝突回避）
 
 - セキュリティ（Security Controls）
 
@@ -126,7 +154,34 @@
   - OpenAI API エラーは分類してログ記録（rate limit, invalid request, model error 等）
 - テスト/監視
   - スモーク: JSON/multipart/KB の 3 ケース。将来は負荷・パフォーマンス計測を自動化。
-  - ログ: 相関ID（rid）を Direct Path 内で引き回し（将来拡張）。
+
+- 可観測性（Observability）の最小必須項目
+
+  Direct Path は高速・薄いレイヤーのため、トラブルシューティングに必要なログ項目を明確化する。
+
+  **必須ログ項目**:
+  - `rid` (Request ID): 相関ID、全ログに必須（リクエスト追跡）
+  - `path`: `direct` または `workflow`（実行パス識別）
+  - `latency`: レスポンス時間（ミリ秒）
+    - `latency.total`: リクエスト全体
+    - `latency.llm`: OpenAI API 呼び出し時間
+    - `latency.kb`: KB 検索時間
+    - `latency.preview`: 添付プレビュー生成時間
+  - `kb.hit`: KB 検索がヒットしたか（boolean）
+  - `kb.topK`: KB 検索結果数
+  - `preview.count`: 添付プレビュー数
+  - `preview.skipped`: スキップされた添付数（バイナリ・サイズ超過等）
+  - `openai.status`: OpenAI API ステータス（`success`, `rate_limit`, `invalid_request`, `model_error`, `timeout`）
+  - `openai.model`: 使用モデル名
+  - `error.type`: エラー分類（該当する場合）
+  - `error.message`: エラーメッセージ（本番では詳細を隠蔽、ログのみ記録）
+
+  **推奨メトリクス**（将来的にダッシュボード化）:
+  - p50/p95/p99 レイテンシ（path別、LLM/KB/preview別）
+  - KB ヒット率（ヒット数 / 総リクエスト数）
+  - OpenAI 失敗率（エラー数 / 総リクエスト数、ステータス別）
+  - 添付プレビュー採用率（preview.count > 0 / 総リクエスト数）
+  - リクエスト数（path別、時間帯別）
 - 既知事項
   - リポジトリ内の別コンポーネントで TypeScript 構文エラーがあるため、typecheck 全体は赤の可能性（Direct Path 自体はビルド可）。
 
