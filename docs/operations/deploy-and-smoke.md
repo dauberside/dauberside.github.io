@@ -6,11 +6,41 @@
 
 - Vercel プロジェクトが Git 連携済み（Production ブランチ: master）
 - Production 環境変数が設定済み
+  - **Vercel 必須**: `POSTBUILD_PM2_RELOAD=0`（詳細は後述）
   - LINE: CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ALLOW_GROUP_IDS
   - Google Calendar: CALENDAR_ID（または GC_CALENDAR_ID）, GC_*（OAuth/ServiceAccount 経由の場合）
   - KV: KV_REST_API_URL, KV_REST_API_TOKEN（任意）
   - OpenAI: OPENAI_API_KEY（既定モデルは gpt-4o-mini）
   - 安全弁（Mock）: 本番では `AGENT_MOCK_MODE` は未設定（または `0`）。`?mock=1` も無効化される（サーバ側で強制無効）。
+
+### Vercel 固有の環境変数設定
+
+Vercel のサーバーレス環境では PM2 が利用できないため、以下の環境変数を**必ず**設定してください。
+
+#### POSTBUILD_PM2_RELOAD=0（必須）
+
+**目的**: postbuild スクリプト内の PM2 リロードをスキップする
+
+**理由**: `scripts/postbuild.mjs` は PM2 環境（自前サーバー）向けに `pm2 reload` を実行しますが、Vercel にはPM2が存在しないため、この環境変数で無効化する必要があります。
+
+**設定方法（Vercel CLI）**:
+```bash
+# 全環境に追加
+echo "0" | vercel env add POSTBUILD_PM2_RELOAD production
+echo "0" | vercel env add POSTBUILD_PM2_RELOAD preview
+echo "0" | vercel env add POSTBUILD_PM2_RELOAD development
+
+# 確認
+vercel env ls | grep POSTBUILD
+```
+
+**設定方法（Vercel Dashboard）**:
+1. Vercel Dashboard → プロジェクト → Settings → Environment Variables
+2. 新規追加: `POSTBUILD_PM2_RELOAD` = `0`
+3. 適用環境: Production, Preview, Development すべてにチェック
+4. Save
+
+**注意**: この変数が未設定の場合、ビルドは完了しますが、postbuild で PM2 実行エラーが出力されます。通常はスキップされますが、念のため設定を推奨します。
 
 ### デプロイ手順（いずれか）
 

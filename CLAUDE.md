@@ -227,6 +227,12 @@ pnpm agent:builder:generate
 - `KB_SOURCES` - Comma-separated paths for KB ingestion (default: `docs`)
 - `KB_EMBED_MODE` - `openai` or `hash` (default: `openai`)
 
+**Vercel-Specific Variables** (required for Vercel deployment):
+- `POSTBUILD_PM2_RELOAD=0` - **CRITICAL**: Disables PM2 reload in postbuild script (Vercel has no PM2)
+  - Without this, the postbuild script attempts to reload PM2, which will fail on Vercel's serverless environment
+  - Add via Vercel CLI: `echo "0" | vercel env add POSTBUILD_PM2_RELOAD production`
+  - Must be set for all environments: production, preview, development
+
 ### 3. Port Management
 
 **Standard Ports**:
