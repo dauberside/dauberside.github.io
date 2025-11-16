@@ -83,15 +83,19 @@ jobs:
             exit 1
           fi
           sleep 1 # avoid tripping simple rate limiter
+          # Create JSON payload in a variable to avoid quoting issues
+          payload='{"input":"smoke from CI"}'
           body_file=$(mktemp)
+          echo "Sending payload: $payload"
           code=$(curl -sS -o "$body_file" -w '%{http_code}' --max-time 20 \
             -X POST "$BASE/api/agent/run" \
             -H 'Content-Type: application/json' \
             -H "x-internal-token: $INTERNAL_API_TOKEN" \
-            --data '{"input":"smoke from CI"}')
+            --data "$payload")
           echo "/api/agent/run status=$code"
           echo "Response body:"
           cat "$body_file"
+          echo ""
           rm -f "$body_file"
           if [ "$code" = "401" ]; then
             echo "Unauthorized (401). Ensure Production INTERNAL_API_TOKEN matches the secret and server config." >&2
