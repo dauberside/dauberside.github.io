@@ -1,0 +1,17 @@
+# Netlify configuration for Next.js
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  # Node.js version (this project uses Node 22, but 20 is more stable for Netlify)
+  NODE_VERSION = "20"
+
+  # Enable pnpm (Netlify will automatically install it)
+  ENABLE_EXPERIMENTAL_COREPACK = "1"
+
+# Redirect rules for Next.js
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
