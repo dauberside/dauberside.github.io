@@ -83,12 +83,16 @@ jobs:
             exit 1
           fi
           sleep 1 # avoid tripping simple rate limiter
-          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+          body_file=$(mktemp)
+          code=$(curl -sS -o "$body_file" -w '%{http_code}' --max-time 20 \
             -X POST "$BASE/api/agent/run" \
             -H 'Content-Type: application/json' \
             -H "x-internal-token: $INTERNAL_API_TOKEN" \
             --data '{"input":"smoke from CI"}')
           echo "/api/agent/run status=$code"
+          echo "Response body:"
+          cat "$body_file"
+          rm -f "$body_file"
           if [ "$code" = "401" ]; then
             echo "Unauthorized (401). Ensure Production INTERNAL_API_TOKEN matches the secret and server config." >&2
             exit 1
@@ -96,12 +100,16 @@ jobs:
           if [ "$code" = "429" ]; then
             echo "Rate limited (429). Retrying once after backoff..."
             sleep 1
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            retry_body=$(mktemp)
+            code=$(curl -sS -o "$retry_body" -w '%{http_code}' --max-time 20 \
               -X POST "$BASE/api/agent/run" \
               -H 'Content-Type: application/json' \
               -H "x-internal-token: $INTERNAL_API_TOKEN" \
               --data '{"input":"smoke from CI (retry)"}')
             echo "retry status=$code"
+            echo "Retry response body:"
+            cat "$retry_body"
+            rm -f "$retry_body"
           fi
           if [ "$code" = "200" ]; then exit 0; fi
           if [ "$code" = "500" ] && [ "${ALLOW500:-false}" = "true" ]; then exit 0; fi
