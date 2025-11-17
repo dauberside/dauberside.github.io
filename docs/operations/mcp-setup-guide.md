@@ -2,6 +2,66 @@
 
 このプロジェクト向けの MCP サーバーセットアップ手順です。
 
+## アーキテクチャ概要：MCP 統合全体図（ADR-0003 対応）
+
+**4つのMCPサーバーと Knowledge Base の統合構成：**
+
+```mermaid
+flowchart LR
+    subgraph User["User (あなた)"]
+      UIDEV[Dev Tools<br/>Cursor / Browser / Obsidian]
+    end
+
+    subgraph LLM["LLM / MCP Client"]
+      CLIENT[MCP Client<br/>(Claude Code / CLI / Custom App)]
+    end
+
+    subgraph MCPS["MCP Server / Tools"]
+      MCP_SERVER[MCP Server]
+
+      subgraph TOOLS["MCP Tools"]
+        T_OBSIDIAN[Obsidian Tool<br/>ノート検索/生成]
+        T_GCAL[Google Calendar Tool<br/>openapi/google-calendar-min.v1.yaml]
+        T_GH[GitHub Tool<br/>Issues / PR / ADR 参照]
+        T_N8N[n8n / Automation Tool<br/>ワークフロー起動]
+      end
+    end
+
+    subgraph KB["Knowledge Base / Storage"]
+      OB_VAULT[Obsidian Vaults<br/>Personal / Project]
+      GH_REPO[GitHub Docs<br/>dauberside.github.io-1]
+      EMBED_STORE[Embedding Index<br/>検索用ベクトルDB 等]
+    end
+
+    UIDEV --> CLIENT
+    CLIENT --> MCP_SERVER
+    MCP_SERVER --> T_OBSIDIAN
+    MCP_SERVER --> T_GCAL
+    MCP_SERVER --> T_GH
+    MCP_SERVER --> T_N8N
+
+    T_OBSIDIAN <-->|ノート読み書き| OB_VAULT
+    T_GH <-->|ADR / Docs 参照| GH_REPO
+    T_N8N -->|ジョブ起動| KB
+    OB_VAULT -->|埋め込み更新| EMBED_STORE
+    GH_REPO -->|埋め込み更新| EMBED_STORE
+
+    CLIENT -->|文脈付きクエリ| EMBED_STORE
+    EMBED_STORE -->|関連ノート/Doc| CLIENT
+```
+
+**統合されるMCPサーバー：**
+1. **Obsidian MCP** - Vault へのノート読み書き、検索
+2. **GitHub MCP** - Issues/PRs管理、ADR参照
+3. **Google Calendar MCP** - スケジュール管理（OpenAPI仕様ベース）
+4. **n8n MCP** - ワークフロー自動化
+
+**設定ファイル構成：**
+- `.mcp.json` - チーム共有設定（Git管理対象、プレースホルダーのみ）
+- `.mcp.local.json` - 個人用設定（Git除外、実際のトークン/キー）
+
+> 詳細は [ADR-0003: MCP統合アーキテクチャ](../decisions/ADR-0003-mcp-integration-architecture.md) を参照。
+
 ## 推奨される MCP サーバー
 
 ### 1. GitHub MCP サーバー（最優先）

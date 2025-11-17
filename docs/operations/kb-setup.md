@@ -2,6 +2,65 @@
 
 この手順で、このリポのSSD上に KB インデックスを作成・検索できます。大規模用途ではベクタDB(Qdrant/pgvector)移行を推奨しますが、まずはローカルJSONインデックスで開始します。
 
+## パイプライン概要：KB 埋め込みフロー（ADR-0005 対応）
+
+**Knowledge Base 構築の全体フロー：**
+
+```mermaid
+flowchart LR
+    subgraph Source["ソース (Knowledge Sources)"]
+      OB_VAULT[Obsidian Vaults<br/>/docs, /adr, /operations]
+      GH_REPO[GitHub Repo<br/>Markdown / OpenAPI / ADR]
+    end
+
+    subgraph Pipeline["Embedding Pipeline"]
+      WATCHER[ファイル監視 / CI<br/>(GitHub Actions / ローカルスクリプト)]
+      PARSER[Markdown / YAML パーサ<br/>frontmatter → メタデータ抽出]
+      CHUNKER[チャンク分割<br/>見出し・段落単位]
+      EMBEDDER[Embedding 生成<br/>LLM / API]
+      INDEXER[Index 反映<br/>Upsert / Delete]
+    end
+
+    subgraph Store["KB / Index"]
+      VECDB[Vector Store / Index]
+      META[メタデータストア<br/>パス / タグ / ADR ID / MCP Tool 名]
+    end
+
+    subgraph Consumer["利用側 (Consumers)"]
+      MCP_CLIENT[MCP Client / LLM]
+      SEARCH_UI[検索UI / CLI / 専用ツール]
+    end
+
+    OB_VAULT --> WATCHER
+    GH_REPO --> WATCHER
+    WATCHER --> PARSER --> CHUNKER --> EMBEDDER --> INDEXER
+    INDEXER --> VECDB
+    INDEXER --> META
+
+    MCP_CLIENT -->|semantic + フィルタ検索| VECDB
+    MCP_CLIENT -->|メタ情報参照| META
+    SEARCH_UI -->|キーワード & フィルタ| VECDB
+    VECDB --> MCP_CLIENT
+    VECDB --> SEARCH_UI
+```
+
+**パイプラインステージ：**
+1. **ソース監視** - ファイル変更検出（GitHub Actions / ローカルスクリプト）
+2. **パーサー** - Markdown/YAML解析、frontmatter → メタデータ抽出
+3. **チャンク分割** - 見出し・段落単位で分割（1200文字、200文字オーバーラップ）
+4. **Embedding生成** - LLM/API（OpenAI `text-embedding-3-small` または Hash mode）
+5. **Index反映** - Upsert/Delete操作
+
+**埋め込みモード（ADR-0005）：**
+- **OpenAI モード**（本番）: `text-embedding-3-small`、高精度セマンティック検索
+- **Hash モード**（開発）: SHA256ベース決定的埋め込み、API不要、完全一致のみ
+
+**Delta 検出：**
+- SHA256ハッシュによるファイル内容変更検出
+- 変更されたファイルのみ再埋め込み（増分ビルド）
+
+> 詳細は [ADR-0005: KB埋め込みモード選択](../decisions/ADR-0005-kb-embedding-mode-selection.md) を参照。
+
 ## 1) 前提
 - Node 20+ / pnpm
 - OPENAI_API_KEY を `.env.local` に設定（埋め込み生成用）
