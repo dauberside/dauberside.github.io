@@ -11,7 +11,7 @@
 ## 1) プロジェクト準備
 - 本リポをローカルにクローン
 - ルート直下の `.env.local` に必要な環境変数を設定（秘匿を厳守。公開リポにコミットしないこと）
-  - Obsidian 連携を使う場合: `OBSIDIAN_API_KEY`, `OBSIDIAN_API_URL`（既定 http://127.0.0.1:27123）
+  - Obsidian 連携を使う場合: `OBSIDIAN_API_KEY`, `OBSIDIAN_API_URL`（既定 http://127.0.0.1:8443）
   - KB 埋め込みを外部 API に送らない場合: `KB_EMBED_MODE=hash`（既定でローカルハッシュ）
 
 > セキュリティ注意: `.env.local` に含まれるキーは第三者に渡さないでください。既に公開された形跡がある場合は即時ローテーションしてください。
@@ -59,7 +59,7 @@ Claude の MCP 設定（アプリ内の MCP 設定エディタ推奨）に下記
       ],
       "env": {
         "OBSIDIAN_HOST": "host.docker.internal",
-        "OBSIDIAN_PORT": "27123",
+        "OBSIDIAN_PORT": "8443",
         "OBSIDIAN_API_KEY": "<YOUR_OBSIDIAN_API_KEY>"
       }
     }
@@ -73,7 +73,7 @@ Claude の MCP 設定（アプリ内の MCP 設定エディタ推奨）に下記
   ```zsh
   docker run --rm --add-host=host.docker.internal:host-gateway curlimages/curl \
     -sS -H "Authorization: Bearer <YOUR_OBSIDIAN_API_KEY>" \
-    "http://host.docker.internal:27123/vault/" | head -c 200
+    "http://host.docker.internal:8443/vault/" | head -c 200
   ```
 
 ## 5) 代替: 既存の Next.js API をそのまま使う
@@ -87,7 +87,7 @@ Docker 不要で、すでに本リポに実装済みのエンドポイントが�
 
 ## 6) トラブルシュート
 - 401/403: API キー不一致。ヘッダ名やトークン形式（Bearer / X-API-Key）を確認
-- 接続不可: プラグイン未起動 / ポート違い / URL 違い（既定は http://127.0.0.1:27123）
+- 接続不可: プラグイン未起動 / ポート違い / URL 違い（既定は http://127.0.0.1:8443）
 - Linux で `host.docker.internal` が効かない: `--add-host=host.docker.internal:host-gateway` を付与
 - 自己署名 https: 実装側に自己署名許可フラグ（例: `ALLOW_SELF_SIGNED=1`）があるか確認
 - 依存: Node 22 / pnpm / Next.js 14 を想定（`pnpm -s tsc --noEmit` で型OKを確認）

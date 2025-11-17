@@ -1,67 +1,114 @@
 # Context Capsule (携行用要約)
 
-最終更新: 2025-10-25 | 目的: 会話履歴が長くなるのを防ぐため、本要約のみを常時コンテキストに同梱する。
+最終更新: 2025-11-17 | 目的: 会話履歴が長くなるのを防ぐため、本要約のみを常時コンテキストに同梱する。
 
 ## 1) 目的とスコープ
-- 目的: UI から安全にエージェントを実行できる個人用サイト運用。
-- スコープ: Chat 形式のワークフロー実行と段階的拡張（SSE、履歴、マルチモーダル、観測）。
-- 非スコープ: 公開ディレクトリ/マスアクセス前提の運用、クライアント側での内部トークン保持。
+- 目的: UI から安全にエージェントを実行し、MCP/Obsidian/KB統合による効率的な開発環境を提供
+- スコープ: Chat UI、MCP統合（GitHub/Vercel/n8n/Obsidian）、KB（Obsidian vault取り込み）、段階的拡張
+- 非スコープ: 公開ディレクトリ/マスアクセス、クライアント側トークン保持
 
 ## 2) 不変条件（MUST/禁止）
-- 本番で mock は常に無効。OPENAI_API_KEY 未設定の本番呼び出しは 500（仕様）。
-- `/agent/workflow` と関連 API はミドルウェアで保護（IP 許可または Basic 認証）。
-- 検索避けヘッダとキャッシュ抑止を強制（X-Robots-Tag: noindex/noarchive/nofollow、Cache-Control: no-store）。
-- クライアントは内部トークンを保持しない。サーバ側プロキシ経由で実行。
+- 本番でmockは常に無効。OPENAI_API_KEY未設定は500エラー
+- `/agent/workflow`と関連APIはミドルウェアで保護（IP許可またはBasic認証）
+- 検索避けヘッダ強制（X-Robots-Tag: noindex、Cache-Control: no-store）
+- クライアントは内部トークン非保持。サーバプロキシ経由実行
 
 ## 3) アーキテクチャ概要
-- 技術: Next.js 14 (pages), TypeScript 5.x, pnpm, Node 22。
-- 主要依存: @openai/agents v0.1.x, Zod v3。
-- LLMプロバイダ: OpenAI API（許可）。LangChain ルートは暫定スタブのみ・運用は Deferred（不使用）。
-- UI: ChatBox/ChatInput を用いた `/agent/workflow` ページ。メッセージは右クリック/長押しのコンテキストメニューから「引用（リプライ相当）」・コピー・削除（自分の投稿のみ）を提供。UI 上は「返信」という語を表示しない（見出しは「引用」）。
-- 抽象化: `src/lib/chat/service.ts`（sendToAgent）と `config.ts`（エンドポイント）で将来の SSE/リトライ差し替えに備える。
+
+### 基盤
+- 技術: Next.js 14 (pages), TypeScript 5.8, pnpm, Node 22
+- 主要依存: @openai/agents v0.1.x, Zod v3
+- LLMプロバイダ: OpenAI API
+
+### MCP統合（Model Context Protocol）
+- **4つのMCPサーバー**:
+  - GitHub: Issues/PRs管理
+  - Vercel: デプロイメント管理
+  - n8n: ワークフロー自動化
+  - Obsidian: Vault直接アクセス
+- **設定**: `.mcp.json`（チーム共有）、`.mcp.local.json`（個人用、Git除外）
+- **Claude Code統合**: 直接連携で開発効率向上
+
+### Obsidian統合（二層アーキテクチャ）
+- **REST API統合**: KB取り込み専用（読み取りのみ、ポート8443）
+  - `src/lib/obsidian.ts` - クライアント
+  - `/api/obsidian/ingest` - 取り込みエンドポイント
+  - Delta検出（SHA256）による差分更新
+- **MCP統合**: ノート編集・管理（読み書き可能）
+  - ファイル直アクセス（REST API Plugin不要）
+  - セクション・ブロック・frontmatter単位の編集
+  - 定期ノート（Daily/Weekly/Monthly）処理
+- **Vault情報**:
+  - ID: `2742690dfebfe8dc`
+  - パス: `/Users/krinkcrank/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Vault`
+- **ベストプラクティス**: 編集はMCP、検索はKB
+
+### KB（Knowledge Base）
+- **埋め込みモード**:
+  - OpenAI（本番）: `text-embedding-3-small`
+  - Hash（開発/フォールバック）: ローカル決定的ハッシュ、API不要
+- **ソース**: `docs/`, Obsidian vault（`KB_SOURCES`環境変数）
+- **Delta検出**: SHA256ハッシュによる差分更新（増分ビルド）
+- **インデックス**: `kb/index/embeddings.json`
+- **検索**: Cosine類似度、Top-K取得
+
+### Chat UI
+- `/agent/workflow`: ChatBox/ChatInput
+- メッセージ操作: 右クリック/長押しコンテキストメニュー
+  - 引用（リプライ相当）、コピー、削除（自分の投稿のみ）
+  - 表記: 「引用」（「返信」は使用しない）
 
 ## 4) 公開契約（現状）
-- GET `/api/healthz`: ヘルスチェック。
-- POST `/api/agent/run`: 直接実行（内部向け）。認証正規化、簡易レート制限、GET は使用ガイド返却。
-- POST `/api/agent/workflow`: Zod 検証付きワークフロー実行。GET は使用ガイド返却。
-- POST `/api/agent/workflow-proxy`: UI 用サーバプロキシ。クライアントは内部トークン非保持。
-- ページ `/agent/workflow`: Chat UI（meta robots noindex）。
-- 予定（設計済）: SSE ストリーミング、`/api/agent/asr`（音声, multipart）、`/api/agent/vision-proxy`（画像, multipart）。
-
-共通仕様メモ:
-- 本番: mock 無効。OPENAI_API_KEY 未設定時は 500 で失敗させる設計。
-- 認証: ミドルウェアで IP 許可/Basic 認証（`ADMIN_BASIC_USERS` による複数ユーザ対応）。
+- GET `/api/healthz`: ヘルスチェック
+- POST `/api/agent/run`: 直接実行（内部向け）
+- POST `/api/agent/workflow`: Zod検証付きワークフロー実行
+- POST `/api/agent/workflow-proxy`: UI用サーバプロキシ
+- POST `/api/obsidian/ingest`: Obsidian vault取り込み
+- GET `/api/kb/search`: KB検索（クエリ、Top-K指定）
+- ページ `/agent/workflow`: Chat UI（meta robots noindex）
 
 ## 5) セキュリティ/運用ポリシー
-- ルート保護: `/agent/workflow`, `/api/agent/workflow`, `/api/agent/workflow-proxy` を対象に IP/Basic + noindex/no-store。
-- CORS 許可は必要最小限。
-- 個人運用前提（URL 直接アクセス、サイトナビからは非露出）。
- - リモートアクセスは Tailscale（ゼロトラストVPN）推奨。tailnet 内アクセスを基本とし、公開インターネット直露出を避ける（代替: Cloudflare Tunnel/Access）。
+- ルート保護: `/agent/workflow`, `/api/agent/*` - IP/Basic + noindex/no-store
+- CORS: 必要最小限（`ALLOWED_ORIGINS`環境変数）
+- Obsidian API Key: `.mcp.local.json`/環境変数のみ、Git除外
+- 個人運用前提: URL直接アクセス、Tailscale（ゼロトラストVPN）推奨
 
 ## 6) 正本と参照
-- 正本: `docs/requirements/chat.md`, `docs/requirements/kb.md`, `docs/requirements/openai-agents-sdk.md`。
-- 参考（保留中）: `docs/requirements/langchain.md`（状態: Deferred）
-- 直近計画: `.github/copilot-instructions.md` の RECENT-PLANS セクション。
-- 本カプセル: 会話携行用の短縮版（400–800 tokens 目安）。
+- **要件定義**:
+  - `docs/requirements/chat.md`
+  - `docs/requirements/kb.md`
+  - `docs/requirements/openai-agents-sdk.md`
+  - `docs/requirements/obsidian.md`
+- **運用ガイド**:
+  - `docs/operations/mcp-obsidian-spec.md`
+  - `docs/operations/mcp-obsidian-workflows.md`
+  - `docs/operations/kb-setup.md`
+- **ADR**: `docs/decisions/ADR-*.md`
+- **Vault情報**: Obsidian vault内 `specs/obsidian-vault-info.md`
+- **本カプセル**: 会話携行用短縮版（800トークン目安）
 
 ## 7) 既決事項（抜粋）
-- UI はサーバプロキシ経由で実行し、クライアントに内部トークンを渡さない。
-- 本番で mock は不可。キー未設定は 500 を返すことで誤運用を検出。
-- Chat UI はサイト既存配色に合わせ、余計な固定色は排除。
-- 型安全は Zod による入力検証で担保。
- - メッセージ操作はコンテキストメニューで提供し、用語は「引用」を用いる（「返信」表記は避ける）。
+- UIはサーバプロキシ経由実行、クライアント非トークン保持
+- 本番でmock不可、キー未設定は500返却
+- Chat UIは既存配色に合わせ、固定色排除
+- 型安全: Zod入力検証
+- メッセージ操作: コンテキストメニュー、用語「引用」
+- MCP統合: GitHub/Vercel/n8n/Obsidian（2025-11-17）
+- Obsidian二層統合: REST（KB）+ MCP（編集）
+- KB埋め込み: OpenAI（本番）/Hash（開発）二重モード
+- ポート標準化: Obsidian REST API 8443（HTTP）、8445（HTTPS推奨）
 
-## 8) 未決・次の3手
-- 未決: SSE 実装方式（EventSource vs fetch+ReadableStream）, 会話履歴の保存層, 観測/メトリクスの導入順。
-- 次の3手:
-  1) sendToAgent を SSE 対応に拡張（UI は逐次追記）。
-  2) `/api/agent/asr`（multipart 音声）を追加し、ChatInput にファイル添付 UI。
-  3) 簡易な会話履歴の永続化（KV もしくはファイル/セッション）。
+## 8) 進行中のイニシアティブ
+- KB自動再取り込み: Obsidian MCP編集後のKB ingestトリガー
+- 定期ノート自動処理: 週次/月次レビュー生成
+- n8n連携拡張: 更新イベント通知、自動処理
+- SSE実装: 逐次レスポンス表示（未決: EventSource vs ReadableStream）
 
 ## 9) 更新手順（スレッド切替プロトコル）
-1. 仕様/方針の変更があれば、まず正本（requirements/constitution/ADR）を更新。
-2. 本カプセルを 800 tokens 以下で更新し「最終更新日」を更新。
-3. 新スレッドを開始し、最初に本カプセルのみを貼り付ける（長文履歴は持ち込まない）。
+1. 仕様/方針変更時、まず正本（requirements/ADR）を更新
+2. 本カプセルを800トークン以下で更新、「最終更新日」更新
+3. 新スレッド開始時、本カプセルのみ貼付（長文履歴非持込）
+4. 重要決定はADRとして記録（docs/decisions/）
 
 ---
-注: 本文は携行用の要約です。詳細は正本ドキュメントを参照してください。
+注: 本文は携行用要約。詳細は正本ドキュメント参照。

@@ -64,7 +64,7 @@ Claude Code では、MCP サーバーを `.json` ファイルで設定できま�
       ],
       "env": {
         "OBSIDIAN_HOST": "host.docker.internal",
-        "OBSIDIAN_PORT": "27123",
+        "OBSIDIAN_PORT": "8443",
         "OBSIDIAN_API_KEY": "your-obsidian-api-key-here"
       }
     },

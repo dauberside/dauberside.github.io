@@ -1,7 +1,7 @@
 import https from "node:https";
 
 // Normalize envs and support a legacy/lowercase fallback the user might set
-const BASE = (process.env.OBSIDIAN_API_URL || "http://127.0.0.1:27123").trim();
+const BASE = (process.env.OBSIDIAN_API_URL || "http://127.0.0.1:8443").trim();
 const KEY = (
   process.env.OBSIDIAN_API_KEY ||
   (process.env as any).obsidian_api_key ||

@@ -87,4 +87,9 @@ package-lock.json
 
 # MCP local configuration (private, not version controlled)
 .mcp.local.json
-.mcp.json
+
+# Claude Code local settings (private, not version controlled)
+.claude/
+
+# Data directory (logs, temporary files)
+data/

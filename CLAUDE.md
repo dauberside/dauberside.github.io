@@ -263,7 +263,7 @@ pnpm agent:builder:generate
 
 **Environment Setup**:
 ```bash
-OBSIDIAN_API_URL=http://127.0.0.1:27123
+OBSIDIAN_API_URL=http://127.0.0.1:8443
 OBSIDIAN_API_KEY=<from-plugin>
 ```
 
