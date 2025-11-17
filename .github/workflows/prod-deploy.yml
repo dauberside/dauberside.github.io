@@ -40,7 +40,7 @@ jobs:
         run: npx -y vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
 
       - name: Build with Vercel (prebuilt)
-        run: npx -y vercel@latest build --token=$VERCEL_TOKEN
+        run: npx -y vercel@latest build --prod --token=$VERCEL_TOKEN
 
       - name: Deploy to Vercel (production)
         id: deploy
