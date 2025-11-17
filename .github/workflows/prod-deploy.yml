@@ -49,9 +49,30 @@ jobs:
           echo "prod_url=$url" >> $GITHUB_OUTPUT
           echo "Production URL: $url"
 
-      - name: Smoke - healthz must be 200
+      - name: Smoke - healthz must return ok=true
         run: |
-          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/api/healthz?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" -o /dev/null
+          response=$(curl -fsSL "${{ steps.deploy.outputs.prod_url }}/api/healthz?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}")
+          echo "healthz response: $response"
+          ok=$(echo "$response" | jq -r '.ok')
+          if [ "$ok" != "true" ]; then
+            echo "❌ healthz returned ok=$ok (expected true)" >&2
+            exit 1
+          fi
+          echo "✅ healthz ok=true"
+
+      - name: Smoke - homepage must return 200 with HTML
+        run: |
+          response=$(curl -fsSL "${{ steps.deploy.outputs.prod_url }}/?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}")
+          if ! echo "$response" | grep -q "<title>"; then
+            echo "❌ Homepage missing <title> tag" >&2
+            exit 1
+          fi
+          echo "✅ Homepage returned valid HTML"
+
+      - name: Smoke - docs page must return 200
+        run: |
+          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/docs?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" -o /dev/null
+          echo "✅ Docs page accessible"
 
       - name: Smoke - run endpoint (status may be 200 or 500)
         env:
