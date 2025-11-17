@@ -69,10 +69,10 @@ jobs:
           fi
           echo "✅ Homepage returned valid HTML"
 
-      - name: Smoke - docs page must return 200
+      - name: Smoke - chat page must return 200
         run: |
-          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/docs?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" -o /dev/null
-          echo "✅ Docs page accessible"
+          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/chat?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" -o /dev/null
+          echo "✅ Chat page accessible"
 
       - name: Smoke - run endpoint (status may be 200 or 500)
         env:
