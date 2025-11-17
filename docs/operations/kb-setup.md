@@ -132,13 +132,95 @@ const hits = await searchKB('通知を抑止する方法', { topK: 5 });
 - 環境変数 `KB_INDEX_PATH` を設定していない場合、既定の `kb/index/embeddings.json` を読み込みます。
 - 検索時も OpenAI Embeddings を1回呼び出します（クエリエンコード）。
 
-## 4) 注意事項
+## 4) ヘルスチェック
+
+アプリの健全性を確認するには `/api/healthz` エンドポイントを使用します。
+
+### 基本的な使い方
+
+```bash
+# ローカル環境
+curl http://localhost:3000/api/healthz
+
+# 本番環境（Vercel Deployment Protection 有効時）
+curl "https://your-app.vercel.app/api/healthz?x-vercel-protection-bypass=YOUR_SECRET"
+```
+
+### レスポンス例
+
+**正常時（200 OK）**:
+```json
+{
+  "ok": true,
+  "uptime": 123.45,
+  "now": "2025-11-17T12:00:00.000Z",
+  "checks": {
+    "kb": {
+      "status": "healthy",
+      "message": "KB index is present and valid",
+      "details": {
+        "path": "kb/index/embeddings.json",
+        "size": 1234567
+      }
+    },
+    "obsidian": {
+      "status": "healthy",
+      "message": "Obsidian REST responded successfully",
+      "details": {
+        "url": "http://localhost:8443/vault"
+      }
+    }
+  }
+}
+```
+
+**KB が見つからない場合（503 Service Unavailable）**:
+```json
+{
+  "ok": false,
+  "uptime": 123.45,
+  "now": "2025-11-17T12:00:00.000Z",
+  "checks": {
+    "kb": {
+      "status": "unavailable",
+      "message": "KB index file not found",
+      "details": {
+        "path": "kb/index/embeddings.json",
+        "size": 0
+      }
+    },
+    "obsidian": {
+      "status": "not_configured",
+      "message": "OBSIDIAN_API_URL is not set"
+    }
+  }
+}
+```
+
+### ステータス一覧
+
+| Status | 意味 | 対応 |
+|--------|------|------|
+| `healthy` | 正常動作 | 問題なし |
+| `degraded` | 部分的に劣化（ファイル空、JSON 不正等） | 要確認、影響は限定的 |
+| `unavailable` | 利用不可 | 即対応必要 |
+| `not_configured` | 未設定（Obsidian のみ） | 任意、RAG には影響なし |
+
+### クリティカル判定ルール
+
+- **KB が `unavailable`** → 503 を返す（RAG/検索が動作不可のため）
+- **Obsidian が `unavailable`** → Obsidian が設定されている場合のみ 503
+- **Obsidian が `not_configured`** → クリティカル扱いしない（RAG には不要）
+
+---
+
+## 5) 注意事項
 - 無料/小規模想定のため、JSONインデックスはメモリに読み込みます。ファイルが巨大になると非現実的なので、1万チャンク程度を目安に。
 - 大規模/高頻度になったら Qdrant/pgvector などのベクタDBへ移行し、インデクサ/検索APIを別プロセス化してください（VPN/Tunnel運用との相性〇）。
 - Vercel の Serverless からはローカルSSDパスは見えません。Vercel運用時はインデックスをリポにコミットするか、外部ストレージ/DBを使います（推奨は後者）。
  - 既定の無視パターン: `.git/`, `.next/`, `cache/`, `node_modules/`, `kb/`, `.obsidian/`
 
-## 5) よくある質問
+## 6) よくある質問
 - 「PDF も入れたい」: 追加の抽出ツールが必要です（例: `pdf-parse` や外部の前処理）。最初は Markdown から始めるのを推奨します。
 - 「コストをほぼゼロに」: 埋め込みをローカル（e5/bge系 + sentence-transformers/Ollama）に切り替えればOK。別プロセス化が前提になります。
 - 「UIへ統合」: `searchKB` の上位でヒット上位をプロンプトへ差し込む（RAG）か、引用パネルとして表示してください。
