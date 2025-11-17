@@ -12,6 +12,8 @@ Last updated: November 9, 2025
 ```bash
 pnpm dev              # Start dev server (default port 3000)
 pnpm dev -p 3001      # Use alternate port (recommended if 3030 is in use)
+pnpm dev:kb           # Rebuild KB index, then start dev server
+pnpm dev:mcp          # Show MCP setup guide, then start dev server (requires manual MCP startup)
 pnpm agent:dev        # Start agent-specific dev server on port 3030
 ```
 

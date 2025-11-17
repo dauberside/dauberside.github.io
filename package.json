@@ -7,6 +7,8 @@
     "prebuild": "pnpm -s agent:builder:validate && pnpm -s agent:builder:generate",
   "postbuild": "node ./scripts/postbuild.mjs",
   "dev": "next dev --hostname 0.0.0.0 --port 3000",
+  "dev:kb": "pnpm kb:build && pnpm dev",
+  "dev:mcp": "node -e \"console.log('\\n📘 MCP Local Dev Guide: docs/operations/mcp-local-dev.md\\n\\n1. Start MCP servers manually (see guide for commands)\\n2. Dev server will start on port 3000\\n')\" && pnpm dev",
   "agent:dev": "next dev -p 3030",
     "agent:dev:3030": "next dev -p 3030",
     "build": "next build",
