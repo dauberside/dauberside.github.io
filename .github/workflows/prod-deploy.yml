@@ -51,7 +51,7 @@ jobs:
 
       - name: Smoke - healthz must be 200
         run: |
-          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/api/healthz" -o /dev/null
+          curl -fsSL "${{ steps.deploy.outputs.prod_url }}/api/healthz?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" -o /dev/null
 
       - name: Smoke - run endpoint (status may be 200 or 500)
         env:
@@ -62,7 +62,7 @@ jobs:
             echo "INTERNAL_API_TOKEN not set, skipping /api/agent/run smoke" >&2
             exit 0
           fi
-          code=$(curl -si -X POST "$URL/api/agent/run" \
+          code=$(curl -si -X POST "$URL/api/agent/run?x-vercel-protection-bypass=${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" \
             -H 'Content-Type: application/json' \
             -H "x-internal-token: ${INTERNAL_API_TOKEN}" \
             --data '{"input":"smoke from CI (prod)"}' | head -n 1 | awk '{print $2}')
