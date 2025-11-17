@@ -20,6 +20,7 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <title>dauberside</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className={notoSans.variable}>
