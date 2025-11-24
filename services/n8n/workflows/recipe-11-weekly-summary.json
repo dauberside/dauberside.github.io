@@ -105,7 +105,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/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",
+        "url": "={{ $env.SLACK_WEEKLY_SUMMARY_WEBHOOK }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"text\": \"📆 *Cortex OS Weekly Summary — {{ $json.weekId }}*\\n\\n• 期間: {{ $json.weekLabel }}\\n• 取得日数: {{ $json.digestCount }}/7\\n• 完了タスク: {{ $json.overview.completed }}\\n• 未完了タスク: {{ $json.overview.pending }}\\n• 進捗率: {{ $json.overview.rate }}%\\n\\n詳しくは: Obsidian の `weekly/{{ $json.weekId }}-summary.md` を参照してください。\"\n}",

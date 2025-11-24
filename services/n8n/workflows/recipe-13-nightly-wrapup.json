@@ -100,7 +100,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/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",
+        "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"text\": \"🌙 *Cortex OS Nightly Wrap-up — {{ $json.date }}*\\n\\n• 完了: {{ $json.stats.completed }}\\n• 未完了: {{ $json.stats.pending }}\\n• 進捗率: {{ $json.stats.rate }}%\\n\\n*明日の候補:*\\n{{ $json.tomorrowJson.tomorrow_candidates.map(t => '• ' + t).join('\\\\n') }}\\n\\n_tomorrow.json を更新しました_\"\n}",
