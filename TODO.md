@@ -3,6 +3,18 @@
 > Recipe 4 Phase 2 完了に向けた本番環境デプロイタスク
 > 作成日: 2025-11-24
 
+**重要**: Obsidian Local REST API は PORT 27124 で稼働中（HTTPS）
+
+---
+
+## 📋 システム情報
+
+- **Obsidian REST API**: https://127.0.0.1:27124/ (PORT 27124, HTTPS, 認証必須)
+- **MCP 設定**: .mcp.json で host.docker.internal:27124 を指定
+- **n8n ローカル**: PORT 5678
+- **n8n 本番予定**: https://n8n.xn--rn8h03a.st/
+- **Recipe 13**: PORT 27123/27124 使用
+
 ---
 
 ## 🚀 n8n Production Deployment
