@@ -1,13 +1,14 @@
 {
-  "generated_at": "2025-11-24T22:00:00+09:00",
+  "generated_at": "2025-11-24T05:49:11.058Z",
   "source_date": "2025-11-24",
   "tomorrow_candidates": [
-    "Recipe 13 の 22:00 自動実行結果確認",
-    "tomorrow.json 自動生成が成功したか検証",
-    "Phase 2.1 完了報告と次フェーズ計画"
+    "22:00 自動実行確認（Recipe 13）",
+    "Recipe 13 本番稼働確認",
+    "v1.2 Roadmap 確認"
   ],
   "carryover_tasks": [
-    "tonight (22:00) Recipe 13 自動実行ログを確認"
+    "22:00 自動実行確認（Recipe 13）",
+    "Recipe 13 本番稼働確認"
   ],
-  "reflection_summary": "/brief と tomorrow.json の連携成功、Cortex OS の記憶統合が完全動作"
+  "reflection_summary": "Source: /brief command、GeneratedAt: 2025-11-20T00:00:00Z"
 }

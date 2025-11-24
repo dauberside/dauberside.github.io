@@ -30,29 +30,9 @@ services:
       retries: 5
     restart: unless-stopped
 
-  mcp:
-    image: node:20-alpine
-    working_dir: /app
-    command: ["node", "services/mcp/server.mjs"]
-    ports:
-      - "5050:5050"
-    environment:
-      - TZ=Asia/Tokyo
-      - MCP_API_TOKEN=${MCP_API_TOKEN:-dev-token}
-      - KB_API_URL=${KB_API_URL:-http://kb-api:4040}
-      - ALLOWED_ORIGINS=*
-    volumes:
-      - ./:/app
-    restart: unless-stopped
-    # depends_on:
-    #   - kb-api
-
   n8n:
     image: n8nio/n8n:1.116.2
     container_name: n8n
-    depends_on:
-      mcp:
-        condition: service_started
     environment:
       - TZ=Asia/Tokyo
       - GENERIC_TIMEZONE=Asia/Tokyo
@@ -71,20 +51,24 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-0}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-}
-      # Pass MCP endpoint/token into n8n (usable via {{$env.MCP_API_URL}} etc.)
-      - MCP_API_URL=http://mcp:5050
-      - MCP_API_TOKEN=${MCP_API_TOKEN:-}
       # Google Calendar credentials for workflows
       - GC_CLIENT_ID=${GC_CLIENT_ID:-}
       - GC_CLIENT_SECRET=${GC_CLIENT_SECRET:-}
       - GC_REFRESH_TOKEN=${GC_REFRESH_TOKEN:-}
       - GC_REDIRECT_URI=${GC_REDIRECT_URI:-}
       - CALENDAR_ID=${CALENDAR_ID:-primary}
+      # Obsidian & Slack for Recipe 09: Daily Digest
+      - OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY:-}
+      - SLACK_DAILY_DIGEST_WEBHOOK=${SLACK_DAILY_DIGEST_WEBHOOK:-}
     ports:
       - "5678:5678"
+    # ... 既存設定 ...
     volumes:
+      # リポジトリ全体をマウント（cortex は symlink 経由で Obsidian から参照）
+      - "/Volumes/Extreme Pro/dauberside.github.io-1:/workspace/dauberside.github.io-1"
       - n8n_data:/home/node/.n8n
-      - ./data/chat-logs:/data/chat-logs    # NDJSONを永続化
+      - ./data/chat-logs:/data/chat-logs
+      
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
