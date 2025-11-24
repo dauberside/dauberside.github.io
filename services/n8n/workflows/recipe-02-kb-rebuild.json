@@ -1,0 +1,270 @@
+{
+  "name": "Recipe 02: Nightly KB Rebuild",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        },
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 3,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every Night 03:00 JST",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://host.docker.internal:27124/vault/",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 270cc55355f7e4747e643100df3f121cf1360d8c191c92d5765f24962db88e66"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "list-obsidian-files",
+      "name": "List Obsidian Files",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recursively list all markdown files from Obsidian vault\nconst https = require('https');\n\nconst API_URL = 'https://host.docker.internal:27124';\nconst API_KEY = '270cc55355f7e4747e643100df3f121cf1360d8c191c92d5765f24962db88e66';\n\nasync function fetchDir(path) {\n  return new Promise((resolve, reject) => {\n    const url = new URL(`${API_URL}/vault/${encodeURIComponent(path)}`);\n    const options = {\n      hostname: url.hostname,\n      port: url.port,\n      path: url.pathname,\n      method: 'GET',\n      headers: {\n        'Authorization': `Bearer ${API_KEY}`\n      },\n      rejectUnauthorized: false\n    };\n    \n    const req = https.request(options, (res) => {\n      let data = '';\n      res.on('data', chunk => data += chunk);\n      res.on('end', () => {\n        try {\n          resolve(JSON.parse(data));\n        } catch (e) {\n          resolve({ files: [] });\n        }\n      });\n    });\n    req.on('error', () => resolve({ files: [] }));\n    req.end();\n  });\n}\n\nasync function listAllFiles(basePath = '') {\n  const result = await fetchDir(basePath);\n  const files = result.files || [];\n  const allFiles = [];\n  \n  for (const file of files) {\n    const fullPath = basePath ? `${basePath}/${file}` : file;\n    if (file.endsWith('/')) {\n      // It's a directory, recurse\n      const subFiles = await listAllFiles(fullPath.slice(0, -1));\n      allFiles.push(...subFiles);\n    } else {\n      allFiles.push(fullPath);\n    }\n  }\n  \n  return allFiles;\n}\n\n// Main execution\nconst allFiles = await listAllFiles('');\nconst mdFiles = allFiles.filter(f => f.endsWith('.md'));\n\nconsole.log(`Found ${mdFiles.length} markdown files`);\n\nreturn mdFiles.map(path => ({ json: { path } }));"
+      },
+      "id": "filter-md-files",
+      "name": "List All Markdown Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://host.docker.internal:27124/vault/{{ encodeURIComponent($json.path) }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 270cc55355f7e4747e643100df3f121cf1360d8c191c92d5765f24962db88e66"
+            },
+            {
+              "name": "Accept",
+              "value": "text/markdown"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "fetch-note-content",
+      "name": "Fetch Note Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate all notes into ingest format\nconst items = $input.all();\nconst notes = [];\n\nfor (const item of items) {\n  const path = item.json.path || '';\n  const content = item.json.body || '';\n  \n  if (path && content) {\n    // Generate simple hash for delta detection\n    const hash = require('crypto')\n      .createHash('sha256')\n      .update(content)\n      .digest('hex')\n      .substring(0, 16);\n    \n    notes.push({\n      path,\n      content,\n      hash\n    });\n  }\n}\n\nreturn [{\n  json: {\n    mode: 'full',\n    notes,\n    correlationId: `nightly-${Date.now()}`\n  }\n}];"
+      },
+      "id": "aggregate-notes",
+      "name": "Aggregate Notes for Ingest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3030/api/obsidian/ingest",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-obsidian-token",
+              "value": ""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-kb-rebuild",
+      "name": "Call KB Ingest API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst statusCode = response.statusCode || 200;\nconst accepted = response.accepted || 0;\nconst embedded = response.embedded || 0;\nconst skipped = response.skipped || 0;\nconst errors = response.errors || [];\n\nlet text;\nif (errors.length === 0) {\n  text = `✅ *Nightly KB Rebuild Succeeded*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Notes Accepted*: ${accepted}\\n` +\n    `*Embedded*: ${embedded}\\n` +\n    `*Skipped*: ${skipped}`;\n} else {\n  text = `⚠️ *Nightly KB Rebuild Completed with Errors*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Notes Accepted*: ${accepted}\\n` +\n    `*Embedded*: ${embedded}\\n` +\n    `*Errors*: ${errors.length}\\n` +\n    `*Details*: ${errors.slice(0, 3).join(', ')}`;\n}\n\nreturn {\n  json: {\n    success: errors.length === 0,\n    text\n  }\n};"
+      },
+      "id": "format-result",
+      "name": "Format Result Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": $json.text } }}",
+        "options": {}
+      },
+      "id": "slack-notification",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 300],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Every Night 03:00 JST": {
+      "main": [
+        [
+          {
+            "node": "List Obsidian Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Obsidian Files": {
+      "main": [
+        [
+          {
+            "node": "List All Markdown Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Markdown Files": {
+      "main": [
+        [
+          {
+            "node": "Fetch Note Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Note Content": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Notes for Ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Notes for Ingest": {
+      "main": [
+        [
+          {
+            "node": "Call KB Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call KB Ingest API": {
+      "main": [
+        [
+          {
+            "node": "Format Result Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Result Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-18T00:00:00.000Z",
+      "updatedAt": "2025-11-18T00:00:00.000Z",
+      "id": "1",
+      "name": "phase-2"
+    },
+    {
+      "createdAt": "2025-11-18T00:00:00.000Z",
+      "updatedAt": "2025-11-18T00:00:00.000Z",
+      "id": "2",
+      "name": "kb"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-20T00:00:00.000Z",
+  "versionId": "2"
+}

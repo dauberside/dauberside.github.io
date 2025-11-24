@@ -1,0 +1,142 @@
+{
+  "name": "Recipe 01: Obsidian → Slack Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "obsidian-update",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Obsidian Update Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "obsidian-update"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Filter ADR or Spec files only\nconst filePath = $input.item.json.filePath || '';\n\nif (filePath.includes('ADR-') || filePath.includes('spec/') || filePath.includes('docs/decisions/')) {\n  return {\n    json: {\n      shouldNotify: true,\n      file: filePath,\n      author: $input.item.json.author || 'Unknown',\n      summary: $input.item.json.summary || 'No summary provided',\n      timestamp: $input.item.json.timestamp || new Date().toISOString(),\n      event: $input.item.json.event || 'modified'\n    }\n  };\n}\n\nreturn { json: { shouldNotify: false } };"
+      },
+      "id": "filter-function",
+      "name": "Filter ADR/Spec Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.shouldNotify }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-node",
+      "name": "Should Notify?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#general",
+          "mode": "name"
+        },
+        "text": "=📄 **Obsidian Note Updated**\n\n**File**: {{ $json.file }}\n**Author**: {{ $json.author }}\n**Event**: {{ $json.event }}\n**Summary**: {{ $json.summary }}\n**Time**: {{ $json.timestamp }}",
+        "otherOptions": {}
+      },
+      "id": "slack-notification",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [850, 200],
+      "credentials": {
+        "slackWebhookApi": {
+          "id": "1",
+          "name": "Slack Webhook"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "no-operation",
+      "name": "Skip (No Match)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [850, 400]
+    }
+  ],
+  "connections": {
+    "Obsidian Update Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter ADR/Spec Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter ADR/Spec Files": {
+      "main": [
+        [
+          {
+            "node": "Should Notify?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Notify?": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip (No Match)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-17T00:00:00.000Z",
+      "updatedAt": "2025-11-17T00:00:00.000Z",
+      "id": "1",
+      "name": "phase-2"
+    },
+    {
+      "createdAt": "2025-11-17T00:00:00.000Z",
+      "updatedAt": "2025-11-17T00:00:00.000Z",
+      "id": "2",
+      "name": "obsidian"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-17T00:00:00.000Z",
+  "versionId": "1"
+}

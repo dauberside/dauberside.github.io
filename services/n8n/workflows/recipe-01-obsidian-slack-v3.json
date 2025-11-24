@@ -1,0 +1,91 @@
+{
+  "name": "Recipe 01: Obsidian → Slack (Simple)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "obsidian-update",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Obsidian Update Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "obsidian-update"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst filePath = data.filePath || '';\n\n// Filter: only process ADR/Spec files\nif (!filePath.includes('ADR-') && \n    !filePath.includes('spec/') && \n    !filePath.includes('docs/decisions/')) {\n  return [];\n}\n\n// Format Slack message\nreturn {\n  json: {\n    text: `📄 *Obsidian Note Updated*\\n\\n*File*: ${filePath}\\n*Author*: ${data.author || 'Unknown'}\\n*Event*: ${data.event || 'modified'}\\n*Summary*: ${data.summary || 'No summary'}\\n*Time*: ${data.timestamp || new Date().toISOString()}`\n  }\n};"
+      },
+      "id": "process-filter",
+      "name": "Process and Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "YOUR_SLACK_WEBHOOK_URL_HERE",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "slack-http-request",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Obsidian Update Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process and Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process and Filter": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-18T00:00:00.000Z",
+      "updatedAt": "2025-11-18T00:00:00.000Z",
+      "id": "1",
+      "name": "phase-2"
+    },
+    {
+      "createdAt": "2025-11-18T00:00:00.000Z",
+      "updatedAt": "2025-11-18T00:00:00.000Z",
+      "id": "2",
+      "name": "obsidian"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-18T00:00:00.000Z",
+  "versionId": "3"
+}

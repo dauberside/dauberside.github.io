@@ -1,0 +1,278 @@
+{
+  "name": "Recipe 13: Nightly Wrap-up (Cortex OS)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 22,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "nightly-trigger",
+      "name": "Nightly Trigger 22:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate today's date\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst dateString = `${year}-${month}-${day}`;\n\nreturn {\n  json: {\n    date: dateString,\n    digestPath: `cortex/daily/${dateString}-digest.md`,\n    todoPath: 'TODO.md',\n    tomorrowPath: 'cortex/state/tomorrow.json'\n  }\n};"
+      },
+      "id": "calculate-paths",
+      "name": "Calculate File Paths",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://host.docker.internal:27124/vault/{{ $json.digestPath }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "get-digest",
+      "name": "Get Today's Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://host.docker.internal:27124/vault/{{ $json.todoPath }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "get-todo",
+      "name": "Get TODO.md",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-data",
+      "name": "Merge Digest & TODO",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const digestData = $items(\"Get Today's Digest\")[0]?.json?.data || '';\nconst todoData = $items(\"Get TODO.md\")[0]?.json?.data || '';\nconst date = $items(\"Calculate File Paths\")[0]?.json?.date || new Date().toISOString().split('T')[0];\n\n// Extract tasks from digest\nfunction extractTasks(text) {\n  const completed = [];\n  const pending = [];\n  const lines = text.split('\\n');\n  \n  for (const line of lines) {\n    const trimmed = line.trim();\n    if (trimmed.startsWith('- [x]')) {\n      completed.push(trimmed.replace('- [x] ', ''));\n    } else if (trimmed.startsWith('- [ ]')) {\n      pending.push(trimmed.replace('- [ ] ', ''));\n    }\n  }\n  \n  return { completed, pending };\n}\n\n// Extract reflection from digest\nfunction extractReflection(text) {\n  if (!text.includes('## Reflection')) return '';\n  \n  const reflectionSection = text.split('## Reflection')[1];\n  if (!reflectionSection) return '';\n  \n  const lines = reflectionSection.split('\\n')\n    .filter(l => l.trim().startsWith('- '))\n    .map(l => l.trim().replace('- ', ''));\n  \n  return lines.slice(0, 2).join('、');\n}\n\n// Extract tomorrow section from TODO.md\nfunction extractTomorrowTasks(todoText, todayDate) {\n  const lines = todoText.split('\\n');\n  const tasks = [];\n  let inTomorrowSection = false;\n  \n  // Calculate tomorrow's date\n  const today = new Date(todayDate);\n  const tomorrow = new Date(today);\n  tomorrow.setDate(tomorrow.getDate() + 1);\n  const tomorrowStr = tomorrow.toISOString().split('T')[0];\n  \n  for (const line of lines) {\n    if (line.includes(`## ${tomorrowStr}`)) {\n      inTomorrowSection = true;\n      continue;\n    }\n    if (inTomorrowSection && line.startsWith('## ')) {\n      break;\n    }\n    if (inTomorrowSection && line.trim().startsWith('- [ ]')) {\n      tasks.push(line.trim().replace('- [ ] ', ''));\n    }\n  }\n  \n  return tasks;\n}\n\nconst digestTasks = extractTasks(digestData);\nconst reflection = extractReflection(digestData);\nconst tomorrowTasks = extractTomorrowTasks(todoData, date);\n\n// Build carryover (pending tasks from today)\nconst carryover = digestTasks.pending.slice(0, 3);\n\n// Build tomorrow candidates\n// Priority: carryover first, then tomorrow section tasks\nconst candidates = [...new Set([...carryover, ...tomorrowTasks])].slice(0, 3);\n\n// If we have less than 3, add generic suggestions\nwhile (candidates.length < 3) {\n  const suggestions = [\n    'v1.2 Roadmap 確認',\n    'Recipe 動作確認',\n    'ドキュメント整理'\n  ];\n  for (const s of suggestions) {\n    if (!candidates.includes(s) && candidates.length < 3) {\n      candidates.push(s);\n    }\n  }\n}\n\nconst total = digestTasks.completed.length + digestTasks.pending.length;\nconst rate = total === 0 ? 0 : Math.round((digestTasks.completed.length / total) * 100);\n\n// Build tomorrow.json\nconst tomorrowJson = {\n  generated_at: new Date().toISOString(),\n  source_date: date,\n  tomorrow_candidates: candidates,\n  carryover_tasks: carryover,\n  reflection_summary: reflection || '（Reflection なし）'\n};\n\nreturn {\n  json: {\n    date,\n    tomorrowJson,\n    tomorrowJsonString: JSON.stringify(tomorrowJson, null, 2),\n    stats: {\n      completed: digestTasks.completed.length,\n      pending: digestTasks.pending.length,\n      rate\n    }\n  }\n};"
+      },
+      "id": "build-tomorrow",
+      "name": "Build tomorrow.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://host.docker.internal:27124/vault/cortex/state/tomorrow.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/plain",
+        "body": "={{ $json.tomorrowJsonString }}",
+        "options": {}
+      },
+      "id": "write-tomorrow",
+      "name": "Write tomorrow.json",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:27124/vault/cortex/state/tomorrow.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "verify-write",
+      "name": "Verify Write (DEBUG)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/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",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"🌙 *Cortex OS Nightly Wrap-up — {{ $json.date }}*\\n\\n• 完了: {{ $json.stats.completed }}\\n• 未完了: {{ $json.stats.pending }}\\n• 進捗率: {{ $json.stats.rate }}%\\n\\n*明日の候補:*\\n{{ $json.tomorrowJson.tomorrow_candidates.map(t => '• ' + t).join('\\\\n') }}\\n\\n_tomorrow.json を更新しました_\"\n}",
+        "options": {}
+      },
+      "id": "slack-notify",
+      "name": "Post Wrap-up to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 400],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Nightly Trigger 22:00": {
+      "main": [
+        [
+          {
+            "node": "Calculate File Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate File Paths": {
+      "main": [
+        [
+          {
+            "node": "Get Today's Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get TODO.md",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today's Digest": {
+      "main": [
+        [
+          {
+            "node": "Merge Digest & TODO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get TODO.md": {
+      "main": [
+        [
+          {
+            "node": "Merge Digest & TODO",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Digest & TODO": {
+      "main": [
+        [
+          {
+            "node": "Build tomorrow.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build tomorrow.json": {
+      "main": [
+        [
+          {
+            "node": "Write tomorrow.json",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Wrap-up to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write tomorrow.json": {
+      "main": [
+        [
+          {
+            "node": "Verify Write (DEBUG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "cortex-os"
+    },
+    {
+      "name": "automation"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-19T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,230 @@
+{
+  "name": "Recipe 10: TODO.md Auto-sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        },
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 8,
+              "minute": 5
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every Morning 08:05 JST",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate today's date for latest digest\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst dateString = `${year}-${month}-${day}`;\n\n// Calculate yesterday as fallback\nconst yesterday = new Date(now);\nyesterday.setDate(yesterday.getDate() - 1);\nconst yYear = yesterday.getFullYear();\nconst yMonth = String(yesterday.getMonth() + 1).padStart(2, '0');\nconst yDay = String(yesterday.getDate()).padStart(2, '0');\nconst yesterdayString = `${yYear}-${yMonth}-${yDay}`;\n\nreturn {\n  json: {\n    date: dateString,\n    yesterdayDate: yesterdayString,\n    digestPath: `/workspace/dauberside.github.io-1/notifications/daily/${yesterdayString}-digest.md`,\n    todoPath: `TODO.md`\n  }\n};"
+      },
+      "id": "calculate-date",
+      "name": "Calculate Dates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "fileSelector": "={{ $json.digestPath }}"
+      },
+      "id": "read-digest",
+      "name": "Read Latest Daily Digest",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst dateInfo = $('Calculate Dates').first().json;\n\n// Get digest content\nlet digestText = '';\nif (items[0] && items[0].binary && items[0].binary.data) {\n  const buffer = Buffer.from(items[0].binary.data.data, 'base64');\n  digestText = buffer.toString('utf8');\n}\n\n// Extract uncompleted tasks: - [ ] ...\nconst lines = digestText.split('\\n');\nconst uncompletedTasks = lines\n  .filter(line => line.trim().match(/^-\\s*\\[\\s*\\]/))\n  .map(line => line.trim());\n\n// Remove duplicates\nconst uniqueTasks = [...new Set(uncompletedTasks)];\n\nreturn {\n  json: {\n    date: dateInfo.date,\n    yesterdayDate: dateInfo.yesterdayDate,\n    todoPath: dateInfo.todoPath,\n    uncompletedTasks: uniqueTasks,\n    taskCount: uniqueTasks.length\n  }\n};"
+      },
+      "id": "extract-tasks",
+      "name": "Extract Uncompleted Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://host.docker.internal:27124/vault/{{ $json.todoPath }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.OBSIDIAN_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "read-todo",
+      "name": "Read TODO.md",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const taskInfo = $('Extract Uncompleted Tasks').first().json;\nconst httpResponse = $input.first().json;\n\n// Get existing TODO.md content\nlet todoContent = '';\nif (typeof httpResponse === 'string') {\n  todoContent = httpResponse;\n} else if (httpResponse.data) {\n  todoContent = httpResponse.data;\n} else if (httpResponse.body) {\n  todoContent = httpResponse.body;\n}\n\n// Parse existing TODO sections\nconst lines = todoContent.split('\\n');\nconst existingTasks = lines\n  .filter(line => line.trim().match(/^-\\s*\\[/))\n  .map(line => line.trim());\n\n// New tasks to add (not already in TODO)\nconst newTasks = taskInfo.uncompletedTasks.filter(task => {\n  return !existingTasks.some(existing => existing === task);\n});\n\n// Build new section for today\nconst today = taskInfo.date;\nlet newSection = '';\n\nif (newTasks.length > 0) {\n  newSection = `\\n## ${today}\\n`;\n  newTasks.forEach(task => {\n    newSection += `${task}\\n`;\n  });\n  newSection += `\\n---\\n`;\n}\n\n// Append to TODO.md\nconst updatedContent = todoContent + newSection;\n\nreturn {\n  json: {\n    date: today,\n    todoPath: taskInfo.todoPath,\n    newTasksCount: newTasks.length,\n    totalTasksCount: taskInfo.taskCount,\n    updatedContent: updatedContent,\n    newTasks: newTasks\n  }\n};"
+      },
+      "id": "merge-tasks",
+      "name": "Merge Tasks into TODO",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://host.docker.internal:27124/vault/{{ $json.todoPath }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.OBSIDIAN_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/markdown"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"content\": $json.updatedContent } }}",
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "update-todo",
+      "name": "Update TODO.md",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": \"✅ TODO.md Auto-sync完了\\n• 日付: \" + $('Merge Tasks into TODO').item.json.date + \"\\n• 新規タスク: \" + $('Merge Tasks into TODO').item.json.newTasksCount + \" 件\" } }}",
+        "options": {}
+      },
+      "id": "slack-notification",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 300],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Every Morning 08:05 JST": {
+      "main": [
+        [
+          {
+            "node": "Calculate Dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Dates": {
+      "main": [
+        [
+          {
+            "node": "Read Latest Daily Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Latest Daily Digest": {
+      "main": [
+        [
+          {
+            "node": "Extract Uncompleted Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Uncompleted Tasks": {
+      "main": [
+        [
+          {
+            "node": "Read TODO.md",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read TODO.md": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks into TODO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Tasks into TODO": {
+      "main": [
+        [
+          {
+            "node": "Update TODO.md",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update TODO.md": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

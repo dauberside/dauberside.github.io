@@ -1,0 +1,200 @@
+{
+  "name": "Recipe 11: Weekly Summary (Cortex OS)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtDay": [0],
+              "triggerAtHour": 23,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "weekly-trigger",
+      "name": "Weekly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 直近7日分の日付リストを生成\nconst dates = [];\nconst now = new Date();\n\nfor (let i = 1; i <= 7; i++) {\n  const d = new Date(now);\n  d.setDate(d.getDate() - i);\n  const y = d.getFullYear();\n  const m = String(d.getMonth() + 1).padStart(2, '0');\n  const day = String(d.getDate()).padStart(2, '0');\n  const dateStr = `${y}-${m}-${day}`;\n  \n  dates.push({\n    date: dateStr,\n    filepath: `cortex/daily/${dateStr}-digest.md`\n  });\n}\n\nreturn dates.map(d => ({ json: d }));"
+      },
+      "id": "generate-dates",
+      "name": "Generate Date List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://host.docker.internal:27124/vault/{{ $json.filepath }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "fetch-digest",
+      "name": "Fetch Digest from Obsidian",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "allDigests",
+        "include": "allFieldsExceptBinary"
+      },
+      "id": "aggregate-digests",
+      "name": "Aggregate Digests",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.first().json.allDigests || [];\n\n// 有効なダイジェストのみ抽出\nconst digests = items\n  .filter(item => item.data && typeof item.data === 'string' && item.data.length > 0)\n  .map(item => ({\n    date: item.date,\n    text: item.data\n  }));\n\n// タスク & Reflection 抽出\nlet completed = 0;\nlet pending = 0;\nconst highlights = [];\nconst reflections = [];\nconst challenges = [];\n\nfor (const d of digests) {\n  const lines = d.text.split('\\n');\n\n  for (const line of lines) {\n    const trimmed = line.trim();\n\n    // タスク\n    if (trimmed.startsWith('- [x]')) completed++;\n    if (trimmed.startsWith('- [ ]')) pending++;\n\n    // Challenges\n    if (trimmed.toLowerCase().includes('blocked') || trimmed.includes('詰まった') || trimmed.includes('課題')) {\n      challenges.push(`- ${d.date}: ${trimmed}`);\n    }\n  }\n\n  // Reflection セクション抽出\n  if (d.text.includes('## Reflection')) {\n    const reflectionSection = d.text.split('## Reflection')[1];\n    if (reflectionSection) {\n      const reflectionLines = reflectionSection.split('\\n').filter(l => l.trim().startsWith('- '));\n      reflectionLines.forEach(rl => {\n        if (!reflections.includes(rl.trim())) {\n          reflections.push(rl.trim());\n        }\n      });\n    }\n  }\n\n  // ハイライト候補\n  if (d.text.includes('🏆') || d.text.toLowerCase().includes('highlight')) {\n    highlights.push(`- ${d.date}: ハイライトが記録されています`);\n  }\n}\n\nconst total = completed + pending;\nconst rate = total === 0 ? 0 : Math.round((completed / total) * 100);\n\n// 週の範囲\nconst weekStart = digests.length > 0 ? digests[digests.length - 1].date : null;\nconst weekEnd = digests.length > 0 ? digests[0].date : null;\nconst weekLabel = weekStart && weekEnd ? `${weekStart} 〜 ${weekEnd}` : '（データなし）';\nconst year = weekEnd ? weekEnd.slice(0, 4) : new Date().getFullYear();\n\n// 週番号\nconst endDate = weekEnd ? new Date(weekEnd) : new Date();\nconst onejan = new Date(endDate.getFullYear(), 0, 1);\nconst week = Math.ceil((((endDate - onejan) / 86400000) + onejan.getDay() + 1) / 7);\nconst weekId = `${year}-W${String(week).padStart(2, '0')}`;\n\n// Markdown 本文\nconst md = [\n  `# Weekly Summary — ${weekId}`,\n  '',\n  `対象期間: ${weekLabel}`,\n  `取得できた日数: ${digests.length}/7`,\n  '',\n  '## 📊 Overview',\n  `- 完了タスク数: ${completed}`,\n  `- 未完了タスク数: ${pending}`,\n  `- 進捗率: ${rate}%`,\n  '',\n  '## 🏆 Highlights',\n  highlights.length ? highlights.join('\\n') : '- （特に明示されたハイライトはありません）',\n  '',\n  '## 🧠 Reflection',\n  reflections.length ? reflections.slice(0, 5).join('\\n') : '- （Reflection の記録が見つかりませんでした）',\n  '',\n  '## ⚠️ Challenges',\n  challenges.length ? challenges.join('\\n') : '- （特に記録された課題はありません）',\n  '',\n  '## 🎯 Next Week Focus',\n  '- 今週の未完了タスクから 1〜3 件を選び、/brief でフォーカスする',\n  '- Recipe / Cortex OS のワークフローを 1 つだけ改善する',\n  '- 1つ「やらないこと」を決める',\n  '',\n].join('\\n');\n\nreturn [\n  {\n    json: {\n      weekId,\n      weekLabel,\n      digestCount: digests.length,\n      markdown: md,\n      overview: {\n        completed,\n        pending,\n        rate,\n      },\n    },\n  },\n];"
+      },
+      "id": "build-summary",
+      "name": "Build Weekly Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=http://host.docker.internal:27124/vault/weekly/{{ $json.weekId }}-summary.md",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "={{ $json.markdown }}",
+        "options": {}
+      },
+      "id": "write-obsidian",
+      "name": "Write Weekly to Obsidian",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "obsidian-api",
+          "name": "Obsidian API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/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",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"📆 *Cortex OS Weekly Summary — {{ $json.weekId }}*\\n\\n• 期間: {{ $json.weekLabel }}\\n• 取得日数: {{ $json.digestCount }}/7\\n• 完了タスク: {{ $json.overview.completed }}\\n• 未完了タスク: {{ $json.overview.pending }}\\n• 進捗率: {{ $json.overview.rate }}%\\n\\n詳しくは: Obsidian の `weekly/{{ $json.weekId }}-summary.md` を参照してください。\"\n}",
+        "options": {}
+      },
+      "id": "slack-notify",
+      "name": "Post Weekly Summary to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 400],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Weekly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Date List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Date List": {
+      "main": [
+        [
+          {
+            "node": "Fetch Digest from Obsidian",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Digest from Obsidian": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Digests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Digests": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Weekly Summary": {
+      "main": [
+        [
+          {
+            "node": "Write Weekly to Obsidian",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Weekly Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "cortex-os"
+    },
+    {
+      "name": "weekly"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-18T00:00:00.000Z",
+  "versionId": "2"
+}
