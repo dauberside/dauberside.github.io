@@ -1,11 +1,13 @@
 {
-  "generated_at": "2025-11-24T00:41:51.982Z",
+  "generated_at": "2025-11-24T10:00:00+09:00",
   "source_date": "2025-11-24",
   "tomorrow_candidates": [
-    "v1.2 Roadmap 確認",
-    "Recipe 動作確認",
-    "ドキュメント整理"
+    "Recipe 13 の 22:00 自動実行結果確認（tonight 実行）",
+    "tomorrow.json が正常に生成されたか検証",
+    "/brief コマンドで tomorrow.json 読み込みテスト"
   ],
-  "carryover_tasks": [],
-  "reflection_summary": "（Reflection なし）"
+  "carryover_tasks": [
+    "Recipe 13 の 22:00 自動実行確認"
+  ],
+  "reflection_summary": "Recipe 13 完全修正完了、n8n ワークフロー本番稼働準備完了"
 }
