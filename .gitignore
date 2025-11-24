@@ -84,12 +84,19 @@ package-lock.json
 # env
 .env*
 .env.local
+.env.mcp
+.env.mcp.local
 
-# MCP local configuration (private, not version controlled)
+# MCP configuration (contains API keys - private, not version controlled)
+.mcp.json
 .mcp.local.json
 
 # Claude Code local settings (private, not version controlled)
-.claude/
+.claude/*
+!.claude/commands/
 
 # Data directory (logs, temporary files)
 data/
+
+# Notifications (generated daily digests for Claude Code)
+notifications/

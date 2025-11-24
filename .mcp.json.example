@@ -1,25 +1,94 @@
 {
+  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+  "version": "1.0.0",
   "mcpServers": {
+    "obsidian": {
+      "command": "uvx",
+      "args": ["mcp-obsidian"],
+      "env": {
+        "OBSIDIAN_HOST": "${MCP_OBSIDIAN_HOST:-host.docker.internal}",
+        "OBSIDIAN_PORT": "${MCP_OBSIDIAN_PORT:-27124}",
+        "OBSIDIAN_API_KEY": "${MCP_OBSIDIAN_API_KEY}",
+        "OBSIDIAN_HTTPS": "${MCP_OBSIDIAN_HTTPS:-true}"
+      },
+      "allowedTools": [
+        "obsidian_get_file_contents",
+        "obsidian_simple_search",
+        "obsidian_list_files_in_vault",
+        "obsidian_append_content",
+        "obsidian_get_periodic_note"
+      ],
+      "metadata": {
+        "priority": "high",
+        "autoStart": true,
+        "tokenUsage": "~4k tokens per session",
+        "description": "Primary Obsidian vault access for knowledge ingestion and daily-note workflows",
+        "notes": "host.docker.internal keeps compatibility when Claude runs inside Docker-enabled environments"
+      }
+    },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-token-here"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${MCP_GITHUB_TOKEN}"
+      },
+      "allowedTools": [
+        "get_file_contents",
+        "create_or_update_file",
+        "search_repositories",
+        "create_pull_request",
+        "list_commits"
+      ],
+      "metadata": {
+        "priority": "medium",
+        "autoStart": false,
+        "tokenUsage": "~3k tokens on-demand",
+        "description": "GitHub integration for repo inspection and PR management (load only when needed)",
+        "notes": "Requires PAT with repo, workflow scopes"
       }
     },
-    "postgres": {
+    "n8n-mcp": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "args": ["n8n-mcp"],
       "env": {
-        "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/dbname"
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true",
+        "N8N_API_URL": "${MCP_N8N_API_URL:-http://host.docker.internal:5678}",
+        "N8N_API_KEY": "${MCP_N8N_API_KEY}"
+      },
+      "allowedTools": [
+        "n8n_list_workflows",
+        "n8n_get_workflow",
+        "n8n_update_partial_workflow",
+        "n8n_validate_workflow"
+      ],
+      "metadata": {
+        "priority": "low",
+        "autoStart": false,
+        "tokenUsage": "~2k tokens only when invoked",
+        "description": "n8n workflow bridge for automation tasks (lazy loaded)",
+        "notes": "Default URL targets host.docker.internal so Docker containers can reach host n8n"
       }
+    }
+  },
+  "settings": {
+    "contextOptimization": {
+      "enabled": true,
+      "maxToolsPerServer": 8,
+      "tierPriority": ["knowledge-base", "development", "automation"],
+      "lazyLoadTiers": ["development", "automation"],
+      "notes": "Baseline context trimmed to <15k tokens by limiting autoStart servers"
     },
-    "vercel": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-vercel"],
-      "env": {
-        "VERCEL_API_TOKEN": "your-token-here"
-      }
+    "security": {
+      "requireEnvVars": true,
+      "allowHardcodedSecrets": false,
+      "notes": "Sync secrets via .env.mcp (ignored by git); never commit tokens"
+    },
+    "monitoring": {
+      "logLevel": "error",
+      "healthCheckInterval": 300,
+      "notes": "Use /mcp diagnostics to review token usage and server health"
     }
   }
 }

@@ -86,3 +86,22 @@
 > ## Constitution Check
 
 <!-- END:RECENT-PLANS -->
+
+# Copilot Instructions – MCP & Secrets
+
+## MCP config (.mcp.json / .mcp.json.example)
+- NEVER hardcode secrets or tokens.
+- ALWAYS use environment variables like `${MCP_OBSIDIAN_API_KEY}`, `${MCP_GITHUB_TOKEN}`, `${MCP_N8N_API_KEY}`.
+- When adding a new MCP server:
+	- Limit `allowedTools` to 5 or fewer.
+	- Add `metadata.priority`, `metadata.autoStart`, and a short `metadata.description`/`tokenUsage` note.
+	- Default host for desktop/Docker is `host.docker.internal` instead of `localhost`.
+
+## Env files
+- `.env.mcp` and `.env.mcp.local` stay untracked; only `.env.mcp.example` belongs in git.
+- All new environment variables should follow the existing `MCP_*` naming pattern and be documented in `.env.mcp.example`.
+
+## Security & context hygiene
+- `.mcp.json` must remain free of inline secrets and keep token usage lean.
+- Prefer `autoStart: true` only for essential servers (obsidian/github); keep automation servers (n8n, slack, etc.) on lazy load with `autoStart: false`.
+- Do not add extra tools unless explicitly required—lean `allowedTools` keeps context usage low.

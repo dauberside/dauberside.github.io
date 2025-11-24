@@ -3,6 +3,62 @@
 Welcome to the DauberSide Project. This project runs on Next.js and deploys via
 Vercel (Git integration).
 
+---
+
+## 🧠 Cortex OS
+
+あなたの思考・TODO・Daily/Weekly Reflection を循環させる「第二の脳」自動化システム。
+
+### 機能一覧
+
+- `/brief` – 朝のブリーフィング生成
+- `/wrap-up` – 夜の振り返り生成
+- `/init` – セッション復元
+- Daily Digest 自動生成（Recipe 9）
+- TODO.md 自動同期（Recipe 10）
+- Weekly Summary 自動生成（Recipe 11）
+- Obsidian / notifications / n8n / Claude Code が連携するループ体系
+
+### アーキテクチャ
+
+```
+Obsidian (LTM)
+     ↑          ↓
+Daily Digest ← n8n (automation)
+     ↑          ↓
+TODO.md (working memory)
+     ↑          ↓
+Cortex Commands (/brief /wrap-up /init)
+```
+
+### 目的
+
+- 思考と行動のギャップを最小化
+- 1日の開始と終了を自動運転化
+- "忘れない環境" の自動生成
+
+### 📚 詳細ドキュメント
+
+**Cortex OS Daily Automation v1.0** の完全な設計ドキュメント：
+- [architecture/cortex-daily-automation-v1.0.md](docs/architecture/cortex-daily-automation-v1.0.md)
+
+完全なデイリー自動化フロー（Daylog → Digest → State → Next day's Plan）の仕様、技術スタック、トラブルシューティングガイドを含む。
+
+### 現在のステータス
+
+**Cortex OS v1.0 稼働中**
+
+| レイヤ | 状態 |
+|--------|------|
+| 日次ループ | ✅ OK |
+| 週次ループ | ✅ OK |
+| 作業メモリ同期 | ✅ OK |
+| 前頭葉コマンド群 | ✅ OK |
+
+詳細: `docs/decisions/ADR-0006-phase-2-automation-strategy.md`
+
+---
+
 ## Table of Contents
 
 - [Installation](#installation)

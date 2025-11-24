@@ -60,6 +60,8 @@ services:
       # Obsidian & Slack for Recipe 09: Daily Digest
       - OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY:-}
       - SLACK_DAILY_DIGEST_WEBHOOK=${SLACK_DAILY_DIGEST_WEBHOOK:-}
+      # Slack for Recipe 11: Weekly Summary
+      - SLACK_WEEKLY_SUMMARY_WEBHOOK=${SLACK_WEEKLY_SUMMARY_WEBHOOK:-}
     ports:
       - "5678:5678"
     # ... 既存設定 ...

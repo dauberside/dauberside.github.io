@@ -48,15 +48,24 @@ flowchart TB
     ADR0005[ADR-0005<br/>KB Embedding Mode<br/>Selection]
 
     %% ========================================
+    %% Phase 2: Automation
+    %% ========================================
+    ADR0006[ADR-0006<br/>Phase 2 Automation<br/>Strategy]
+
+    %% ========================================
     %% 関係性（依存）
     %% ========================================
     ADR0001 -.プロセス基盤.-> ADR0002
     ADR0001 -.プロセス基盤.-> ADR0003
     ADR0001 -.プロセス基盤.-> ADR0004
     ADR0001 -.プロセス基盤.-> ADR0005
+    ADR0001 -.プロセス基盤.-> ADR0006
 
     ADR0003 -->|MCP Layer 2 使用| ADR0004
     ADR0003 -.MCP統合前提.- ADR0005
+    ADR0003 -->|n8n MCP 統合| ADR0006
+    ADR0004 -.Obsidian 統合前提.- ADR0006
+    ADR0005 -.KB 自動更新.- ADR0006
 
     %% ========================================
     %% スタイル
@@ -69,14 +78,14 @@ flowchart TB
     class ADR0001 processClass
     class ADR0002 standaloneClass
     class ADR0003 foundationClass
-    class ADR0004,ADR0005 derivedClass
+    class ADR0004,ADR0005,ADR0006 derivedClass
 ```
 
 **凡例**:
 - 🔵 **プロセス基盤** (ADR-0001): 全ADRの基礎
 - 🟠 **独立系** (ADR-0002): 特定機能の最適化
 - 🟣 **統合基盤** (ADR-0003): 他ADRが依存する基盤
-- 🟢 **派生系** (ADR-0004, 0005): 基盤ADRに依存
+- 🟢 **派生系** (ADR-0004, 0005, 0006): 基盤ADRに依存
 
 **依存関係の読み方**:
 - **実線矢印** (→): 直接的な依存（例: 0004は0003のMCP統合を使用）
@@ -195,6 +204,34 @@ flowchart TB
 - ADR-0003 (MCP統合) - 間接的（Obsidian Vault取り込み）
 
 **リンク**: [ADR-0005 本文](./ADR-0005-kb-embedding-mode-selection.md)
+
+---
+
+### ADR-0006: Phase 2 Automation Strategy
+
+**ステータス**: 🚧 Proposed
+**日付**: 2025-11-17
+**カテゴリ**: Automation / n8n / MCP
+
+**概要**:
+- n8n を中心とした自動化アーキテクチャ
+- 8つのレシピ（Obsidian → Slack、定期 KB 再構築、など）
+- 3段階の実装プラン（Phase 2.1 / 2.2 / 2.3）
+- Slack を External Monitor として活用
+
+**影響**:
+- 第二の脳が "勝手に動く" 仕組みが実現
+- Obsidian を中心とした一貫した UX
+- n8n による透明性の高いワークフロー
+
+**依存**:
+- ADR-0003 (MCP統合) - n8n MCP Server を使用
+- ADR-0004 (Obsidian統合) - ノート変更検出に依存
+- ADR-0005 (KB埋め込み) - 自動 KB 再構築に依存
+
+**リンク**: [ADR-0006 本文](./ADR-0006-phase-2-automation-strategy.md)
+
+**実装ガイド**: [Phase 2 Implementation](../operations/phase-2-implementation.md)
 
 ---
 
