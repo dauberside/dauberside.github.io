@@ -64,7 +64,7 @@ Phase 2 では以下の 8 レシピを中心に展開する：
 | 1 | Obsidian → Slack 通知 | Event | ✅ |
 | 2 | 定期 KB 再構築 | Cron | ✅ |
 | 3 | Daily Note → Slack DM | Productivity | - |
-| 4 | ADR 追加 → GitHub Issue 自動作成 | Project | - |
+| 4 | ADR 追加 → GitHub Issue 自動作成 | Project | ✅ |
 | 5 | PR マージ → KB 更新 | DevOps | - |
 | 6 | Build/Deploy → アラート | Monitoring | - |
 | 7 | 週次ふりかえりノート生成 | Report | ✅ |
@@ -164,10 +164,21 @@ This ADR is **Accepted** (2025-11-19).
 - ✅ Recipe 11: Weekly Summary (Cortex OS)
 - ✅ Recipe 12: wrap-up → brief データブリッジ
 
+**Phase 2.2 開始（2025-11-24）**:
+- ✅ Recipe 4: ADR → GitHub Issue 自動作成
+  - n8n + GitHub API 直接連携（MCP 非依存）
+  - Webhook endpoint: `/webhook/adr-to-issue`
+  - ADR データ（Title, Status, Date, Author, Context, Decision）の完全パース
+  - GitHub Issue 自動生成（ラベル、リンク付き）
+  - Production-ready 実装完了
+
 **Key Learnings**:
 - n8n HTTP Request v4.2 では raw body 送信時に `contentType: "raw"` + `rawContentType: "text/markdown"` の設定が必要
 - Obsidian Local REST API への認証は httpHeaderAuth credentials を使用
 - Aggregate ノードを通過すると日付情報が失われるため、Merge ノードで保持が必要
+- Webhook データは `$input.item.json.body` 配下にネストされる（Phase 2.2）
+- GitHub API の認証は HTTP Header Auth credentials で安定動作
+- Slack 通知は環境変数設定が必須（オプショナル設計推奨）
 
 ---
 
