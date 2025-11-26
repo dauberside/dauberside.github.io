@@ -36,6 +36,7 @@ Deploy n8n to Railway with the following configuration:
 - ✅ Built-in volume persistence for data
 - ✅ Free tier available for testing
 - ✅ Easy environment variable management
+- ✅ Seamless workflow import and execution
 
 ### Negative
 - ⚠️ Railway URL is not custom (n8n-production-f846.up.railway.app)
