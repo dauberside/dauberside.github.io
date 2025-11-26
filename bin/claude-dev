@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# claude-dev - Start Claude Code with MCP environment variables loaded
+#
+# Usage: ./bin/claude-dev
+#
+# This script ensures that:
+# 1. MCP environment variables are loaded from .env.mcp
+# 2. Claude Code starts with the correct environment
+# 3. Works from any directory (GUI apps, VS Code, terminal, etc.)
+#
+
+set -euo pipefail
+
+# Get the project root (parent of bin/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env.mcp"
+
+# Check if .env.mcp exists
+if [ ! -f "$ENV_FILE" ]; then
+  echo "❌ Error: .env.mcp not found at $ENV_FILE"
+  echo "   Please create it from .env.mcp.example"
+  exit 1
+fi
+
+# Load environment variables
+echo "🔧 Loading MCP environment variables..."
+set -a  # Auto-export all variables
+source "$ENV_FILE"
+set +a
+
+# Verify critical variables are set
+if [ -z "${MCP_OBSIDIAN_API_KEY:-}" ]; then
+  echo "⚠️  Warning: MCP_OBSIDIAN_API_KEY is not set"
+fi
+
+echo "✅ MCP environment loaded"
+echo ""
+echo "Starting Claude Code..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Start Claude Code
+# Adjust this if your Claude Code command is different
+exec claude "$@"

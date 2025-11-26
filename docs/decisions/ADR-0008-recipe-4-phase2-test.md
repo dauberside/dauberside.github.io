@@ -32,4 +32,28 @@ Recipe 4 Phase 2 の自動検知機能をテストする。GitHub webhook が正
 
 ---
 
+## 📝 Implementation Status (2025-11-24)
+
+### ✅ 完了
+- Phase 1: 手動トリガー方式（Production-ready）
+- Phase 2: ワークフロー設計完了（`recipe-04-phase2-github-webhook.json`）
+- GitHub webhook ペイロード検証
+
+### ⏳ ブロック中
+**原因**: Tailscale IP (`100.102.85.62`) はプライベートネットワークのため、GitHub から到達不可
+
+**解決策**: n8n を本番環境にデプロイ
+- **URL**: `https://n8n.xn--rn8h03a.st/webhook/github-adr-push`
+- **構成**: 独自ドメイン + HTTPS + Webhook 集約
+- **候補**: Railway / Render / Fly.io / VPS
+
+### 🔜 Next Steps
+1. n8n を VPS/コンテナ環境にデプロイ
+2. DNS 設定（`n8n.xn--rn8h03a.st`）
+3. HTTPS 設定（Let's Encrypt / 自動）
+4. GitHub webhook URL 更新
+5. Phase 2 本番テスト
+
+---
+
 **Auto-detection test for Recipe 4 Phase 2** 🚀

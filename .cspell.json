@@ -1,0 +1,33 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "dauberside",
+    "healthz",
+    "HMAC",
+    "Postback",
+    "Obsidian",
+    "Vercel",
+    "Tailscale",
+    "pnpm",
+    "n8n",
+    "zshrc",
+    "dotenv",
+    "envrc",
+    "prefs",
+    "gcal",
+    "postbuild",
+    "POSTBUILD",
+    "wrapup"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "coverage",
+    "*.min.js",
+    "package-lock.json",
+    "pnpm-lock.yaml"
+  ]
+}

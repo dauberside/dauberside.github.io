@@ -1,0 +1,32 @@
+{
+  "name": "Test GitHub Auth",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {}
+      },
+      "name": "Get GitHub User",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300],
+      "credentials": {}
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{"node": "Get GitHub User", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {},
+  "staticData": null
+}

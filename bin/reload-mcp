@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# reload-mcp - Reload MCP environment variables from .env.mcp
+#
+# Usage: ./bin/reload-mcp
+#        source ./bin/reload-mcp  (to apply to current shell)
+#
+
+set -euo pipefail
+
+# Get the project root (parent of bin/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env.mcp"
+
+# Check if .env.mcp exists
+if [ ! -f "$ENV_FILE" ]; then
+  echo "❌ Error: .env.mcp not found at $ENV_FILE"
+  exit 1
+fi
+
+# Load environment variables
+set -a  # Auto-export all variables
+source "$ENV_FILE"
+set +a
+
+echo "✅ MCP environment variables reloaded from:"
+echo "   $ENV_FILE"
+echo ""
+echo "Loaded variables:"
+env | grep "^MCP_" | sed 's/=.*/=***/' | sort

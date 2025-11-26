@@ -1,5 +1,6 @@
 # env / logs / local deps
 .env
+.env.production
 logs
 pids
 *.log

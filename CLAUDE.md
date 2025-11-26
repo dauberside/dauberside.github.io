@@ -8,6 +8,15 @@ Last updated: November 9, 2025
 
 ## Essential Commands
 
+### Quick Start (Makefile)
+```bash
+make help             # Show all available commands
+make dev              # Start dev server (port 3001)
+make claude           # Start Claude Code with MCP env loaded
+make reload-mcp       # Reload MCP environment variables
+make ci               # Run all quality checks
+```
+
 ### Development
 ```bash
 pnpm dev              # Start dev server (default port 3000)
@@ -15,6 +24,14 @@ pnpm dev -p 3001      # Use alternate port (recommended if 3030 is in use)
 pnpm dev:kb           # Rebuild KB index, then start dev server
 pnpm dev:mcp          # Show MCP setup guide, then start dev server (requires manual MCP startup)
 pnpm agent:dev        # Start agent-specific dev server on port 3030
+```
+
+### MCP & Environment (New!)
+```bash
+./bin/claude-dev      # Start Claude Code with MCP env (GUI/VSCode safe)
+./bin/reload-mcp      # Reload .env.mcp in current shell
+make claude           # Makefile wrapper for ./bin/claude-dev
+make check-mcp        # Check loaded MCP environment variables
 ```
 
 ### Quality Gates (run before committing)
@@ -263,15 +280,28 @@ pnpm agent:builder:generate
 
 **External Dependency**: Requires Obsidian Local REST API plugin running
 
-**Environment Setup**:
+**Environment Setup** (via `.env.mcp`):
 ```bash
-OBSIDIAN_API_URL=http://127.0.0.1:8443
-OBSIDIAN_API_KEY=<from-plugin>
+MCP_OBSIDIAN_HOST=127.0.0.1
+MCP_OBSIDIAN_PORT=27124
+MCP_OBSIDIAN_API_KEY=<from-plugin>
+MCP_OBSIDIAN_HTTPS=true
+```
+
+**Shell Setup** (`.zshrc` auto-loads `.env.mcp`):
+```bash
+# Quick-reload after editing .env.mcp
+reload-mcp
+
+# Start Claude Code with env loaded
+claude-dev
 ```
 
 **Client**: `src/lib/obsidian.ts` provides typed API wrapper
 
 **Ingestion**: `/api/obsidian/ingest` with delta detection (SHA256 hashes)
+
+**Troubleshooting**: See `docs/operations/mcp-troubleshooting.md` for debugging MCP auth issues
 
 ### 6. LINE Messaging API
 
@@ -320,6 +350,7 @@ OBSIDIAN_API_KEY=<from-plugin>
 - `deploy-and-smoke.md` - Deployment and verification guide
 - `line-ai-menu.md` - LINE AI menu admin operations
 - `kb-setup.md` - Knowledge base setup guide
+- `mcp-troubleshooting.md` - MCP debugging checklist (Obsidian, GitHub, n8n)
 
 **Decisions** (`docs/decisions/`):
 - `ADR-*.md` - Architectural decision records
