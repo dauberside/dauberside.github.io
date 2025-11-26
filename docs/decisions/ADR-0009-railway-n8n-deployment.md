@@ -53,6 +53,7 @@ Deploy n8n to Railway with the following configuration:
 - BASIC auth password generated with `openssl rand -base64 24`
 - Workflow imported: `recipe-04-phase2-github-webhook.json`
 - GitHub webhook URL updated to Railway endpoint
+- URL expression syntax fixed for n8n v1.120 compatibility
 
 ---
 
