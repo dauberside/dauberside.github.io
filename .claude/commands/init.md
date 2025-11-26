@@ -3,7 +3,9 @@ Cursor / Claude Code を再起動したあと、前回のセッション状態�
 ## やってほしいこと
 
 1. 以下のファイルを順番に読み込んで、今日必要な文脈を内部状態にロードしてください：
-   - `daily/` の最新ファイル（Daily Digest）- Obsidian vault から
+   - `daily/` の最新ファイル（Daily Digest）- 以下の優先順位で取得:
+     1. Obsidian vault: `obsidian_list_files_in_dir(dirpath: "cortex/daily")` → 最新ファイルを `obsidian_get_file_contents` で読む
+     2. フォールバック: Git repo `cortex/daily/` から最新ファイルを `Glob` + `Read` で読む
    - `docs/operations/phase-2-implementation.md`
    - `docs/decisions/ADR-0006-phase-2-automation-strategy.md`
    - `CLAUDE.md`
@@ -28,4 +30,8 @@ Cursor / Claude Code を再起動したあと、前回のセッション状態�
 
 ---
 
-Note: Obsidian API（port 8443）を使用して daily/ から最新の Digest を取得すること。
+Note:
+- Obsidian REST API は PORT 27124 (HTTPS) で稼働中
+- `obsidian_get_recent_periodic_notes` はエラーが出やすいため使用しない
+- 代わりに `obsidian_list_files_in_dir` + `obsidian_get_file_contents` を使用
+- エラー時は Git repo の `cortex/daily/` から直接読むこと
