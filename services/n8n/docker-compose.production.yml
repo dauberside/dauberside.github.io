@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  n8n:
+    image: n8nio/n8n:1.116.2
+    container_name: n8n
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:5678:5678"  # Only expose to localhost (Caddy will proxy)
+    volumes:
+      - n8n_data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always  # Production: always restart
+
+volumes:
+  n8n_data:
+    driver: local
