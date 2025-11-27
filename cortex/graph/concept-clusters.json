@@ -1,0 +1,974 @@
+{
+  "version": "1.0",
+  "generatedAt": "2025-11-27T02:23:48.631Z",
+  "method": "connected-components",
+  "threshold": 0.7,
+  "numClusters": 5,
+  "numNodes": 184,
+  "numEdges": 1735,
+  "sourceEmbeddings": "/Volumes/Extreme Pro/dauberside.github.io-1/cortex/graph/concept-embeddings.json",
+  "clusters": [
+    {
+      "id": "cluster-0",
+      "nodeIds": [
+        "mcp",
+        "MCP-stdio-Bridge-Setup-Guide",
+        "関連ノート",
+        "primitive",
+        "まとめ",
+        "llm",
+        "Section-1-1-MCPの概要",
+        "関連タグ",
+        "agent",
+        "decisions-adr-0004-obsidian-dual-layer-integration",
+        "ai",
+        "kb-setup",
+        "mcp-setup-guide",
+        "図解まとめ",
+        "architecture",
+        "jsonrpc",
+        "Section-2-1-アーキテクチャ概要",
+        "context",
+        "mcp-recipes",
+        "protocol",
+        "Section-1-2-AIエージェントとは",
+        "Section-1-3-AIエージェントの-ツール-とは",
+        "server",
+        "参考リンク",
+        "communication",
+        "decisions-adr-0003-mcp-integration-architecture",
+        "decisions-adr-0006-phase-2-automation-strategy",
+        "1-目的とスコープ",
+        "claude",
+        "client",
+        "decisions-adr-0005-kb-embedding-mode-selection",
+        "json-rpc",
+        "tool",
+        "スコープ",
+        "トラブルシューティング",
+        "トラブルシュート",
+        "概要",
+        "adr-0006-phase-2-automation-strategy",
+        "Chapter-2-MCPの仕組み",
+        "claude-code",
+        "deploy-and-smoke",
+        "kb",
+        "mcp-local-dev",
+        "mcp-obsidian-spec",
+        "operations-mcp-recipes",
+        "Related-Documents",
+        "requirements-readme",
+        "Section-1-4-AIエージェントのユースケース",
+        "Section-1-5-MCPが解決する課題",
+        "Section-2-2-トランスポート",
+        "Section-2-4-プロンプト-プリミティブ②",
+        "Section-2-5-ツール-プリミティブ③",
+        "token-rotation-policy",
+        "ベストプラクティス",
+        "設定手順",
+        "非機能要件",
+        "補足メモ",
+        "1-スコープ-目的",
+        "1-プロジェクト準備",
+        "2-Claude-Code-環境の作成",
+        "2-スコープ",
+        "3-最小スモークテスト-Claude-Code-のターミナルから",
+        "4-Obsidian-MCP-Docker-を-Claude-に接続する-任意",
+        "5-代替-既存の-Next-js-API-をそのまま使う",
+        "6-トラブルシュート",
+        "7-セキュリティ要件",
+        "7-次の一歩-任意",
+        "8-非機能要件",
+        "accesscontrol",
+        "adr-0003-mcp-integration-architecture",
+        "adr-0004-obsidian-dual-layer-integration",
+        "adr-0005-kb-embedding-mode-selection",
+        "AIエージェントとMCPの関係",
+        "API-契約",
+        "Architecture",
+        "chat",
+        "claudedesktop",
+        "consequences",
+        "Context",
+        "context-optimization",
+        "debug",
+        "decision",
+        "Decision",
+        "decisions-adr-0008-recipe-4-phase2-test",
+        "docker-considerations",
+        "environment-variable-management",
+        "functioncalling",
+        "generation",
+        "getting-started",
+        "host",
+        "ide",
+        "incident-response",
+        "inspector",
+        "integration",
+        "lsp",
+        "mcp-stdio-bridge-setup-guide",
+        "MCPの仕組み",
+        "n8n",
+        "Next-Steps-次のステップ",
+        "openai-agents-sdk",
+        "operations-getting-started",
+        "operations-kb-setup",
+        "operations-mcp-setup-guide",
+        "operations-phase-2-implementation",
+        "Prerequisites-前提条件",
+        "prompt",
+        "requirements-kb",
+        "resource",
+        "root",
+        "sampling",
+        "Section-1-6-MCP普及の経緯",
+        "Section-2-3-リソース-プリミティブ①",
+        "Section-2-6-サンプリング-プリミティブ④",
+        "Section-2-7-ルート-プリミティブ⑤",
+        "security",
+        "security-keys-rotation",
+        "security-principles",
+        "stdio",
+        "streamablehttp",
+        "template",
+        "testing",
+        "transport",
+        "troubleshooting",
+        "uri",
+        "webui",
+        "セキュリティ注意",
+        "セキュリティ注意事項",
+        "機能要件",
+        "参考ドキュメント",
+        "次のステップ",
+        "受け入れ基準-Acceptance-Criteria",
+        "前提",
+        "前提条件",
+        "代替方法",
+        "背景",
+        "用語"
+      ],
+      "size": 136,
+      "coreConcept": "mcp",
+      "totalFrequency": 488
+    },
+    {
+      "id": "cluster-1",
+      "nodeIds": [
+        "reflection",
+        "tasks",
+        "notes",
+        "today-s-plan",
+        "yesterday-s-summary-2025-11-19",
+        "関連ドキュメント",
+        "Key-Learnings",
+        "daily-digest-2025-11-17",
+        "Daily-Digest-2025-11-17",
+        "daily-digest-2025-11-18",
+        "daily-digest-2025-11-19",
+        "Daily-Digest-2025-11-20",
+        "Daily-Digest-2025-11-21",
+        "Daily-Digest-2025-11-22",
+        "Daily-Digest-2025-11-23",
+        "Daily-Digest-2025-11-24",
+        "Git-Commits",
+        "highlights",
+        "Next-Steps",
+        "Recipe-4-実装完了レポート",
+        "完了内容"
+      ],
+      "size": 21,
+      "coreConcept": "reflection",
+      "totalFrequency": 116
+    },
+    {
+      "id": "cluster-2",
+      "nodeIds": [
+        "0-現状-v1-1",
+        "api-keys",
+        "Backlog-Future-Enhancements",
+        "cortex-os-v1-2-roadmap",
+        "Git-除外対象",
+        "n8n-credentials",
+        "secrets-reference",
+        "v1-2-の3本柱",
+        "v1-2-完成イメージ",
+        "スケジュール",
+        "ローテーション履歴",
+        "環境変数ファイル",
+        "次のアクション候補"
+      ],
+      "size": 13,
+      "coreConcept": "0-現状-v1-1",
+      "totalFrequency": 26
+    },
+    {
+      "id": "cluster-3",
+      "nodeIds": [
+        "フォローアップ-Follow-ups",
+        "影響-Consequences",
+        "決定-Decision",
+        "根拠-Rationale",
+        "実装ノート-Implementation-Notes",
+        "代替案-Alternatives",
+        "背景-Context",
+        "関連ADR"
+      ],
+      "size": 8,
+      "coreConcept": "フォローアップ-Follow-ups",
+      "totalFrequency": 45
+    },
+    {
+      "id": "cluster-4",
+      "nodeIds": [
+        "Highlights",
+        "Overview",
+        "Challenges",
+        "Next-Week-Focus",
+        "Reflection",
+        "Weekly-Summary-2025-W48"
+      ],
+      "size": 6,
+      "coreConcept": "Highlights",
+      "totalFrequency": 25
+    }
+  ],
+  "nodeMapping": [
+    {
+      "id": "mcp",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "reflection",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "tasks",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "MCP-stdio-Bridge-Setup-Guide",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "notes",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "関連ノート",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "primitive",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "today-s-plan",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "まとめ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "llm",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-1-1-MCPの概要",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "yesterday-s-summary-2025-11-19",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "関連タグ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "agent",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decisions-adr-0004-obsidian-dual-layer-integration",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "関連ドキュメント",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "ai",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "kb-setup",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "mcp-setup-guide",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "図解まとめ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "architecture",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "jsonrpc",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-1-アーキテクチャ概要",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "context",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "mcp-recipes",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "protocol",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-1-2-AIエージェントとは",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-1-3-AIエージェントの-ツール-とは",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "server",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "フォローアップ-Follow-ups",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "影響-Consequences",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "決定-Decision",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "根拠-Rationale",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "参考リンク",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "実装ノート-Implementation-Notes",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "代替案-Alternatives",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "背景-Context",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "communication",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decisions-adr-0003-mcp-integration-architecture",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decisions-adr-0006-phase-2-automation-strategy",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Highlights",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "Overview",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "1-目的とスコープ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Challenges",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "claude",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "client",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decisions-adr-0005-kb-embedding-mode-selection",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "json-rpc",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Next-Week-Focus",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "Reflection",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "tool",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "スコープ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "トラブルシューティング",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "トラブルシュート",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "概要",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "adr-0006-phase-2-automation-strategy",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Chapter-2-MCPの仕組み",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "claude-code",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "deploy-and-smoke",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "kb",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Key-Learnings",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "mcp-local-dev",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "mcp-obsidian-spec",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "operations-mcp-recipes",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Related-Documents",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "requirements-readme",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-1-4-AIエージェントのユースケース",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-1-5-MCPが解決する課題",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-2-トランスポート",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-4-プロンプト-プリミティブ②",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-5-ツール-プリミティブ③",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "token-rotation-policy",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Weekly-Summary-2025-W48",
+      "clusterId": "cluster-4"
+    },
+    {
+      "id": "ベストプラクティス",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "関連ADR",
+      "clusterId": "cluster-3"
+    },
+    {
+      "id": "設定手順",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "非機能要件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "補足メモ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "0-現状-v1-1",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "1-スコープ-目的",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "1-プロジェクト準備",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "2-Claude-Code-環境の作成",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "2-スコープ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "3-最小スモークテスト-Claude-Code-のターミナルから",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "4-Obsidian-MCP-Docker-を-Claude-に接続する-任意",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "5-代替-既存の-Next-js-API-をそのまま使う",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "6-トラブルシュート",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "7-セキュリティ要件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "7-次の一歩-任意",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "8-非機能要件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "accesscontrol",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "adr-0003-mcp-integration-architecture",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "adr-0004-obsidian-dual-layer-integration",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "adr-0005-kb-embedding-mode-selection",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "AIエージェントとMCPの関係",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "api-keys",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "API-契約",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Architecture",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Backlog-Future-Enhancements",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "chat",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "claudedesktop",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "consequences",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Context",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "context-optimization",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "cortex-os-v1-2-roadmap",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "daily-digest-2025-11-17",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-17",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "daily-digest-2025-11-18",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "daily-digest-2025-11-19",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-20",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-21",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-22",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-23",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Daily-Digest-2025-11-24",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "debug",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decision",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Decision",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "decisions-adr-0008-recipe-4-phase2-test",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "docker-considerations",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "environment-variable-management",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "functioncalling",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "generation",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "getting-started",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Git-Commits",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Git-除外対象",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "highlights",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "host",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "ide",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "incident-response",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "inspector",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "integration",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "lsp",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "mcp-stdio-bridge-setup-guide",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "MCPの仕組み",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "n8n",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "n8n-credentials",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "Next-Steps",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "Next-Steps-次のステップ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "openai-agents-sdk",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "operations-getting-started",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "operations-kb-setup",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "operations-mcp-setup-guide",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "operations-phase-2-implementation",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Prerequisites-前提条件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "prompt",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Recipe-4-実装完了レポート",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "requirements-kb",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "resource",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "root",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "sampling",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "secrets-reference",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "Section-1-6-MCP普及の経緯",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-3-リソース-プリミティブ①",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-6-サンプリング-プリミティブ④",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "Section-2-7-ルート-プリミティブ⑤",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "security",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "security-keys-rotation",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "security-principles",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "stdio",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "streamablehttp",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "template",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "testing",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "transport",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "troubleshooting",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "uri",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "v1-2-の3本柱",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "v1-2-完成イメージ",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "webui",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "スケジュール",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "セキュリティ注意",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "セキュリティ注意事項",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "ローテーション履歴",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "完了内容",
+      "clusterId": "cluster-1"
+    },
+    {
+      "id": "環境変数ファイル",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "機能要件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "参考ドキュメント",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "次のアクション候補",
+      "clusterId": "cluster-2"
+    },
+    {
+      "id": "次のステップ",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "受け入れ基準-Acceptance-Criteria",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "前提",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "前提条件",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "代替方法",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "背景",
+      "clusterId": "cluster-0"
+    },
+    {
+      "id": "用語",
+      "clusterId": "cluster-0"
+    }
+  ]
+}

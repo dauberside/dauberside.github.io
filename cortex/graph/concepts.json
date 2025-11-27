@@ -1,0 +1,2491 @@
+{
+  "version": "1.0",
+  "generatedAt": "2025-11-26T15:07:28.008Z",
+  "totalConcepts": 184,
+  "minFrequency": 2,
+  "concepts": [
+    {
+      "id": "mcp",
+      "label": ".mcp.json",
+      "sourceNotes": [
+        "docs/operations/mcp-troubleshooting.md",
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "link",
+        "tag"
+      ],
+      "frequency": 21
+    },
+    {
+      "id": "reflection",
+      "label": "Reflection",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex.backup/daily/2025-11-18-digest.md",
+        "cortex.backup/daily/2025-11-19-digest.md",
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-17-digest.md",
+        "cortex/daily/2025-11-18-digest.md",
+        "cortex/daily/2025-11-19-digest.md",
+        "cortex/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-25-digest.md",
+        "cortex/daily/2025-11-26-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 20
+    },
+    {
+      "id": "tasks",
+      "label": "Tasks",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex.backup/daily/2025-11-18-digest.md",
+        "cortex.backup/daily/2025-11-19-digest.md",
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-17-digest.md",
+        "cortex/daily/2025-11-18-digest.md",
+        "cortex/daily/2025-11-19-digest.md",
+        "cortex/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-25-digest.md",
+        "cortex/daily/2025-11-26-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 20
+    },
+    {
+      "id": "MCP-stdio-Bridge-Setup-Guide",
+      "label": "🔌 MCP stdio Bridge Setup Guide",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "📘 「第1章：MCP基礎」/🧰 Section 1-3 AIエージェントの「ツール」とは.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 14
+    },
+    {
+      "id": "notes",
+      "label": "Notes",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-17-digest.md",
+        "cortex/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-25-digest.md",
+        "cortex/daily/2025-11-26-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 14
+    },
+    {
+      "id": "関連ノート",
+      "label": "**🧩 関連ノート**",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 13
+    },
+    {
+      "id": "primitive",
+      "label": "Primitive",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 12
+    },
+    {
+      "id": "today-s-plan",
+      "label": "Today's Plan",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-25-digest.md",
+        "cortex/daily/2025-11-26-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 12
+    },
+    {
+      "id": "まとめ",
+      "label": "🧠 まとめ",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/🧠 Section 1-7 RAG, Function callingとの違い.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 12
+    },
+    {
+      "id": "llm",
+      "label": "LLM",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 10
+    },
+    {
+      "id": "Section-1-1-MCPの概要",
+      "label": "🧠 Section 1-1 MCPの概要",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/💡 Section 1-4 AIエージェントのユースケース.md",
+        "📘 「第1章：MCP基礎」/🤖 Section 1-2 AIエージェントとは.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "📘 「第1章：MCP基礎」/🧰 Section 1-3 AIエージェントの「ツール」とは.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 10
+    },
+    {
+      "id": "yesterday-s-summary-2025-11-19",
+      "label": "Yesterday's Summary (2025-11-19)",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-24-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 10
+    },
+    {
+      "id": "関連タグ",
+      "label": "🔖 関連タグ",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 10
+    },
+    {
+      "id": "agent",
+      "label": "Agent",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 9
+    },
+    {
+      "id": "decisions-adr-0004-obsidian-dual-layer-integration",
+      "label": "ADR-0004: Obsidian Dual-Layer Integration",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-local-dev.md",
+        "docs/operations/mcp-obsidian-spec.md",
+        "docs/operations/obsidian-workflow.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 9
+    },
+    {
+      "id": "関連ドキュメント",
+      "label": "関連ドキュメント",
+      "sourceNotes": [
+        "2025-11-24-recipe-4-session.md",
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md",
+        "docs/architecture/cortex-daily-automation-v1.0.md",
+        "docs/decisions/index.md",
+        "docs/operations/cortex-task-policy.md",
+        "docs/operations/mcp-local-dev.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/mcp-troubleshooting.md",
+        "docs/operations/obsidian-workflow.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 9
+    },
+    {
+      "id": "ai",
+      "label": "AI",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 8
+    },
+    {
+      "id": "kb-setup",
+      "label": "KB Setup Guide",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-local-dev.md",
+        "docs/operations/mcp-obsidian-workflows.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/obsidian-workflow.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 8
+    },
+    {
+      "id": "mcp-setup-guide",
+      "label": "MCP Setup Guide",
+      "sourceNotes": [
+        "docs/operations/claude-restart.md",
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-local-dev.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 8
+    },
+    {
+      "id": "図解まとめ",
+      "label": "🧩 図解まとめ",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/💡 Section 1-4 AIエージェントのユースケース.md",
+        "📘 「第1章：MCP基礎」/🤖 Section 1-2 AIエージェントとは.md",
+        "📘 「第1章：MCP基礎」/🧠 Section 1-7 RAG, Function callingとの違い.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "📘 「第1章：MCP基礎」/🧰 Section 1-3 AIエージェントの「ツール」とは.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 8
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "sourceNotes": [
+        "cortex/scripts/obsidian/README.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "heading",
+        "tag"
+      ],
+      "frequency": 7
+    },
+    {
+      "id": "jsonrpc",
+      "label": "JSONRPC",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 7
+    },
+    {
+      "id": "Section-2-1-アーキテクチャ概要",
+      "label": "🧩 Section 2-1 アーキテクチャ概要",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 7
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "sourceNotes": [
+        "docs/decisions/ADR-0009-railway-n8n-deployment.md",
+        "docs/decisions/ADR-9999-test-recipe-4-phase2.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "heading",
+        "tag"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "mcp-recipes",
+      "label": "MCP Recipes",
+      "sourceNotes": [
+        "docs/operations/cortex-task-policy.md",
+        "docs/operations/mcp-security.md",
+        "docs/operations/n8n-production-deployment.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "protocol",
+      "label": "Protocol",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "Section-1-2-AIエージェントとは",
+      "label": "🤖 Section 1-2 AIエージェントとは",
+      "sourceNotes": [
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/💡 Section 1-4 AIエージェントのユースケース.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "📘 「第1章：MCP基礎」/🧰 Section 1-3 AIエージェントの「ツール」とは.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "Section-1-3-AIエージェントの-ツール-とは",
+      "label": "🧰 Section 1-3 AIエージェントの「ツール」とは",
+      "sourceNotes": [
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/💡 Section 1-4 AIエージェントのユースケース.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "server",
+      "label": "Server",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "フォローアップ-Follow-ups",
+      "label": "フォローアップ（Follow-ups）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "影響-Consequences",
+      "label": "影響（Consequences）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "決定-Decision",
+      "label": "決定（Decision）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "根拠-Rationale",
+      "label": "根拠（Rationale）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "参考リンク",
+      "label": "参考リンク",
+      "sourceNotes": [
+        "docs/operations/mcp-json-setup.md",
+        "docs/operations/mcp-setup-guide.md",
+        "docs/operations/mcp-vercel-alternative.md",
+        "docs/operations/mcp-vercel-troubleshooting.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "実装ノート-Implementation-Notes",
+      "label": "実装ノート（Implementation Notes）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "代替案-Alternatives",
+      "label": "代替案（Alternatives）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "背景-Context",
+      "label": "背景（Context）",
+      "sourceNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-template.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 6
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 5
+    },
+    {
+      "id": "decisions-adr-0003-mcp-integration-architecture",
+      "label": "ADR-0003: MCP Integration Architecture",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-local-dev.md",
+        "docs/operations/mcp-setup-guide.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 5
+    },
+    {
+      "id": "decisions-adr-0006-phase-2-automation-strategy",
+      "label": "ADR-0006: Phase 2 Automation Strategy",
+      "sourceNotes": [
+        "docs/operations/cortex-task-policy.md",
+        "docs/operations/n8n-production-deployment.md",
+        "docs/operations/phase-2-implementation.md",
+        "docs/operations/recipe-04-consistency-check.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 5
+    },
+    {
+      "id": "Highlights",
+      "label": "🎉 Highlights",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "docs/releases/v1.0.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 5
+    },
+    {
+      "id": "Overview",
+      "label": "🎯 Overview",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "docs/operations/phase-2-implementation.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 5
+    },
+    {
+      "id": "1-目的とスコープ",
+      "label": "1. 目的とスコープ",
+      "sourceNotes": [
+        "docs/memory/context-capsule.md",
+        "docs/requirements/kb.md",
+        "docs/requirements/n8n.md",
+        "docs/requirements/obsidian.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "Challenges",
+      "label": "⚠️ Challenges",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "claude",
+      "label": "CLAUDE.md",
+      "sourceNotes": [
+        "docs/decisions/index.md",
+        "docs/operations/getting-started.md",
+        "specs.backup.20251126_154438/mcp-integration-overview.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "client",
+      "label": "Client",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "decisions-adr-0005-kb-embedding-mode-selection",
+      "label": "ADR-0005: KB Embedding Mode Selection",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/kb-setup.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "json-rpc",
+      "label": "JSON-RPC",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "Next-Week-Focus",
+      "label": "🎯 Next Week Focus",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "Reflection",
+      "label": "🧠 Reflection",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "tool",
+      "label": "Tool",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "スコープ",
+      "label": "スコープ",
+      "sourceNotes": [
+        "docs/operations/mcp-obsidian-spec.md",
+        "docs/requirements/hot-path-optimization.md",
+        "docs/requirements/openai-agents-sdk.md",
+        "docs/requirements/services.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "トラブルシューティング",
+      "label": "トラブルシューティング",
+      "sourceNotes": [
+        "cortex/graph/IMPLEMENTATION-PLAN.md",
+        "docs/operations/mcp-local-dev.md",
+        "file/obsidian-integration-guide.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "トラブルシュート",
+      "label": "トラブルシュート",
+      "sourceNotes": [
+        "docs/operations/claude-restart.md",
+        "docs/operations/mcp-json-setup.md",
+        "docs/operations/mcp-setup-guide.md",
+        "docs/operations/n8n.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "概要",
+      "label": "概要",
+      "sourceNotes": [
+        "docs/architecture/cortex-daily-automation-v1.0.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/obsidian-workflow.md",
+        "file/test-note.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 4
+    },
+    {
+      "id": "adr-0006-phase-2-automation-strategy",
+      "label": "ADR-0006 本文",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/ADR-0009-railway-n8n-deployment.md",
+        "docs/decisions/index.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Chapter-2-MCPの仕組み",
+      "label": "🧩 Chapter 2 MCPの仕組み",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "claude-code",
+      "label": "Claude Code セットアップガイド",
+      "sourceNotes": [
+        "docs/operations/claude-desktop-legacy.md",
+        "docs/operations/claude-restart.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "deploy-and-smoke",
+      "label": "Deployment Guide",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "kb",
+      "label": "docs/requirements/kb.md",
+      "sourceNotes": [
+        "docs/requirements/README.md",
+        "docs/requirements/chat.md",
+        "docs/requirements/openai-agents-sdk.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Key-Learnings",
+      "label": "💡 Key Learnings",
+      "sourceNotes": [
+        "2025-11-24-recipe-4-session.md",
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md",
+        "cortex/sessions/2025-11-26-github-actions-fixes.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "mcp-local-dev",
+      "label": "MCP Local Dev Guide",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-recipes.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "mcp-obsidian-spec",
+      "label": "MCP-Obsidian 統合仕様",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-recipes.md",
+        "docs/operations/obsidian-workflow.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "operations-mcp-recipes",
+      "label": "MCP Recipes",
+      "sourceNotes": [
+        "docs/architecture/cortex-daily-automation-v1.0.md",
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Related-Documents",
+      "label": "🔗 Related Documents",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/operations/n8n-production-deployment.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "requirements-readme",
+      "label": "Requirements",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Section-1-4-AIエージェントのユースケース",
+      "label": "💡 Section 1-4 AIエージェントのユースケース",
+      "sourceNotes": [
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md",
+        "📘 「第1章：MCP基礎」/🧩 Section 1-5 MCPが解決する課題.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Section-1-5-MCPが解決する課題",
+      "label": "🧩 Section 1-5 MCPが解決する課題",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md",
+        "📘 「第1章：MCP基礎」/🌍 Section 1-6 MCP普及の経緯.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Section-2-2-トランスポート",
+      "label": "🔄 Section 2-2 トランスポート",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Section-2-4-プロンプト-プリミティブ②",
+      "label": "💬 Section 2-4 プロンプト（プリミティブ②）",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Section-2-5-ツール-プリミティブ③",
+      "label": "🧰 Section 2-5 ツール（プリミティブ③）",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "token-rotation-policy",
+      "label": "Token Rotation Policy",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "Weekly-Summary-2025-W48",
+      "label": "Weekly Summary — 2025-W48",
+      "sourceNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "weekly/2025-W48-summary.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "ベストプラクティス",
+      "label": "ベストプラクティス",
+      "sourceNotes": [
+        "cortex/sessions/2025-11-26-obsidian-integration-implementation.md",
+        "docs/operations/obsidian-workflow.md",
+        "file/obsidian-integration-guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "関連ADR",
+      "label": "関連ADR",
+      "sourceNotes": [
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "設定手順",
+      "label": "設定手順",
+      "sourceNotes": [
+        "docs/operations/mcp-json-setup.md",
+        "file/obsidian-integration-guide.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "非機能要件",
+      "label": "非機能要件",
+      "sourceNotes": [
+        "docs/operations/mcp-obsidian-spec.md",
+        "docs/requirements/chat.md",
+        "docs/requirements/openai-agents-sdk.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "補足メモ",
+      "label": "🧠 補足メモ",
+      "sourceNotes": [
+        "📘 「第1章：MCP基礎」/💡 Section 1-4 AIエージェントのユースケース.md",
+        "📘 「第1章：MCP基礎」/🤖 Section 1-2 AIエージェントとは.md",
+        "📘 「第1章：MCP基礎」/🧰 Section 1-3 AIエージェントの「ツール」とは.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 3
+    },
+    {
+      "id": "0-現状-v1-1",
+      "label": "0. 現状（v1.1）",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "1-スコープ-目的",
+      "label": "1. スコープ/目的",
+      "sourceNotes": [
+        "docs/requirements/basic-auth.md",
+        "docs/requirements/tasks.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "1-プロジェクト準備",
+      "label": "1) プロジェクト準備",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "2-Claude-Code-環境の作成",
+      "label": "2) Claude Code 環境の作成",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "2-スコープ",
+      "label": "2. スコープ",
+      "sourceNotes": [
+        "docs/operations/agent_builder_requirements.md",
+        "docs/operations/agentkit_requirements.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "3-最小スモークテスト-Claude-Code-のターミナルから",
+      "label": "3) 最小スモークテスト（Claude Code のターミナルから）",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "4-Obsidian-MCP-Docker-を-Claude-に接続する-任意",
+      "label": "4) Obsidian MCP（Docker）を Claude に接続する（任意）",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "5-代替-既存の-Next-js-API-をそのまま使う",
+      "label": "5) 代替: 既存の Next.js API をそのまま使う",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "6-トラブルシュート",
+      "label": "6) トラブルシュート",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "7-セキュリティ要件",
+      "label": "7. セキュリティ要件",
+      "sourceNotes": [
+        "docs/requirements/basic-auth.md",
+        "docs/requirements/n8n.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "7-次の一歩-任意",
+      "label": "7) 次の一歩（任意）",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "8-非機能要件",
+      "label": "8. 非機能要件",
+      "sourceNotes": [
+        "docs/operations/agentkit_requirements.md",
+        "docs/requirements/obsidian.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "accesscontrol",
+      "label": "AccessControl",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "adr-0003-mcp-integration-architecture",
+      "label": "ADR-0003 本文",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/index.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "adr-0004-obsidian-dual-layer-integration",
+      "label": "ADR-0004 本文",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/index.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "adr-0005-kb-embedding-mode-selection",
+      "label": "ADR-0005 本文",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/index.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "AIエージェントとMCPの関係",
+      "label": "AIエージェントとMCPの関係",
+      "sourceNotes": [
+        "📘 「第1章：MCP基礎」/🤖 Section 1-2 AIエージェントとは.md",
+        "📘 「第1章：MCP基礎」/🧠 Section 1-1 MCPの概要.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "api-keys",
+      "label": "API Keys",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "API-契約",
+      "label": "API 契約",
+      "sourceNotes": [
+        "docs/requirements/chat.md",
+        "docs/requirements/openai-agents-sdk.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Architecture",
+      "label": "🏗️ Architecture",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/operations/n8n-production-deployment.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Backlog-Future-Enhancements",
+      "label": "Backlog — Future Enhancements",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "chat",
+      "label": "docs/requirements/chat.md",
+      "sourceNotes": [
+        "docs/requirements/README.md",
+        "docs/requirements/openai-agents-sdk.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "claudedesktop",
+      "label": "ClaudeDesktop",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "consequences",
+      "label": "Consequences",
+      "sourceNotes": [
+        "docs/decisions/ADR-0009-railway-n8n-deployment.md",
+        "docs/decisions/ADR-9999-test-recipe-4-phase2.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Context",
+      "label": "🎯 Context",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/ADR-0008-recipe-4-phase2-test.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "context-optimization",
+      "label": "Context Optimization",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "cortex-os-v1-2-roadmap",
+      "label": "Cortex OS v1.2 Roadmap",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "daily-digest-2025-11-17",
+      "label": "Daily Digest - 2025-11-17",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex/daily/2025-11-17-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-17",
+      "label": "Daily Digest — 2025-11-17",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex/daily/2025-11-17-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "daily-digest-2025-11-18",
+      "label": "Daily Digest - 2025-11-18",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-18-digest.md",
+        "cortex/daily/2025-11-18-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "daily-digest-2025-11-19",
+      "label": "Daily Digest 2025-11-19",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-19-digest.md",
+        "cortex/daily/2025-11-19-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-20",
+      "label": "Daily Digest — 2025-11-20",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex/daily/2025-11-20-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-21",
+      "label": "Daily Digest — 2025-11-21",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-21-digest.md",
+        "cortex/daily/2025-11-21-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-22",
+      "label": "Daily Digest — 2025-11-22",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-22-digest.md",
+        "cortex/daily/2025-11-22-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-23",
+      "label": "Daily Digest — 2025-11-23",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-23-digest.md",
+        "cortex/daily/2025-11-23-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Daily-Digest-2025-11-24",
+      "label": "Daily Digest — 2025-11-24",
+      "sourceNotes": [
+        "cortex.backup/daily/2025-11-24-digest.md",
+        "cortex/daily/2025-11-24-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "debug",
+      "label": "Debug",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "decision",
+      "label": "Decision",
+      "sourceNotes": [
+        "docs/decisions/ADR-0009-railway-n8n-deployment.md",
+        "docs/decisions/ADR-9999-test-recipe-4-phase2.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Decision",
+      "label": "🧩 Decision",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/ADR-0008-recipe-4-phase2-test.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "decisions-adr-0008-recipe-4-phase2-test",
+      "label": "ADR-0008: Recipe 4 Phase 2 Test",
+      "sourceNotes": [
+        "docs/operations/n8n-production-deployment.md",
+        "docs/operations/recipe-04-consistency-check.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "docker-considerations",
+      "label": "Docker Considerations",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "environment-variable-management",
+      "label": "Environment Variable Management",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "functioncalling",
+      "label": "FunctionCalling",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "generation",
+      "label": "Generation",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "getting-started",
+      "label": "Getting Started",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-recipes.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Git-Commits",
+      "label": "📝 Git Commits",
+      "sourceNotes": [
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md",
+        "cortex/sessions/2025-11-26-github-actions-fixes.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Git-除外対象",
+      "label": "Git 除外対象",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "highlights",
+      "label": "Highlights",
+      "sourceNotes": [
+        "cortex/daily/2025-11-25-digest.md",
+        "cortex/daily/2025-11-26-digest.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "host",
+      "label": "Host",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "ide",
+      "label": "IDE",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "incident-response",
+      "label": "Incident Response",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "inspector",
+      "label": "Inspector",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "integration",
+      "label": "Integration",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "lsp",
+      "label": "LSP",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "mcp-stdio-bridge-setup-guide",
+      "label": "MCP stdio Bridge Setup Guide",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "MCPの仕組み",
+      "label": "MCPの仕組み",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Column：Language Server Protocol (LSP).md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "n8n",
+      "label": "n8n.md",
+      "sourceNotes": [
+        "docs/operations/phase-2-implementation.md",
+        "docs/requirements/README.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "n8n-credentials",
+      "label": "n8n Credentials",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Next-Steps",
+      "label": "🚀 Next Steps",
+      "sourceNotes": [
+        "2025-11-24-recipe-4-session.md",
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Next-Steps-次のステップ",
+      "label": "🚀 Next Steps（次のステップ）",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "openai-agents-sdk",
+      "label": "docs/requirements/openai-agents-sdk.md",
+      "sourceNotes": [
+        "docs/requirements/README.md",
+        "docs/requirements/chat.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "operations-getting-started",
+      "label": "Getting Started Guide",
+      "sourceNotes": [
+        "docs/decisions/index.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "operations-kb-setup",
+      "label": "KB Setup",
+      "sourceNotes": [
+        "docs/decisions/index.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "operations-mcp-setup-guide",
+      "label": "MCP Setup Guide",
+      "sourceNotes": [
+        "docs/decisions/index.md",
+        "docs/releases/v1.0.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "operations-phase-2-implementation",
+      "label": "Phase 2 Implementation",
+      "sourceNotes": [
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/index.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Prerequisites-前提条件",
+      "label": "🛠️ Prerequisites（前提条件）",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/phase-2-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "prompt",
+      "label": "Prompt",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Recipe-4-実装完了レポート",
+      "label": "Recipe 4 実装完了レポート",
+      "sourceNotes": [
+        "2025-11-24-recipe-4-session.md",
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "requirements-kb",
+      "label": "docs/requirements/kb.md",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-obsidian-workflows.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "resource",
+      "label": "Resource",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "root",
+      "label": "Root",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "sampling",
+      "label": "Sampling",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "secrets-reference",
+      "label": "Secrets Reference",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Section-1-6-MCP普及の経緯",
+      "label": "🌍 Section 1-6 MCP普及の経緯",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧩 Chapter 2 MCPの仕組み.md",
+        "📕 「第2章：MCPの仕組み」/🧩 Section 2-1 アーキテクチャ概要.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Section-2-3-リソース-プリミティブ①",
+      "label": "📘 Section 2-3 リソース（プリミティブ①）",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/🧰 Section 2-5 ツール（プリミティブ③）.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Section-2-6-サンプリング-プリミティブ④",
+      "label": "🎲 Section 2-6 サンプリング（プリミティブ④）",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "Section-2-7-ルート-プリミティブ⑤",
+      "label": "🗂️ Section 2-7 ルート（プリミティブ⑤）",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🗂️ Section 2-7 ルート（プリミティブ⑤）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "security-keys-rotation",
+      "label": "Security Keys Rotation",
+      "sourceNotes": [
+        "docs/operations/getting-started.md",
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "security-principles",
+      "label": "Security Principles",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "stdio",
+      "label": "stdio",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "streamablehttp",
+      "label": "StreamableHTTP",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "template",
+      "label": "Template",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "transport",
+      "label": "Transport",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "troubleshooting",
+      "label": "Troubleshooting",
+      "sourceNotes": [
+        "docs/operations/mcp-security.md"
+      ],
+      "types": [
+        "heading",
+        "link"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "uri",
+      "label": "URI",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "v1-2-の3本柱",
+      "label": "🎯 v1.2 の3本柱",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "v1-2-完成イメージ",
+      "label": "🚀 v1.2 完成イメージ",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "webui",
+      "label": "WebUI",
+      "sourceNotes": [
+        "📕 「第2章：MCPの仕組み」/🧪 Section 2-8 インスペクター.md"
+      ],
+      "types": [
+        "frontmatter-tag",
+        "tag"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "スケジュール",
+      "label": "📅 スケジュール",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "セキュリティ注意",
+      "label": "セキュリティ注意",
+      "sourceNotes": [
+        "docs/operations/n8n.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "セキュリティ注意事項",
+      "label": "セキュリティ注意事項",
+      "sourceNotes": [
+        "docs/operations/mcp-json-setup.md",
+        "docs/operations/mcp-setup-guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "ローテーション履歴",
+      "label": "ローテーション履歴",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "完了内容",
+      "label": "🎉 完了内容",
+      "sourceNotes": [
+        "2025-11-24-recipe-4-session.md",
+        "cortex/sessions/2025-11-24-recipe-4-implementation.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "環境変数ファイル",
+      "label": "環境変数ファイル",
+      "sourceNotes": [
+        "cortex.backup/secrets-reference.md",
+        "cortex/secrets-reference.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "機能要件",
+      "label": "機能要件",
+      "sourceNotes": [
+        "docs/operations/mcp-obsidian-spec.md",
+        "docs/requirements/chat.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "参考ドキュメント",
+      "label": "📚 参考ドキュメント",
+      "sourceNotes": [
+        "TODO.md",
+        "docs/operations/recipe-04-consistency-check.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "次のアクション候補",
+      "label": "次のアクション候補",
+      "sourceNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "次のステップ",
+      "label": "🚀 次のステップ",
+      "sourceNotes": [
+        "cortex/graph/IMPLEMENTATION-PLAN.md",
+        "docs/operations/recipe-04-consistency-check.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "受け入れ基準-Acceptance-Criteria",
+      "label": "受け入れ基準（Acceptance Criteria）",
+      "sourceNotes": [
+        "docs/requirements/openai-agents-sdk.md",
+        "docs/requirements/services.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "前提",
+      "label": "前提",
+      "sourceNotes": [
+        "docs/operations/claude-code.md",
+        "docs/operations/claude-desktop-legacy.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "前提条件",
+      "label": "前提条件",
+      "sourceNotes": [
+        "docs/operations/mcp-local-dev.md",
+        "🔌 MCP stdio Bridge Setup Guide.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "代替方法",
+      "label": "代替方法",
+      "sourceNotes": [
+        "docs/operations/mcp-vercel-alternative.md",
+        "docs/operations/mcp-vercel-troubleshooting.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "背景",
+      "label": "背景",
+      "sourceNotes": [
+        "docs/operations/mcp-obsidian-spec.md",
+        "docs/requirements/hot-path-optimization.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    },
+    {
+      "id": "用語",
+      "label": "用語",
+      "sourceNotes": [
+        "docs/requirements/hot-path-optimization.md",
+        "docs/requirements/openai-agents-sdk.md"
+      ],
+      "types": [
+        "heading"
+      ],
+      "frequency": 2
+    }
+  ]
+}
