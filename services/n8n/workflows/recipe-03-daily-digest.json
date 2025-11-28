@@ -75,7 +75,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+        "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
         "authentication": "none",
         "sendBody": true,
         "specifyBody": "json",

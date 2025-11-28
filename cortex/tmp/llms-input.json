@@ -1,0 +1,331 @@
+{
+  "version": "1.0",
+  "generatedAt": "2025-11-28T05:59:19.038Z",
+  "project": "Cortex OS",
+  "knowledgeGraph": {
+    "totalConcepts": 184,
+    "totalClusters": 5,
+    "method": "connected-components",
+    "similarityThreshold": 0.7
+  },
+  "clusters": [
+    {
+      "id": "cluster-0",
+      "name": "Cluster 1: .mcp.json",
+      "shortName": ".mcp.json",
+      "size": 136,
+      "frequencySum": 488,
+      "description": "このクラスターは主に MCP の実装・設計・接続周り。 今の自分の専門性のコア領域。仕様・実装ログ・試行錯誤が集約されている。",
+      "purpose": "技術システムの中核を構成する層。MCP アーキテクチャの理解と実装を深める。",
+      "outputs": [
+        "MCP 設定ファイル",
+        "統合コード",
+        "技術ドキュメント",
+        "トラブルシューティングガイド"
+      ],
+      "coreConcepts": [
+        {
+          "label": ".mcp.json",
+          "frequency": 21
+        },
+        {
+          "label": "🔌 MCP stdio Bridge Setup Guide",
+          "frequency": 14
+        },
+        {
+          "label": "**🧩 関連ノート**",
+          "frequency": 13
+        },
+        {
+          "label": "🧠 まとめ",
+          "frequency": 12
+        },
+        {
+          "label": "Primitive",
+          "frequency": 12
+        },
+        {
+          "label": "🔖 関連タグ",
+          "frequency": 10
+        },
+        {
+          "label": "🧠 Section 1-1 MCPの概要",
+          "frequency": 10
+        },
+        {
+          "label": "LLM",
+          "frequency": 10
+        },
+        {
+          "label": "ADR-0004: Obsidian Dual-Layer Integration",
+          "frequency": 9
+        },
+        {
+          "label": "Agent",
+          "frequency": 9
+        }
+      ],
+      "representativeNotes": [
+        "docs/operations/mcp-troubleshooting.md",
+        "📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md",
+        "📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md",
+        "📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md",
+        "📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md"
+      ]
+    },
+    {
+      "id": "cluster-1",
+      "name": "Cluster 2: Reflection",
+      "shortName": "Reflection",
+      "size": 21,
+      "frequencySum": 116,
+      "description": "このクラスターは、Daily / Weekly などのふりかえりパターンが中心の領域。 Reflection テンプレート、習慣化、振り返りフォーマットなど、 「自分の思考パターンのメタ構造」に関するノートが集まっている。",
+      "purpose": "思考循環・習慣化のレイヤー。自分の行動と思考を定期的にメタ認知する。",
+      "outputs": [
+        "Insight",
+        "次のタスク抽出",
+        "週次・月次サマリー"
+      ],
+      "coreConcepts": [
+        {
+          "label": "Reflection",
+          "frequency": 20
+        },
+        {
+          "label": "Tasks",
+          "frequency": 20
+        },
+        {
+          "label": "Notes",
+          "frequency": 14
+        },
+        {
+          "label": "Today's Plan",
+          "frequency": 12
+        },
+        {
+          "label": "Yesterday's Summary (2025-11-19)",
+          "frequency": 10
+        },
+        {
+          "label": "関連ドキュメント",
+          "frequency": 9
+        },
+        {
+          "label": "💡 Key Learnings",
+          "frequency": 3
+        },
+        {
+          "label": "Daily Digest - 2025-11-17",
+          "frequency": 2
+        },
+        {
+          "label": "Daily Digest - 2025-11-18",
+          "frequency": 2
+        },
+        {
+          "label": "Daily Digest — 2025-11-17",
+          "frequency": 2
+        }
+      ],
+      "representativeNotes": [
+        "cortex.backup/daily/2025-11-17-digest.md",
+        "cortex.backup/daily/2025-11-18-digest.md",
+        "cortex.backup/daily/2025-11-19-digest.md",
+        "cortex.backup/daily/2025-11-20-digest.md",
+        "cortex.backup/daily/2025-11-21-digest.md"
+      ]
+    },
+    {
+      "id": "cluster-2",
+      "name": "Cluster 3: 0. 現状（v1.1）",
+      "shortName": "0. 現状（v1.1）",
+      "size": 13,
+      "frequencySum": 26,
+      "description": "このクラスターは、現在の状態・バージョン履歴・進捗管理に関する概念のまとまり。 Cortex OS や関連プロジェクトの「どこまで進んでいるか」を俯瞰するためのメタ情報が集中している。 プロジェクトの現在地を把握するための領域。",
+      "purpose": "プロジェクトの進捗・状態監視レイヤー。ロードマップと現実のギャップを追跡。",
+      "outputs": [
+        "バージョン履歴",
+        "ロードマップ更新",
+        "次のマイルストーン定義"
+      ],
+      "coreConcepts": [
+        {
+          "label": "🎯 v1.2 の3本柱",
+          "frequency": 2
+        },
+        {
+          "label": "📅 スケジュール",
+          "frequency": 2
+        },
+        {
+          "label": "🚀 v1.2 完成イメージ",
+          "frequency": 2
+        },
+        {
+          "label": "0. 現状（v1.1）",
+          "frequency": 2
+        },
+        {
+          "label": "API Keys",
+          "frequency": 2
+        },
+        {
+          "label": "Backlog — Future Enhancements",
+          "frequency": 2
+        },
+        {
+          "label": "Cortex OS v1.2 Roadmap",
+          "frequency": 2
+        },
+        {
+          "label": "Git 除外対象",
+          "frequency": 2
+        },
+        {
+          "label": "n8n Credentials",
+          "frequency": 2
+        },
+        {
+          "label": "Secrets Reference",
+          "frequency": 2
+        }
+      ],
+      "representativeNotes": [
+        "cortex.backup/roadmap/v1.2-autonomy.md",
+        "cortex/roadmap/v1.2-autonomy.md"
+      ]
+    },
+    {
+      "id": "cluster-3",
+      "name": "Cluster 4: フォローアップ（Follow-ups）",
+      "shortName": "フォローアップ（Follow-ups）",
+      "size": 8,
+      "frequencySum": 45,
+      "description": "このクラスターは、フォローアップすべきタスクや、やりっぱなしになっているトピックを拾い上げるための領域。 ADR（Architecture Decision Records）の標準セクション構造が中心で、 「決定の背景・根拠・影響・代替案」を追跡するためのメタデータが集約されている。",
+      "purpose": "意思決定の記録と追跡。過去の判断を振り返り、影響を評価し続ける。",
+      "outputs": [
+        "ADR ドキュメント",
+        "フォローアップタスク",
+        "意思決定ログ"
+      ],
+      "coreConcepts": [
+        {
+          "label": "フォローアップ（Follow-ups）",
+          "frequency": 6
+        },
+        {
+          "label": "影響（Consequences）",
+          "frequency": 6
+        },
+        {
+          "label": "決定（Decision）",
+          "frequency": 6
+        },
+        {
+          "label": "根拠（Rationale）",
+          "frequency": 6
+        },
+        {
+          "label": "実装ノート（Implementation Notes）",
+          "frequency": 6
+        },
+        {
+          "label": "代替案（Alternatives）",
+          "frequency": 6
+        },
+        {
+          "label": "背景（Context）",
+          "frequency": 6
+        },
+        {
+          "label": "関連ADR",
+          "frequency": 3
+        }
+      ],
+      "representativeNotes": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md"
+      ]
+    },
+    {
+      "id": "cluster-4",
+      "name": "Cluster 5: 🎉 Highlights",
+      "shortName": "🎉 Highlights",
+      "size": 6,
+      "frequencySum": 25,
+      "description": "このクラスターは、達成・ハイライト・マイルストーンが中心の領域。 週次サマリーやリリースノートなど、「うまくいったこと」「成果として残したいこと」を保存するための ポジティブな記憶の集積所。振り返りの中でも特に「達成」に焦点を当てた領域。",
+      "purpose": "成果の可視化と外部共有。モチベーション維持と進捗実感の源泉。",
+      "outputs": [
+        "リリースノート",
+        "週次ハイライト",
+        "外部向けアウトプット（ブログ記事など）"
+      ],
+      "coreConcepts": [
+        {
+          "label": "🎉 Highlights",
+          "frequency": 5
+        },
+        {
+          "label": "🎯 Overview",
+          "frequency": 5
+        },
+        {
+          "label": "⚠️ Challenges",
+          "frequency": 4
+        },
+        {
+          "label": "🎯 Next Week Focus",
+          "frequency": 4
+        },
+        {
+          "label": "🧠 Reflection",
+          "frequency": 4
+        },
+        {
+          "label": "Weekly Summary — 2025-W48",
+          "frequency": 3
+        }
+      ],
+      "representativeNotes": [
+        "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "docs/releases/v1.0.md",
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md"
+      ]
+    }
+  ],
+  "highlights": {
+    "recentHighImpactNotes": [
+      "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
+      "cortex/weekly/2025-W48-summary.md",
+      "weekly/2025-W47-summary.md",
+      "weekly/2025-W48-summary.md",
+      "docs/releases/v1.0.md"
+    ],
+    "recentlyUpdatedNotes": [
+      "TODO.md",
+      "cortex/daily/2025-11-27-digest.md",
+      "用語.md",
+      "cortex/graph/llms-input-schema.md",
+      "cortex/graph/clusters-v1.md",
+      "cortex/weekly/2025-W48-summary.md",
+      "cortex/graph/IMPLEMENTATION-PLAN.md",
+      "cortex/scripts/obsidian/README.md",
+      "cortex/sessions/2025-11-26-github-actions-fixes.md",
+      "cortex/daily/2025-11-26-digest.md"
+    ],
+    "todoContext": {
+      "today": "2025-11-28",
+      "topItems": [
+        "generateLlmsInput.cs.js 骨組み作成（Codescript 実装開始）",
+        "Phase 2.5: MCP クラスタ向け Louvain community detection 設計（optional）",
+        "cortex/scripts/llms/ パイプライン実装（Node 側）"
+      ]
+    }
+  }
+}
