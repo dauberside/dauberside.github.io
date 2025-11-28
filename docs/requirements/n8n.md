@@ -1,3 +1,7 @@
+---
+render_with_liquid: false
+---
+
 # n8n 要件定義書
 
 最終更新: 2025-10-29

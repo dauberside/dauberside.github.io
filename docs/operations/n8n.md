@@ -1,3 +1,7 @@
+---
+render_with_liquid: false
+---
+
 # n8n × MCP 連携（docker compose）
 
 このリポの docker compose に `n8n` を追加しました。エディタは http://localhost:5678 で開けます。
@@ -22,7 +26,8 @@ docker compose ps
 ヘルスチェック:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:5678/healthz  # 200 を期待
+curl -s -o /dev/null -w "%{http_code}
+" http://localhost:5678/healthz  # 200 を期待
 ```
 
 ## n8n から MCP を呼ぶ（HTTP Request ノード）

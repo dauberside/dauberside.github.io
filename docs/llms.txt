@@ -1,0 +1,155 @@
+# Cortex OS / llms.txt
+# Auto-generated from cortex/tmp/llms-input.json
+
+[Meta]
+Project: Cortex OS
+Total Concepts: 184
+Total Clusters: 5
+Graph Method: connected-components (threshold=0.7)
+
+[Global Highlights]
+Today: 2025-11-27
+Top TODO Items:
+- generateLlmsInput.cs.js 骨組み作成（Codescript 実装開始）
+- Phase 2.5: MCP クラスタ向け Louvain community detection 設計（optional）
+- cortex/scripts/llms/ パイプライン実装（Node 側）
+Recent High Impact Notes:
+- cortex/weekly/2025-W48-summary.md
+- docs/releases/v1.0.md
+Recently Updated Notes:
+- cortex/graph/clusters-v1.md
+- cortex/graph/llms-input-schema.md
+- TODO.md
+- cortex/state/tomorrow.json
+
+[Cluster: .mcp.json]
+Size: 136 concepts (frequency: 488)
+Purpose: 技術システムの中核を構成する層。MCP アーキテクチャの理解と実装を深める。
+Outputs: MCP 設定ファイル / 統合コード / 技術ドキュメント / トラブルシューティングガイド
+
+Description:
+このクラスターは主に MCP の実装・設計・接続周り。 今の自分の専門性のコア領域。仕様・実装ログ・試行錯誤が集約されている。
+
+Top Concepts:
+- .mcp.json (21)
+- 🔌 MCP stdio Bridge Setup Guide (14)
+- **🧩 関連ノート** (13)
+- 🧠 まとめ (12)
+- Primitive (12)
+- 🔖 関連タグ (10)
+- 🧠 Section 1-1 MCPの概要 (10)
+- LLM (10)
+- ADR-0004: Obsidian Dual-Layer Integration (9)
+- Agent (9)
+
+Representative Notes:
+- docs/operations/mcp-troubleshooting.md
+- 📕 「第2章：MCPの仕組み」/🎲 Section 2-6 サンプリング（プリミティブ④）.md
+- 📕 「第2章：MCPの仕組み」/💬 Section 2-4 プロンプト（プリミティブ②）.md
+- 📕 「第2章：MCPの仕組み」/📘 Section 2-3 リソース（プリミティブ①）.md
+- 📕 「第2章：MCPの仕組み」/🔄 Section 2-2 トランスポート.md
+
+
+[Cluster: Reflection]
+Size: 21 concepts (frequency: 116)
+Purpose: 思考循環・習慣化のレイヤー。自分の行動と思考を定期的にメタ認知する。
+Outputs: Insight / 次のタスク抽出 / 週次・月次サマリー
+
+Description:
+このクラスターは、Daily / Weekly などのふりかえりパターンが中心の領域。 Reflection テンプレート、習慣化、振り返りフォーマットなど、 「自分の思考パターンのメタ構造」に関するノートが集まっている。
+
+Top Concepts:
+- Reflection (20)
+- Tasks (20)
+- Notes (14)
+- Today's Plan (12)
+- Yesterday's Summary (2025-11-19) (10)
+- 関連ドキュメント (9)
+- 💡 Key Learnings (3)
+- Daily Digest - 2025-11-17 (2)
+- Daily Digest - 2025-11-18 (2)
+- Daily Digest — 2025-11-17 (2)
+
+Representative Notes:
+- cortex.backup/daily/2025-11-17-digest.md
+- cortex.backup/daily/2025-11-18-digest.md
+- cortex.backup/daily/2025-11-19-digest.md
+- cortex.backup/daily/2025-11-20-digest.md
+- cortex.backup/daily/2025-11-21-digest.md
+
+
+[Cluster: 0. 現状（v1.1）]
+Size: 13 concepts (frequency: 26)
+Purpose: プロジェクトの進捗・状態監視レイヤー。ロードマップと現実のギャップを追跡。
+Outputs: バージョン履歴 / ロードマップ更新 / 次のマイルストーン定義
+
+Description:
+このクラスターは、現在の状態・バージョン履歴・進捗管理に関する概念のまとまり。 Cortex OS や関連プロジェクトの「どこまで進んでいるか」を俯瞰するためのメタ情報が集中している。 プロジェクトの現在地を把握するための領域。
+
+Top Concepts:
+- 🎯 v1.2 の3本柱 (2)
+- 📅 スケジュール (2)
+- 🚀 v1.2 完成イメージ (2)
+- 0. 現状（v1.1） (2)
+- API Keys (2)
+- Backlog — Future Enhancements (2)
+- Cortex OS v1.2 Roadmap (2)
+- Git 除外対象 (2)
+- n8n Credentials (2)
+- Secrets Reference (2)
+
+Representative Notes:
+- cortex.backup/roadmap/v1.2-autonomy.md
+- cortex/roadmap/v1.2-autonomy.md
+
+
+[Cluster: フォローアップ（Follow-ups）]
+Size: 8 concepts (frequency: 45)
+Purpose: 意思決定の記録と追跡。過去の判断を振り返り、影響を評価し続ける。
+Outputs: ADR ドキュメント / フォローアップタスク / 意思決定ログ
+
+Description:
+このクラスターは、フォローアップすべきタスクや、やりっぱなしになっているトピックを拾い上げるための領域。 ADR（Architecture Decision Records）の標準セクション構造が中心で、 「決定の背景・根拠・影響・代替案」を追跡するためのメタデータが集約されている。
+
+Top Concepts:
+- フォローアップ（Follow-ups） (6)
+- 影響（Consequences） (6)
+- 決定（Decision） (6)
+- 根拠（Rationale） (6)
+- 実装ノート（Implementation Notes） (6)
+- 代替案（Alternatives） (6)
+- 背景（Context） (6)
+- 関連ADR (3)
+
+Representative Notes:
+- docs/decisions/ADR-0001-context-capsule-and-adr-process.md
+- docs/decisions/ADR-0002-hot-path-optimization.md
+- docs/decisions/ADR-0003-mcp-integration-architecture.md
+- docs/decisions/ADR-0004-obsidian-dual-layer-integration.md
+- docs/decisions/ADR-0005-kb-embedding-mode-selection.md
+
+
+[Cluster: 🎉 Highlights]
+Size: 6 concepts (frequency: 25)
+Purpose: 成果の可視化と外部共有。モチベーション維持と進捗実感の源泉。
+Outputs: リリースノート / 週次ハイライト / 外部向けアウトプット（ブログ記事など）
+
+Description:
+このクラスターは、達成・ハイライト・マイルストーンが中心の領域。 週次サマリーやリリースノートなど、「うまくいったこと」「成果として残したいこと」を保存するための ポジティブな記憶の集積所。振り返りの中でも特に「達成」に焦点を当てた領域。
+
+Top Concepts:
+- 🎉 Highlights (5)
+- 🎯 Overview (5)
+- ⚠️ Challenges (4)
+- 🎯 Next Week Focus (4)
+- 🧠 Reflection (4)
+- Weekly Summary — 2025-W48 (3)
+
+Representative Notes:
+- cortex.weekly.backup.20251126_154315/2025-W48-summary.md
+- cortex/weekly/2025-W48-summary.md
+- docs/releases/v1.0.md
+- weekly/2025-W47-summary.md
+- weekly/2025-W48-summary.md
+
+
