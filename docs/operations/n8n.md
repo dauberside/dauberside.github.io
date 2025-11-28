@@ -50,12 +50,14 @@ curl -s -o /dev/null -w "%{http_code}
      - `Authorization: Bearer {{ $env.MCP_API_TOKEN }}`
      - `Content-Type: application/json`
    - Body (JSON):
+{% raw %}
 ```json
 {
   "query": "n8n からの検索",
   "topK": 5
 }
 ```
+{% endraw %}
 
 ## サンプルワークフローのインポート
 
@@ -113,6 +115,7 @@ Google Calendar 予定追加（POST）:
 1) `gcal-create-event-webhook-post-v1.0.json` をインポート
 2) テストURL: http://localhost:5678/webhook-test/gcal-create-event
   - Body (application/json):
+{% raw %}
 ```json
 {
   "summary": "打ち合わせ",
@@ -123,6 +126,7 @@ Google Calendar 予定追加（POST）:
   "attendees": ["user1@example.com", "user2@example.com"]
 }
 ```
+{% endraw %}
   - end を省略する場合は `durationMinutes` を指定可能（既定 60）。
 3) 成功すると `{ ok, id, htmlLink, summary, start, end }` が返ります。
 

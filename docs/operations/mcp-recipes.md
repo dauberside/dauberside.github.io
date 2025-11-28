@@ -112,6 +112,7 @@ flowchart LR
 
 **n8n ワークフロー設定例**:
 
+{% raw %}
 ```json
 {
   "nodes": [
@@ -156,6 +157,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 **トリガースクリプト例** (Obsidian Plugin 側):
 ```javascript
@@ -194,6 +196,7 @@ flowchart LR
 
 **n8n ワークフロー設定例**:
 
+{% raw %}
 ```json
 {
   "nodes": [
@@ -252,6 +255,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -269,6 +273,7 @@ flowchart LR
 ```
 
 **設定例**:
+{% raw %}
 ```json
 {
   "nodes": [
@@ -297,6 +302,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -316,6 +322,7 @@ flowchart LR
 ```
 
 **設定例**:
+{% raw %}
 ```json
 {
   "nodes": [
@@ -371,6 +378,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -388,6 +396,7 @@ flowchart LR
 ```
 
 **設定例**:
+{% raw %}
 ```json
 {
   "nodes": [
@@ -420,6 +429,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -439,6 +449,7 @@ flowchart LR
 ```
 
 **設定例**:
+{% raw %}
 ```json
 {
   "nodes": [
@@ -500,6 +511,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -518,6 +530,7 @@ flowchart LR
 ```
 
 **設定例**:
+{% raw %}
 ```json
 {
   "nodes": [
@@ -568,6 +581,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 ---
 
@@ -593,6 +607,7 @@ flowchart LR
 
 **n8n ワークフロー設定例**:
 
+{% raw %}
 ```json
 {
   "nodes": [
@@ -671,6 +686,7 @@ flowchart LR
   }
 }
 ```
+{% endraw %}
 
 **Write File ノード設定の詳細**:
 
@@ -737,6 +753,7 @@ flowchart LR
 
 **n8n ワークフロー設定例**:
 
+{% raw %}
 ```json
 {
   "nodes": [
@@ -824,6 +841,7 @@ flowchart LR
   ]
 }
 ```
+{% endraw %}
 
 **TODO.md 構造例**:
 ```markdown
@@ -950,6 +968,7 @@ cortex/state/tomorrow.json
 ```
 
 **スキーマ** (`cortex/state/tomorrow.json`):
+{% raw %}
 ```json
 {
   "generated_at": "2025-11-19T22:00:00Z",
@@ -965,6 +984,7 @@ cortex/state/tomorrow.json
   "reflection_summary": "今日の気づきを1行で"
 }
 ```
+{% endraw %}
 
 **wrap-up での保存**:
 ```javascript
