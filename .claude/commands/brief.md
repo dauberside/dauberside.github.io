@@ -13,11 +13,14 @@
    - 昨日の /wrap-up が生成した「明日の候補」
    - これが存在すれば、優先順位決定の第一情報源
 2. **最新の Daily Digest** — `cortex/daily/` の最新ファイル
-   - フォールバック: `notifications/daily/`
+   - `mcp__obsidian__obsidian_list_files_in_dir("cortex/daily")` でファイルリスト取得
+   - ソートして最新ファイル（例: `2025-11-27-digest.md`）を読み込む
+   - `mcp__obsidian__obsidian_get_file_contents("cortex/daily/{latest}")` で内容取得
 3. **TODO（作業メモリ）** — Obsidian の `TODO.md`
-4. **今日の Daily Note** — Obsidian の `daily/YYYY-MM-DD.md`（あれば）
-5. **Weekly Summary** — Obsidian の `weekly/YYYY-Wxx-summary.md`（あれば）
-6. **タスクポリシー** — `docs/operations/cortex-task-policy.md`
+4. **Weekly Summary** — Obsidian の `weekly/YYYY-Wxx-summary.md`（あれば）
+5. **タスクポリシー** — `docs/operations/cortex-task-policy.md`
+
+**注意**: `obsidian_get_recent_periodic_notes` は使用しない（Obsidian Local REST API が未サポート）
 
 ### tomorrow.json の活用
 

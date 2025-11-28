@@ -11,12 +11,17 @@
 
 - [x] [Cortex] generateLlmsInput.cs.js 骨組み作成（Codescript 実装）
 - [x] [Cortex] llms-input.json 生成テスト & 検証（Plan A → Plan A+ 完了）
-- [ ] [n8n] Recipe 02/03/10 ワークフロー n8n UI へ保存
+- [x] [n8n] Recipe 02/03/10 ワークフロー n8n UI へ保存
+- [x] [n8n] Recipe 10 v1.2 実装（タグベース絵文字 + マルチセクションフォールバック）
+- [x] [Docs] Recipe 10 tags ドキュメント作成（1505+ lines）
+- [x] [GitHub] Recipe 10 v1.2 デプロイ + Jekyll Liquid 構文エラー修正
 
 **進捗**:
 - ✅ Plan A+: Cluster 5 から recentHighImpactNotes を動的抽出 + 優先順位ソート実装完了
 - ✅ Recipe 02/03/10 の JSON ファイル修正完了（SSL + URL 問題解決）
-- ⏳ n8n UI への再インポート残り
+- ✅ n8n UI への再インポート完了
+- ✅ Recipe 10 v1.2 完全実装（5タグ: ⚡🚧⏳🎯👁️）
+- ✅ GitHub Pages ビルド成功（Jekyll raw tags fix）
 
 ---
 
