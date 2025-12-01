@@ -37,7 +37,7 @@
     },
     {
       "parameters": {
-        "command": "cd ${WORKSPACE_ROOT} && node bin/cortex-digest.mjs"
+        "command": "cd ${WORKSPACE_ROOT} && OBSIDIAN_VAULT_PATH=${OBSIDIAN_VAULT_PATH} node bin/cortex-digest.mjs"
       },
       "id": "generate-digest",
       "name": "Generate Daily Digest",
