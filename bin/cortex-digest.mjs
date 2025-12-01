@@ -140,7 +140,9 @@ function getGitActivity(date) {
         feat: commitLines.filter(l => l.match(/feat[:(]/i)).length,
         fix: commitLines.filter(l => l.match(/fix[:(]/i)).length,
         docs: commitLines.filter(l => l.match(/docs[:(]/i)).length,
-        other: commitLines.filter(l => !l.match(/feat[:(]|fix[:(]|docs[:(]/i)).length
+        other: commitLines.filter(
+          l => !l.match(/feat[:(]|fix[:(]|docs[:(]/i)
+        ).length
       };
       
       // Get file statistics for today
@@ -163,7 +165,9 @@ function getGitActivity(date) {
       feat: commitLines.filter(l => l.match(/feat[:(]/i)).length,
       fix: commitLines.filter(l => l.match(/fix[:(]/i)).length,
       docs: commitLines.filter(l => l.match(/docs[:(]/i)).length,
-      other: commitLines.filter(l => !l.match(/feat[:(]|fix[:(]|docs[:(]/i)).length
+      other: commitLines.filter(
+        l => !l.match(/feat[:(]|fix[:(]|docs[:(]/i)
+      ).length
     };
     
     // Get file statistics
