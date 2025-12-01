@@ -27,10 +27,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Calculate today's date in JST (UTC+9)\nfunction getJSTDate() {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getJSTDate();\n\nreturn {\n  json: {\n    date: dateString,\n    timestamp: new Date().toISOString(),\n    digestPath: `cortex/daily/${dateString}-digest.md`\n  }\n};"
+        "jsCode": "// Calculate yesterday's date in JST (UTC+9) for digest generation\n// Digest is generated at 00:30 JST for the previous day\nfunction getDigestDateJST() {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);\n  // Subtract one day to get yesterday's date\n  jstTime.setDate(jstTime.getDate() - 1);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getDigestDateJST();\n\nreturn {\n  json: {\n    date: dateString,\n    timestamp: new Date().toISOString(),\n    digestPath: `cortex/daily/${dateString}-digest.md`\n  }\n};"
       },
       "id": "calculate-date",
-      "name": "Calculate Today's Date (JST)",
+      "name": "Calculate Digest Date (JST)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [450, 300]
@@ -77,7 +77,7 @@
     },
     {
       "parameters": {
-        "command": "=ls -lh ${OBSIDIAN_VAULT_PATH}/{{ $('Calculate Today\\'s Date (JST)').item.json.digestPath }} 2>&1"
+        "command": "=ls -lh ${OBSIDIAN_VAULT_PATH}/{{ $('Calculate Digest Date (JST)').item.json.digestPath }} 2>&1"
       },
       "id": "verify-file",
       "name": "Verify File Created",
@@ -88,7 +88,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const dateInfo = $('Calculate Today\\'s Date (JST)').first().json;\nconst generateOutput = $('Generate Daily Digest').first().json;\nconst verifyOutput = $('Verify File Created').first().json;\n\n// Build success message\nconst message = `✅ *Daily Digest Generated*\\n\\n` +\n  `📅 Date: ${dateInfo.date} (JST)\\n` +\n  `📁 File: ${dateInfo.digestPath}\\n` +\n  `⏰ Generated at: ${dateInfo.timestamp}\\n\\n` +\n  `File info:\\n${verifyOutput.stdout || 'File created successfully'}`;\n\nreturn {\n  json: {\n    success: true,\n    date: dateInfo.date,\n    message: message,\n    digestPath: dateInfo.digestPath\n  }\n};"
+        "jsCode": "const dateInfo = $('Calculate Digest Date (JST)').first().json;\nconst generateOutput = $('Generate Daily Digest').first().json;\nconst verifyOutput = $('Verify File Created').first().json;\n\n// Build success message\nconst message = `✅ *Daily Digest Generated*\\n\\n` +\n  `📅 Date: ${dateInfo.date} (JST)\\n` +\n  `📁 File: ${dateInfo.digestPath}\\n` +\n  `⏰ Generated at: ${dateInfo.timestamp}\\n\\n` +\n  `File info:\\n${verifyOutput.stdout || 'File created successfully'}`;\n\nreturn {\n  json: {\n    success: true,\n    date: dateInfo.date,\n    message: message,\n    digestPath: dateInfo.digestPath\n  }\n};"
       },
       "id": "build-success-message",
       "name": "Build Success Message",
@@ -98,7 +98,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const dateInfo = $('Calculate Today\\'s Date (JST)').first().json;\nconst errorOutput = $('Generate Daily Digest').first().json;\n\n// Build error message\nconst message = `❌ *Daily Digest Generation Failed*\\n\\n` +\n  `📅 Date: ${dateInfo.date} (JST)\\n` +\n  `⏰ Attempted at: ${dateInfo.timestamp}\\n\\n` +\n  `Error output:\\n${errorOutput.stderr || errorOutput.stdout || 'Unknown error'}`;\n\nreturn {\n  json: {\n    success: false,\n    date: dateInfo.date,\n    message: message,\n    error: errorOutput.stderr || 'Generation failed'\n  }\n};"
+        "jsCode": "const dateInfo = $('Calculate Digest Date (JST)').first().json;\nconst errorOutput = $('Generate Daily Digest').first().json;\n\n// Build error message\nconst message = `❌ *Daily Digest Generation Failed*\\n\\n` +\n  `📅 Date: ${dateInfo.date} (JST)\\n` +\n  `⏰ Attempted at: ${dateInfo.timestamp}\\n\\n` +\n  `Error output:\\n${errorOutput.stderr || errorOutput.stdout || 'Unknown error'}`;\n\nreturn {\n  json: {\n    success: false,\n    date: dateInfo.date,\n    message: message,\n    error: errorOutput.stderr || 'Generation failed'\n  }\n};"
       },
       "id": "build-error-message",
       "name": "Build Error Message",
