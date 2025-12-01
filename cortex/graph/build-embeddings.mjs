@@ -20,9 +20,17 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ROOT = path.resolve(__dirname, '../..');
-const CONCEPTS_PATH = path.join(__dirname, 'concepts.json');
-const OUTPUT_PATH = path.join(__dirname, 'concept-embeddings.json');
+// Use WORKSPACE_ROOT if available (container/CI), fallback to relative path
+const ROOT = process.env.WORKSPACE_ROOT
+  ? path.resolve(process.env.WORKSPACE_ROOT)
+  : path.resolve(__dirname, '../..');
+
+const GRAPH_DIR = process.env.OBSIDIAN_VAULT_PATH
+  ? path.join(process.env.OBSIDIAN_VAULT_PATH, 'graph')
+  : __dirname;
+
+const CONCEPTS_PATH = path.join(GRAPH_DIR, 'concepts.json');
+const OUTPUT_PATH = path.join(GRAPH_DIR, 'concept-embeddings.json');
 
 // Embedding configuration
 const EMBED_MODE = process.env.KB_EMBED_MODE || 'hash';

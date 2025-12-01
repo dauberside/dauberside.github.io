@@ -20,8 +20,13 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const INPUT_PATH = path.join(__dirname, 'concept-embeddings.json');
-const OUTPUT_PATH = path.join(__dirname, 'concept-clusters.json');
+// Use WORKSPACE_ROOT if available (container/CI), fallback to relative path
+const GRAPH_DIR = process.env.OBSIDIAN_VAULT_PATH
+  ? path.join(process.env.OBSIDIAN_VAULT_PATH, 'graph')
+  : __dirname;
+
+const INPUT_PATH = path.join(GRAPH_DIR, 'concept-embeddings.json');
+const OUTPUT_PATH = path.join(GRAPH_DIR, 'concept-clusters.json');
 
 const SIMILARITY_THRESHOLD = 0.7;
 

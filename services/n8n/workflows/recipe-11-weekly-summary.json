@@ -31,7 +31,7 @@
     },
     {
       "parameters": {
-        "command": "=cat /workspace/dauberside.github.io-1/{{ $json.filepath }} 2>/dev/null || echo ''"
+        "command": "=cat ${WORKSPACE_ROOT}/{{ $json.filepath }} 2>/dev/null || echo ''"
       },
       "id": "fetch-digest",
       "name": "Fetch Digest from Obsidian",
@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "command": "=mkdir -p /workspace/dauberside.github.io-1/cortex/weekly && cat > /workspace/dauberside.github.io-1/cortex/weekly/{{ $json.weekId }}-summary.md << 'EOFMARKER'\n{{ $json.markdown }}\nEOFMARKER"
+        "command": "=mkdir -p ${WORKSPACE_ROOT}/cortex/weekly && cat > ${WORKSPACE_ROOT}/cortex/weekly/{{ $json.weekId }}-summary.md << 'EOFMARKER'\n{{ $json.markdown }}\nEOFMARKER"
       },
       "id": "write-obsidian",
       "name": "Write Weekly to Obsidian",

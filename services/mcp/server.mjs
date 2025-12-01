@@ -2,7 +2,34 @@
 import http from 'node:http';
 import url from 'node:url';
 import os from 'node:os';
+import path from 'node:path';
 import { Buffer } from 'node:buffer';
+import { fileURLToPath } from 'node:url';
+
+// Import cortex_query tool
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Use WORKSPACE_ROOT if available (container/CI), fallback to relative path
+const WORKSPACE_ROOT = process.env.WORKSPACE_ROOT
+  ? path.resolve(process.env.WORKSPACE_ROOT)
+  : path.resolve(__dirname, '../..');
+
+const CORTEX_ROOT = process.env.OBSIDIAN_VAULT_PATH
+  ? process.env.OBSIDIAN_VAULT_PATH
+  : path.join(WORKSPACE_ROOT, 'cortex');
+
+// Dynamic import for cortex-query-tool (ESM)
+let cortexQueryHandler = null;
+(async () => {
+  try {
+    const module = await import(`${CORTEX_ROOT}/graph/cortex-query-tool.mjs`);
+    cortexQueryHandler = module.handleCortexQuery;
+    log('✅ cortex_query tool loaded from', CORTEX_ROOT);
+  } catch (e) {
+    log('⚠️  cortex_query tool not available:', e.message);
+  }
+})();
 
 const PORT = Number(process.env.PORT || process.env.MCP_PORT || 5050);
 const KB_API_URL = (process.env.KB_API_URL || '').trim();
@@ -118,7 +145,8 @@ const server = http.createServer((req, res) => {
         healthz: '/healthz',
         info: '/info',
         metrics: '/metrics',
-        kb_search: '/kb/search'
+        kb_search: '/kb/search',
+        cortex_query: '/cortex/query'
       }
     }));
     const t1 = process.hrtime.bigint(); rec('/', 200, Number(t1 - t0) / 1e6); return;
@@ -141,6 +169,62 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, headers);
     res.end(JSON.stringify({ ok: true, uptimeSec, startedAt, host: metrics.host, totalRequests: metrics.totalRequests, totalErrors: metrics.totalErrors, routes: metrics.routes }));
     const t1 = process.hrtime.bigint(); rec('/metrics', 200, Number(t1 - t0) / 1e6); return;
+  }
+  if (u.pathname === '/cortex/query') {
+    if (!isAuthorized(req)) { unauthorized(res, headers, 'unauthorized'); const t1 = process.hrtime.bigint(); rec('/cortex/query', 401, Number(t1 - t0) / 1e6); return; }
+    if (!cortexQueryHandler) {
+      res.writeHead(503, headers);
+      res.end(JSON.stringify({ error: 'cortex_query_not_available', message: 'Tool not loaded' }));
+      const t1 = process.hrtime.bigint(); rec('/cortex/query', 503, Number(t1 - t0) / 1e6);
+      return;
+    }
+    const method = req.method || 'GET';
+    const done = (code, bodyObj) => {
+      res.writeHead(code, headers);
+      res.end(JSON.stringify(bodyObj));
+      const t1 = process.hrtime.bigint(); rec('/cortex/query', code, Number(t1 - t0) / 1e6);
+    };
+    if (method === 'POST') {
+      const chunks = [];
+      let size = 0;
+      const limit = 1024 * 1024;
+      req.on('data', (c) => {
+        size += c.length;
+        if (size > limit) { try { req.destroy(); } catch {} }
+        else chunks.push(c);
+      });
+      req.on('end', async () => {
+        try {
+          const raw = Buffer.concat(chunks).toString('utf8');
+          const body = raw ? JSON.parse(raw) : {};
+          const query = body.query || u.searchParams.get('q') || u.searchParams.get('query') || '';
+          const maxClusters = body.maxClusters ?? Number(u.searchParams.get('maxClusters') || 2);
+          const includeRelatedConcepts = body.includeRelatedConcepts ?? (u.searchParams.get('includeRelatedConcepts') !== 'false');
+          const maxTokens = body.maxTokens ?? Number(u.searchParams.get('maxTokens') || 800);
+          if (!query) return done(400, { error: 'missing_query', message: 'query parameter required' });
+          const result = await cortexQueryHandler({ query, maxClusters, includeRelatedConcepts, maxTokens });
+          return done(200, result);
+        } catch (e) {
+          return done(500, { error: 'cortex_query_error', message: String(e?.message || e) });
+        }
+      });
+      return;
+    }
+    // GET fallback
+    (async () => {
+      try {
+        const query = u.searchParams.get('q') || u.searchParams.get('query') || '';
+        if (!query) return done(400, { error: 'missing_query', message: 'query parameter required' });
+        const maxClusters = Number(u.searchParams.get('maxClusters') || 2);
+        const includeRelatedConcepts = u.searchParams.get('includeRelatedConcepts') !== 'false';
+        const maxTokens = Number(u.searchParams.get('maxTokens') || 800);
+        const result = await cortexQueryHandler({ query, maxClusters, includeRelatedConcepts, maxTokens });
+        return done(200, result);
+      } catch (e) {
+        return done(500, { error: 'cortex_query_error', message: String(e?.message || e) });
+      }
+    })();
+    return;
   }
   if (u.pathname === '/kb/search') {
     if (!isAuthorized(req)) { unauthorized(res, headers, 'unauthorized'); const t1 = process.hrtime.bigint(); rec('/kb/search', 401, Number(t1 - t0) / 1e6); return; }

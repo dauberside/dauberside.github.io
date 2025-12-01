@@ -20,10 +20,15 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const EMBEDDINGS_PATH = path.join(__dirname, 'concept-embeddings.json');
-const CLUSTERS_PATH = path.join(__dirname, 'concept-clusters.json');
-const JSON_OUTPUT = path.join(__dirname, 'graph-v1.json');
-const MD_OUTPUT = path.join(__dirname, 'clusters-v1.md');
+// Use WORKSPACE_ROOT if available (container/CI), fallback to relative path
+const GRAPH_DIR = process.env.OBSIDIAN_VAULT_PATH
+  ? path.join(process.env.OBSIDIAN_VAULT_PATH, 'graph')
+  : __dirname;
+
+const EMBEDDINGS_PATH = path.join(GRAPH_DIR, 'concept-embeddings.json');
+const CLUSTERS_PATH = path.join(GRAPH_DIR, 'concept-clusters.json');
+const JSON_OUTPUT = path.join(GRAPH_DIR, 'graph-v1.json');
+const MD_OUTPUT = path.join(GRAPH_DIR, 'clusters-v1.md');
 
 /**
  * Main export pipeline

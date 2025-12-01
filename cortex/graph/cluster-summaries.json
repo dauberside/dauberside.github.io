@@ -1,0 +1,201 @@
+{
+  "version": "1.0",
+  "generatedAt": "2025-12-01T08:11:35.373Z",
+  "sourceGraph": "cortex/graph/graph-v1.json",
+  "summaries": [
+    {
+      "id": "cluster-0",
+      "name": "MCP Technical Core",
+      "shortName": "mcp_core",
+      "size": 136,
+      "coverage": "73.9%",
+      "summary": "Deep technical expertise in Model Context Protocol (MCP) - spans protocol fundamentals (JSONRPC, stdio transport, 5 primitives: Resources/Prompts/Tools/Sampling/Roots) to production deployment (security, troubleshooting, KB integration). Primary knowledge domain with comprehensive coverage from low-level implementation to architectural decisions (ADR-0003/0004/0005/0006). Includes Obsidian dual-layer integration, embedding pipelines, agent SDK patterns, and operational guides.",
+      "coreConcepts": [
+        ".mcp.json (21×) - core configuration",
+        "MCP stdio Bridge (14×) - primary transport",
+        "Primitives (12×) - protocol building blocks",
+        "LLM/Agent (10×/9×) - AI integration context",
+        "Architecture/JSONRPC (7×/7×) - technical foundations",
+        "ADRs 0003-0006 - key architectural decisions",
+        "Server/Client (6×/4×) - implementation components",
+        "KB Setup/Troubleshooting (8×/4×) - operational knowledge",
+        "Security/Token Rotation (3×) - production concerns"
+      ],
+      "useWhen": [
+        "MCP protocol questions (transport, primitives, JSONRPC)",
+        "stdio bridge setup or debugging",
+        "Obsidian integration architecture",
+        "KB embedding pipeline questions",
+        "Agent SDK implementation patterns",
+        "MCP security or deployment concerns",
+        "Troubleshooting MCP connections",
+        "ADR context for architectural decisions"
+      ],
+      "keyDocuments": [
+        "docs/operations/mcp-troubleshooting.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "📕 「第2章：MCPの仕組み」/ (Sections 2-1 through 2-7)"
+      ],
+      "density": "extremely_high",
+      "edges": 1735,
+      "interpretation": "Primary expertise domain - actively maintained, mature understanding with high interconnection"
+    },
+    {
+      "id": "cluster-1",
+      "name": "Daily Practice & Reflection",
+      "shortName": "daily_practice",
+      "size": 21,
+      "coverage": "11.4%",
+      "summary": "Meta-cognitive operating system for daily work organization. Structured reflection cycles: Plan → Execute → Reflect → Extract Learnings. Daily digests create temporal continuity and narrative thread. Strong coupling between forward planning (Today's Plan), retrospection (Yesterday's Summary), task tracking, and insight extraction (Key Learnings). Well-established habit with 10-20× frequency on core concepts.",
+      "coreConcepts": [
+        "Reflection (20×) - meta-cognitive review",
+        "Tasks (20×) - action items tracking",
+        "Notes (14×) - daily knowledge capture",
+        "Today's Plan (12×) - forward planning",
+        "Yesterday's Summary (10×) - retrospection",
+        "関連ドキュメント (9×) - cross-references",
+        "Key Learnings (3×) - insight extraction",
+        "Daily Digest (dates: 11/17-11/24) - temporal logs",
+        "Git Commits (2×) - progress artifacts",
+        "Next Steps/Highlights (2×) - forward momentum"
+      ],
+      "useWhen": [
+        "Daily planning or task organization questions",
+        "Reflection or retrospective prompts",
+        "Extracting insights from recent work",
+        "Understanding daily workflow patterns",
+        "Task prioritization decisions",
+        "Continuity across work sessions",
+        "Progress tracking queries"
+      ],
+      "keyDocuments": [
+        "cortex/daily/2025-11-17-digest.md (through 2025-11-24)",
+        "cortex.backup/daily/*.md"
+      ],
+      "density": "medium",
+      "interpretation": "Strong meta-cognitive discipline - 11.4% dedicated to 'thinking about thinking' shows mature second brain practice"
+    },
+    {
+      "id": "cluster-2",
+      "name": "Strategic Context & Versioning",
+      "shortName": "strategic_context",
+      "size": 13,
+      "coverage": "7.1%",
+      "summary": "Strategic navigation layer - 'where am I on the map' consciousness. Tracks version transitions (v1.1 → v1.2), roadmap clarity (3 pillars, completion vision, schedule), infrastructure hygiene (secrets management, git exclusions), and gap awareness (backlog, next actions). Reference nodes consulted periodically for orientation rather than active work. Low frequency (26 total) but high conceptual importance as 'North Star' concepts.",
+      "coreConcepts": [
+        "現状（v1.1） (2×) - current version marker",
+        "Cortex OS v1.2 Roadmap (2×) - future direction",
+        "v1.2の3本柱 (2×) - strategic pillars",
+        "v1.2完成イメージ (2×) - vision target",
+        "スケジュール (2×) - timeline",
+        "Backlog — Future Enhancements (2×) - future work",
+        "API Keys/n8n Credentials/Secrets (2×) - infrastructure",
+        "Git除外対象 (2×) - version control",
+        "次のアクション候補 (2×) - decision points",
+        "ローテーション履歴/環境変数 (2×) - ops history"
+      ],
+      "useWhen": [
+        "Roadmap or strategic planning questions",
+        "Version transition context (v1.1 → v1.2)",
+        "Understanding project scope or priorities",
+        "Infrastructure or secrets management queries",
+        "Backlog prioritization decisions",
+        "Timeline or milestone questions",
+        "Big picture 'where are we headed' queries"
+      ],
+      "keyDocuments": [
+        "cortex/roadmap/v1.2-autonomy.md",
+        "cortex.backup/roadmap/v1.2-autonomy.md"
+      ],
+      "density": "low",
+      "interpretation": "Reference checkpoints for orientation - uniform 2× frequency suggests template-based navigation nodes"
+    },
+    {
+      "id": "cluster-3",
+      "name": "Architecture Decision Records",
+      "shortName": "adr_reasoning",
+      "size": 8,
+      "coverage": "4.3%",
+      "summary": "Architectural memory system - structured records of 'why we built it this way'. Standardized ADR template (all concepts appear exactly 6×): Context → Decision → Rationale → Alternatives → Consequences → Follow-ups. Forms interconnected decision network (関連ADR links). Enterprise-grade discipline for solo development - optimizing for long-term maintainability and preventing 'why did I do this?' amnesia.",
+      "coreConcepts": [
+        "フォローアップ (6×) - follow-up tracking",
+        "影響 (Consequences) (6×) - impact analysis",
+        "決定 (Decision) (6×) - core decision statement",
+        "根拠 (Rationale) (6×) - why this choice",
+        "実装ノート (6×) - implementation details",
+        "代替案 (Alternatives) (6×) - paths not taken",
+        "背景 (Context) (6×) - decision environment",
+        "関連ADR (3×) - cross-references between ADRs"
+      ],
+      "useWhen": [
+        "Understanding why specific architectural choices were made",
+        "Evaluating alternative approaches to problems",
+        "Impact analysis for proposed changes",
+        "Tracing decision history and evolution",
+        "Finding related architectural decisions",
+        "Justifying current implementation patterns",
+        "Planning follow-up actions on past decisions"
+      ],
+      "keyDocuments": [
+        "docs/decisions/ADR-0001-context-capsule-and-adr-process.md",
+        "docs/decisions/ADR-0002-hot-path-optimization.md",
+        "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+        "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md",
+        "docs/decisions/ADR-0005-kb-embedding-mode-selection.md",
+        "docs/decisions/ADR-0006-phase-2-automation-strategy.md",
+        "docs/decisions/ADR-0008-recipe-4-phase-2-test.md"
+      ],
+      "density": "medium",
+      "interpretation": "Institutional memory for solo development - decisions reference and build on previous decisions"
+    },
+    {
+      "id": "cluster-4",
+      "name": "Achievements & Momentum",
+      "shortName": "weekly_retrospective",
+      "size": 6,
+      "coverage": "3.3%",
+      "summary": "Motivation and narrative layer - 'what I've accomplished' tracker. Structured weekly template: Overview → Highlights → Challenges → Reflection → Next Week Focus. Creates narrative continuity and concrete evidence of progress. Smallest cluster but critical for psychological sustainability - defense against 'I'm not making progress' feeling. Combines celebration (highlights), honesty (challenges), and forward pull (next week focus).",
+      "coreConcepts": [
+        "Highlights (5×) - achievement markers",
+        "Overview (5×) - context setting",
+        "Challenges (4×) - obstacles faced",
+        "Next Week Focus (4×) - forward commitment",
+        "Reflection (4×) - learning extraction",
+        "Weekly Summary (3×) - temporal milestones (W47, W48)"
+      ],
+      "useWhen": [
+        "Weekly retrospective or summary tasks",
+        "Extracting achievements from recent work",
+        "Understanding challenges faced",
+        "Setting next week priorities",
+        "Creating progress narratives",
+        "Motivation or momentum questions",
+        "Preparing external updates or reports"
+      ],
+      "keyDocuments": [
+        "weekly/2025-W47-summary.md",
+        "weekly/2025-W48-summary.md",
+        "cortex/weekly/2025-W48-summary.md",
+        "docs/releases/v1.0.md"
+      ],
+      "density": "low",
+      "interpretation": "Psychological sustainability mechanism - maintains momentum and prevents burnout through structured celebration"
+    }
+  ],
+  "metadata": {
+    "totalConcepts": 184,
+    "totalClusters": 5,
+    "graphGeneratedAt": "2025-11-27T02:25:04.403Z",
+    "cognitiveProfile": {
+      "primaryExpertise": "MCP Technical Core (73.9%)",
+      "metaCognitiveDiscipline": "11.4%",
+      "strategicAwareness": "7.1%",
+      "architecturalRigor": "4.3%",
+      "motivationMaintenance": "3.3%",
+      "interpretation": "Deep technical specialist with strong operational discipline, long-term thinking, and high self-awareness"
+    }
+  }
+}

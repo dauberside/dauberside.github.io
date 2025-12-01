@@ -46,7 +46,9 @@
     "ops:basic:add": "node ./scripts/ops/admin-basic.mjs add",
     "ops:basic:remove": "node ./scripts/ops/admin-basic.mjs remove",
     "ops:basic:set-single": "node ./scripts/ops/admin-basic.mjs set-single",
-    "ops:smoke:tailscale": "node ./scripts/ops/tailscale/smoke-api.mjs"
+    "ops:smoke:tailscale": "node ./scripts/ops/tailscale/smoke-api.mjs",
+    "cortex:digest:generate": "node ./cortex/scripts/generate-daily-digest.mjs",
+    "cortex:digest:today": "node ./cortex/scripts/generate-daily-digest.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",

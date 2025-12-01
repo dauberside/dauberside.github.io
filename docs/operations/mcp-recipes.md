@@ -648,7 +648,7 @@ flowchart LR
       "type": "n8n-nodes-base.writeFile",
       "name": "Write Digest File",
       "parameters": {
-        "fileName": "=/workspace/dauberside.github.io-1/notifications/daily/{{ $json.date }}-digest.md",
+        "fileName": "=${WORKSPACE_ROOT}/notifications/daily/{{ $json.date }}-digest.md",
         "options": {
           "append": false
         }
@@ -692,7 +692,7 @@ flowchart LR
 
 | 設定項目 | 値 | 説明 |
 |---------|---|------|
-| File Name | `/workspace/dauberside.github.io-1/notifications/daily/{{ $json.date }}-digest.md` | n8n から見たファイルパス。Docker 環境なら `/workspace` をマウント先に合わせる |
+| File Name | `${WORKSPACE_ROOT}/notifications/daily/{{ $json.date }}-digest.md` | n8n から見たファイルパス。Docker 環境なら `/workspace` をマウント先に合わせる |
 | Data Property Name | `markdown` | Code ノードで組み立てた Markdown 文字列 |
 | Append | `false` | 毎日新規作成（上書き） |
 
@@ -736,7 +736,7 @@ Metadata:
 **前提条件**:
 - Obsidian Local REST API Plugin 有効（HTTP port 27123）
 - n8n インスタンス稼働
-- Docker volume マウント（プロジェクト → `/workspace/dauberside.github.io-1`）
+- Docker volume マウント（プロジェクト → `${WORKSPACE_ROOT}`）
 - Slack Webhook URL 設定済み
 
 **フロー図**:
@@ -770,7 +770,7 @@ flowchart LR
       "type": "n8n-nodes-base.code",
       "name": "Calculate Date",
       "parameters": {
-        "jsCode": "const now = new Date();\nconst y = now.getFullYear();\nconst m = String(now.getMonth() + 1).padStart(2, '0');\nconst d = String(now.getDate()).padStart(2, '0');\nconst dateStr = `${y}-${m}-${d}`;\nreturn [{\n  json: {\n    date: dateStr,\n    digestPath: `/workspace/dauberside.github.io-1/notifications/daily/${dateStr}-digest.md`,\n    sectionTitle: `## ${dateStr}`\n  }\n}];"
+        "jsCode": "const now = new Date();\nconst y = now.getFullYear();\nconst m = String(now.getMonth() + 1).padStart(2, '0');\nconst d = String(now.getDate()).padStart(2, '0');\nconst dateStr = `${y}-${m}-${d}`;\nreturn [{\n  json: {\n    date: dateStr,\n    digestPath: `${WORKSPACE_ROOT}/notifications/daily/${dateStr}-digest.md`,\n    sectionTitle: `## ${dateStr}`\n  }\n}];"
       }
     },
     {

@@ -1,0 +1,25 @@
+# Daily Digest - {{
+
+## Today's Focus
+
+### High Priority
+（タスクなし）
+
+### Regular Tasks
+（タスクなし）
+
+### No Tags
+（タスクなし）
+
+## Progress
+
+（今日の主な進捗をここに記録）
+
+## Reflection
+
+（今日の振り返り・学び・気づきをここに記録）
+
+---
+
+**Generated**: 2025-12-01T12:01:25.845Z
+**Source**: TODO.md (automatic extraction)

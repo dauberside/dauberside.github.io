@@ -1,0 +1,171 @@
+{
+  "tool": {
+    "name": "cortex_query",
+    "description": "Query Cortex OS knowledge graph with automatic memory priming. Returns relevant cluster summaries and related concepts to provide context for answering questions about MCP implementation, daily work, roadmap, architecture decisions, and achievements.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The question or topic to query the knowledge graph about"
+        },
+        "maxClusters": {
+          "type": "integer",
+          "description": "Maximum number of clusters to load (default: 2)",
+          "default": 2,
+          "minimum": 1,
+          "maximum": 5
+        },
+        "includeRelatedConcepts": {
+          "type": "boolean",
+          "description": "Whether to include related concept details (default: true)",
+          "default": true
+        },
+        "maxTokens": {
+          "type": "integer",
+          "description": "Maximum tokens to return in priming context (default: 800)",
+          "default": 800,
+          "minimum": 200,
+          "maximum": 2000
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  "responseSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The original query"
+      },
+      "selectedClusters": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Array of cluster IDs selected (e.g., ['cluster-0'])"
+      },
+      "priming": {
+        "type": "string",
+        "description": "Formatted memory priming context ready for LLM system prompt injection"
+      },
+      "relatedConcepts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "frequency": { "type": "integer" },
+            "types": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "description": "Top related concepts from selected clusters"
+      },
+      "keyDocuments": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Key documents to reference for this query"
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "totalConcepts": { "type": "integer" },
+          "clusterCoverage": { "type": "string" },
+          "classificationTime": { "type": "string" }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "input": {
+        "query": "How do I debug MCP stdio connections?"
+      },
+      "output": {
+        "query": "How do I debug MCP stdio connections?",
+        "selectedClusters": ["cluster-0"],
+        "priming": "# Cortex OS - Memory Context\n\nQuery: \"How do I debug MCP stdio connections?\"\nRelevant knowledge clusters: cluster-0\n\n---\n\n## MCP Technical Core (73.9%)\n\nDeep technical expertise in Model Context Protocol (MCP) - spans protocol fundamentals (JSONRPC, stdio transport, 5 primitives: Resources/Prompts/Tools/Sampling/Roots) to production deployment (security, troubleshooting, KB integration)...\n\n**Core concepts**:\n- .mcp.json (21×) - core configuration\n- MCP stdio Bridge (14×) - primary transport\n- Primitives (12×) - protocol building blocks\n- LLM/Agent (10×/9×) - AI integration context\n- Architecture/JSONRPC (7×/7×) - technical foundations\n\n**Key documents**:\n- docs/operations/mcp-troubleshooting.md\n- docs/decisions/ADR-0003-mcp-integration-architecture.md\n- docs/decisions/ADR-0004-obsidian-dual-layer-integration.md\n\n---",
+        "relatedConcepts": [
+          { "label": ".mcp.json", "frequency": 21, "types": ["frontmatter-tag", "link", "tag"] },
+          { "label": "MCP stdio Bridge Setup Guide", "frequency": 14, "types": ["link"] },
+          { "label": "Primitive", "frequency": 12, "types": ["frontmatter-tag", "tag"] },
+          { "label": "LLM", "frequency": 10, "types": ["frontmatter-tag", "tag"] },
+          { "label": "Agent", "frequency": 9, "types": ["frontmatter-tag", "tag"] }
+        ],
+        "keyDocuments": [
+          "docs/operations/mcp-troubleshooting.md",
+          "docs/decisions/ADR-0003-mcp-integration-architecture.md",
+          "docs/decisions/ADR-0004-obsidian-dual-layer-integration.md"
+        ],
+        "metadata": {
+          "totalConcepts": 136,
+          "clusterCoverage": "73.9%",
+          "classificationTime": "3ms"
+        }
+      }
+    },
+    {
+      "input": {
+        "query": "What did I accomplish this week?"
+      },
+      "output": {
+        "query": "What did I accomplish this week?",
+        "selectedClusters": ["cluster-4"],
+        "priming": "# Cortex OS - Memory Context\n\nQuery: \"What did I accomplish this week?\"\nRelevant knowledge clusters: cluster-4\n\n---\n\n## Achievements & Momentum (3.3%)\n\nMotivation and narrative layer - 'what I've accomplished' tracker. Structured weekly template: Overview → Highlights → Challenges → Reflection → Next Week Focus...\n\n**Core concepts**:\n- Highlights (5×) - achievement markers\n- Overview (5×) - context setting\n- Challenges (4×) - obstacles faced\n- Next Week Focus (4×) - forward commitment\n- Reflection (4×) - learning extraction\n\n**Key documents**:\n- weekly/2025-W47-summary.md\n- weekly/2025-W48-summary.md\n- cortex/weekly/2025-W48-summary.md\n\n---",
+        "relatedConcepts": [
+          { "label": "Highlights", "frequency": 5, "types": ["heading"] },
+          { "label": "Overview", "frequency": 5, "types": ["heading"] },
+          { "label": "Challenges", "frequency": 4, "types": ["heading"] },
+          { "label": "Next Week Focus", "frequency": 4, "types": ["heading"] },
+          { "label": "Reflection", "frequency": 4, "types": ["heading"] }
+        ],
+        "keyDocuments": [
+          "weekly/2025-W47-summary.md",
+          "weekly/2025-W48-summary.md",
+          "cortex/weekly/2025-W48-summary.md"
+        ],
+        "metadata": {
+          "totalConcepts": 6,
+          "clusterCoverage": "3.3%",
+          "classificationTime": "2ms"
+        }
+      }
+    }
+  ],
+  "implementation": {
+    "location": "cortex-mcp-server (new tool)",
+    "dependencies": [
+      "cortex/graph/classify-query.mjs",
+      "cortex/graph/cluster-summaries.json",
+      "cortex/graph/graph-v1.json"
+    ],
+    "integrationPoints": [
+      "Claude Desktop - via MCP protocol",
+      "GitHub Copilot CLI - via MCP client",
+      "n8n workflows - via HTTP/MCP bridge",
+      "Agent SDK - direct module import"
+    ]
+  },
+  "usagePatterns": {
+    "pattern1": {
+      "name": "Direct query",
+      "description": "User asks a question, LLM calls cortex_query, uses priming to answer",
+      "flow": "User → LLM → cortex_query → classifier → summaries → LLM answer"
+    },
+    "pattern2": {
+      "name": "Multi-turn conversation",
+      "description": "LLM maintains priming context across multiple turns",
+      "flow": "cortex_query once → cache priming → answer multiple related questions"
+    },
+    "pattern3": {
+      "name": "Proactive priming",
+      "description": "LLM calls cortex_query for multiple topics upfront",
+      "flow": "Load cluster-0 + cluster-2 → have context for both technical and strategic questions"
+    }
+  },
+  "performanceTargets": {
+    "classificationTime": "<10ms",
+    "totalResponseTime": "<50ms",
+    "memoryFootprint": "<20KB per query",
+    "cacheability": "High (summaries are static until graph refresh)"
+  }
+}

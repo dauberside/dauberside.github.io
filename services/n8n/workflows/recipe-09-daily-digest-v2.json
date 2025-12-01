@@ -27,10 +27,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Calculate yesterday's date\nconst now = new Date();\nconst yesterday = new Date(now);\nyesterday.setDate(yesterday.getDate() - 1);\n\n// Format as YYYY-MM-DD\nconst year = yesterday.getFullYear();\nconst month = String(yesterday.getMonth() + 1).padStart(2, '0');\nconst day = String(yesterday.getDate()).padStart(2, '0');\nconst dateString = `${year}-${month}-${day}`;\n\n// Build file path for Obsidian daily note\nconst filePath = `cortex/daily/${dateString}-digest.md`;\n\nreturn {\n  json: {\n    date: dateString,\n    filePath: filePath,\n    outputPath: `/workspace/dauberside.github.io-1/notifications/daily/${dateString}-digest.md`\n  }\n};"
+        "jsCode": "// Calculate yesterday's date in JST (UTC+9)\nfunction getJSTDate(offsetDays = 0) {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getJSTDate(-1); // Yesterday in JST\n\n// Build file path for Obsidian daily note\nconst filePath = `cortex/daily/${dateString}-digest.md`;\n\nreturn {\n  json: {\n    date: dateString,\n    filePath: filePath,\n    outputPath: `${process.env.WORKSPACE_ROOT}/notifications/daily/${dateString}-digest.md`\n  }\n};"
       },
       "id": "calculate-date",
-      "name": "Calculate Yesterday's Date",
+      "name": "Calculate Yesterday's Date (JST)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [450, 300]
@@ -63,7 +63,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\nconst dateInfo = $('Calculate Yesterday\\'s Date').first().json;\n\n// Get content from HTTP response (it's the raw markdown text)\nconst content = typeof input === 'string' ? input : (input.data || input.body || input.content || '');\n\n// Extract date from markdown header (e.g., \"# Daily Digest 2025-11-19\")\nlet date = dateInfo.date || 'unknown';\nconst dateMatch = content.match(/# Daily Digest[\\s—-]+([\\d-]+)/);\nif (dateMatch) {\n  date = dateMatch[1];\n}\n\n// Parse markdown to extract Tasks and Reflection sections\nfunction extractSection(markdown, sectionName) {\n  const regex = new RegExp(`##\\\\s*${sectionName}([\\\\s\\\\S]*?)(?=##|$)`, 'i');\n  const match = markdown.match(regex);\n  if (!match) return null;\n  return match[1].trim();\n}\n\nfunction extractTasks(tasksSection) {\n  if (!tasksSection) return [];\n  const lines = tasksSection.split('\\n');\n  return lines\n    .filter(line => line.match(/^\\s*-\\s*\\[[x \\]]/i)) // Match checkbox lines [x] or [ ]\n    .map(line => line.trim());\n}\n\n// Extract sections\nconst tasksSection = extractSection(content, 'Tasks');\nconst reflectionSection = extractSection(content, 'Reflection');\n\n// Parse tasks\nconst tasks = extractTasks(tasksSection);\n\n// Build Slack message\nlet slackMessage = `🗓 *Daily Digest for ${date}*\\n\\n`;\n\nif (tasks.length > 0) {\n  slackMessage += `✅ *Tasks*\\n`;\n  tasks.forEach(task => {\n    slackMessage += `${task}\\n`;\n  });\n  slackMessage += `\\n`;\n} else {\n  slackMessage += `✅ *Tasks*\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  slackMessage += `🧠 *Reflection*\\n${reflectionSection}`;\n} else {\n  slackMessage += `🧠 *Reflection*\\nNo reflection found`;\n}\n\n// Build Markdown file content for Claude Code\nlet markdownContent = `# Daily Digest - ${date}\\n\\n`;\n\nif (tasks.length > 0) {\n  markdownContent += `## Tasks\\n`;\n  tasks.forEach(task => {\n    markdownContent += `${task}\\n`;\n  });\n  markdownContent += `\\n`;\n} else {\n  markdownContent += `## Tasks\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  markdownContent += `## Reflection\\n${reflectionSection}\\n`;\n} else {\n  markdownContent += `## Reflection\\nNo reflection found\\n`;\n}\n\nmarkdownContent += `\\n---\\n\\nMetadata:\\n- Source: Obsidian ${dateInfo.filePath}\\n- GeneratedAt: ${new Date().toISOString()}\\n`;\n\n// Base64 encode the markdown content\nconst markdownBase64 = Buffer.from(markdownContent).toString('base64');\n\nreturn {\n  json: {\n    date: date,\n    slackText: slackMessage,\n    markdown: markdownContent,\n    markdownBase64: markdownBase64,\n    outputPath: dateInfo.outputPath,\n    tasksFound: tasks.length,\n    reflectionFound: !!reflectionSection\n  }\n};"
+        "jsCode": "const input = $input.first().json;\nconst dateInfo = $('Calculate Yesterday\\'s Date (JST)').first().json;\n\n// Get content from HTTP response (it's the raw markdown text)\nconst content = typeof input === 'string' ? input : (input.data || input.body || input.content || '');\n\n// Extract date from markdown header (e.g., \"# Daily Digest 2025-11-19\")\nlet date = dateInfo.date || 'unknown';\nconst dateMatch = content.match(/# Daily Digest[\\s—-]+([\\d-]+)/);\nif (dateMatch) {\n  date = dateMatch[1];\n}\n\n// Parse markdown to extract Tasks and Reflection sections\nfunction extractSection(markdown, sectionName) {\n  const regex = new RegExp(`##\\\\s*${sectionName}([\\\\s\\\\S]*?)(?=##|$)`, 'i');\n  const match = markdown.match(regex);\n  if (!match) return null;\n  return match[1].trim();\n}\n\nfunction extractTasks(tasksSection) {\n  if (!tasksSection) return [];\n  const lines = tasksSection.split('\\n');\n  return lines\n    .filter(line => line.match(/^\\s*-\\s*\\[[x \\]]/i)) // Match checkbox lines [x] or [ ]\n    .map(line => line.trim());\n}\n\n// Extract sections\nconst tasksSection = extractSection(content, 'Tasks');\nconst reflectionSection = extractSection(content, 'Reflection');\n\n// Parse tasks\nconst tasks = extractTasks(tasksSection);\n\n// Build Slack message\nlet slackMessage = `🗓 *Daily Digest for ${date}*\\n\\n`;\n\nif (tasks.length > 0) {\n  slackMessage += `✅ *Tasks*\\n`;\n  tasks.forEach(task => {\n    slackMessage += `${task}\\n`;\n  });\n  slackMessage += `\\n`;\n} else {\n  slackMessage += `✅ *Tasks*\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  slackMessage += `🧠 *Reflection*\\n${reflectionSection}`;\n} else {\n  slackMessage += `🧠 *Reflection*\\nNo reflection found`;\n}\n\n// Build Markdown file content for Claude Code\nlet markdownContent = `# Daily Digest - ${date}\\n\\n`;\n\nif (tasks.length > 0) {\n  markdownContent += `## Tasks\\n`;\n  tasks.forEach(task => {\n    markdownContent += `${task}\\n`;\n  });\n  markdownContent += `\\n`;\n} else {\n  markdownContent += `## Tasks\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  markdownContent += `## Reflection\\n${reflectionSection}\\n`;\n} else {\n  markdownContent += `## Reflection\\nNo reflection found\\n`;\n}\n\nmarkdownContent += `\\n---\\n\\nMetadata:\\n- Source: Obsidian ${dateInfo.filePath}\\n- GeneratedAt: ${new Date().toISOString()}\\n`;\n\n// Base64 encode the markdown content\nconst markdownBase64 = Buffer.from(markdownContent).toString('base64');\n\nreturn {\n  json: {\n    date: date,\n    slackText: slackMessage,\n    markdown: markdownContent,\n    markdownBase64: markdownBase64,\n    outputPath: dateInfo.outputPath,\n    tasksFound: tasks.length,\n    reflectionFound: !!reflectionSection\n  }\n};"
       },
       "id": "parse-markdown",
       "name": "Parse Tasks & Reflection",
@@ -104,14 +104,14 @@
       "main": [
         [
           {
-            "node": "Calculate Yesterday's Date",
+            "node": "Calculate Yesterday's Date (JST)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Calculate Yesterday's Date": {
+    "Calculate Yesterday's Date (JST)": {
       "main": [
         [
           {
