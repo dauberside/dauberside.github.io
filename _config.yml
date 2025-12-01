@@ -1,0 +1,27 @@
+# Jekyll Configuration for GitHub Pages
+
+# Exclude cortex/ directory from Jekyll processing
+# This prevents Liquid template errors from JavaScript code in documentation
+exclude:
+  - cortex/
+  - node_modules/
+  - vendor/
+  - .git/
+  - .github/
+  - scripts/
+  - services/
+  - bin/
+  - Makefile
+  - package.json
+  - pnpm-lock.yaml
+  - pnpm-workspace.yaml
+  - tsconfig.json
+  - next.config.js
+  - jest.config.js
+  - docker-compose.yml
+  - vercel.json
+
+# GitHub Pages settings
+theme: jekyll-theme-minimal
+title: DauberSide
+description: Personal Knowledge Base & Cortex OS
