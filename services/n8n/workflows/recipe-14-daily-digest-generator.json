@@ -129,14 +129,14 @@
       "main": [
         [
           {
-            "node": "Calculate Today's Date",
+            "node": "Calculate Digest Date (JST)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Calculate Today's Date (JST)": {
+    "Calculate Digest Date (JST)": {
       "main": [
         [
           {
