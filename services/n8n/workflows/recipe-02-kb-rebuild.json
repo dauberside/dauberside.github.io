@@ -98,60 +98,64 @@
     },
     {
       "parameters": {
-        "jsCode": "// Aggregate all notes into ingest format\nconst items = $input.all();\nconst notes = [];\n\nfor (const item of items) {\n  const path = item.json.path || '';\n  const content = item.json.body || '';\n  \n  if (path && content) {\n    // Generate simple hash for delta detection\n    const hash = require('crypto')\n      .createHash('sha256')\n      .update(content)\n      .digest('hex')\n      .substring(0, 16);\n    \n    notes.push({\n      path,\n      content,\n      hash\n    });\n  }\n}\n\nreturn [{\n  json: {\n    mode: 'full',\n    notes,\n    correlationId: `nightly-${Date.now()}`\n  }\n}];"
+        "jsCode": "// Count files for statistics\nconst items = $input.all();\nconst fileCount = items.length;\n\nconsole.log(`Found ${fileCount} files to process`);\n\nreturn [{\n  json: {\n    fileCount,\n    timestamp: new Date().toISOString()\n  }\n}];"
       },
       "id": "aggregate-notes",
-      "name": "Aggregate Notes for Ingest",
+      "name": "Count Files",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1050, 300]
     },
     {
       "parameters": {
+        "command": "cd ${WORKSPACE_ROOT} && KB_EMBED_MODE=hash node scripts/kb-rebuild.mjs"
+      },
+      "id": "rebuild-kb",
+      "name": "Rebuild KB Index",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
         "method": "POST",
-        "url": "http://host.docker.internal:3030/api/obsidian/ingest",
+        "url": "http://kb-api:4040/reload",
         "authentication": "none",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "x-obsidian-token",
-              "value": ""
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.KB_API_TOKEN }}"
             }
           ]
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
         "options": {
-          "timeout": 120000
+          "timeout": 10000
         }
       },
-      "id": "http-kb-rebuild",
-      "name": "Call KB Ingest API",
+      "id": "reload-kb-api",
+      "name": "Reload KB API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1250, 300],
+      "position": [1450, 300],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst statusCode = response.statusCode || 200;\nconst accepted = response.accepted || 0;\nconst embedded = response.embedded || 0;\nconst skipped = response.skipped || 0;\nconst errors = response.errors || [];\n\nlet text;\nif (errors.length === 0) {\n  text = `✅ *Nightly KB Rebuild Succeeded*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Notes Accepted*: ${accepted}\\n` +\n    `*Embedded*: ${embedded}\\n` +\n    `*Skipped*: ${skipped}`;\n} else {\n  text = `⚠️ *Nightly KB Rebuild Completed with Errors*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Notes Accepted*: ${accepted}\\n` +\n    `*Embedded*: ${embedded}\\n` +\n    `*Errors*: ${errors.length}\\n` +\n    `*Details*: ${errors.slice(0, 3).join(', ')}`;\n}\n\nreturn {\n  json: {\n    success: errors.length === 0,\n    text\n  }\n};"
+        "jsCode": "const fileInfo = $('Count Files').first().json;\nconst rebuildOutput = $('Rebuild KB Index').first().json;\nconst reloadResult = $('Reload KB API').first().json;\n\nconst success = rebuildOutput.exitCode === 0;\nconst reloadOk = reloadResult.reloaded === true;\n\n// Parse output for statistics\nconst output = rebuildOutput.stdout || '';\nconst filesMatch = output.match(/Files: (\\d+)/);\nconst chunksMatch = output.match(/Chunks: (\\d+)/);\n\nconst files = filesMatch ? parseInt(filesMatch[1]) : 0;\nconst chunks = chunksMatch ? parseInt(chunksMatch[1]) : 0;\n\nlet text;\nif (success && reloadOk) {\n  text = `✅ *Nightly KB Rebuild Succeeded*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Notes Accepted*: ${files}\\n` +\n    `*Embedded*: ${chunks}\\n` +\n    `*Skipped*: 0`;\n} else {\n  text = `❌ *Nightly KB Rebuild Failed*\\n\\n` +\n    `*Time*: ${new Date().toISOString()}\\n` +\n    `*Rebuild*: ${success ? '✅' : '❌'}\\n` +\n    `*Reload*: ${reloadOk ? '✅' : '❌'}\\n` +\n    `*Error*: ${rebuildOutput.stderr || 'Unknown error'}`;\n}\n\nreturn {\n  json: {\n    success: success && reloadOk,\n    text\n  }\n};"
       },
       "id": "format-result",
       "name": "Format Result Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1450, 300]
+      "position": [1650, 300]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
+        "url": "={{ $env.SLACK_WEEKLY_SUMMARY_WEBHOOK }}",
         "authentication": "none",
         "sendBody": true,
         "specifyBody": "json",
@@ -204,25 +208,36 @@
       "main": [
         [
           {
-            "node": "Aggregate Notes for Ingest",
+            "node": "Count Files",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Aggregate Notes for Ingest": {
+    "Count Files": {
       "main": [
         [
           {
-            "node": "Call KB Ingest API",
+            "node": "Rebuild KB Index",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call KB Ingest API": {
+    "Rebuild KB Index": {
+      "main": [
+        [
+          {
+            "node": "Reload KB API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reload KB API": {
       "main": [
         [
           {
