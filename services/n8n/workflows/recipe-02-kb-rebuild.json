@@ -29,7 +29,7 @@
 
     {
       "parameters": {
-        "command": "cd ${WORKSPACE_ROOT} && KB_EMBED_MODE=hash node scripts/kb-rebuild.mjs"
+        "command": "cd /workspace/dauberside.github.io-1 && KB_EMBED_MODE=hash node scripts/kb-rebuild.mjs"
       },
       "id": "rebuild-kb",
       "name": "Rebuild KB Index",
