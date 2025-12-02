@@ -98,7 +98,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Count files for statistics\nconst items = $input.all();\nconst fileCount = items.length;\n\nconsole.log(`Found ${fileCount} files to process`);\n\nreturn [{\n  json: {\n    fileCount,\n    timestamp: new Date().toISOString()\n  }\n}];"
+        "jsCode": "// Count files for statistics\nconst items = $input.all();\nconst fileCount = items.length;\n\nreturn [{\n  json: {\n    fileCount,\n    timestamp: new Date().toISOString()\n  }\n}];"
       },
       "id": "aggregate-notes",
       "name": "Count Files",
