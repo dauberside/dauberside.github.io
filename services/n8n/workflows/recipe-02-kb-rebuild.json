@@ -43,6 +43,15 @@
         "method": "POST",
         "url": "http://kb-api:4040/reload",
         "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.KB_API_TOKEN }}"
+            }
+          ]
+        },
         "options": {
           "timeout": 10000
         }
