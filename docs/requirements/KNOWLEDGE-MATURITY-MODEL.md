@@ -1,8 +1,12 @@
 # Knowledge Maturity Model
 
-**Version**: 1.0  
+**Version**: 1.1  
 **Date**: 2025-12-02  
 **Purpose**: Track knowledge growth in Cortex OS
+
+**Changelog**:
+- v1.1 (2025-12-02 12:45 JST): Fixed metric inconsistencies, added Search Relevance definition, added Update Policy
+- v1.0 (2025-12-02 12:35 JST): Initial version
 
 ---
 
@@ -90,10 +94,10 @@ This model tracks **when and how** the knowledge base matures from "baby" to "ad
 **Knowledge State**: Accumulating
 
 **Metrics Goals**:
-- Daily Digests: 90 files
-- Weekly Summaries: 12 files
+- Daily Digests: 90–110 files (baseline 90, stretch 110)
+- Weekly Summaries: 12–14 files
 - KB Chunks: 800+
-- Search Relevance: 60%+
+- Search Relevance: 60–65%
 
 ---
 
@@ -144,12 +148,14 @@ This model tracks **when and how** the knowledge base matures from "baby" to "ad
 
 | Metric | Current | Week 1 Goal | Month 1 Goal | Month 3 Goal |
 |--------|---------|-------------|--------------|--------------|
-| Daily Digests | 20 | 27 | 50 | 110 |
-| Weekly Summaries | 2 | 3 | 6 | 14 |
-| KB Chunks | 368 | 400 | 500 | 800 |
+| Daily Digests | 20 | 27 | 50 | 90–110 |
+| Weekly Summaries | 2 | 3 | 6 | 12–14 |
+| KB Chunks | 378* | 400 | 500 | 800 |
 | TODO Completed | ~50 | ~70 | ~150 | ~400 |
-| Search Relevance | 40% | 45% | 55% | 65% |
+| Search Relevance | 40% | 45% | 55% | 60–65% |
 | Uptime | 95% | 99% | 99% | 99.5% |
+
+**Note**: *KB Chunks updated to 378 as of this document's finalization. Other documents may show slightly different values depending on snapshot timing.
 
 ---
 
@@ -180,6 +186,21 @@ Knowledge = Time × Context × Experience
 - **Experience**: Depth comes from living with the system
 
 **You can't fast-forward this.** Knowledge growth is fundamentally temporal.
+
+### Measuring Search Relevance
+
+**Definition**: Subjective evaluation (0–100%)
+
+"Of the last 5 searches, how many returned satisfactory results on the first page?"
+
+- 5/5 = 100%
+- 4/5 = 80%
+- 3/5 = 60%
+- 2/5 = 40%
+- etc.
+
+**Baseline (current)**: ~40% (2/5 searches useful)  
+**Target (Month 3)**: 60–65% (3–4/5 searches useful)
 
 ---
 
@@ -410,7 +431,20 @@ v3.0: "You usually get blocked on Thursdays. Here's a backup plan."
 
 ---
 
-**Last Updated**: 2025-12-02  
+## 🔄 Update Policy
+
+**Review Schedule**:
+- **Week 1 Review** (2025-12-09): Update metrics, assess stability
+- **Month 1 Review** (2026-01-02): Update metrics, evaluate growth trajectory
+- **Month 3 Review** (2026-03-02): Full assessment, Level 3 milestone check
+- **Ongoing**: Update as needed when significant events occur
+
+**Maintenance**: This is a living document. Metrics should be updated after each review checkpoint.
+
+---
+
+**Version**: 1.1  
+**Last Updated**: 2025-12-02 12:45 JST  
 **Current Level**: 1 → 2 Transition  
 **Next Milestone**: Week 1 Review (2025-12-09)
 
