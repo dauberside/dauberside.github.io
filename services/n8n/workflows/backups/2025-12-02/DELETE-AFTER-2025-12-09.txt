@@ -1,0 +1,19 @@
+# バックアップ削除リマインダー
+
+作成日: 2025-12-02
+削除予定日: 2025-12-09 (7日後)
+
+このディレクトリのバックアップファイルは、
+本体ファイルが正常動作確認済みのため、
+12/9 以降に削除可能です。
+
+削除コマンド:
+  rm -rf services/n8n/workflows/backups/2025-12-02/
+
+含まれるファイル:
+  - recipe-09-daily-digest-v2.json.backup
+  - recipe-10-todo-autosync.json.backup
+  - recipe-11-weekly-summary.json.backup
+  - recipe-13-nightly-wrapup.json.backup
+
+理由: WORKSPACE_ROOT エラー修正のための一時バックアップ

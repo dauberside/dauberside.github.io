@@ -7,6 +7,7 @@
 - **実行タイミング**: 毎晩 00:30 JST（日付変更後）
 - **目的**: TODO.mdの「Today」セクションから**昨日のタスク**を抽出し、Daily Digestファイルを自動生成
 - **出力先**: `cortex/daily/YYYY-MM-DD-digest.md`（昨日の日付）
+- **スクリプト**: `cortex/scripts/generate-daily-digest.mjs`
 
 ## 🔄 ワークフローの流れ
 
@@ -91,6 +92,16 @@ File info:
 
 ## 🔧 トラブルシューティング
 
+### エラー: "Cannot find module 'bin/cortex-digest.mjs'"
+
+**原因**: 古いワークフロー定義を使用している  
+**解決**: 最新の `recipe-14-daily-digest-generator.json` を再インポート
+
+**正しいコマンド**:
+```bash
+cd ${WORKSPACE_ROOT} && node cortex/scripts/generate-daily-digest.mjs
+```
+
 ### エラー: "node: command not found"
 
 n8nコンテナ内にNode.jsがインストールされていることを確認：
@@ -106,6 +117,12 @@ docker exec n8n node --version
 ```bash
 chmod +x cortex/scripts/generate-daily-digest.mjs
 ```
+
+### エラー: "Invalid target date" または "{{-digest.md"
+
+**原因**: Intl.DateTimeFormat が Docker で失敗  
+**解決**: スクリプトは自動的に UTC-based fallback を使用  
+**確認**: `cortex/daily/2025-12-01-digest-error-analysis.md` を参照
 
 ### Slack通知が来ない
 

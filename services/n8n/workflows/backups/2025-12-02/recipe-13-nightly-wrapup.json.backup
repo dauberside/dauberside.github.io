@@ -37,7 +37,7 @@
     },
     {
       "parameters": {
-        "command": "=cat /workspace/dauberside.github.io-1/{{ $json.digestPath }} 2>/dev/null || echo ''"
+        "command": "=cat ${WORKSPACE_ROOT}/{{ $json.digestPath }} 2>/dev/null || echo ''"
       },
       "id": "get-digest",
       "name": "Get Today's Digest",
@@ -48,7 +48,7 @@
     },
     {
       "parameters": {
-        "command": "=cat /workspace/dauberside.github.io-1/{{ $json.todoPath }} 2>/dev/null || echo ''"
+        "command": "=cat ${WORKSPACE_ROOT}/{{ $json.todoPath }} 2>/dev/null || echo ''"
       },
       "id": "get-todo",
       "name": "Get TODO.md",
@@ -79,7 +79,7 @@
     },
     {
       "parameters": {
-        "command": "=mkdir -p /workspace/dauberside.github.io-1/cortex/state && echo '{{ $json.tomorrowJsonString }}' > /workspace/dauberside.github.io-1/cortex/state/tomorrow.json && echo \"File written successfully\""
+        "command": "=mkdir -p ${WORKSPACE_ROOT}/cortex/state && echo '{{ $json.tomorrowJsonString }}' > ${WORKSPACE_ROOT}/cortex/state/tomorrow.json && echo \"File written successfully\""
       },
       "id": "write-tomorrow",
       "name": "Write tomorrow.json",
@@ -89,7 +89,7 @@
     },
     {
       "parameters": {
-        "command": "cat /workspace/dauberside.github.io-1/cortex/state/tomorrow.json"
+        "command": "cat ${WORKSPACE_ROOT}/cortex/state/tomorrow.json"
       },
       "id": "verify-write",
       "name": "Verify Write (DEBUG)",

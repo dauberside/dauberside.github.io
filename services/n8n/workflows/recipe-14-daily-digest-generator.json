@@ -37,7 +37,7 @@
     },
     {
       "parameters": {
-        "command": "cd ${WORKSPACE_ROOT} && OBSIDIAN_VAULT_PATH=${OBSIDIAN_VAULT_PATH} node bin/cortex-digest.mjs"
+        "command": "=cd /workspace/dauberside.github.io-1 && node cortex/scripts/generate-daily-digest.mjs {{ $json.date }}"
       },
       "id": "generate-digest",
       "name": "Generate Daily Digest",
@@ -77,7 +77,7 @@
     },
     {
       "parameters": {
-        "command": "=ls -lh ${OBSIDIAN_VAULT_PATH}/{{ $('Calculate Digest Date (JST)').item.json.digestPath }} 2>&1"
+        "command": "=ls -lh /workspace/dauberside.github.io-1/{{ $json.digestPath }} 2>&1"
       },
       "id": "verify-file",
       "name": "Verify File Created",

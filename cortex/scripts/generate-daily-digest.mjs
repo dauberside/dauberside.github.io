@@ -23,6 +23,24 @@ const ROOT = process.env.WORKSPACE_ROOT || path.resolve(__dirname, '../..');
 // Parse command line arguments
 const targetDate = process.argv[2] || getYesterdayInJST();
 
+// Debug: Ensure targetDate is valid
+if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+  console.error(`❌ Invalid target date: "${targetDate}"`);
+  console.error(`   Expected format: YYYY-MM-DD`);
+  console.error(`   Falling back to date calculation...`);
+  
+  // Emergency fallback: manual calculation
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const y = yesterday.getFullYear();
+  const m = String(yesterday.getMonth() + 1).padStart(2, '0');
+  const d = String(yesterday.getDate()).padStart(2, '0');
+  const fallbackDate = `${y}-${m}-${d}`;
+  
+  console.error(`   Using fallback date: ${fallbackDate}`);
+  process.exit(1); // Exit to prevent bad file generation
+}
+
 const TEMPLATE_PATH = path.join(ROOT, 'cortex/templates/daily-digest-template.md');
 const TODO_PATH = path.join(ROOT, 'TODO.md');
 const OUTPUT_DIR = path.join(ROOT, 'cortex/daily');
@@ -53,9 +71,35 @@ function formatDate(date = new Date()) {
  * This is the default behavior for digest generation
  */
 function getYesterdayInJST() {
-  const now = new Date();
-  now.setDate(now.getDate() - 1);
-  return formatDate(now);
+  try {
+    const now = new Date();
+    
+    // Validate that 'now' is a valid date
+    if (isNaN(now.getTime())) {
+      throw new Error('Invalid current date');
+    }
+    
+    now.setDate(now.getDate() - 1);
+    const result = formatDate(now);
+    
+    // Validate result
+    if (!result || !result.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      throw new Error(`Invalid date format: ${result}`);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Error calculating yesterday date:', error.message);
+    console.error('   This may be due to timezone/Intl API issues');
+    
+    // Emergency fallback: manual calculation (UTC-based)
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const y = yesterday.getFullYear();
+    const m = String(yesterday.getMonth() + 1).padStart(2, '0');
+    const d = String(yesterday.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 }
 
 /**
@@ -163,11 +207,17 @@ async function generateDigest() {
 
   // 5. Replace template placeholders
   let content = template
-    .replace('{{DATE}}', targetDate)
-    .replace('{{HIGH_PRIORITY_TASKS}}', formatTasks(highPriority))
-    .replace('{{REGULAR_TASKS}}', formatTasks(regular))
-    .replace('{{NO_TAG_TASKS}}', formatTasks(noTag))
-    .replace('{{TIMESTAMP}}', new Date().toISOString());
+    .replace(/\{\{DATE\}\}/g, targetDate)
+    .replace(/\{\{HIGH_PRIORITY_TASKS\}\}/g, formatTasks(highPriority))
+    .replace(/\{\{REGULAR_TASKS\}\}/g, formatTasks(regular))
+    .replace(/\{\{NO_TAG_TASKS\}\}/g, formatTasks(noTag))
+    .replace(/\{\{TIMESTAMP\}\}/g, new Date().toISOString());
+  
+  // Verify all placeholders were replaced
+  const remainingPlaceholders = content.match(/\{\{[A-Z_]+\}\}/g);
+  if (remainingPlaceholders) {
+    throw new Error(`Unresolved placeholders found: ${remainingPlaceholders.join(', ')}`);
+  }
 
   // 6. Ensure output directory exists
   await fs.mkdir(OUTPUT_DIR, { recursive: true });

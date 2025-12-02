@@ -1,0 +1,108 @@
+{
+  "version": "1.0",
+  "date": "2025-12-02",
+  "time": "02:30 JST",
+  "source": "copilot-cli",
+  "target": "claude-cursor",
+  "session": {
+    "topic": "Daily Digest System - Complete Debugging",
+    "status": "✅ Completed",
+    "duration": "~2 hours",
+    "summary": "Fixed 3 critical bugs in Recipe 14 (Daily Digest Generator). System now production-ready."
+  },
+  "bugs_fixed": [
+    {
+      "id": 1,
+      "time": "23:10 JST",
+      "issue": "Invalid filename '{{-digest.md' generated",
+      "cause": "Intl.DateTimeFormat failure in Docker container",
+      "fix": "Added date validation + try-catch with UTC fallback",
+      "file": "cortex/scripts/generate-daily-digest.mjs",
+      "status": "✅ Fixed"
+    },
+    {
+      "id": 2,
+      "time": "14:10 UTC",
+      "issue": "Cannot find module 'bin/cortex-digest.mjs'",
+      "cause": "Wrong script path in n8n workflow",
+      "fix": "Updated path to cortex/scripts/generate-daily-digest.mjs",
+      "file": "services/n8n/workflows/recipe-14-daily-digest-generator.json",
+      "status": "✅ Fixed"
+    },
+    {
+      "id": 3,
+      "time": "14:19 UTC",
+      "issue": "n8n expression not evaluated (shell interprets literally)",
+      "cause": "Missing '=' prefix + wrong expression syntax",
+      "fix": "Added '=' prefix + simplified to {{ $json.date }}",
+      "file": "services/n8n/workflows/recipe-14-daily-digest-generator.json",
+      "status": "✅ Fixed"
+    }
+  ],
+  "test_result": {
+    "status": "✅ Success",
+    "time": "14:23 UTC",
+    "output": "cortex/daily/2025-11-30-digest.md",
+    "size": "395 bytes",
+    "validation": "All placeholders replaced, file size OK"
+  },
+  "improvements": {
+    "script": [
+      "Date validation (format check)",
+      "Error handling with UTC fallback",
+      "Placeholder verification",
+      "Detailed error messages"
+    ],
+    "workflow": [
+      "Correct script path",
+      "n8n expression syntax (= prefix)",
+      "Simplified expression ({{ $json.date }})",
+      "Hard-coded container path for stability"
+    ],
+    "documentation": [
+      "README-recipe-14.md updated",
+      "Troubleshooting section added",
+      "Error analysis document created",
+      "n8n expression syntax guide"
+    ]
+  },
+  "next_actions": [
+    {
+      "priority": "high",
+      "action": "Monitor next auto-execution",
+      "when": "2025-12-02 00:30 JST (15:30 UTC)",
+      "expected": "File: cortex/daily/2025-12-01-digest.md created successfully"
+    },
+    {
+      "priority": "medium",
+      "action": "Phase 2 Refactoring (if desired)",
+      "tasks": [
+        "Extract functions to cortex/scripts/lib/",
+        "Add unit tests",
+        "Externalize config to JSON",
+        "Add JSON output mode"
+      ],
+      "estimated_time": "6-7 hours"
+    }
+  ],
+  "relevant_files": [
+    "cortex/scripts/generate-daily-digest.mjs",
+    "services/n8n/workflows/recipe-14-daily-digest-generator.json",
+    "services/n8n/workflows/README-recipe-14.md",
+    "cortex/daily/2025-12-01-digest-error-analysis.md",
+    "docker-compose.yml"
+  ],
+  "lessons_learned": [
+    "Docker Intl API requires full ICU data (fallback essential)",
+    "n8n Execute Command needs '=' prefix for expressions",
+    "Hard-coded paths in containers are simpler than env vars",
+    "Always validate inputs before generating files"
+  ],
+  "system_status": {
+    "daily_digest": "🟢 Production Ready",
+    "risk_level": "🟢 Low",
+    "confidence": "🟢 Very High",
+    "last_test": "✅ Manual test passed (14:23 UTC)"
+  },
+  "notes_for_claude": "All bugs are fixed. System is stable. You can continue with Phase 2 refactoring if requested, or wait for tomorrow's auto-execution confirmation."
+}

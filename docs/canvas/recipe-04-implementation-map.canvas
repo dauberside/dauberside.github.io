@@ -3,7 +3,6 @@
 		{"id":"adr-0006","type":"file","file":"docs/decisions/ADR-0006-phase-2-automation-strategy.md","x":0,"y":-400,"width":400,"height":200,"color":"5"},
 		{"id":"adr-0008","type":"file","file":"docs/decisions/ADR-0008-recipe-4-phase2-test.md","x":-200,"y":-100,"width":360,"height":180,"color":"4"},
 		{"id":"deployment-guide","type":"file","file":"docs/operations/n8n-production-deployment.md","x":240,"y":-100,"width":360,"height":180,"color":"3"},
-		{"id":"phase1-workflow","type":"file","file":"services/n8n/workflows/recipe-04-adr-to-github-issue-simple.json","x":-420,"y":160,"width":340,"height":280,"color":"2"},
 		{"id":"phase2-workflow","type":"file","file":"services/n8n/workflows/recipe-04-phase2-github-webhook.json","x":-40,"y":160,"width":340,"height":280,"color":"2"},
 		{"id":"todo","type":"file","file":"TODO.md","x":340,"y":160,"width":300,"height":160,"color":"1"},
 		{"id":"next-steps","type":"text","text":"## 🚀 Next Steps\n\n1. n8n 本番デプロイ\n   - Railway / VPS 選択\n   - DNS: n8n.xn--rn8h03a.st\n   - HTTPS 設定\n\n2. GitHub webhook 更新\n\n3. Phase 2 本番テスト","x":340,"y":380,"width":300,"height":260,"color":"1"},
@@ -12,7 +11,8 @@
 		{"id":"phase2-blocker","type":"text","text":"## ⏳ Phase 2: Blocked\n\n**問題**: Tailscale IP (100.102.85.62) は\nGitHub から到達不可\n\n**解決策**: n8n 本番デプロイ\n- URL: https://n8n.xn--rn8h03a.st/\n- DNS + HTTPS 設定必要","x":-40,"y":770,"width":340,"height":240,"color":"6"},
 		{"id":"key-learnings","type":"text","text":"## 💡 Key Learnings\n\n1. Webhook data is nested in `body` property\n2. GitHub API auth via HTTP Header Auth\n3. Slack env vars must be optional\n4. Tailscale IPs are private network\n5. MCP GitHub had auth issues\n6. Direct n8n + GitHub API is more stable","x":680,"y":430,"width":320,"height":340,"color":"5"},
 		{"id":"architecture","type":"text","text":"## 🏗️ アーキテクチャ\n\n```\nGitHub Push Event\n    ↓\nWebhook → n8n (本番)\n    ↓\nFilter ADR Files\n    ↓\nGet File Content (GitHub API)\n    ↓\nParse Markdown\n    ↓\nCreate GitHub Issue\n```","x":-40,"y":1070,"width":340,"height":370,"color":"4"},
-		{"id":"issue-66","type":"text","text":"## ✨ Output\n\n**GitHub Issue #66**\n- Title: [ADR-0008] Recipe 4 Phase 2...\n- Labels: documentation, adr, needs-review\n- Auto-generated from Phase 1\n- Source: ADR-0008-recipe-4-phase2-test.md","x":-420,"y":1070,"width":340,"height":370,"color":"2"}
+		{"id":"issue-66","type":"text","text":"## ✨ Output\n\n**GitHub Issue #66**\n- Title: [ADR-0008] Recipe 4 Phase 2...\n- Labels: documentation, adr, needs-review\n- Auto-generated from Phase 1\n- Source: ADR-0008-recipe-4-phase2-test.md","x":-420,"y":1070,"width":340,"height":370,"color":"2"},
+		{"id":"phase1-workflow","type":"file","file":"services/n8n/workflows/recipe-04-adr-to-github-issue-simple.json","x":-420,"y":160,"width":340,"height":280,"color":"2"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"adr-0006","fromSide":"bottom","toNode":"adr-0008","toSide":"top","label":"defines"},

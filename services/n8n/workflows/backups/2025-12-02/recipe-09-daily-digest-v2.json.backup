@@ -27,7 +27,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Calculate yesterday's date in JST (UTC+9)\nfunction getJSTDate(offsetDays = 0) {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getJSTDate(-1); // Yesterday in JST\n\n// Build file path for Obsidian daily note\nconst filePath = `cortex/daily/${dateString}-digest.md`;\n\nreturn {\n  json: {\n    date: dateString,\n    filePath: filePath,\n    outputPath: `/workspace/dauberside.github.io-1/notifications/daily/${dateString}-digest.md`\n  }\n};"
+        "jsCode": "// Calculate yesterday's date in JST (UTC+9)\nfunction getJSTDate(offsetDays = 0) {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getJSTDate(-1); // Yesterday in JST\n\n// Build file path for Obsidian daily note\nconst filePath = `cortex/daily/${dateString}-digest.md`;\n\nreturn {\n  json: {\n    date: dateString,\n    filePath: filePath,\n    outputPath: `${process.env.WORKSPACE_ROOT}/notifications/daily/${dateString}-digest.md`\n  }\n};"
       },
       "id": "calculate-date",
       "name": "Calculate Yesterday's Date (JST)",
