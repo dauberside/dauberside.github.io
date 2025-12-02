@@ -1,0 +1,237 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cortex-os.dev/schemas/daily-digest-v1.json",
+  "title": "Daily Digest Format v1.0",
+  "description": "Schema for validating daily digest markdown structure (Cortex OS v1.2)",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["metadata", "sections"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["date", "generatedAt", "source", "formatVersion"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "Digest date (YYYY-MM-DD)"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Generation timestamp (ISO-8601)"
+        },
+        "source": {
+          "type": "string",
+          "const": "TODO.md (automatic extraction)",
+          "description": "Data source"
+        },
+        "formatVersion": {
+          "type": "string",
+          "const": "1.0",
+          "description": "Digest format version"
+        }
+      }
+    },
+    "sections": {
+      "type": "object",
+      "required": ["header", "todaysFocus", "progress", "reflection", "footer"],
+      "properties": {
+        "header": {
+          "type": "string",
+          "pattern": "^# Daily Digest - \\d{4}-\\d{2}-\\d{2}$",
+          "description": "Document title"
+        },
+        "todaysFocus": {
+          "$ref": "#/definitions/todaysFocusSection"
+        },
+        "progress": {
+          "$ref": "#/definitions/progressSection"
+        },
+        "reflection": {
+          "$ref": "#/definitions/reflectionSection"
+        },
+        "git": {
+          "$ref": "#/definitions/gitSection"
+        },
+        "footer": {
+          "$ref": "#/definitions/footerSection"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "todaysFocusSection": {
+      "type": "object",
+      "required": ["highPriority", "regularTasks", "noTags"],
+      "properties": {
+        "highPriority": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Tasks with #urgent, #deepwork, #blocked, #waiting"
+          },
+          "description": "High priority tasks"
+        },
+        "regularTasks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Tasks with other tags (#review, etc.)"
+          },
+          "description": "Regular tagged tasks"
+        },
+        "noTags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Tasks without tags"
+          },
+          "description": "Untagged tasks"
+        }
+      }
+    },
+    "progressSection": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Progress notes (manual entry or placeholder)"
+        }
+      }
+    },
+    "reflectionSection": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Reflection notes (manual entry or placeholder)"
+        }
+      }
+    },
+    "gitSection": {
+      "type": "object",
+      "properties": {
+        "commits": {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "byType": {
+              "type": "object",
+              "properties": {
+                "feat": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "fix": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "docs": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "other": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "diffstat": {
+          "type": "object",
+          "properties": {
+            "filesChanged": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "insertions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "deletions": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "footerSection": {
+      "type": "object",
+      "required": ["separator", "generated", "source"],
+      "properties": {
+        "separator": {
+          "type": "string",
+          "const": "---",
+          "description": "Horizontal rule"
+        },
+        "generated": {
+          "type": "string",
+          "pattern": "^\\*\\*Generated\\*\\*: .+$",
+          "description": "Generation timestamp line"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^\\*\\*Source\\*\\*: .+$",
+          "description": "Data source line"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "metadata": {
+        "date": "2025-12-02",
+        "generatedAt": "2025-12-02T15:00:00Z",
+        "source": "TODO.md (automatic extraction)",
+        "formatVersion": "1.0"
+      },
+      "sections": {
+        "header": "# Daily Digest - 2025-12-02",
+        "todaysFocus": {
+          "highPriority": [
+            "- [ ] [Cortex] ⚡ Update requirements  <!-- #urgent,#deepwork -->"
+          ],
+          "regularTasks": [
+            "- [ ] [Docs] 🎯 Review README  <!-- #review -->"
+          ],
+          "noTags": [
+            "- [ ] [n8n] Fix Recipe 10"
+          ]
+        },
+        "progress": {
+          "content": "（今日の主な進捗をここに記録）"
+        },
+        "reflection": {
+          "content": "（今日の振り返り・学び・気づきをここに記録）"
+        },
+        "git": {
+          "commits": {
+            "total": 5,
+            "byType": {
+              "feat": 2,
+              "fix": 1,
+              "docs": 1,
+              "other": 1
+            }
+          },
+          "diffstat": {
+            "filesChanged": 12,
+            "insertions": 345,
+            "deletions": 67
+          }
+        },
+        "footer": {
+          "separator": "---",
+          "generated": "**Generated**: 2025-12-02T15:00:00.000Z",
+          "source": "**Source**: TODO.md (automatic extraction)"
+        }
+      }
+    }
+  ]
+}

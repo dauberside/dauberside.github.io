@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cortex-os.dev/schemas/todo-v2.json",
+  "title": "TODO.md Format v2.0",
+  "description": "Schema for validating TODO.md structure (Cortex OS v1.2)",
+  "version": "2.0.0",
+  "type": "object",
+  "required": ["sections", "metadata"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["formatVersion", "lastModified"],
+      "properties": {
+        "formatVersion": {
+          "type": "string",
+          "const": "2.0",
+          "description": "TODO format version"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp (ISO-8601)"
+        }
+      }
+    },
+    "sections": {
+      "type": "object",
+      "required": ["today"],
+      "properties": {
+        "today": {
+          "$ref": "#/definitions/todaySection"
+        },
+        "tomorrow": {
+          "$ref": "#/definitions/tomorrowSection"
+        },
+        "backlog": {
+          "$ref": "#/definitions/backlogSection"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "todaySection": {
+      "type": "object",
+      "required": ["date", "tasks"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "Date in YYYY-MM-DD format"
+        },
+        "header": {
+          "type": "string",
+          "pattern": "^## Today — \\d{4}-\\d{2}-\\d{2}$",
+          "description": "Section header (## Today — YYYY-MM-DD)"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/task"
+          }
+        }
+      }
+    },
+    "tomorrowSection": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/task"
+          }
+        }
+      }
+    },
+    "backlogSection": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/task"
+          }
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["raw", "completed"],
+      "properties": {
+        "raw": {
+          "type": "string",
+          "pattern": "^- \\[(x| )\\]",
+          "description": "Raw task line from markdown"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Task completion status"
+        },
+        "category": {
+          "type": "string",
+          "pattern": "^\\[.+\\]$",
+          "description": "Category in [brackets], e.g., [Cortex], [n8n]"
+        },
+        "emoji": {
+          "type": "string",
+          "enum": ["⚡", "🚧", "⏳", "🎯", "👁️"],
+          "description": "Priority emoji (optional)"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Task content (without checkbox, category, emoji, tags)"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["urgent", "deepwork", "blocked", "waiting", "review"],
+            "description": "5-tag system"
+          },
+          "uniqueItems": true,
+          "description": "Tags from HTML comment"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "metadata": {
+        "formatVersion": "2.0",
+        "lastModified": "2025-12-02T12:00:00Z"
+      },
+      "sections": {
+        "today": {
+          "date": "2025-12-02",
+          "header": "## Today — 2025-12-02",
+          "tasks": [
+            {
+              "raw": "- [ ] [Cortex] ⚡ Update requirements  <!-- #urgent,#deepwork -->",
+              "completed": false,
+              "category": "[Cortex]",
+              "emoji": "⚡",
+              "content": "Update requirements",
+              "tags": ["urgent", "deepwork"]
+            },
+            {
+              "raw": "- [x] [n8n] Fix Recipe 10",
+              "completed": true,
+              "category": "[n8n]",
+              "content": "Fix Recipe 10",
+              "tags": []
+            }
+          ]
+        },
+        "backlog": {
+          "tasks": [
+            {
+              "raw": "- [ ] [Docs] Update README",
+              "completed": false,
+              "category": "[Docs]",
+              "content": "Update README",
+              "tags": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
