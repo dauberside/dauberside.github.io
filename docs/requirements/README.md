@@ -12,6 +12,14 @@
 - ランタイム: Next.js 14 (pages), Node 22, TypeScript 5.x, pnpm。
 
 ## ドメイン別要件
+
+### 🎯 Core System
+- **Cortex OS v1.2 要件定義**: [cortex-os.md](./cortex-os.md) ⭐ NEW
+  - 自律ループ（日次・週次）
+  - Recipe 02, 10, 13, 14, 11 仕様
+  - 認証・監視・性能要件
+
+### 🤖 AI & Knowledge
 - Chat 要件定義: [chat.md](./chat.md)
   - UI 表示制御フラグ:
     - `NEXT_PUBLIC_SHOW_KB_REFS=0|1`（KB 引用ブロックの表示）
