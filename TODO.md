@@ -11,19 +11,21 @@
 
 ### High Priority
 - [x] ⚡ Recipe 03 v1.2 Slack 通知統合完了 <!-- #urgent,#done -->
+- [x] ⚡ /diagnose コマンド実装 & テスト完了 <!-- #urgent,#done -->
 
 ### Regular Tasks
-- [ ] Recipe 03 v1.2 手動テスト実行（n8n UI）
 - [ ] 1週間の安定稼働監視開始（2025-12-03 → 2025-12-10）
-- [ ] Cortex OS ヘルスチェック継続監視
+- [x] Cortex OS ヘルスチェック（初回スコア: 80% Good ⚠️）
 
 ### Completed (2025-12-03)
 - [x] Recipe 03 に tomorrow.json 統合
 - [x] タグベース時間見積もり実装（⚡1.5h, 🎯2h, 通常1h）
 - [x] 20%バッファ計算ロジック実装
 - [x] Slack メッセージフォーマット作成
-- [x] Recipe 03 ドキュメント作成
-- [x] v1.2 Roadmap 更新
+- [x] Recipe 03 ドキュメント作成（Known Issues含む）
+- [x] /diagnose コマンド修正（Obsidian API check, KB chunks count）
+- [x] /diagnose 初回実行（ヘルススコア: 80%）
+- [x] v1.2 Roadmap 更新（達成率: 36% → 45%）
 
 ### Completed (2025-11-28)
 - [x] [Cortex] generateLlmsInput.cs.js 骨組み作成（Codescript 実装）
