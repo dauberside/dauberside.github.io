@@ -64,13 +64,49 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $input.first().json;\n\n// Get content from HTTP response (it's the raw markdown text)\nconst content = typeof input === 'string'\n  ? input\n  : (input.data || input.body || input.content || '');\n\n// Extract date from markdown header or front matter\nlet date = 'unknown';\n\n// Pattern: \"# Daily Digest - 2025-11-27\" or similar\nconst headerMatch = content.match(/^#\\s*Daily Digest[\\s—-]+([\\d-]+)/m);\n\n// YAML front matter: ---\\n date: 2025-11-27\\n ... ---\nconst frontMatterMatch = content.match(/^---[\\s\\S]+?date:\\s*([^\\n]+)[\\s\\S]+?---/);\n\nif (headerMatch) {\n  date = headerMatch[1];\n} else if (frontMatterMatch) {\n  date = frontMatterMatch[1].trim();\n}\n\n// Extract Reflection section (if present)\nfunction extractSection(markdown, sectionName) {\n  const regex = new RegExp(`##\\\\s*${sectionName}([\\\\s\\\\S]*?)(?=\\n##|$)`, 'i');\n  const match = markdown.match(regex);\n  if (!match) return null;\n  return match[1].trim();\n}\n\nconst reflectionSection = extractSection(content, 'Reflection');\n\n// Extract tasks: any markdown checkbox line in the whole file\nconst taskRegex = /^\\s*-\\s*\\[.\\]\\s*.*/gm;\nconst tasks = content.match(taskRegex) || [];\n\n// Build Slack message\nlet message = `🗓 *Daily Digest for ${date}*\\n\\n`;\n\nif (tasks.length > 0) {\n  message += `✅ *Tasks*\\n`;\n  for (const task of tasks) {\n    message += `${task}\\n`;\n  }\n  message += `\\n`;\n} else {\n  message += `✅ *Tasks*\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  message += `🧠 *Reflection*\\n${reflectionSection}`;\n} else {\n  message += `🧠 *Reflection*\\nNo reflection found`;\n}\n\nreturn {\n  json: {\n    date,\n    text: message,\n    tasksFound: tasks.length,\n    reflectionFound: !!reflectionSection,\n  },\n};"
+        "method": "GET",
+        "url": "=https://host.docker.internal:27124/vault/cortex/state/tomorrow.json",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.OBSIDIAN_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "get-tomorrow-json",
+      "name": "Get tomorrow.json",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 200],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-sources",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recipe 03 v1.2: Morning Brief with tomorrow.json integration\n// Purpose: Generate \"Today's 3 Tasks\" with time estimates\n\nconst digestInput = $items(\"Get Daily Note from Obsidian\")[0]?.json || {};\nconst tomorrowInput = $items(\"Get tomorrow.json\")[0]?.json || {};\n\n// Parse digest content\nconst content = typeof digestInput === 'string'\n  ? digestInput\n  : (digestInput.data || digestInput.body || digestInput.content || '');\n\n// Extract date\nlet date = 'unknown';\nconst headerMatch = content.match(/^#\\s*Daily Digest[\\s—-]+([\\d-]+)/m);\nconst frontMatterMatch = content.match(/^---[\\s\\S]+?date:\\s*([^\\n]+)[\\s\\S]+?---/);\nif (headerMatch) date = headerMatch[1];\nelse if (frontMatterMatch) date = frontMatterMatch[1].trim();\n\n// Parse tomorrow.json\nlet tomorrowData = {};\ntry {\n  if (typeof tomorrowInput === 'string') {\n    tomorrowData = JSON.parse(tomorrowInput);\n  } else if (tomorrowInput.content) {\n    tomorrowData = JSON.parse(tomorrowInput.content);\n  } else {\n    tomorrowData = tomorrowInput;\n  }\n} catch (e) {\n  // Fallback if parse fails\n  tomorrowData = {\n    tomorrow_candidates: [],\n    carryover_tasks: [],\n    reflection_summary: ''\n  };\n}\n\n// Build today's task list (priority: tomorrow_candidates)\nconst todayTasks = (tomorrowData.tomorrow_candidates || []).slice(0, 3);\nconst carryover = (tomorrowData.carryover_tasks || []).slice(0, 2);\nconst reflection = tomorrowData.reflection_summary || '';\n\n// Time estimation (simple heuristic)\n// - #urgent or ⚡: 1.5h\n// - #deepwork or 🎯: 2h\n// - Regular: 1h\nfunction estimateTime(task) {\n  if (task.includes('#urgent') || task.includes('⚡')) return 1.5;\n  if (task.includes('#deepwork') || task.includes('🎯')) return 2.0;\n  return 1.0;\n}\n\nconst taskWithTime = todayTasks.map((task, i) => {\n  const time = estimateTime(task);\n  return `${i + 1}. ${task} (${time}h)`;\n});\n\nconst totalTime = todayTasks.reduce((sum, task) => sum + estimateTime(task), 0);\nconst buffer = Math.ceil(totalTime * 0.2); // 20% buffer\n\n// Build Slack message\nlet message = `☀️ *Morning Brief — ${date}*\\n\\n`;\n\nif (todayTasks.length > 0) {\n  message += `📌 *Today's Focus (Top 3)*\\n`;\n  for (const taskLine of taskWithTime) {\n    message += `${taskLine}\\n`;\n  }\n  message += `\\n⏱ *Time Budget*: ${totalTime}h + ${buffer}h buffer = ${totalTime + buffer}h\\n\\n`;\n} else {\n  message += `📌 *Today's Focus*\\n（タスクなし - tomorrow.json を確認してください）\\n\\n`;\n}\n\nif (carryover.length > 0) {\n  message += `🔄 *Carryover from Yesterday*\\n`;\n  for (const task of carryover) {\n    message += `- ${task}\\n`;\n  }\n  message += `\\n`;\n}\n\nif (reflection) {\n  message += `💭 *Yesterday's Reflection*\\n${reflection}`;\n}\n\nreturn {\n  json: {\n    date,\n    text: message,\n    todayTasks,\n    totalTime,\n    buffer,\n    carryover,\n  },\n};"
       },
       "id": "parse-markdown",
-      "name": "Parse Tasks & Reflection",
+      "name": "Build Morning Brief",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [850, 300]
+      "position": [1250, 300]
     },
     {
       "parameters": {
@@ -86,7 +122,7 @@
       "name": "Send to Slack",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 300],
+      "position": [1450, 300],
       "onError": "continueRegularOutput"
     }
   ],
@@ -117,14 +153,41 @@
       "main": [
         [
           {
-            "node": "Parse Tasks & Reflection",
+            "node": "Get tomorrow.json",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Sources",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Parse Tasks & Reflection": {
+    "Get tomorrow.json": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Morning Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Morning Brief": {
       "main": [
         [
           {
