@@ -1,7 +1,7 @@
 # Recipe 03: Morning Brief with Slack Notification
 
-**Version**: v1.2 (2025-12-03)  
-**Status**: ✅ Production Ready  
+**Version**: v1.2.1 (2025-12-03)  
+**Status**: ⚠️ Known Issue - Date Display  
 **Category**: Daily Automation  
 **Schedule**: 08:00 JST (Daily)
 
@@ -234,7 +234,51 @@ curl -X POST $SLACK_DAILY_DIGEST_WEBHOOK \
 
 ---
 
+## Known Issues
+
+### Date Display Bug (v1.2)
+
+**Issue**: Slack message shows yesterday's date instead of today's date.
+
+**Example**:
+```
+❌ Current: "Morning Brief — 2025-12-02" (when running on 2025-12-03)
+✅ Expected: "Morning Brief — 2025-12-03"
+```
+
+**Root Cause**: 
+The "Build Morning Brief" node extracts date from yesterday's digest file header instead of using today's date.
+
+**Workaround**: 
+Tasks and data are correct; only the date label is off by one day.
+
+**Fix** (n8n UI):
+1. Open Recipe 03 workflow
+2. Edit "Build Morning Brief" node
+3. Replace date extraction logic:
+   ```javascript
+   // OLD (extracts from digest header)
+   let date = 'unknown';
+   const headerMatch = content.match(/^#\s*Daily Digest[\s—-]+([\d-]+)/m);
+   if (headerMatch) date = headerMatch[1];
+   
+   // NEW (use today's date)
+   const now = new Date();
+   const year = now.getFullYear();
+   const month = String(now.getMonth() + 1).padStart(2, '0');
+   const day = String(now.getDate()).padStart(2, '0');
+   const date = `${year}-${month}-${day}`;
+   ```
+
+**Priority**: Low (cosmetic issue, does not affect functionality)
+
+---
+
 ## Changelog
+
+### v1.2.1 (2025-12-03) - Documentation Update
+- ⚠️ Documented date display bug
+- 📝 Added fix instructions for n8n UI
 
 ### v1.2 (2025-12-03) - Slack Integration & Time Estimates
 - ✅ Added `tomorrow.json` integration (Recipe 13 data bridge)
