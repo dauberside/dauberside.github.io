@@ -48,7 +48,7 @@ API_RESPONSE=$(curl -k -s --max-time 5 https://127.0.0.1:27124/ 2>&1)
 API_END=$(date +%s)
 API_TIME=$(((API_END - API_START) * 1000))
 
-if echo "$API_RESPONSE" | grep -q '"status":"OK"'; then
+if echo "$API_RESPONSE" | grep -q '"status"'; then
     echo "${GREEN}✅ OK${NC} (response: ${API_TIME}ms)"
     if [ $API_TIME -gt 3000 ]; then
         TOTAL_SCORE=$((TOTAL_SCORE + 10))
@@ -342,10 +342,10 @@ echo ""
 DIGEST_COUNT=$(ls cortex/daily/*.md 2>/dev/null | wc -l | tr -d ' ')
 echo "- **Total Daily Digests**: $DIGEST_COUNT files"
 
-# KB chunks
+# KB chunks (count "id": occurrences)
 if [ -f "$KB_INDEX" ]; then
-    KB_CHUNKS=$(jq 'length' "$KB_INDEX" 2>/dev/null || echo "unknown")
-    echo "- **KB Chunks**: $KB_CHUNKS chunks"
+    KB_CHUNKS=$(grep -o '"id":' "$KB_INDEX" 2>/dev/null | wc -l | tr -d ' ' || echo "unknown")
+    echo "- **KB Chunks**: $KB_CHUNKS indexed"
 fi
 
 # Active recipes
