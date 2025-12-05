@@ -50,7 +50,9 @@
     "cortex:digest:today": "node ./cortex/scripts/generate-daily-digest.mjs",
     "cortex:llms:input": "node ./cortex/scripts/generate-llms-input.mjs",
     "cortex:llms:txt": "node ./scripts/generate-llms-txt.mjs",
-    "cortex:llms:all": "node ./cortex/scripts/generate-llms-input.mjs && node ./scripts/generate-llms-txt.mjs"
+    "cortex:llms:all": "node ./cortex/scripts/generate-llms-input.mjs && node ./scripts/generate-llms-txt.mjs",
+    "cortex:validate-task-entry": "node ./scripts/validate-task-entry.mjs",
+    "cortex:convert-digest": "node ./scripts/convert-to-task-entry.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
