@@ -96,6 +96,37 @@ llms.txt 生成パイプラインの入力として使える決定的なデー�
         "llms-input.json スキーマ設計"
       ]
     }
+  },
+  "mcpLayer": {
+    "enabled": true,
+    "version": "v1.1",
+    "completionDate": "2025-12-05",
+    "servers": [
+      {
+        "name": "filesystem",
+        "status": "active",
+        "priority": "critical",
+        "tools": ["read_file", "list_files"]
+      },
+      {
+        "name": "terminal",
+        "status": "active",
+        "priority": "critical",
+        "tools": ["run_task", "list_tasks"]
+      },
+      {
+        "name": "text-editor",
+        "status": "active",
+        "priority": "critical",
+        "tools": ["write_file", "append_to_file", "insert_at_line", "replace_lines", "search_replace"]
+      },
+      {
+        "name": "search",
+        "status": "active",
+        "priority": "critical",
+        "tools": ["search_concepts", "search_notes", "search_by_cluster", "list_clusters", "get_concept", "find_similar"]
+      }
+    ]
   }
 }
 ```

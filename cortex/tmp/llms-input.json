@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2025-11-28T05:59:19.038Z",
+  "generatedAt": "2025-12-05T04:39:11.897Z",
   "project": "Cortex OS",
   "knowledgeGraph": {
     "totalConcepts": 184,
@@ -301,31 +301,72 @@
   ],
   "highlights": {
     "recentHighImpactNotes": [
-      "cortex.weekly.backup.20251126_154315/2025-W48-summary.md",
       "cortex/weekly/2025-W48-summary.md",
-      "weekly/2025-W47-summary.md",
-      "weekly/2025-W48-summary.md",
       "docs/releases/v1.0.md"
     ],
     "recentlyUpdatedNotes": [
-      "TODO.md",
-      "cortex/daily/2025-11-27-digest.md",
-      "用語.md",
-      "cortex/graph/llms-input-schema.md",
       "cortex/graph/clusters-v1.md",
-      "cortex/weekly/2025-W48-summary.md",
-      "cortex/graph/IMPLEMENTATION-PLAN.md",
-      "cortex/scripts/obsidian/README.md",
-      "cortex/sessions/2025-11-26-github-actions-fixes.md",
-      "cortex/daily/2025-11-26-digest.md"
+      "cortex/graph/llms-input-schema.md",
+      "TODO.md",
+      "cortex/state/tomorrow.json"
     ],
     "todoContext": {
-      "today": "2025-11-28",
+      "today": "2025-12-05",
       "topItems": [
-        "generateLlmsInput.cs.js 骨組み作成（Codescript 実装開始）",
-        "Phase 2.5: MCP クラスタ向け Louvain community detection 設計（optional）",
-        "cortex/scripts/llms/ パイプライン実装（Node 側）"
+        "Recipe 10 最終確認とクローズ",
+        "v1.2 Roadmap の次のマイルストーン特定",
+        "古い Knowledge Graph タスクの優先度再評価"
       ]
     }
+  },
+  "mcpLayer": {
+    "enabled": true,
+    "version": "v1.1",
+    "completionDate": "2025-12-05",
+    "servers": [
+      {
+        "name": "filesystem",
+        "status": "active",
+        "priority": "critical",
+        "tools": [
+          "read_file",
+          "list_files"
+        ]
+      },
+      {
+        "name": "terminal",
+        "status": "active",
+        "priority": "critical",
+        "tools": [
+          "run_task",
+          "list_tasks"
+        ]
+      },
+      {
+        "name": "text-editor",
+        "status": "active",
+        "priority": "critical",
+        "tools": [
+          "write_file",
+          "append_to_file",
+          "insert_at_line",
+          "replace_lines",
+          "search_replace"
+        ]
+      },
+      {
+        "name": "search",
+        "status": "active",
+        "priority": "critical",
+        "tools": [
+          "search_concepts",
+          "search_notes",
+          "search_by_cluster",
+          "list_clusters",
+          "get_concept",
+          "find_similar"
+        ]
+      }
+    ]
   }
 }
