@@ -7,14 +7,34 @@
 
 ---
 
-## Today — 2025-12-03
+## Today — 2025-12-05
+
+### High Priority
+- [x] 🎉 Cortex OS v1.1 完成（Search MCP 実装完了） <!-- #milestone,#done -->
+- [x] 🎉 llms-input.json パイプライン完成 + MCP Layer 情報追加 <!-- #milestone,#done -->
+
+### Completed (2025-12-05)
+- [x] Phase 2.5: MCP Community Detection（136 concepts → 5 communities）
+- [x] Text Editor MCP 実装完了（11 tests 全通過）
+- [x] Regex Bug Fix（search_replace の正規表現エスケープ）
+- [x] Search MCP 実装完了（10 tests 全通過）🎉 v1.1 完成
+- [x] Documentation Bug Fixes（2 bugs 修正）
+- [x] llms-input.json パイプライン完成
+- [x] MCP Layer 情報を schema に追加
+- [x] Node.js + Codescript 両方の実装更新
+
+### Regular Tasks
+- [ ] 1週間の安定稼働監視開始（2025-12-03 → 2025-12-10）
+
+---
+
+## Completed — 2025-12-03
 
 ### High Priority
 - [x] ⚡ Recipe 03 v1.2 Slack 通知統合完了 <!-- #urgent,#done -->
 - [x] ⚡ /diagnose コマンド実装 & テスト完了 <!-- #urgent,#done -->
 
-### Regular Tasks
-- [ ] 1週間の安定稼働監視開始（2025-12-03 → 2025-12-10）
+### Completed
 - [x] Cortex OS ヘルスチェック（初回スコア: 80% Good ⚠️）
 
 ### Completed (2025-12-03)
