@@ -8,10 +8,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### In Progress (v1.2 "Autonomy" - 90% Complete)
+### In Progress (v1.2 "Autonomy" - 95% Complete) 🎉
 - n8n production deployment (Railway/Render)
 - Recipe 統合 Phase 2 (task-entry.json integration)
-- Obsidian Codescript integration tests
+- 1週間安定稼働確認 (3/7日完了)
 
 ### Planned
 - Complete recipe catalog (recipes.md)
@@ -72,12 +72,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Performance: Parallel file reads, selective loading
   - 3 complete usage examples with realistic Q&A
 
+- **task-entry.json Schema** (v1.0)
+  - `data/schemas/task-entry.json` - JSON Schema definition
+  - Unified task format for v1.2+ analytics foundation
+  - Required fields: date, tasks[], metadata
+  - Optional fields: category, priority, tags, duration, dependencies
+  - Compatible with extract-tasks.py and analyze-workload.py
+
 ### Changed
-- **v1.2 Progress**: 45% → 90% (+45%)
+- **v1.2 Progress**: 45% → 95% (+50%) 🎉
   - ① 完全自律化: 100% (complete)
   - ② 情報モデル統一: 70% → 100% (+30%)
-  - ③ AI Interface 強化: 55% → 70% (+15%)
+  - ③ AI Interface 強化: 55% → 100% (+45%)
 - **README.md**: Updated with v1.1+ status and MCP Layer info
+- **/ask Command**: Already implemented (`.claude/commands/ask.md` 321 lines)
 - **TODO.md**: Added 11 completed tasks from 2025-12-05
 - cortex-os.md: Version 1.2 → 1.3 (2025-12-02 → 2025-12-03)
 - llms-input-schema.md: Added mcpLayer specification
