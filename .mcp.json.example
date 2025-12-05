@@ -128,6 +128,26 @@
         "notes": "v1.1 完成: OS can now search its own brain (Knowledge Graph + KB index)"
       }
     },
+    "time": {
+      "command": "node",
+      "args": ["services/mcp/time.mjs"],
+      "env": {},
+      "allowedTools": [
+        "get_current_time",
+        "add_time",
+        "format_date",
+        "get_week_range",
+        "get_month_range",
+        "date_diff"
+      ],
+      "metadata": {
+        "priority": "high",
+        "autoStart": true,
+        "tokenUsage": "~500 tokens per session",
+        "description": "Time/date operations for Cortex OS automation - date arithmetic, formatting, period calculations",
+        "notes": "v1.2: Essential for /brief, /wrap-up, and weekly summary automation"
+      }
+    },
     "fetch": {
       "command": "npx",
       "args": ["-y", "mcp-server-fetch"],
