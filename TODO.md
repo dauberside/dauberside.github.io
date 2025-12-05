@@ -167,7 +167,13 @@
   - セキュリティ実装（ホワイトリストタスクのみ実行可能）
   - 5タスク定義: rebuild-knowledge-graph, regenerate-llms-input, regenerate-llms-txt, full-refresh, quick-refresh
   - **🎉 OS が自力で llms.txt と Knowledge Graph を再生成可能に！**
-- [ ] Text Editor MCP の安全書き戻しロジック
+- [x] Text Editor MCP の安全書き戻しロジック ✅ 2025-12-05 完了
+  - `services/mcp/text-editor.mjs` 実装完了
+  - 全10テスト通過（write_file, append_to_file, insert_at_line, replace_lines, search_replace）
+  - セキュリティ境界実装（ALLOWED_WRITE_PATHS: TODO.md, clusters-v1.md, cortex/daily, cortex/weekly, cortex/state）
+  - アトミック書き込み（temp + rename）
+  - 自動バックアップ機能（.backup ファイル生成）
+  - **🎉 OS が TODO.md や clusters-v1.md を編集可能に！**
 - [ ] Search MCP の "Concept + Note" 両検索 API
 - [ ] llms-input-schema への MCP Layer 情報追加
   - MCP の状態（有効/無効、プライマリ/セカンダリ）を llms-input.json に含める
@@ -299,25 +305,29 @@ ADR（Architecture Decision Records）の標準セクション構造が中心で
 
 </details>
 
-**Phase 2.5: Community Detection（精度向上 - Optional）**
-- [ ] MCP クラスタ向け Louvain community detection 設計（30分）
-  - **ターゲット**: Cluster 1 (.mcp.json) のみ（136 concepts）
-  - **方針**: 全体を再クラスタするのではなく、デカすぎる MCP クラスタだけを分割
-  - **目標**: MCP を 3〜7個のサブコミュニティに分ける
-    - 例: MCP Core/primitives, MCP bridges/stdio, MCP integration patterns, MCP config/deployment
-  - **I/O スキーマ設計**:
-    - 入力: Cluster 1 に属する concept と類似度エッジ (cosine ≥ 0.7)
+**Phase 2.5: Community Detection（精度向上）** ✅ 2025-12-05 完了
+- [x] MCP クラスタ向け Louvain community detection 実装
+  - **ターゲット**: Cluster 0 (.mcp.json) のみ（136 concepts）
+  - **結果**: 5つのサブコミュニティに分割
+    - mcp-community-2 (50 concepts): ドキュメント・要件・セキュリティ
+    - mcp-community-0 (35 concepts): MCP コア設定・プロトコル
+    - mcp-community-1 (23 concepts): トランスポート・接続
+    - mcp-community-3 (19 concepts): コンテキスト・統合
+    - mcp-community-4 (9 concepts): Claude Code セットアップ
+  - **I/O スキーマ**:
+    - 入力: graph-v1.json (Cluster 0), concept-embeddings.json
     - 出力: `cortex/graph/mcp-communities.json`, `cortex/graph/mcp-clusters-v1.md`
-  - **グラフメトリクス計算（サブクラスタのハブ特定）**:
-    - Cluster 1 内で degree top 10, betweenness top 10, closeness top 10 を計算
-    - これによりサブクラスタの中心ノードを特定
-- [ ] Louvain 法の実装（Phase 2.5）
-  - 軽量コミュニティ検出アルゴリズム
-  - Graphology ライブラリ使用
-  - Connected Components より細かい概念群の自動検出
-- [ ] `cortex/graph/community-detect.mjs` 実装
-  - Louvain コミュニティ検出
-  - MCP 専用の脳の地図生成
+  - **グラフメトリクス計算完了**:
+    - Top Hubs: Server (54), Primitive (51), JSONRPC (51), Prompt (50), Template (50)
+    - Betweenness & Closeness centrality も計算
+- [x] Louvain 法の実装（Phase 2.5）
+  - Graphology ライブラリ使用（graphology v0.26.0, graphology-communities-louvain v2.0.2）
+  - 1518 エッジ生成（類似度 ≥ 0.7）
+  - Connected Components より細かい概念群の自動検出に成功
+- [x] `cortex/graph/community-detect.mjs` 実装
+  - Louvain コミュニティ検出完了
+  - MCP 専用の脳の地図生成（mcp-clusters-v1.md）
+  - **🎉 MCP クラスタが意味のある5つのサブコミュニティに分割完了！**
 
 **パイプライン実行 & 検証**
 - [x] 初回 Knowledge Graph 生成（2025-11-27 完了）
