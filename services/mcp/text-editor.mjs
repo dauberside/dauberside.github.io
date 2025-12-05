@@ -90,6 +90,14 @@ async function atomicWrite(filePath, content) {
 }
 
 /**
+ * Escape regex special characters for literal string matching
+ * Prevents user input from being interpreted as regex patterns
+ */
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * MCP Tools
  */
 const tools = {
@@ -327,8 +335,9 @@ const tools = {
       let replacements = 0;
 
       if (all) {
-        // Replace all occurrences
-        const regex = new RegExp(search, 'g');
+        // Replace all occurrences (escape regex special characters for literal matching)
+        const escapedSearch = escapeRegex(search);
+        const regex = new RegExp(escapedSearch, 'g');
         newContent = existingContent.replace(regex, (match) => {
           replacements++;
           return replace;

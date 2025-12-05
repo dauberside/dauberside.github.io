@@ -291,11 +291,41 @@ async function main() {
       }
     });
 
-    // Test 9: Security - deny write to non-allowed path
-    await runTest('Security: deny non-allowed path', async () => {
+    // Test 9: search_replace with regex special characters (bug fix verification)
+    await runTest('search_replace with regex metacharacters', async () => {
+      await fs.writeFile(TEST_FILE_FULL, 'file.txt is here and file-txt is not\n');
+
       const response = await sendRequest(server, {
         jsonrpc: '2.0',
         id: 9,
+        method: 'tools/call',
+        params: {
+          name: 'search_replace',
+          arguments: {
+            path: TEST_FILE,
+            search: 'file.txt',
+            replace: 'document.pdf',
+            all: true,
+          },
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const content = await fs.readFile(TEST_FILE_FULL, 'utf-8');
+      // Should replace literal "file.txt" but NOT "file-txt"
+      if (content !== 'document.pdf is here and file-txt is not\n') {
+        throw new Error(`Regex escaping failed. Got: ${content}`);
+      }
+    });
+
+    // Test 10: Security - deny write to non-allowed path
+    await runTest('Security: deny non-allowed path', async () => {
+      const response = await sendRequest(server, {
+        jsonrpc: '2.0',
+        id: 10,
         method: 'tools/call',
         params: {
           name: 'write_file',
@@ -311,13 +341,13 @@ async function main() {
       }
     });
 
-    // Test 10: Backup creation
+    // Test 11: Backup creation
     await runTest('Backup creation', async () => {
       await fs.writeFile(TEST_FILE_FULL, 'Original content\n');
 
       const response = await sendRequest(server, {
         jsonrpc: '2.0',
-        id: 10,
+        id: 11,
         method: 'tools/call',
         params: {
           name: 'write_file',
