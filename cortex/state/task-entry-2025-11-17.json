@@ -1,0 +1,70 @@
+{
+  "date": "2025-11-17",
+  "tasks": [],
+  "completed": [
+    {
+      "content": "Recipe 1 完了（Obsidian → Slack 通知）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 2 完了（定期 KB 再構築）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 3 完成（Daily Digest to Slack）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Phase 2 基盤構築完了",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 1 完了（Obsidian → Slack 通知）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 2 完了（定期 KB 再構築）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 3 実装中（Daily Digest）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    }
+  ],
+  "carryover": [],
+  "reflection": "- Phase 2 の基盤が整った\n- Recipe 1-3 が全て動作確認済み\n- 自動化の土台ができた\n- Phase 2 の自動化レシピが順調に増えている\n- 第二の脳がちゃんと動き始めてる実感がある\n- Recipe 3 が動けば朝のルーチンが変わりそう",
+  "tomorrow_candidates": [],
+  "metadata": {
+    "generated_at": "2025-12-05T08:29:53.838Z",
+    "source": "daily-digest",
+    "version": "1.0.0"
+  }
+}

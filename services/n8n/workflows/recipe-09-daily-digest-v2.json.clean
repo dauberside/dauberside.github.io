@@ -1,0 +1,162 @@
+{
+  "name": "Recipe 09: Daily Digest → Claude Code (File + Slack)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days"
+            }
+          ]
+        },
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 8,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every Morning 08:00 JST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate yesterday's date in JST (UTC+9)\nfunction getJSTDate(offsetDays = 0) {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000 + offsetDays * 24 * 60 * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getJSTDate(-1); // Yesterday in JST\n\n// Build file path for Obsidian daily note\nconst filePath = `cortex/daily/${dateString}-digest.md`;\n\nreturn {\n  json: {\n    date: dateString,\n    filePath: filePath,\n    outputPath: `${process.env.WORKSPACE_ROOT}/notifications/daily/${dateString}-digest.md`\n  }\n};"
+      },
+      "id": "calculate-date",
+      "name": "Calculate Yesterday's Date (JST)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://host.docker.internal:27124/vault/{{ $json.filePath }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.OBSIDIAN_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "get-obsidian-note",
+      "name": "Get Daily Note from Obsidian",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst dateInfo = $('Calculate Yesterday\\'s Date (JST)').first().json;\n\n// Get content from HTTP response (it's the raw markdown text)\nconst content = typeof input === 'string' ? input : (input.data || input.body || input.content || '');\n\n// Extract date from markdown header (e.g., \"# Daily Digest 2025-11-19\")\nlet date = dateInfo.date || 'unknown';\nconst dateMatch = content.match(/# Daily Digest[\\s—-]+([\\d-]+)/);\nif (dateMatch) {\n  date = dateMatch[1];\n}\n\n// Parse markdown to extract Tasks and Reflection sections\nfunction extractSection(markdown, sectionName) {\n  const regex = new RegExp(`##\\\\s*${sectionName}([\\\\s\\\\S]*?)(?=##|$)`, 'i');\n  const match = markdown.match(regex);\n  if (!match) return null;\n  return match[1].trim();\n}\n\nfunction extractTasks(tasksSection) {\n  if (!tasksSection) return [];\n  const lines = tasksSection.split('\\n');\n  return lines\n    .filter(line => line.match(/^\\s*-\\s*\\[[x \\]]/i)) // Match checkbox lines [x] or [ ]\n    .map(line => line.trim());\n}\n\n// Extract sections - Try multiple section names for tasks\nconst tasksSection = extractSection(content, \"Today's Focus\") || extractSection(content, 'Tasks') || extractSection(content, 'High Priority');\nconst reflectionSection = extractSection(content, 'Reflection');\n\n// Parse tasks\nconst tasks = extractTasks(tasksSection);\n\n// Build Slack message\nlet slackMessage = `🗓 *Daily Digest for ${date}*\\n\\n`;\n\nif (tasks.length > 0) {\n  slackMessage += `✅ *Tasks*\\n`;\n  tasks.forEach(task => {\n    slackMessage += `${task}\\n`;\n  });\n  slackMessage += `\\n`;\n} else {\n  slackMessage += `✅ *Tasks*\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  slackMessage += `🧠 *Reflection*\\n${reflectionSection}`;\n} else {\n  slackMessage += `🧠 *Reflection*\\nNo reflection found`;\n}\n\n// Build Markdown file content for Claude Code\nlet markdownContent = `# Daily Digest - ${date}\\n\\n`;\n\nif (tasks.length > 0) {\n  markdownContent += `## Tasks\\n`;\n  tasks.forEach(task => {\n    markdownContent += `${task}\\n`;\n  });\n  markdownContent += `\\n`;\n} else {\n  markdownContent += `## Tasks\\nNo tasks found\\n\\n`;\n}\n\nif (reflectionSection) {\n  markdownContent += `## Reflection\\n${reflectionSection}\\n`;\n} else {\n  markdownContent += `## Reflection\\nNo reflection found\\n`;\n}\n\nmarkdownContent += `\\n---\\n\\nMetadata:\\n- Source: Obsidian ${dateInfo.filePath}\\n- GeneratedAt: ${new Date().toISOString()}\\n`;\n\n// Base64 encode the markdown content\nconst markdownBase64 = Buffer.from(markdownContent).toString('base64');\n\nreturn {\n  json: {\n    date: date,\n    slackText: slackMessage,\n    markdown: markdownContent,\n    markdownBase64: markdownBase64,\n    outputPath: dateInfo.outputPath,\n    tasksFound: tasks.length,\n    reflectionFound: !!reflectionSection\n  }\n};"
+      },
+      "id": "parse-markdown",
+      "name": "Parse Tasks & Reflection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "command": "=mkdir -p $(dirname {{ $json.outputPath }}) && echo {{ $json.markdownBase64 }} | base64 -d > {{ $json.outputPath }}"
+      },
+      "id": "write-digest-file",
+      "name": "Write Digest File",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": $('Parse Tasks & Reflection').item.json.slackText } }}",
+        "options": {}
+      },
+      "id": "slack-notification",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Every Morning 08:00 JST": {
+      "main": [
+        [
+          {
+            "node": "Calculate Yesterday's Date (JST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Yesterday's Date (JST)": {
+      "main": [
+        [
+          {
+            "node": "Get Daily Note from Obsidian",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Daily Note from Obsidian": {
+      "main": [
+        [
+          {
+            "node": "Parse Tasks & Reflection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Tasks & Reflection": {
+      "main": [
+        [
+          {
+            "node": "Write Digest File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Digest File": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

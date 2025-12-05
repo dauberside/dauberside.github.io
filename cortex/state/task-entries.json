@@ -1,0 +1,82 @@
+{
+  "generated": "2025-12-05T08:26:40.722Z",
+  "totalEntries": 6,
+  "dateRange": {
+    "start": "2025-12-05",
+    "end": "2025-12-05"
+  },
+  "entries": [
+    {
+      "date": "2025-12-05",
+      "task": "Recipe 14/03/10 の自動実行問題を調査・修正",
+      "status": "completed",
+      "priority": "P0",
+      "phase": "コアワーク",
+      "time": "30分",
+      "tags": [],
+      "source": "brief",
+      "timestamp": "2025-12-05T10:58:00Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    },
+    {
+      "date": "2025-12-05",
+      "task": "今日の digest を手動生成（12/04, 12/05）",
+      "status": "completed",
+      "priority": "P1",
+      "phase": "ウォームアップ",
+      "time": "15分",
+      "tags": [],
+      "source": "brief",
+      "timestamp": "2025-12-05T10:58:00Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    },
+    {
+      "date": "2025-12-05",
+      "task": "Recipe 02 ログ確認",
+      "status": "completed",
+      "priority": "P2",
+      "phase": "軽作業",
+      "time": "10分",
+      "tags": [],
+      "source": "brief",
+      "timestamp": "2025-12-05T10:58:00Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    },
+    {
+      "date": "2025-12-05",
+      "task": "/sync-todo 統合テスト（tomorrow/both モード）",
+      "status": "candidate",
+      "priority": "regular",
+      "tags": [],
+      "source": "tomorrow",
+      "timestamp": "2025-12-05T08:26:40.711Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    },
+    {
+      "date": "2025-12-05",
+      "task": "Recipe 03/10 自動実行の確認（明朝 08:00/08:05）",
+      "status": "candidate",
+      "priority": "regular",
+      "tags": [],
+      "source": "tomorrow",
+      "timestamp": "2025-12-05T08:26:40.711Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    },
+    {
+      "date": "2025-12-05",
+      "task": "v1.2 Roadmap の次のマイルストーン特定",
+      "status": "candidate",
+      "priority": "regular",
+      "tags": [],
+      "source": "tomorrow",
+      "timestamp": "2025-12-05T08:26:40.711Z",
+      "dayOfWeek": "Friday",
+      "hasDigest": true
+    }
+  ]
+}

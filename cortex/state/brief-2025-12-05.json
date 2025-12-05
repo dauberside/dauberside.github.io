@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-05T10:58:00Z",
+  "date": "2025-12-05",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Recipe 14/03/10 の自動実行問題を調査・修正",
+      "time": "30分",
+      "phase": "コアワーク",
+      "priority": "P0",
+      "status": "completed"
+    },
+    {
+      "title": "今日の digest を手動生成（12/04, 12/05）",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P1",
+      "status": "completed"
+    },
+    {
+      "title": "Recipe 02 ログ確認",
+      "time": "10分",
+      "phase": "軽作業",
+      "priority": "P2",
+      "status": "completed"
+    }
+  ],
+  "total_time": 55,
+  "buffer": "OK",
+  "reflection": "Cortex OS の自律動作が復旧。Recipe 14/03/10 のスケジュール問題を修正し、digest 生成も完了。"
+}

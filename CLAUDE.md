@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Last updated: November 9, 2025
+Last updated: December 5, 2025
 
 ---
 
@@ -83,6 +83,28 @@ npx pm2 reload next-app --update-env          # Reload with env updates
 npx pm2 logs next-app --lines 200             # View logs
 npx pm2 status                                # Check process status
 ```
+
+### Cortex OS Commands (Slash Commands)
+```bash
+/brief                # Morning briefing - plan today's tasks
+/wrap-up              # Evening wrap-up - reflect and prepare tomorrow
+/diagnose             # System health check (Obsidian API, n8n, KB)
+/sync-todo            # Sync tasks from JSON state to TODO.md
+/ask                  # Q&A agent - query external memory (digests, TODO, summaries)
+```
+
+**Usage Examples**:
+```bash
+/brief                          # Plan today's tasks interactively
+/wrap-up                        # Reflect on today and plan tomorrow
+/diagnose                       # Check system health score
+/sync-todo today --replace      # Sync today's tasks to TODO.md
+/sync-todo tomorrow             # Sync tomorrow's tasks
+/sync-todo both                 # Sync both today and tomorrow
+/ask                            # Ask questions about project status
+```
+
+**Note**: These are prompt-based slash commands defined in `.claude/commands/`. They work within Claude Code sessions and access external memory (Obsidian vault, JSON state files, system status).
 
 ---
 

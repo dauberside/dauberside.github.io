@@ -24,10 +24,7 @@
       "name": "Every Morning 08:05 JST",
       "type": "n8n-nodes-base.cron",
       "typeVersion": 1,
-      "position": [
-        250,
-        300
-      ]
+      "position": [250, 300]
     },
     {
       "parameters": {
@@ -37,10 +34,7 @@
       "name": "Calculate Dates",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        450,
-        300
-      ]
+      "position": [450, 300]
     },
     {
       "parameters": {
@@ -51,10 +45,7 @@
       "name": "Read Latest Daily Digest",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
-      "position": [
-        650,
-        300
-      ],
+      "position": [650, 300],
       "onError": "continueRegularOutput"
     },
     {
@@ -65,10 +56,7 @@
       "name": "Extract Uncompleted Tasks",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        850,
-        300
-      ]
+      "position": [850, 300]
     },
     {
       "parameters": {
@@ -93,24 +81,18 @@
       "name": "Read TODO.md",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1050,
-        300
-      ],
+      "position": [1050, 300],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "// Recipe 10: Fixed Merge Logic\n// Issue: Regex doesn't properly remove old \"## Today\" section with subsections\n\nconst taskInfo = $('Extract Uncompleted Tasks').first().json;\nconst httpResponse = $input.first().json;\n\nfunction unwrapContent(raw) {\n  if (typeof raw !== 'string') return '';\n  let current = raw;\n  while (true) {\n    try {\n      const parsed = JSON.parse(current);\n      if (parsed && typeof parsed.content === 'string') {\n        current = parsed.content;\n        continue;\n      }\n      break;\n    } catch (e) {\n      break;\n    }\n  }\n  return current;\n}\n\n// Get existing TODO.md content\nlet todoContent = '';\n\nif (httpResponse && typeof httpResponse === 'object') {\n  if (typeof httpResponse.content === 'string') {\n    todoContent = unwrapContent(httpResponse.content);\n  } else if (typeof httpResponse.data === 'string') {\n    todoContent = unwrapContent(httpResponse.data);\n  } else if (typeof httpResponse.body === 'string') {\n    todoContent = unwrapContent(httpResponse.body);\n  } else if (httpResponse.data && typeof httpResponse.data.content === 'string') {\n    todoContent = unwrapContent(httpResponse.data.content);\n  }\n} else if (typeof httpResponse === 'string') {\n  todoContent = unwrapContent(httpResponse);\n}\n\nif (!todoContent) {\n  todoContent = '';\n}\n\n// Parse existing TODO sections\nconst lines = todoContent.split('\\n');\nconst existingTasks = lines\n  .filter(line => line.trim().match(/^-\\s*\\[/))\n  .map(line => line.trim());\n\n// Helper function to normalize task text for deduplication\nfunction normalizeTask(taskLine) {\n  return taskLine\n    .replace(/^-\\s*\\[\\s*\\]\\s*/, '')     // Remove checkbox\n    .replace(/^\\[.*?\\]\\s*/, '')          // Remove category prefix\n    .replace(/^[⚡🚧⏳🎯👁️]\\s*/, '')     // Remove emoji\n    .replace(/\\s*<!--.*?-->\\s*$/, '')   // Remove HTML comment\n    .trim();\n}\n\n// Format new tasks with category, emoji, and tags\nconst formattedTasks = taskInfo.uncompletedTasks.map(task => {\n  // Remove the \"- [ ] \" prefix and any existing tags from content\n  let taskContent = task.raw.replace(/^-\\s*\\[\\s*\\]\\s*/, '');\n  \n  // Remove inline tags from the content (they'll be in the comment)\n  taskContent = taskContent.replace(/#\\w+/g, '').trim();\n  \n  // Build the formatted task\n  let formatted = '- [ ]';\n  \n  // Add category if exists\n  if (task.category) {\n    formatted += ` [${task.category}]`;\n  }\n  \n  // Add emoji if exists\n  if (task.emoji) {\n    formatted += ` ${task.emoji}`;\n  }\n  \n  // Add task content\n  formatted += ` ${taskContent}`;\n  \n  // Add tags comment if exists\n  if (task.tags && task.tags.length > 0) {\n    const tagsList = task.tags.map(t => `#${t}`).join(',');\n    formatted += `  <!-- ${tagsList} -->`;\n  }\n  \n  return formatted;\n});\n\n// Filter out tasks that already exist in TODO (compare normalized content only)\nconst newTasks = formattedTasks.filter(formattedTask => {\n  const newTaskNormalized = normalizeTask(formattedTask);\n  \n  return !existingTasks.some(existing => {\n    const existingNormalized = normalizeTask(existing);\n    return existingNormalized === newTaskNormalized;\n  });\n});\n\n// Categorize tasks by urgency for structured output\nconst urgentTasks = newTasks.filter(t => t.includes('<!-- #urgent'));\nconst regularTasks = newTasks.filter(t => !t.includes('<!-- #urgent'));\n\n// Build new section for today with proper structure\nconst today = taskInfo.date;\nlet newSection = `## Today — ${today}\\n\\n`;\n\n// High Priority section\nnewSection += '### High Priority\\n';\nif (urgentTasks.length > 0) {\n  urgentTasks.forEach(task => {\n    newSection += `${task}\\n`;\n  });\n} else {\n  newSection += '（タスクなし）\\n';\n}\nnewSection += '\\n';\n\n// Regular Tasks section\nnewSection += '### Regular Tasks\\n';\nif (regularTasks.length > 0) {\n  regularTasks.forEach(task => {\n    newSection += `${task}\\n`;\n  });\n} else {\n  newSection += '（タスクなし）\\n';\n}\n\nnewSection += '\\n---\\n';\n\n// FIX: Remove old \"## Today —\" section completely (including all subsections until ---)\n// Strategy: Match \"## Today —\" and everything until (and including) the \"---\" separator\nconst todayRegex = /^## Today — \\d{4}-\\d{2}-\\d{2}\\s*\\n[\\s\\S]*?^---\\s*$/m;\n\nlet updatedContent = todoContent.replace(todayRegex, '').trim();\n\n// Add new section at the top\nupdatedContent = newSection + '\\n' + updatedContent;\n\nreturn {\n  json: {\n    date: today,\n    todoPath: taskInfo.todoPath,\n    newTasksCount: newTasks.length,\n    totalTasksCount: taskInfo.taskCount,\n    urgentCount: urgentTasks.length,\n    regularCount: regularTasks.length,\n    updatedContent,\n    newTasks,\n  },\n};\n"
+        "jsCode": "const taskInfo = $('Extract Uncompleted Tasks').first().json;\nconst httpResponse = $input.first().json;\n\nfunction unwrapContent(raw) {\n  if (typeof raw !== 'string') return '';\n  let current = raw;\n  while (true) {\n    try {\n      const parsed = JSON.parse(current);\n      if (parsed && typeof parsed.content === 'string') {\n        current = parsed.content;\n        continue;\n      }\n      break;\n    } catch (e) {\n      break;\n    }\n  }\n  return current;\n}\n\n// Get existing TODO.md content (Obsidian REST: { content: \"...\" })\nlet todoContent = '';\n\nif (httpResponse && typeof httpResponse === 'object') {\n  if (typeof httpResponse.content === 'string') {\n    todoContent = unwrapContent(httpResponse.content);\n  } else if (typeof httpResponse.data === 'string') {\n    todoContent = unwrapContent(httpResponse.data);\n  } else if (typeof httpResponse.body === 'string') {\n    todoContent = unwrapContent(httpResponse.body);\n  } else if (httpResponse.data && typeof httpResponse.data.content === 'string') {\n    todoContent = unwrapContent(httpResponse.data.content);\n  }\n} else if (typeof httpResponse === 'string') {\n  todoContent = unwrapContent(httpResponse);\n}\n\nif (!todoContent) {\n  todoContent = '';\n}\n\n// Parse existing TODO sections\nconst lines = todoContent.split('\\n');\nconst existingTasks = lines\n  .filter(line => line.trim().match(/^\\-\\s*\\[/))\n  .map(line => line.trim());\n\n// Helper function to normalize task text for deduplication\nfunction normalizeTask(taskLine) {\n  return taskLine\n    .replace(/^-\\s*\\[\\s*\\]\\s*/, '')     // Remove checkbox\n    .replace(/^\\[.*?\\]\\s*/, '')          // Remove category prefix [Cortex], [n8n], etc.\n    .replace(/^[⚡🚧⏳🎯👁️]\\s*/, '')     // Remove emoji + space (all 5 emojis)\n    .replace(/\\s*<!--.*?-->\\s*$/, '')   // Remove trailing HTML comment\n    .trim();\n}\n\n// Format new tasks with category, emoji, and tags\nconst formattedTasks = taskInfo.uncompletedTasks.map(task => {\n  // Remove the \"- [ ] \" prefix and any existing tags from content\n  let taskContent = task.raw.replace(/^-\\s*\\[\\s*\\]\\s*/, '');\n  \n  // Remove inline tags from the content (they'll be in the comment)\n  taskContent = taskContent.replace(/#\\w+/g, '').trim();\n  \n  // Build the formatted task\n  let formatted = '- [ ]';\n  \n  // Add category if exists\n  if (task.category) {\n    formatted += ` [${task.category}]`;\n  }\n  \n  // Add emoji if exists\n  if (task.emoji) {\n    formatted += ` ${task.emoji}`;\n  }\n  \n  // Add task content\n  formatted += ` ${taskContent}`;\n  \n  // Add tags comment if exists\n  if (task.tags && task.tags.length > 0) {\n    const tagsList = task.tags.map(t => `#${t}`).join(',');\n    formatted += `  <!-- ${tagsList} -->`;\n  }\n  \n  return formatted;\n});\n\n// Filter out tasks that already exist in TODO (compare normalized content only)\nconst newTasks = formattedTasks.filter(formattedTask => {\n  const newTaskNormalized = normalizeTask(formattedTask);\n  \n  return !existingTasks.some(existing => {\n    const existingNormalized = normalizeTask(existing);\n    return existingNormalized === newTaskNormalized;\n  });\n});\n\n// Build new section for today\nconst today = taskInfo.date;\nlet newSection = `\\n## Today — ${today}\\n\\n`;\n\nif (newTasks.length > 0) {\n  newTasks.forEach(task => {\n    newSection += `${task}\\n`;\n  });\n} else {\n  newSection += '### High Priority\\n（タスクなし）\\n\\n';\n  newSection += '### Regular Tasks\\n（タスクなし）\\n\\n';\n}\n\nnewSection += '\\n---\\n';\n\n// Remove old \"## Today —\" section if exists, then add new section\nconst updatedContent = todoContent.replace(\n  /## Today — \\d{4}-\\d{2}-\\d{2}[\\s\\S]*?(?=\\n---|$)/,\n  ''\n).trim() + newSection;\n\nreturn {\n  json: {\n    date: today,\n    todoPath: taskInfo.todoPath,\n    newTasksCount: newTasks.length,\n    totalTasksCount: taskInfo.taskCount,\n    updatedContent,\n    newTasks,\n  },\n};"
       },
       "id": "merge-tasks",
       "name": "Merge Tasks into TODO",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        1250,
-        300
-      ]
+      "position": [1250, 300]
     },
     {
       "parameters": {
@@ -142,10 +124,7 @@
       "name": "Update TODO.md",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1450,
-        300
-      ],
+      "position": [1450, 300],
       "onError": "continueRegularOutput"
     },
     {
@@ -162,10 +141,7 @@
       "name": "Send to Slack",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        1650,
-        300
-      ],
+      "position": [1650, 300],
       "onError": "continueRegularOutput"
     }
   ],

@@ -1,0 +1,39 @@
+{
+  "date": "2025-11-21",
+  "tasks": [
+    {
+      "content": "Recipe 13 本番稼働確認",
+      "status": "pending",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    }
+  ],
+  "completed": [
+    {
+      "content": "/brief テスト実行",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Daily Digest 作成",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    }
+  ],
+  "carryover": [],
+  "reflection": "-",
+  "tomorrow_candidates": [],
+  "metadata": {
+    "generated_at": "2025-12-05T08:29:53.970Z",
+    "source": "daily-digest",
+    "version": "1.0.0"
+  }
+}

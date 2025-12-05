@@ -141,3 +141,41 @@ const tomorrow = JSON.parse(await obsidian_get_file_contents("cortex/state/tomor
 ## 実行開始
 
 上記の手順に従って、外部記憶を読み込み、今日のタスクプランを生成してください。
+
+---
+
+## タスクプランの保存（Phase 3 追加）
+
+タスクプランを生成した後、以下の JSON ファイルに保存してください：
+
+**保存先**: `cortex/state/brief-{today}.json`
+
+**フォーマット**:
+```json
+{
+  "generated_at": "{ISO 8601 timestamp}",
+  "date": "{YYYY-MM-DD}",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "{task title}",
+      "time": "{estimated time}",
+      "phase": "{ウォームアップ|コアワーク|深い仕事}",
+      "priority": "{P0|P1|P2|P3}",
+      "status": "pending"
+    }
+  ],
+  "total_time": {total minutes},
+  "buffer": "{OK|注意|危険}",
+  "reflection": "{brief summary of the plan}"
+}
+```
+
+**保存方法**:
+```bash
+cat > cortex/state/brief-{YYYY-MM-DD}.json << 'EOF'
+{json content}
+EOF
+```
+
+**重要**: このJSONファイルは `/sync-todo` コマンドで TODO.md に反映されます。外出先でDockerに繋がっていなくても、帰宅後に `/sync-todo today` を実行すれば、今日のタスクが TODO.md に自動追加されます。

@@ -1,0 +1,54 @@
+{
+  "date": "2025-11-18",
+  "tasks": [],
+  "completed": [
+    {
+      "content": "Recipe 3 完成（Daily Digest to Slack）",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Phase 2 基盤構築完了",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Recipe 9 テスト実行",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Weekly Summary ワークフロー設計",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    },
+    {
+      "content": "Claude Code 連携動作確認",
+      "status": "completed",
+      "tags": [],
+      "emoji": "",
+      "category": "",
+      "estimate": 1
+    }
+  ],
+  "carryover": [],
+  "reflection": "- Phase 2 の自動化基盤が整った\n- n8n と Obsidian の連携がスムーズに動作\n- KB 夜間自動再構築、朝の Digest 配信、重要ノート変更通知のループが完成\n- 次は Claude Code との直結（Recipe 9）で開発体験をさらに向上",
+  "tomorrow_candidates": [],
+  "metadata": {
+    "generated_at": "2025-12-05T08:29:53.876Z",
+    "source": "daily-digest",
+    "version": "1.0.0"
+  }
+}

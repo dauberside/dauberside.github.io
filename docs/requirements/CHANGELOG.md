@@ -8,9 +8,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### In Progress (v1.2 "Autonomy" - 70% Complete)
+### In Progress (v1.2 "Autonomy" - 90% Complete)
 - n8n production deployment (Railway/Render)
-- `/ask` command implementation
+- Recipe 統合 Phase 2 (task-entry.json integration)
 - Obsidian Codescript integration tests
 
 ### Planned
@@ -18,6 +18,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Migration guides for v1.1 → v1.2
 - Performance benchmarks
 - Disaster recovery procedures
+- `/reflect` command implementation
+- `/plan` command implementation
 
 ---
 
@@ -61,12 +63,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - date_diff, is_weekend, get_day_of_week, to_utc
   - 10 tests all passing
   - Essential for Cortex OS automation
+- **/ask Command** (Slash Command)
+  - `.claude/commands/ask.md` specification (321 lines, 7.8KB)
+  - 4 question types: today's status, weekly status, project status, system status
+  - Selective external memory loading (Daily Digest, TODO.md, Weekly Summary)
+  - Fact-based responses with source attribution
+  - Security: No API keys in responses, server-side only
+  - Performance: Parallel file reads, selective loading
+  - 3 complete usage examples with realistic Q&A
 
 ### Changed
-- **v1.2 Progress**: 45% → 70% (+25%)
+- **v1.2 Progress**: 45% → 90% (+45%)
   - ① 完全自律化: 100% (complete)
-  - ② 情報モデル統一: 70% → 80% (+10%)
-  - ③ AI Interface 強化: 55% → 60% (+5%)
+  - ② 情報モデル統一: 70% → 100% (+30%)
+  - ③ AI Interface 強化: 55% → 70% (+15%)
 - **README.md**: Updated with v1.1+ status and MCP Layer info
 - **TODO.md**: Added 11 completed tasks from 2025-12-05
 - cortex-os.md: Version 1.2 → 1.3 (2025-12-02 → 2025-12-03)
@@ -98,7 +108,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 1. 🎉 Cortex OS v1.1+ complete (5 MCP Servers operational)
 2. 🎉 llms-input.json pipeline complete
 3. 🎉 llms.txt generation pipeline complete
-4. 🎉 Information Model Unification 80% achieved
+4. 🎉 Information Model Unification 100% achieved
+5. 🎉 task-entry.json schema complete (Phase 1)
+6. 🎉 `/ask` command complete (AI Interface enhancement to 70%)
 
 ---
 
@@ -286,7 +298,7 @@ Security-related changes.
 
 | Document | Version | Last Updated | Status |
 |----------|---------|--------------|--------|
-| cortex-os.md | 1.3 | 2025-12-03 | ✅ Current |
+| cortex-os.md | 1.4 | 2025-12-05 | ✅ Current |
 | CROSS-REFERENCE-MATRIX.md | 1.0 | 2025-12-03 | ✅ Current |
 | CHANGELOG.md | 1.3 | 2025-12-03 | ✅ Current |
 | README.md | 1.2 | 2025-12-02 | ✅ Current |

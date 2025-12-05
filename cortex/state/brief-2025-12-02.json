@@ -1,0 +1,49 @@
+{
+  "date": "2025-12-02",
+  "plan": [
+    {
+      "id": 1,
+      "title": "Recipe 10 (TODO.md Auto-sync) の Merge ロジック修正",
+      "duration_min": 20,
+      "type": "Deep Work",
+      "action": "Obsidian ↔ n8n 間の同期を安定化させるため、Recipe 10 のマージロジックを実装・修正する",
+      "reason": "P0（#urgent）。TODO.md同期の失敗は Cortex OS の中核機能に影響",
+      "blocker": "なし"
+    },
+    {
+      "id": 2,
+      "title": "v1.2 Roadmap 確認",
+      "duration_min": 10,
+      "type": "Warm-up",
+      "action": "cortex/roadmap/ などの関連資料で v1.2 の進捗・次のマイルストーンを確認",
+      "reason": "昨日の wrap-up で today の候補として明示されたタスク",
+      "blocker": "なし"
+    },
+    {
+      "id": 3,
+      "title": "Recipe 02/14 の実行ログ確認",
+      "duration_min": 15,
+      "type": "Shallow Work",
+      "action": "n8n UI で Recipe 02 (KB Rebuild) と Recipe 14 の履歴・エラーを確認し Health Score 90% を維持",
+      "reason": "Regular Task。KB Rebuild完全実装の安定稼働を7日間計測",
+      "blocker": "なし"
+    }
+  ],
+  "summary": {
+    "total_minutes": 45,
+    "buffer_status": "OK",
+    "remaining_tasks_today": 4,
+    "deep_work": 1
+  },
+  "notes": {
+    "mcp_memory": "Memory Server の動作テスト。今日のブリーフィングを保存し wrap-up 時に参照する",
+    "reflection_yesterday": "シンプルさの価値を再認識。Recipe 10 は最小限で確実に動かす方針",
+    "health": "昨日11時間セッション。今日は45分プランで体力の回復を優先"
+  },
+  "meta": {
+    "generated_at": "2025-12-02T04:43:12.922Z",
+    "session": "copilot-cli",
+    "cortex_version": "v1.1",
+    "storage_method": "json_fallback"
+  }
+}
