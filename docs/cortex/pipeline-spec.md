@@ -1,8 +1,9 @@
 # Cortex OS パイプライン仕様書
 
-**Version**: 1.0  
+**Version**: 2.0  
 **Created**: 2025-12-05  
-**Status**: Production (v1.2 Autonomy)
+**Updated**: 2025-12-05 (v1.3 Intelligence)  
+**Status**: Production (v1.3 Intelligence)
 
 ---
 
@@ -361,22 +362,85 @@ python scripts/suggest.py
 
 ---
 
-## 🚀 将来の拡張（v1.3+）
+## 🧠 Pipeline 4: Temporal Analytics (v1.3)
 
-### Phase 2: Duration Learning
-- `estimated_duration` と `actual_duration` の学習
-- タスクごとの所要時間予測
-- Pipeline 2 に機械学習モデル追加
+### 目的
+タスクの時間的パターンを学習し、ユーザーの行動リズムを理解します。
 
-### Phase 3: Dependency Detection
-- タスク間依存関係の推論
-- 依存グラフの生成
-- Pipeline 3 の提案ロジックに統合
+### Sub-Pipelines
 
-### Phase 4: Self-Improvement
-- パイプライン実行時間のモニタリング
-- 異常検知とアラート
-- 自動最適化提案
+#### 4.1 Duration Learning
+```bash
+python scripts/analyze-duration.py --days 30
+```
+- **Input**: `cortex/state/task-entry-*.json`
+- **Output**: `cortex/state/duration-patterns.json`
+- **機能**: カテゴリ別の所要時間平均・分散・バイアス検出
+
+#### 4.2 Rhythm Detection
+```bash
+python scripts/analyze-rhythm.py --days 30
+```
+- **Input**: `cortex/state/task-entry-*.json`
+- **Output**: `cortex/state/rhythm-patterns.json`
+- **機能**: 朝型/夜型判定、時間帯別分布、ピークウィンドウ検出
+
+#### 4.3 Category Heatmap
+```bash
+python scripts/analyze-category-heatmap.py --days 30
+```
+- **Input**: `cortex/state/task-entry-*.json`
+- **Output**: `cortex/state/category-heatmap.json`
+- **機能**: 曜日×カテゴリ相性マトリクス、dominant category 検出
+
+---
+
+## 🏥 Pipeline 5: Self-Improvement Loop (v1.3)
+
+### 目的
+OS 自身とユーザーのコンディションを監視し、システムの自己改善を実現します。
+
+### Sub-Pipelines
+
+#### 5.1 Health Score Engine
+```bash
+python scripts/analyze-health.py
+```
+- **Input**: logs, 各種 state/*.json
+- **Output**: `cortex/state/health-score.json`
+- **機能**: OS 全体の健康度スコア化（Automation / Data Freshness / Analytics Health）
+
+#### 5.2 Feedback Collector
+```bash
+python scripts/extract-feedback.py --days 7
+```
+- **Input**: `cortex/daily/*-wrap-up.md`
+- **Output**: `cortex/state/feedback-history.json`
+- **機能**: Mood / Energy / Satisfaction の抽出とトレンド分析
+
+#### 5.3 Recipe Performance Monitoring
+```bash
+python scripts/analyze-recipes.py --days 7
+```
+- **Input**: `cortex/logs/recipe-*.log`
+- **Output**: `cortex/state/recipe-metrics.json`
+- **機能**: Recipe 成功率・失敗理由の統計
+
+---
+
+## 🚀 将来の拡張（v1.4+）
+
+### Advanced ML Models
+- scikit-learn による duration 予測精度向上
+- ARIMA/Prophet による長期トレンド予測
+
+### Dependency Detection
+- タスク間依存関係の自動推論
+- 依存グラフの生成と可視化
+
+### Auto-Tuning
+- /suggest の重み係数の自動最適化
+- フィードバックループによる継続的改善
 
 ---
 
@@ -389,6 +453,6 @@ python scripts/suggest.py
 
 ---
 
-**最終更新**: 2025-12-05  
+**最終更新**: 2025-12-05 (v1.3 Intelligence)  
 **メンテナー**: Cortex OS Team  
-**ステータス**: ✅ Production Ready (v1.2)
+**ステータス**: ✅ Production Ready (v1.3)

@@ -1,0 +1,44 @@
+{
+  "generated_at": "2025-12-05T22:21:32+09:00",
+  "window_days": 7,
+  "total_runs": 21,
+  "recipes": {
+    "recipe_13_nightly_wrapup": {
+      "runs": 7,
+      "successes": 7,
+      "failures": 0,
+      "success_rate": 1.0,
+      "last_run": "2025-12-05T22:00:02+09:00",
+      "last_status": "success",
+      "avg_duration_sec": 42.33
+    },
+    "recipe_10_todo_auto_sync": {
+      "runs": 7,
+      "successes": 6,
+      "failures": 1,
+      "success_rate": 0.857,
+      "last_run": "2025-12-05T08:05:01+09:00",
+      "last_status": "success",
+      "avg_duration_sec": 15.38,
+      "last_failure": "2025-12-04T08:05:01+09:00",
+      "last_failure_reason": "01+09:00 [recipe_10_todo_auto_sync] FAILURE: Obsidian API timeout"
+    },
+    "recipe_03_morning_brief": {
+      "runs": 7,
+      "successes": 6,
+      "failures": 1,
+      "success_rate": 0.857,
+      "last_run": "2025-12-05T06:00:00+09:00",
+      "last_status": "success",
+      "avg_duration_sec": 8.53,
+      "last_failure": "2025-12-01T06:00:01+09:00",
+      "last_failure_reason": "01+09:00 [recipe_03_morning_brief] FAILURE: Network connection error"
+    }
+  },
+  "insights": [
+    "Overall automation success rate: 90.5% (19/21 runs in last 7 days).",
+    "Stable recipes (no failures): recipe_13_nightly_wrapup.",
+    "Recipe 'recipe_10_todo_auto_sync' has low reliability: 85.7% (1 failures in 7 runs).",
+    "Recipe 'recipe_03_morning_brief' has low reliability: 85.7% (1 failures in 7 runs)."
+  ]
+}

@@ -22,6 +22,7 @@ TOMORROW_CANDIDATES = DATA_DIR / "tomorrow.json"
 RHYTHM_PATTERNS = STATE_DIR / "rhythm-patterns.json"
 CATEGORY_HEATMAP = STATE_DIR / "category-heatmap.json"
 DURATION_STATS = STATE_DIR / "duration-patterns.json"
+FEEDBACK_HISTORY = STATE_DIR / "feedback-history.json"
 
 
 def load_json(filepath: Path) -> Any:
@@ -148,6 +149,17 @@ def category_score(task: Dict, weekday: str, category_heatmap: Dict) -> float:
     return 0.4  # Rare category for this weekday
 
 
+def energy_factor(energy: int | None) -> float:
+    """Calculate energy-based score multiplier."""
+    if energy is None:
+        return 1.0  # No adjustment
+    if energy <= 4:
+        return 0.6  # Low energy: reduce heavy tasks
+    if energy <= 7:
+        return 1.0  # Normal energy
+    return 1.2      # High energy: boost heavy tasks
+
+
 def score_task(task: Dict, context: Dict) -> float:
     """Calculate comprehensive task score."""
     # Base priority score (P1 > P2 > P3)
@@ -163,6 +175,11 @@ def score_task(task: Dict, context: Dict) -> float:
     category_heatmap = context.get('category_heatmap', {})
     category_s = category_score(task, weekday, category_heatmap)
     
+    # Energy-based adjustment
+    feedback = context.get('feedback', {})
+    energy = feedback.get('energy')
+    energy_mult = energy_factor(energy)
+    
     # Weighted combination
     total_score = (
         0.50 * priority_score +  # Priority is most important
@@ -170,7 +187,8 @@ def score_task(task: Dict, context: Dict) -> float:
         0.25 * category_s        # Category fit
     )
     
-    return total_score
+    # Apply energy multiplier
+    return total_score * energy_mult
 
 
 def select_top_suggestions(candidates: List[Dict], load_pattern: Dict, context: Dict, limit: int = 3) -> List[Dict]:
@@ -209,6 +227,24 @@ def format_output(suggestions: List[Dict], context: Dict) -> str:
         }
         chrono_label = chrono_labels.get(rhythm['chronotype'], rhythm['chronotype'])
         output.append(f"- Your rhythm: {chrono_label}")
+    
+    # Add energy/mood feedback
+    feedback = context.get('feedback', {})
+    if feedback:
+        energy = feedback.get('energy')
+        mood = feedback.get('mood')
+        if energy is not None:
+            energy_labels = {
+                (1, 4): "⚠️ Low energy",
+                (5, 7): "🔋 Normal energy",
+                (8, 10): "⚡ High energy"
+            }
+            energy_label = next((label for (low, high), label in energy_labels.items() 
+                                if low <= energy <= high), f"Energy: {energy}/10")
+            output.append(f"- {energy_label} ({energy}/10)")
+        if mood:
+            mood_emoji = {1: "😔", 2: "🙁", 3: "😐", 4: "🙂", 5: "😀"}.get(mood, "")
+            output.append(f"- Mood: {mood_emoji} {mood}/5")
     
     category_heatmap = context.get('category_heatmap', {})
     if category_heatmap and 'dominant_categories' in category_heatmap:
@@ -269,6 +305,14 @@ def main():
     # Load v1.3 analytics (optional - graceful degradation)
     rhythm = load_json(RHYTHM_PATTERNS) or {}
     category_heatmap = load_json(CATEGORY_HEATMAP) or {}
+    feedback_history = load_json(FEEDBACK_HISTORY) or {}
+    
+    # Get latest feedback (today or yesterday)
+    latest_feedback = {}
+    if feedback_history and 'entries' in feedback_history:
+        entries = feedback_history['entries']
+        if entries:
+            latest_feedback = entries[0]  # Most recent entry
     
     # Check if we have candidates
     if not candidates:
@@ -291,7 +335,8 @@ def main():
         'avg_completion': load_pattern['avg_completion'],
         'weekday': weekday_name,
         'rhythm': rhythm,
-        'category_heatmap': category_heatmap
+        'category_heatmap': category_heatmap,
+        'feedback': latest_feedback
     }
     
     # Select top suggestions with adaptive scoring

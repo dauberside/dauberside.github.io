@@ -353,6 +353,65 @@ echo "- **Autonomous Loops**: 3 active (Recipe 02, 03, 10)"
 echo "- **n8n Status**: $N8N_STATUS"
 
 # ====================
+# Health Score (v1.3)
+# ====================
+echo ""
+echo "---"
+echo ""
+echo "## 🏥 OS Health Score"
+echo ""
+
+HEALTH_SCORE_FILE="cortex/state/health-score.json"
+if [ -f "$HEALTH_SCORE_FILE" ]; then
+    HEALTH_OVERALL=$(jq -r '.overall_score // "N/A"' "$HEALTH_SCORE_FILE" 2>/dev/null)
+    HEALTH_AUTOMATION=$(jq -r '.components.automation.score // "N/A"' "$HEALTH_SCORE_FILE" 2>/dev/null)
+    HEALTH_FRESHNESS=$(jq -r '.components.data_freshness.score // "N/A"' "$HEALTH_SCORE_FILE" 2>/dev/null)
+    HEALTH_ANALYTICS=$(jq -r '.components.analytics_health.score // "N/A"' "$HEALTH_SCORE_FILE" 2>/dev/null)
+    
+    echo "- **Overall Health**: $HEALTH_OVERALL/100"
+    echo "  - Automation: $HEALTH_AUTOMATION/100"
+    echo "  - Data Freshness: $HEALTH_FRESHNESS/100"
+    echo "  - Analytics: $HEALTH_ANALYTICS/100"
+    
+    # Show top 2 insights
+    echo ""
+    jq -r '.insights[:2] | .[] | "  💡 " + .' "$HEALTH_SCORE_FILE" 2>/dev/null || true
+else
+    echo "⚠️ Health score not available (run: \`python scripts/analyze-health.py\`)"
+fi
+
+# ====================
+# Recipe Performance (v1.3)
+# ====================
+echo ""
+echo "---"
+echo ""
+echo "## 🔁 Recipe Performance"
+echo ""
+
+RECIPE_METRICS_FILE="cortex/state/recipe-metrics.json"
+if [ -f "$RECIPE_METRICS_FILE" ]; then
+    RECIPE_TOTAL=$(jq -r '.total_runs // 0' "$RECIPE_METRICS_FILE" 2>/dev/null)
+    RECIPE_WINDOW=$(jq -r '.window_days // 7' "$RECIPE_METRICS_FILE" 2>/dev/null)
+    
+    echo "**Last $RECIPE_WINDOW days**: $RECIPE_TOTAL total runs"
+    echo ""
+    
+    # Show each recipe
+    jq -r '.recipes | to_entries[] | "- **\(.key)**: \(.value.successes)/\(.value.runs) success (\(.value.success_rate * 100 | round)%)"' "$RECIPE_METRICS_FILE" 2>/dev/null || true
+    
+    # Show failures if any
+    echo ""
+    FAILURE_COUNT=$(jq -r '[.recipes[] | select(.failures > 0)] | length' "$RECIPE_METRICS_FILE" 2>/dev/null)
+    if [ "$FAILURE_COUNT" -gt 0 ]; then
+        echo "**Recent Failures**:"
+        jq -r '.recipes | to_entries[] | select(.value.failures > 0) | "  ⚠️ \(.key): \(.value.failures) failures"' "$RECIPE_METRICS_FILE" 2>/dev/null || true
+    fi
+else
+    echo "⚠️ Recipe metrics not available (run: \`python scripts/analyze-recipes.py\`)"
+fi
+
+# ====================
 # Footer
 # ====================
 echo ""
