@@ -1,11 +1,11 @@
 {
-  "generated_at": "2025-12-05T16:30:00Z",
+  "generated_at": "2025-12-05T10:39:10.123Z",
   "source_date": "2025-12-05",
   "tomorrow_candidates": [
-    "/sync-todo 統合テスト（tomorrow/both モード）",
-    "Recipe 03/10 自動実行の確認（明朝 08:00/08:05）",
-    "v1.2 Roadmap の次のマイルストーン特定"
+    "v1.2 Roadmap 確認",
+    "Recipe 動作確認",
+    "ドキュメント整理"
   ],
   "carryover_tasks": [],
-  "reflection_summary": "Cortex OS 自律動作復旧、Phase 4 実装完了、システム健全性 80%"
+  "reflection_summary": "（Reflection なし）"
 }

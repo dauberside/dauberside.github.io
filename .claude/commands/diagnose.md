@@ -124,6 +124,20 @@ cat cortex/state/tomorrow.json | jq -r '.generated_at, .tomorrow_candidates | le
 
 ---
 
+### 8. Cortex OS Health Score (v1.3+)
+```bash
+# Generate comprehensive health metrics
+python3 scripts/analyze-health.py --window-days 7
+```
+
+**Expected**: JSON with overall_score and component analysis
+
+**Scoring**:
+- Integrated into Overall Health Score below
+- Provides automation reliability, data freshness, and analytics health metrics
+
+---
+
 ## Output Format
 
 Generate a Markdown report with the following structure:
@@ -153,13 +167,45 @@ Generate a Markdown report with the following structure:
 
 ## 🎯 Health Score
 
-**Overall Health**: {score}% ({grade})
+### Legacy Health Score
+**Infrastructure Health**: {score}% ({grade})
 
 Grade Scale:
 - 90-100%: Excellent ✅
 - 70-89%: Good ⚠️
 - 50-69%: Fair ⚠️
 - <50%: Critical ❌
+
+### v1.3 Integrated Health Score
+
+If `cortex/state/health-score.json` exists, display:
+
+```markdown
+## 🧠 Cortex OS Health (v1.3)
+
+**Overall Score**: {overall_score}/100 ({grade})
+
+**Component Breakdown**:
+- 🤖 **Automation**: {automation.score}/100 ({automation.runs} runs, {automation.successes} successful, {automation.failures} failed)
+- ⏰ **Data Freshness**: {freshness.score}/100 (avg age: {freshness.average_age_hours}h)
+- 📊 **Analytics Health**: {analytics.score}/100
+  - Duration samples: {analytics.duration_samples}
+  - Rhythm active days: {analytics.rhythm_active_days}
+  - Category samples: {analytics.category_samples}
+
+**💡 Insights**:
+{insights[0]}
+{insights[1]}
+{insights[2]}
+...
+
+**Generated**: {generated_at}
+```
+
+If file does not exist or is stale (>24h old):
+```markdown
+⚠️  Health Score data not available. Run: `python3 scripts/analyze-health.py`
+```
 
 ---
 
@@ -171,7 +217,16 @@ Grade Scale:
 
 ## 💡 Recommendations
 
-{list of recommended actions}
+### Infrastructure Recommendations
+{list of recommended actions based on component checks}
+
+### v1.3 Health Recommendations
+If health-score.json exists, include insights and specific recommendations:
+- If automation.failures > 0: "⚠️  Review Recipe logs in cortex/logs/"
+- If freshness.score < 70: "⏰ Run analytics scripts to refresh data"
+- If analytics.score < 70: "📊 More task history needed (continue using system)"
+- If rhythm_active_days < 10: "💡 Rhythm patterns need more data (target: 10+ active days)"
+- If any file_ages_hours > 24: "💡 Run: python3 scripts/analyze-{component}.py"
 
 ---
 
