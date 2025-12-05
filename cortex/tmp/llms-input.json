@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generatedAt": "2025-12-05T04:39:11.897Z",
+  "generatedAt": "2025-12-05T05:06:44.136Z",
   "project": "Cortex OS",
   "knowledgeGraph": {
     "totalConcepts": 184,
@@ -321,7 +321,7 @@
   },
   "mcpLayer": {
     "enabled": true,
-    "version": "v1.1",
+    "version": "v1.1+",
     "completionDate": "2025-12-05",
     "servers": [
       {
@@ -365,6 +365,19 @@
           "list_clusters",
           "get_concept",
           "find_similar"
+        ]
+      },
+      {
+        "name": "time",
+        "status": "active",
+        "priority": "high",
+        "tools": [
+          "get_current_time",
+          "add_time",
+          "format_date",
+          "get_week_range",
+          "get_month_range",
+          "date_diff"
         ]
       }
     ]

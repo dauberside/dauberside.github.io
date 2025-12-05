@@ -99,7 +99,7 @@ llms.txt 生成パイプラインの入力として使える決定的なデー�
   },
   "mcpLayer": {
     "enabled": true,
-    "version": "v1.1",
+    "version": "v1.1+",
     "completionDate": "2025-12-05",
     "servers": [
       {
@@ -125,6 +125,12 @@ llms.txt 生成パイプラインの入力として使える決定的なデー�
         "status": "active",
         "priority": "critical",
         "tools": ["search_concepts", "search_notes", "search_by_cluster", "list_clusters", "get_concept", "find_similar"]
+      },
+      {
+        "name": "time",
+        "status": "active",
+        "priority": "high",
+        "tools": ["get_current_time", "add_time", "format_date", "get_week_range", "get_month_range", "date_diff"]
       }
     ]
   }
