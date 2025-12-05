@@ -76,13 +76,13 @@ This matrix ensures **traceability** across the entire system:
 | **Requirement** | cortex-os.md (Recipe 10) | `docs/requirements/cortex-os.md#recipe-10` | ✅ | 2025-12-02 |
 | **Implementation** | Workflow Code | `services/n8n/workflows/recipe-10-todo-autosync.json` (Merge Tasks node) | ✅ | 2025-12-02 |
 | **Workflow** | Recipe 10 | `services/n8n/workflows/recipe-10-todo-autosync.json` | ✅ | 2025-12-02 |
-| **Input** | Today's Focus | `Today's Focus.md` (Obsidian) | ✅ | Manual |
+| **Input** | Yesterday's Digest | `cortex/daily/YYYY-MM-DD-digest.md` (Recipe 14 output) | ✅ | Auto |
 | **Output** | TODO.md | `TODO.md` (## Today — YYYY-MM-DD section) | ✅ | Auto |
 | **Tests** | E2E Tests | `__tests__/todo-sync.test.js` | ❌ Missing | - |
 | **Schema** | TODO Schema | `cortex/schemas/todo-v2.json` | ⏳ Planned | - |
 
 **Dependencies**:
-- Input: `Today's Focus.md` (Obsidian vault)
+- Input: `cortex/daily/YYYY-MM-DD-digest.md` (Recipe 14 output)
 - Output: `TODO.md` (Obsidian vault)
 - Service: Obsidian REST API (port 27124)
 
@@ -134,6 +134,43 @@ This matrix ensures **traceability** across the entire system:
 2. Week calculation: ISO 8601 week number
 3. Aggregation: All daily digests included
 4. Stats: Task counts, highlights
+
+---
+
+### Feature: Daily Digest Distribution
+
+| Layer | Artifact | Path | Status | Last Updated |
+|-------|----------|------|--------|--------------|
+| **Requirement** | cortex-os.md (Recipe 09) | `docs/requirements/cortex-os.md#recipe-09` | ✅ | 2025-12-03 |
+| **Implementation** | Workflow Code | `services/n8n/workflows/recipe-09-daily-digest-v2.json` (Parse Tasks & Reflection node) | ✅ | 2025-12-03 |
+| **Workflow** | Recipe 09 | `services/n8n/workflows/recipe-09-daily-digest-v2.json` | ✅ | 2025-12-03 |
+| **Input** | Daily Digest | `cortex/daily/YYYY-MM-DD-digest.md` (Obsidian) | ✅ | Auto |
+| **Output** | Notification File | `notifications/daily/YYYY-MM-DD-digest.md` | ✅ | Auto |
+| **Output** | Slack Message | Slack Daily Digest Webhook | ✅ | Auto |
+| **Tests** | E2E Tests | `__tests__/digest-distribution.test.js` | ❌ Missing | - |
+| **Schema** | Output Schema | `cortex/schemas/digest-notification-v1.json` | ⏳ Planned | - |
+
+**Dependencies**:
+- Input: `cortex/daily/YYYY-MM-DD-digest.md` (Obsidian vault)
+- Service: Obsidian REST API (port 27124)
+- Service: Slack Webhook
+- Environment: `OBSIDIAN_API_KEY`, `SLACK_DAILY_DIGEST_WEBHOOK`
+
+**Validation Points**:
+1. Output file exists: `/workspace/dauberside.github.io-1/notifications/daily/YYYY-MM-DD-digest.md`
+2. Tasks extracted: `tasksFound` count >= 0
+3. Reflection extracted: `reflectionFound` boolean
+4. Slack delivery: HTTP 200 response
+5. Multi-format task support: Checkbox (`- [ ]`) + plain bullet (`-`) + subsections (`### High Priority`)
+6. Reflection subsections: Preserves nested structure (`### 学び`, `### 課題`, `### 気づき`)
+7. Section name fallbacks: Tries `Today's Focus`, `Tasks`, `High Priority`
+8. Error handling: Graceful degradation (continue on empty/missing sections)
+
+**Recent Fixes** (2025-12-03):
+- Fixed: Multi-format task extraction (checkbox + plain bullet + subsections)
+- Fixed: Reflection extraction with proper regex boundaries (`\n##`, `\n---`, EOF)
+- Fixed: Removed `process.env.WORKSPACE_ROOT` (n8n sandbox incompatibility)
+- Tested: 2025-12-01 (4 tasks + full reflection), 2025-12-02 (empty, graceful)
 
 ---
 
@@ -199,7 +236,8 @@ This matrix ensures **traceability** across the entire system:
 
 | Feature | Unit Tests | Integration Tests | E2E Tests | Coverage |
 |---------|------------|-------------------|-----------|----------|
-| Daily Digest | ❌ | ❌ | ❌ | 0% |
+| Daily Digest (Gen) | ❌ | ❌ | ❌ | 0% |
+| Daily Digest (Dist) | ❌ | ❌ | ❌ | 0% |
 | KB Rebuild | ❌ | ❌ | ❌ | 0% |
 | TODO Auto-sync | ❌ | ❌ | ❌ | 0% |
 | Nightly Wrap-up | ❌ | ❌ | ❌ | 0% |
@@ -296,9 +334,10 @@ describe('TODO Auto-sync', () => {
 | Recipe | Schedule | Last Run | Success Rate | Error Count | Alert Threshold |
 |--------|----------|----------|--------------|-------------|-----------------|
 | Recipe 02 (KB Rebuild) | 03:00 JST | 2025-12-02 03:00 | 100% | 0 | > 1 failure |
+| Recipe 09 (Digest Dist) | 08:00 JST | 2025-12-03 08:00 | 100% | 0 | > 1 failure |
 | Recipe 10 (TODO Sync) | 08:05 JST | 2025-12-02 08:05 | 100% | 0 | > 1 failure |
 | Recipe 13 (Wrap-up) | 22:00 JST | 2025-12-01 22:00 | 100% | 0 | > 1 failure |
-| Recipe 14 (Digest) | 00:00 JST | 2025-12-02 00:00 | 100% | 0 | > 1 failure |
+| Recipe 14 (Digest Gen) | 00:00 JST | 2025-12-02 00:00 | 100% | 0 | > 1 failure |
 | Recipe 11 (Weekly) | Weekly | 2025-12-01 | 100% | 0 | > 1 failure |
 
 **Monitoring**: Slack notifications for all failures
@@ -309,10 +348,11 @@ describe('TODO Auto-sync', () => {
 
 | Document | Section | Link | Last Updated |
 |----------|---------|------|--------------|
-| Requirements | Cortex OS v1.2 | [cortex-os.md](./cortex-os.md) | 2025-12-02 |
+| Requirements | Cortex OS v1.2 | [cortex-os.md](./cortex-os.md) | 2025-12-03 |
 | Changelog | Version History | [CHANGELOG.md](./CHANGELOG.md) | 2025-12-02 |
 | Audit | 2025-12-02 Report | [REQUIREMENTS-AUDIT-2025-12-02.md](./REQUIREMENTS-AUDIT-2025-12-02.md) | 2025-12-02 |
 | Handoff | KB Rebuild Session | [CLAUDE-SESSION-HANDOFF.md](../../CLAUDE-SESSION-HANDOFF.md) | 2025-12-02 |
+| Cross-Reference | Feature Traceability | [CROSS-REFERENCE-MATRIX.md](./CROSS-REFERENCE-MATRIX.md) | 2025-12-03 |
 
 ---
 
@@ -343,10 +383,16 @@ describe('TODO Auto-sync', () => {
 
 ## 📊 Metrics
 
-**Traceability Score**: 60% (6/10 features fully traced)  
-**Test Coverage**: 0% (no tests yet)  
-**Schema Coverage**: 0% (no schemas yet)  
+**Traceability Score**: 70% (7/10 features fully traced)
+**Test Coverage**: 0% (no tests yet)
+**Schema Coverage**: 0% (no schemas yet)
 **Documentation Coverage**: 100% (all features documented)
+
+**Recent Updates** (2025-12-03):
+- ✅ Added Recipe 09 (Daily Digest Distribution) to Core Features Matrix
+- ✅ Added Recipe 09 validation points (8 validation checks)
+- ✅ Added Recipe 09 to Workflow Audit Matrix
+- ✅ Added Recipe 09 to Test Coverage Matrix
 
 **Target for v1.3**:
 - Traceability: 90%
@@ -355,6 +401,6 @@ describe('TODO Auto-sync', () => {
 
 ---
 
-**Last Updated**: 2025-12-02  
-**Next Review**: 2025-12-16  
+**Last Updated**: 2025-12-03
+**Next Review**: 2025-12-16
 **Maintained By**: Cortex OS Team
