@@ -108,6 +108,26 @@
         "notes": "v1.1: Core capability - OS can now write back to TODO, clusters, and reflection notes"
       }
     },
+    "search": {
+      "command": "node",
+      "args": ["services/mcp/search.mjs"],
+      "env": {},
+      "allowedTools": [
+        "search_concepts",
+        "search_notes",
+        "search_by_cluster",
+        "list_clusters",
+        "get_concept",
+        "find_similar"
+      ],
+      "metadata": {
+        "priority": "critical",
+        "autoStart": true,
+        "tokenUsage": "~1k tokens per session",
+        "description": "Search knowledge graph and KB - concept search, note search, semantic similarity",
+        "notes": "v1.1 完成: OS can now search its own brain (Knowledge Graph + KB index)"
+      }
+    },
     "fetch": {
       "command": "npx",
       "args": ["-y", "mcp-server-fetch"],

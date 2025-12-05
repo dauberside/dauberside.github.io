@@ -129,11 +129,13 @@
   - Text Editor MCP（ノート更新、TODO 追加）
   - Filesystem MCP（出力ファイル書き込み）
 
-**Upgrade Summary (v1.0 → v1.1)**:
-- Graph と llms.txt が OS に読める（FS）
-- OS 自身が graph/llms.txt を再生成できる（Terminal）
-- OS がノートへ書き戻せる（Editor）
-- OS が自分の脳を検索できる（Search）
+**Upgrade Summary (v1.0 → v1.1)** ✅ **完成！**:
+- ✅ Graph と llms.txt が OS に読める（Filesystem MCP）
+- ✅ OS 自身が graph/llms.txt を再生成できる（Terminal MCP）
+- ✅ OS がノートへ書き戻せる（Text Editor MCP）
+- ✅ OS が自分の脳を検索できる（Search MCP）
+
+**🎉 Cortex OS v1.1 完成日**: 2025-12-05
 
 **実装順序（最適化済み）**:
 1. **Filesystem MCP**（読む）— まず OS に「脳」を読ませる
@@ -174,7 +176,12 @@
   - アトミック書き込み（temp + rename）
   - 自動バックアップ機能（.backup ファイル生成）
   - **🎉 OS が TODO.md や clusters-v1.md を編集可能に！**
-- [ ] Search MCP の "Concept + Note" 両検索 API
+- [x] Search MCP の "Concept + Note" 両検索 API ✅ 2025-12-05 完了
+  - `services/mcp/search.mjs` 実装完了
+  - 全10テスト通過（search_concepts, search_notes, search_by_cluster, list_clusters, get_concept, find_similar）
+  - 6つのツール: 概念検索、ノート検索、クラスタ検索、概念詳細、意味的類似検索
+  - Knowledge Graph + KB index 統合
+  - **🎉 OS が自分の脳を検索可能に！Cortex OS v1.1 完成！**
 - [ ] llms-input-schema への MCP Layer 情報追加
   - MCP の状態（有効/無効、プライマリ/セカンダリ）を llms-input.json に含める
 - [ ] .claude/commands/init.md に MCP ローディング手順追加（v1.1 対応版）
