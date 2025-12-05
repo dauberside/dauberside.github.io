@@ -46,7 +46,7 @@ Cortex Commands (/brief /wrap-up /init)
 
 ### 現在のステータス
 
-**Cortex OS v1.0 稼働中**
+**Cortex OS v1.1+ 稼働中** (2025-12-05)
 
 | レイヤ | 状態 |
 |--------|------|
@@ -54,8 +54,40 @@ Cortex Commands (/brief /wrap-up /init)
 | 週次ループ | ✅ OK |
 | 作業メモリ同期 | ✅ OK |
 | 前頭葉コマンド群 | ✅ OK |
+| MCP Layer (5 servers) | ✅ OK |
+| 情報モデル統一 | ✅ 80% |
+
+**v1.2 "Autonomy" 進捗**: 70% 完了
 
 詳細: `docs/decisions/ADR-0006-phase-2-automation-strategy.md`
+
+### 🔌 MCP Integration
+
+**5 MCP Servers 稼働中**:
+1. **filesystem** (critical) - ファイル読み書き
+2. **terminal** (critical) - タスク実行
+3. **text-editor** (critical) - テキスト編集（11 tools）
+4. **search** (critical) - Knowledge Graph 検索（10 tools）
+5. **time** (high) - 時間操作（10 tools）
+
+### 📊 情報モデル統一
+
+**llms.txt 生成パイプライン完成** (v1.0.0)
+
+```bash
+# llms-input.json と llms.txt を生成
+pnpm cortex:llms:all
+
+# または個別に
+pnpm cortex:llms:input  # llms-input.json
+pnpm cortex:llms:txt    # llms.txt
+```
+
+**出力**: 
+- `cortex/tmp/llms-input.json` - 構造化 JSON
+- `llms.txt` - LLM コンテキスト用テキスト（6 KB, 200 lines）
+
+詳細: `docs/operations/llms-txt-generation.md`
 
 ---
 
