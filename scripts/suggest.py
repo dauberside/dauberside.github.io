@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 /suggest - Smart Task Suggestions
-Version: 1.0 (MVP)
+Version: 2.0 (Adaptive Suggestions - Phase 2)
 """
 
 import json
@@ -15,9 +15,13 @@ REPO_ROOT = Path(__file__).parent.parent
 DATA_DIR = REPO_ROOT / "data"
 ANALYTICS_DIR = DATA_DIR / "analytics"
 CORTEX_DIR = REPO_ROOT / "cortex" / "daily"
+STATE_DIR = REPO_ROOT / "cortex" / "state"
 
 TEMPORAL_PATTERNS = ANALYTICS_DIR / "temporal-patterns.json"
 TOMORROW_CANDIDATES = DATA_DIR / "tomorrow.json"
+RHYTHM_PATTERNS = STATE_DIR / "rhythm-patterns.json"
+CATEGORY_HEATMAP = STATE_DIR / "category-heatmap.json"
+DURATION_STATS = STATE_DIR / "duration-patterns.json"
 
 
 def load_json(filepath: Path) -> Any:
@@ -105,55 +109,136 @@ def filter_duplicate_tasks(candidates: List[Dict], existing_tasks: List[str]) ->
     return filtered
 
 
-def select_top_suggestions(candidates: List[Dict], load_pattern: Dict, limit: int = 3) -> List[Dict]:
-    """Select top N suggestions based on load pattern."""
-    avg_load = load_pattern.get('avg_tasks', 10)
+def rhythm_score(task: Dict, rhythm: Dict) -> float:
+    """Calculate rhythm compatibility score (0.0-1.0)."""
+    if not rhythm or 'chronotype' not in rhythm:
+        return 0.5  # neutral
     
-    # Strategy: if high load day, prefer lighter tasks (bottom of priority)
-    # If low load day, prefer important tasks (top of priority)
-    if avg_load > 15:  # High load threshold
-        # Reverse order for lighter tasks
-        sorted_candidates = sorted(candidates, key=lambda x: x.get('priority', 999), reverse=True)
+    chronotype = rhythm['chronotype']
+    estimated_minutes = task.get('estimated_minutes', 30)
+    is_heavy = estimated_minutes >= 45
+    
+    if chronotype in ['morning', 'evening'] and is_heavy:
+        return 1.0  # Heavy tasks match user's peak time
+    elif is_heavy:
+        return 0.2  # Heavy tasks in non-optimal time
     else:
-        # Normal order for important tasks
-        sorted_candidates = sorted(candidates, key=lambda x: x.get('priority', 999))
+        return 0.6  # Light tasks are flexible
+
+
+def category_score(task: Dict, weekday: str, category_heatmap: Dict) -> float:
+    """Calculate category-weekday compatibility score (0.0-1.0)."""
+    if not category_heatmap:
+        return 0.5  # neutral
     
-    return sorted_candidates[:limit]
+    category = task.get('category', 'uncategorized')
+    dominant = category_heatmap.get('dominant_categories', {}).get(weekday, [])
+    
+    # Extract category names from dominant list
+    dominant_names = [d['category'] for d in dominant] if dominant else []
+    
+    if category in dominant_names:
+        return 1.0  # Perfect match with weekday pattern
+    
+    # Check if category appears at all on this weekday
+    weekday_matrix = category_heatmap.get('weekday_category_matrix', {}).get(weekday, {})
+    if category in weekday_matrix and weekday_matrix[category] > 0:
+        return 0.6  # Category is used on this weekday
+    
+    return 0.4  # Rare category for this weekday
+
+
+def score_task(task: Dict, context: Dict) -> float:
+    """Calculate comprehensive task score."""
+    # Base priority score (P1 > P2 > P3)
+    priority = task.get('priority', 3)
+    priority_score = (4 - priority) / 3.0  # 1.0 for P1, 0.67 for P2, 0.33 for P3
+    
+    # Rhythm compatibility
+    rhythm = context.get('rhythm', {})
+    rhythm_s = rhythm_score(task, rhythm)
+    
+    # Category-weekday fit
+    weekday = context.get('weekday', 'Monday')
+    category_heatmap = context.get('category_heatmap', {})
+    category_s = category_score(task, weekday, category_heatmap)
+    
+    # Weighted combination
+    total_score = (
+        0.50 * priority_score +  # Priority is most important
+        0.25 * rhythm_s +        # Rhythm compatibility
+        0.25 * category_s        # Category fit
+    )
+    
+    return total_score
+
+
+def select_top_suggestions(candidates: List[Dict], load_pattern: Dict, context: Dict, limit: int = 3) -> List[Dict]:
+    """Select top N suggestions based on comprehensive scoring."""
+    # Score all candidates
+    scored = [(task, score_task(task, context)) for task in candidates]
+    
+    # Sort by score (descending)
+    sorted_candidates = sorted(scored, key=lambda x: x[1], reverse=True)
+    
+    # Return top N tasks (without scores)
+    return [task for task, score in sorted_candidates[:limit]]
 
 
 def format_output(suggestions: List[Dict], context: Dict) -> str:
     """Format suggestions as Markdown."""
-    weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     today = datetime.now()
-    weekday_name = weekday_names[today.weekday()]
+    weekday_name = context.get('weekday', 'Today')
     
     output = [
         f"🎯 Today's Suggestions ({weekday_name}, {today.strftime('%b %d')})",
         "",
-        "Based on your patterns:",
+        "📊 Based on your patterns:",
         f"- {weekday_name} avg load: {context['avg_tasks']:.0f} tasks ({load_level(context['avg_tasks'])})",
         f"- Typical completion rate: {context['avg_completion']*100:.0f}%",
-        "",
-        "Recommended tasks:",
-        ""
     ]
     
-    priority_labels = {1: "High Priority", 2: "Medium Priority", 3: "Low Priority"}
+    # Add v1.3 intelligence insights
+    rhythm = context.get('rhythm', {})
+    if rhythm and 'chronotype' in rhythm:
+        chrono_labels = {
+            'morning': '🌅 Morning type',
+            'evening': '🌙 Evening type',
+            'balanced': '⚖️ Balanced',
+            'unknown': '❓ Unknown'
+        }
+        chrono_label = chrono_labels.get(rhythm['chronotype'], rhythm['chronotype'])
+        output.append(f"- Your rhythm: {chrono_label}")
+    
+    category_heatmap = context.get('category_heatmap', {})
+    if category_heatmap and 'dominant_categories' in category_heatmap:
+        dominant = category_heatmap['dominant_categories'].get(weekday_name, [])
+        if dominant:
+            top_cat = dominant[0]['category']
+            output.append(f"- {weekday_name}'s focus: {top_cat}")
+    
+    output.extend(["", "✨ Recommended tasks:", ""])
+    
+    priority_labels = {1: "🔴 High", 2: "🟡 Medium", 3: "🟢 Low"}
     
     for i, suggestion in enumerate(suggestions, 1):
         task = suggestion.get('task', 'Unknown task')
         priority = suggestion.get('priority', 3)
-        label = priority_labels.get(priority, "Normal Priority")
+        category = suggestion.get('category', '')
+        label = priority_labels.get(priority, "Normal")
         
-        output.append(f"{i}. [{label}] {task}")
+        task_line = f"{i}. {label} {task}"
+        if category:
+            task_line += f" [{category}]"
+        output.append(task_line)
         
-        # Add optional metadata if available
+        # Add optional metadata
         if 'estimated_time' in suggestion:
-            output.append(f"   → Est. {suggestion['estimated_time']}")
+            output.append(f"   ⏱️  Est. {suggestion['estimated_time']}")
         
         output.append("")
     
-    output.append(f"💡 Tip: These suggestions balance your typical {weekday_name} workload with current priorities.")
+    output.append(f"💡 These suggestions are optimized for your {weekday_name} patterns and current priorities.")
     
     return "\n".join(output)
 
@@ -173,11 +258,17 @@ def main():
     today = datetime.now()
     today_str = today.strftime('%Y-%m-%d')
     weekday = today.weekday()
+    weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    weekday_name = weekday_names[weekday]
     
-    # Load data
+    # Load data sources
     patterns = load_temporal_patterns()
     candidates = load_tomorrow_candidates()
     existing_tasks = load_today_digest(today_str)
+    
+    # Load v1.3 analytics (optional - graceful degradation)
+    rhythm = load_json(RHYTHM_PATTERNS) or {}
+    category_heatmap = load_json(CATEGORY_HEATMAP) or {}
     
     # Check if we have candidates
     if not candidates:
@@ -194,19 +285,23 @@ def main():
         print("✅ All candidate tasks are already in today's digest!")
         return
     
-    # Select top suggestions
-    suggestions = select_top_suggestions(filtered_candidates, load_pattern, limit=3)
+    # Build context for scoring
+    context = {
+        'avg_tasks': load_pattern['avg_tasks'],
+        'avg_completion': load_pattern['avg_completion'],
+        'weekday': weekday_name,
+        'rhythm': rhythm,
+        'category_heatmap': category_heatmap
+    }
+    
+    # Select top suggestions with adaptive scoring
+    suggestions = select_top_suggestions(filtered_candidates, load_pattern, context, limit=3)
     
     if not suggestions:
         print("⚠️  Could not generate suggestions.")
         return
     
     # Format and output
-    context = {
-        'avg_tasks': load_pattern['avg_tasks'],
-        'avg_completion': load_pattern['avg_completion']
-    }
-    
     output = format_output(suggestions, context)
     print(output)
 

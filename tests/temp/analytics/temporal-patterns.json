@@ -1,0 +1,80 @@
+{
+  "generated_at": "2025-12-05T09:00:00Z",
+  "analysis_period": {
+    "start_date": "2025-11-05",
+    "end_date": "2025-12-05",
+    "days_analyzed": 30
+  },
+  "summary": {
+    "avg_tasks": 12.5,
+    "avg_completion_rate": 0.78,
+    "total_tasks": 375,
+    "total_completed": 293
+  },
+  "weekday_patterns": {
+    "Monday": {
+      "avg_tasks": 15.2,
+      "avg_completion_rate": 0.82,
+      "task_count": 76,
+      "days_observed": 5
+    },
+    "Tuesday": {
+      "avg_tasks": 14.8,
+      "avg_completion_rate": 0.80,
+      "task_count": 74,
+      "days_observed": 5
+    },
+    "Wednesday": {
+      "avg_tasks": 13.6,
+      "avg_completion_rate": 0.77,
+      "task_count": 68,
+      "days_observed": 5
+    },
+    "Thursday": {
+      "avg_tasks": 12.4,
+      "avg_completion_rate": 0.75,
+      "task_count": 62,
+      "days_observed": 5
+    },
+    "Friday": {
+      "avg_tasks": 11.0,
+      "avg_completion_rate": 0.73,
+      "task_count": 55,
+      "days_observed": 5
+    },
+    "Saturday": {
+      "avg_tasks": 6.5,
+      "avg_completion_rate": 0.85,
+      "task_count": 26,
+      "days_observed": 4
+    },
+    "Sunday": {
+      "avg_tasks": 3.5,
+      "avg_completion_rate": 0.90,
+      "task_count": 14,
+      "days_observed": 4
+    }
+  },
+  "category_breakdown": {
+    "development": {
+      "count": 150,
+      "completion_rate": 0.80
+    },
+    "planning": {
+      "count": 80,
+      "completion_rate": 0.75
+    },
+    "meeting": {
+      "count": 60,
+      "completion_rate": 0.90
+    },
+    "documentation": {
+      "count": 45,
+      "completion_rate": 0.70
+    },
+    "other": {
+      "count": 40,
+      "completion_rate": 0.78
+    }
+  }
+}

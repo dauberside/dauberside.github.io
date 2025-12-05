@@ -1,0 +1,35 @@
+{
+  "generated_at": "2025-12-04T23:00:00Z",
+  "tomorrow_candidates": [
+    {
+      "title": "Review PR #123",
+      "priority": "high",
+      "category": "development",
+      "estimated_duration": 30
+    },
+    {
+      "title": "Update documentation for /suggest",
+      "priority": "medium",
+      "category": "documentation",
+      "estimated_duration": 45
+    },
+    {
+      "title": "Team standup meeting",
+      "priority": "high",
+      "category": "meeting",
+      "estimated_duration": 15
+    },
+    {
+      "title": "Refactor analyze-workload.py",
+      "priority": "low",
+      "category": "development",
+      "estimated_duration": 60
+    },
+    {
+      "title": "Plan v1.3 architecture",
+      "priority": "medium",
+      "category": "planning",
+      "estimated_duration": 90
+    }
+  ]
+}

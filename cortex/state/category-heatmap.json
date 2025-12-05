@@ -1,0 +1,77 @@
+{
+  "generated_at": "2025-12-05T18:23:33+09:00",
+  "analysis_period_days": 14,
+  "total_completed_tasks": 22,
+  "weekday_category_matrix": {
+    "Monday": {
+      "core-work": 5,
+      "meetings": 2
+    },
+    "Tuesday": {},
+    "Wednesday": {
+      "core-work": 4,
+      "research": 3
+    },
+    "Thursday": {},
+    "Friday": {
+      "admin": 6,
+      "core-work": 2
+    },
+    "Saturday": {},
+    "Sunday": {}
+  },
+  "category_totals": {
+    "core-work": 11,
+    "research": 3,
+    "meetings": 2,
+    "admin": 6
+  },
+  "weekday_totals": {
+    "Monday": 7,
+    "Tuesday": 0,
+    "Wednesday": 7,
+    "Thursday": 0,
+    "Friday": 8,
+    "Saturday": 0,
+    "Sunday": 0
+  },
+  "dominant_categories": {
+    "Monday": [
+      {
+        "category": "core-work",
+        "count": 5,
+        "percentage": 71.4
+      }
+    ],
+    "Tuesday": [],
+    "Wednesday": [
+      {
+        "category": "core-work",
+        "count": 4,
+        "percentage": 57.1
+      },
+      {
+        "category": "research",
+        "count": 3,
+        "percentage": 42.9
+      }
+    ],
+    "Thursday": [],
+    "Friday": [
+      {
+        "category": "admin",
+        "count": 6,
+        "percentage": 75.0
+      }
+    ],
+    "Saturday": [],
+    "Sunday": []
+  },
+  "insights": [
+    "Most common category overall: 'core-work' (11 tasks, 50.0%)",
+    "Busiest day: Friday (8 completed tasks)",
+    "Monday: Dominated by 'core-work' (71.4%)",
+    "Wednesday: Dominated by 'core-work' (57.1%), 'research' (42.9%)",
+    "Friday: Dominated by 'admin' (75.0%)"
+  ]
+}

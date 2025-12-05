@@ -1,12 +1,12 @@
 # /suggest - Smart Task Suggestions
 
-**Version**: 1.0 (MVP)  
+**Version**: 2.0 (Adaptive Suggestions)  
 **Status**: ✅ Active  
-**Phase**: v1.3 Temporal Analytics  
+**Phase**: v1.3 Phase 2 - Adaptive Task Management  
 
 ## 概要
 
-今日のコンテキスト（曜日パターン・負荷状況・tomorrow候補）を元に、最適なタスクを3つ提案するコマンド。
+今日のコンテキスト（曜日パターン・負荷状況・リズム・カテゴリ習慣）を元に、最適なタスクを3つ提案するコマンド。v1.3で **Temporal Analytics** を統合し、ユーザーのパターンを学習した適応型提案を実現。
 
 ## 使い方
 
@@ -16,32 +16,57 @@
 
 **引数なし**: 自動的に今日の状況を分析して3タスク提案
 
-## 提案ロジック（MVP版）
+## v2.0 の進化点 🚀
 
-### 入力データ
+### 入力データ（拡張）
 1. **Temporal Patterns** (`data/analytics/temporal-patterns.json`)
    - 曜日ごとの平均負荷
    - 今日の曜日の完了率
 
-2. **Tomorrow Candidates** (`data/tomorrow.json`)
+2. **Rhythm Patterns** (`cortex/state/rhythm-patterns.json`) ✨ NEW
+   - 朝型/夜型の判定
+   - ピーク時間帯の検出
+
+3. **Category Heatmap** (`cortex/state/category-heatmap.json`) ✨ NEW
+   - 曜日×カテゴリの習慣パターン
+   - その曜日に相性の良いカテゴリ
+
+4. **Tomorrow Candidates** (`data/tomorrow.json`)
    - 次にやるべきタスクリスト
    - 優先度情報
 
-3. **Today's Context** (`cortex/daily/{today}-digest.md`)
+5. **Today's Context** (`cortex/daily/{today}-digest.md`)
    - 今日の既存タスク
    - 現在の進捗状況
 
-### 提案戦略
+### 適応型スコアリング
+
+```python
+task_score = (
+    0.50 * priority_score +      # P1 > P2 > P3
+    0.25 * rhythm_score +        # 朝型/夜型とタスクの重さの相性
+    0.25 * category_score        # その曜日にフィットするカテゴリか
+)
+```
+
+#### Rhythm Score (リズム相性)
+- 朝型ユーザー × ヘビータスク（45分以上）→ 1.0 (最適)
+- 夜型ユーザー × ヘビータスク → 1.0 (最適)
+- リズム不明 × ヘビータスク → 0.2 (非推奨)
+- 軽量タスク → 0.6 (どの時間帯でもOK)
+
+#### Category Score (カテゴリ相性)
+- その曜日の dominant category → 1.0 (最適)
+- その曜日に実績あり → 0.6 (通常)
+- その曜日にレア → 0.4 (控えめ)
+
+### 提案戦略（v2.0）
 
 ```
-if 今日の曜日の平均負荷 > 15:
-    → 軽量タスク優先（tomorrow_candidatesの下位から）
-else:
-    → 重要タスク優先（tomorrow_candidatesの上位から）
-
-重複除外:
-    - 今日の digest にすでに存在するタスクは除外
-    - 最大3タスクまで提案
+1. すべての候補タスクをスコアリング
+2. スコア降順でソート
+3. 上位3タスクを提案
+4. 重複除外（digest との比較）
 ```
 
 ## 出力例
