@@ -1,9 +1,9 @@
-# Cortex OS Requirements v1.2
+# Cortex OS Requirements v1.3
 
-**Version**: 1.2 "Autonomy"  
-**Date**: 2025-12-02  
+**Version**: 1.3  
+**Date**: 2025-12-03  
 **Status**: Production  
-**Previous Version**: v1.1 (2025-11-09)
+**Previous Version**: v1.2 "Autonomy" (2025-12-02)
 
 ---
 

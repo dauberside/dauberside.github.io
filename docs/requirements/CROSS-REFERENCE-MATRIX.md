@@ -383,7 +383,7 @@ describe('TODO Auto-sync', () => {
 
 ## 📊 Metrics
 
-**Traceability Score**: 70% (7/10 features fully traced)
+**Traceability Score**: 60% (6/10 features fully traced)
 **Test Coverage**: 0% (no tests yet)
 **Schema Coverage**: 0% (no schemas yet)
 **Documentation Coverage**: 100% (all features documented)
