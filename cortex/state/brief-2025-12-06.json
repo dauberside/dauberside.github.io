@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-06T00:00:00Z",
+  "date": "2025-12-06",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Recipe 03/10 実行ログ確認",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P0",
+      "status": "pending"
+    },
+    {
+      "title": "Health Score 初回診断",
+      "time": "15分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "/suggest v2.0 動作確認",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "v1.3 Intelligence の初体験日。出勤日のため軽めのプラン（45分）。Recipe 確認→Health Score→/suggest の順で、新機能を実際に使ってみる。17:00 以降に実行可能。"
+}

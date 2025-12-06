@@ -510,3 +510,75 @@ ADR（Architecture Decision Records）の標準セクション構造が中心で
 ---
 
 **Next Step**: n8n を本番環境にデプロイして、Recipe 4 Phase 2 の自動検知機能を有効化 🚀
+
+---
+
+## 🚀 v1.4 "Predictive Intelligence" — 次期実装予定
+
+> v1.3 完成を受けて、次のフェーズの実装項目
+
+### Phase 1: /wrap-up → Daily Digest 自動更新
+
+**目標**: wrap-up 実行時に Daily Digest の Progress/Reflection を自動生成
+
+**実装項目**:
+- [ ] `/wrap-up` に Digest 更新機能を統合
+  - brief JSON / task-entry JSON から Progress を自動生成
+  - wrap-up の freeform reflection を Digest の Reflection セクションに書き込み
+  - Obsidian MCP の `patch_content` で `## Progress` / `## Reflection` を置換
+- [ ] Progress 自動生成ロジック
+  - 完了タスクリスト → Markdown 箇条書き変換
+  - 所要時間・カテゴリ情報を含める
+  - マイルストーン達成を強調（🎉 マーク）
+- [ ] Reflection 自動抽出ロジック
+  - 気づき・学び・感情を自然な文章に変換
+  - brief JSON の `reflection` フィールドを活用
+  - feedback-history.json からエネルギー・満足度を統合
+
+**ターゲットフォーマット**: 2025-12-05 の手動記入 Digest（v1.3 完成日の記録）
+
+**優先度**: 高（v1.4 の核心機能）
+
+---
+
+### Phase 2: 習慣の自動発見
+
+**目標**: 曜日・時間帯・カテゴリの習慣パターンを自動検出
+
+**実装項目**:
+- [ ] Habit Detection Engine
+  - 3週間以上繰り返されるパターンを「習慣」として認識
+  - 曜日固定 / 時間固定 / 条件付き習慣の分類
+- [ ] /suggest への統合
+  - 習慣化されたタスクを自動提案
+  - 「毎週月曜 09:00 に Weekly Planning」など
+- [ ] 習慣の可視化
+  - `cortex/state/habit-patterns.json` 生成
+  - `/diagnose` で習慣スコア表示
+
+---
+
+### Phase 3: 中長期リズム分析
+
+**目標**: 週次・月次の生産性リズムを分析
+
+**実装項目**:
+- [ ] Weekly Rhythm Detection
+  - 週の前半/後半のエネルギー傾向
+  - 週次の完了率パターン
+- [ ] Monthly Trend Analysis
+  - 月初・月末の生産性変動
+  - 季節性パターンの検出
+- [ ] /suggest への統合
+  - 中長期リズムを考慮した提案
+  - 「今週後半はエネルギーが落ちる傾向」など
+
+---
+
+**v1.4 完成予定日**: 2025-12-20
+
+**Definition of Done**:
+- [ ] /wrap-up → Digest 自動更新が動作
+- [ ] Habit Detection が3つ以上の習慣を検出
+- [ ] Weekly Rhythm が可視化される
+- [ ] 全テストケース通過

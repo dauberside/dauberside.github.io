@@ -1,11 +1,11 @@
 {
-  "generated_at": "2025-12-05T10:39:10.123Z",
-  "source_date": "2025-12-05",
+  "generated_at": "2025-12-07T15:30:00.000Z",
+  "source_date": "2025-12-06",
   "tomorrow_candidates": [
-    "v1.2 Roadmap 確認",
-    "Recipe 動作確認",
-    "ドキュメント整理"
+    "Recipe 03/10 自動実行の確認（08:00/08:05）",
+    "/diagnose で Recipe 実行ログ検証",
+    "Analytics 自動更新の Recipe 統合検討"
   ],
   "carryover_tasks": [],
-  "reflection_summary": "（Reflection なし）"
+  "reflection_summary": "Intelligence の精度はデータ品質に依存という構造を体感し、tomorrow.json データソース統一とフォーマット正規化を実施"
 }

@@ -18,7 +18,7 @@ CORTEX_DIR = REPO_ROOT / "cortex" / "daily"
 STATE_DIR = REPO_ROOT / "cortex" / "state"
 
 TEMPORAL_PATTERNS = ANALYTICS_DIR / "temporal-patterns.json"
-TOMORROW_CANDIDATES = DATA_DIR / "tomorrow.json"
+TOMORROW_CANDIDATES = STATE_DIR / "tomorrow.json"  # Fixed: Read from cortex/state (Recipe 13 output)
 RHYTHM_PATTERNS = STATE_DIR / "rhythm-patterns.json"
 CATEGORY_HEATMAP = STATE_DIR / "category-heatmap.json"
 DURATION_STATS = STATE_DIR / "duration-patterns.json"
@@ -47,12 +47,29 @@ def load_temporal_patterns() -> Dict:
 
 
 def load_tomorrow_candidates() -> List[Dict]:
-    """Load tomorrow.json."""
+    """Load tomorrow.json and normalize format."""
     data = load_json(TOMORROW_CANDIDATES)
     if not data or 'tomorrow_candidates' not in data:
         print("⚠️  No tomorrow candidates found.", file=sys.stderr)
         return []
-    return data['tomorrow_candidates']
+
+    candidates = data['tomorrow_candidates']
+    normalized = []
+
+    for candidate in candidates:
+        # Handle both string and dict formats
+        if isinstance(candidate, str):
+            # Convert string to dict format with default values
+            normalized.append({
+                'task': candidate,
+                'priority': 2,  # Default to medium priority
+                'estimated_time': '20min'
+            })
+        elif isinstance(candidate, dict):
+            # Already in correct format
+            normalized.append(candidate)
+
+    return normalized
 
 
 def load_today_digest(date_str: str) -> List[str]:
@@ -191,16 +208,16 @@ def score_task(task: Dict, context: Dict) -> float:
     return total_score * energy_mult
 
 
-def select_top_suggestions(candidates: List[Dict], load_pattern: Dict, context: Dict, limit: int = 3) -> List[Dict]:
+def select_top_suggestions(candidates: List[Dict], context: Dict, limit: int = 3) -> List[Dict]:
     """Select top N suggestions based on comprehensive scoring."""
     # Score all candidates
     scored = [(task, score_task(task, context)) for task in candidates]
-    
+
     # Sort by score (descending)
     sorted_candidates = sorted(scored, key=lambda x: x[1], reverse=True)
-    
+
     # Return top N tasks (without scores)
-    return [task for task, score in sorted_candidates[:limit]]
+    return [task for task, _ in sorted_candidates[:limit]]
 
 
 def format_output(suggestions: List[Dict], context: Dict) -> str:
@@ -340,7 +357,7 @@ def main():
     }
     
     # Select top suggestions with adaptive scoring
-    suggestions = select_top_suggestions(filtered_candidates, load_pattern, context, limit=3)
+    suggestions = select_top_suggestions(filtered_candidates, context, limit=3)
     
     if not suggestions:
         print("⚠️  Could not generate suggestions.")

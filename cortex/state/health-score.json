@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-12-05T22:21:32+09:00",
+  "generated_at": "2025-12-06T20:25:25+09:00",
   "version": "1.0",
-  "overall_score": 80,
+  "overall_score": 70,
   "components": {
     "automation": {
       "score": 95,
@@ -12,12 +12,12 @@
       "window_days": 7
     },
     "data_freshness": {
-      "score": 95,
-      "average_age_hours": 4.0,
+      "score": 60,
+      "average_age_hours": 26.1,
       "file_ages_hours": {
         "duration_stats.json": null,
-        "rhythm_patterns.json": 4.1,
-        "category_heatmap.json": 4.0
+        "rhythm_patterns.json": 26.1,
+        "category_heatmap.json": 26.0
       }
     },
     "analytics_health": {
@@ -31,8 +31,9 @@
     }
   },
   "insights": [
-    "🟢 Cortex OS is healthy with minor areas for improvement.",
+    "🟡 Cortex OS health is moderate. Some attention needed.",
     "🤖 Automation loop is highly reliable.",
+    "⏰ Data freshness declined (avg age: 26.1h). Consider running analytics.",
     "📊 Analytics health is low. More task history needed for reliable patterns.",
     "💡 Rhythm patterns need more data (target: 10+ active days)."
   ]
