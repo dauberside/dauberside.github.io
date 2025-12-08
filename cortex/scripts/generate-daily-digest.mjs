@@ -21,7 +21,7 @@ const __dirname = path.dirname(__filename);
 const ROOT = process.env.WORKSPACE_ROOT || path.resolve(__dirname, '../..');
 
 // Parse command line arguments
-const targetDate = process.argv[2] || getYesterdayInJST();
+const targetDate = process.argv[2] || getTodayInJST();
 
 // Debug: Ensure targetDate is valid
 if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -67,10 +67,10 @@ function formatDate(date = new Date()) {
 }
 
 /**
- * Get yesterday's date in JST
- * This is the default behavior for digest generation
+ * Get today's date in JST
+ * This is the default behavior for digest generation (journal for today)
  */
-function getYesterdayInJST() {
+function getTodayInJST() {
   try {
     const now = new Date();
     
@@ -79,7 +79,6 @@ function getYesterdayInJST() {
       throw new Error('Invalid current date');
     }
     
-    now.setDate(now.getDate() - 1);
     const result = formatDate(now);
     
     // Validate result
@@ -89,15 +88,14 @@ function getYesterdayInJST() {
     
     return result;
   } catch (error) {
-    console.error('❌ Error calculating yesterday date:', error.message);
+    console.error('❌ Error calculating today date:', error.message);
     console.error('   This may be due to timezone/Intl API issues');
     
     // Emergency fallback: manual calculation (UTC-based)
     const now = new Date();
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const y = yesterday.getFullYear();
-    const m = String(yesterday.getMonth() + 1).padStart(2, '0');
-    const d = String(yesterday.getDate()).padStart(2, '0');
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   }
 }
