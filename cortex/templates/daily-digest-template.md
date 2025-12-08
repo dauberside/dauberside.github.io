@@ -1,25 +1,25 @@
-# Daily Digest - {{DATE}}
+# デイリーダイジェスト - {{DATE}}
 
-## Today's Focus
+## 今日のフォーカス
 
-### High Priority
+### 優先度：高
 {{HIGH_PRIORITY_TASKS}}
 
-### Regular Tasks
+### 通常タスク
 {{REGULAR_TASKS}}
 
-### No Tags
+### タグなしタスク
 {{NO_TAG_TASKS}}
 
-## Progress
+## 進捗
 
 （今日の主な進捗をここに記録）
 
-## Reflection
+## 振り返り
 
 （今日の振り返り・学び・気づきをここに記録）
 
 ---
 
-**Generated**: {{TIMESTAMP}}
-**Source**: TODO.md (automatic extraction)
+**生成日時**: {{TIMESTAMP}}  
+**ソース**: TODO.md（自動抽出）

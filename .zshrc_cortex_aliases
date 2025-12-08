@@ -1,0 +1,18 @@
+# Cortex OS Command Aliases
+# Source this file in your .zshrc:
+#   source /path/to/.zshrc_cortex_aliases
+
+# Set your repository path
+CORTEX_ROOT="/Volumes/Extreme Pro/dauberside.github.io-1"
+
+# Phase 1 Commands (v1.4)
+alias log-task="python3 $CORTEX_ROOT/scripts/log.py"
+alias note-task="python3 $CORTEX_ROOT/scripts/note.py"
+
+# Usage Examples:
+# log-task -t "環境変数修正" -d 12m -c admin
+# note-task "n8n の cron は volume 永続化に注意"
+
+# Quick shortcuts
+alias lt="log-task"
+alias nt="note-task"

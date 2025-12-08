@@ -40,6 +40,61 @@
     },
     {
       "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-duration.py --days 30"
+      },
+      "id": "analyze-duration",
+      "name": "Analyze Duration",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1350, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-rhythm.py --days 30"
+      },
+      "id": "analyze-rhythm",
+      "name": "Analyze Rhythm",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1450, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-category-heatmap.py --days 30"
+      },
+      "id": "analyze-category-heatmap",
+      "name": "Analyze Category Heatmap",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1550, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-recipes.py --days 7"
+      },
+      "id": "analyze-recipe-metrics",
+      "name": "Analyze Recipe Metrics",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1650, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-health.py"
+      },
+      "id": "analyze-health-score",
+      "name": "Analyze Health Score",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1750, 200],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "http://kb-api:4040/reload",
         "authentication": "none",
@@ -104,6 +159,61 @@
       ]
     },
     "Rebuild KB Index": {
+      "main": [
+        [
+          {
+            "node": "Analyze Duration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Duration": {
+      "main": [
+        [
+          {
+            "node": "Analyze Rhythm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Rhythm": {
+      "main": [
+        [
+          {
+            "node": "Analyze Category Heatmap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Category Heatmap": {
+      "main": [
+        [
+          {
+            "node": "Analyze Recipe Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Recipe Metrics": {
+      "main": [
+        [
+          {
+            "node": "Analyze Health Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Health Score": {
       "main": [
         [
           {

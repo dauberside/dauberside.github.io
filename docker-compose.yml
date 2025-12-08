@@ -31,7 +31,9 @@ services:
     restart: unless-stopped
 
   n8n:
-    image: n8nio/n8n:1.116.2
+    build:
+      context: ./services/n8n
+      dockerfile: Dockerfile
     container_name: n8n
     environment:
       - TZ=Asia/Tokyo

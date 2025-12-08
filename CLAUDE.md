@@ -2,7 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Last updated: December 5, 2025
+Last updated: December 7, 2025
+
+---
+
+## ⚠️ Context Management Policy (IMPORTANT)
+
+This project treats context (tokens) as a **critical finite resource**. You must follow strict optimization guidelines to prevent context exhaustion.
+
+**Full Policy**: See `docs/cortex/context-optimization.md` for complete details.
+
+**Quick Guidelines**:
+- 📁 **File access**: Read minimum necessary only (use `limit`/`offset` parameters)
+- 📜 **Logs**: Always use `--tail 20` to `--tail 50` (never read full logs)
+- 🔎 **Search**: Use `output_mode="files_with_matches"` first, then read specific files
+- 🚫 **Never read**: `kb/index/embeddings.json` in full (5.2MB), large log files, huge JSONs
+- 💬 **Responses**: Summarize instead of pasting raw data; provide file locations instead of full contents
+
+**Context consumption examples**:
+- MCP tools: 56.8k tokens (always loaded)
+- Reading `embeddings.json`: ~30k+ tokens (AVOID)
+- `docker logs --tail 100`: ~2-3k tokens
+- Full file reads: hundreds to thousands of tokens each
+
+When context is getting full (>75%), proactively suggest starting a new session or saving information to docs.
 
 ---
 

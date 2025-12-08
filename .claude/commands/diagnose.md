@@ -138,6 +138,32 @@ python3 scripts/analyze-health.py --window-days 7
 
 ---
 
+### 9. Context Health Check
+
+**IMPORTANT**: Context (token usage) is also part of system health. Check the current session's context usage.
+
+**How to execute**:
+1. Run the `/context` command (built-in Claude Code command)
+2. Parse the output to extract:
+   - Current token usage (e.g., 148k)
+   - Maximum tokens (e.g., 200k)
+   - Percentage used (calculate: used/max * 100)
+   - Breakdown by category (MCP tools, messages, system tools, memory files)
+
+**DO NOT paste the raw `/context` output**. Instead, summarize it into a structured "🧠 Context Health" section.
+
+**Scoring** (based on percentage):
+- < 70%: ✅ Healthy
+- 70-85%: ⚠️ Approaching threshold
+- > 85%: 🔴 High usage
+
+**Recommendations**:
+- **Healthy** (< 70%): "通常の運用で問題なし。"
+- **Approaching** (70-85%): "大きなログやファイルを読むときは、部分読み（tail 20–50, limit/offset）を徹底してください。"
+- **High** (> 85%): "新しいセッションを開始することを推奨します。重い読み込みは避けてください。"
+
+---
+
 ## Output Format
 
 Generate a Markdown report with the following structure:
@@ -206,6 +232,33 @@ If file does not exist or is stale (>24h old):
 ```markdown
 ⚠️  Health Score data not available. Run: `python3 scripts/analyze-health.py`
 ```
+
+---
+
+### Context Health (v1.3+)
+
+Display the current session's context usage:
+
+```markdown
+## 🧠 Context Health
+
+**Current Usage**: {used}k / {max}k ({percentage}%) {status_icon}
+
+**Breakdown (approx.)**:
+- MCP tools (system prompts, tools): ~{mcp_tokens}k
+- System tools / policies: ~{system_tokens}k
+- Memory / project docs (CLAUDE.md, etc.): ~{memory_tokens}k
+- Conversation history (messages): ~{messages_tokens}k
+- Free space: ~{free_tokens}k ({free_percentage}%)
+
+**Assessment**: {status_emoji} {status_text}
+**Recommendation**: {recommendation_text}
+```
+
+**Status mapping**:
+- < 70%: `✅ Healthy` → "通常の運用で問題なし。"
+- 70-85%: `⚠️ Approaching threshold` → "大きなログやファイルを読むときは、部分読み（tail 20–50, limit/offset）を徹底してください。さらに重い作業を続ける場合は、新しいセッションを開始することも検討してください。"
+- > 85%: `🔴 High usage` → "新しいセッションを開始することを強く推奨します。重いファイル読み込みやログ取得は避けてください。"
 
 ---
 

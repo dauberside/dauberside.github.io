@@ -1,11 +1,15 @@
 {
-  "generated_at": "2025-12-05T18:17:50+09:00",
+  "generated_at": "2025-12-08T11:15:50+09:00",
   "analysis_period_days": 30,
-  "total_tasks": 0,
-  "active_days": 0,
-  "chronotype": "unknown",
-  "peak_hour": null,
-  "peak_window": null,
+  "total_tasks": 22,
+  "active_days": 3,
+  "chronotype": "morning",
+  "peak_hour": 10,
+  "peak_window": {
+    "start_hour": 8,
+    "end_hour": 11,
+    "total_tasks": 22
+  },
   "hourly_distribution": {
     "0": 0,
     "1": 0,
@@ -17,7 +21,7 @@
     "7": 0,
     "8": 0,
     "9": 0,
-    "10": 0,
+    "10": 22,
     "11": 0,
     "12": 0,
     "13": 0,
@@ -32,8 +36,21 @@
     "22": 0,
     "23": 0
   },
-  "weekday_hour_matrix": {},
+  "weekday_hour_matrix": {
+    "Wednesday": {
+      "10": 7
+    },
+    "Monday": {
+      "10": 7
+    },
+    "Friday": {
+      "10": 8
+    }
+  },
   "insights": [
-    "No completed tasks in the analysis period."
+    "Your current rhythm is classified as: morning type (早起き型).",
+    "Single peak hour: around 10:00.",
+    "Most active window: 08:00–11:00 (22 tasks in 3 active days).",
+    "Average completed tasks per active day: 7.33 over 3 active days."
   ]
 }

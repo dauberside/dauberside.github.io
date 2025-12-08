@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-07T21:30:00+09:00",
+  "date": "2025-12-08",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Recipe 自動実行の検証",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P0",
+      "status": "completed"
+    },
+    {
+      "title": "n8n アップデート完了確認",
+      "time": "5分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "completed"
+    },
+    {
+      "title": "Context Optimization Policy 運用開始",
+      "time": "0分",
+      "phase": "自動適用",
+      "priority": "P2",
+      "status": "completed"
+    }
+  ],
+  "total_time": 15,
+  "buffer": "OK",
+  "reflection": "昨日の n8n 完全リセット + Recipe 02 Analytics 統合 + Context Policy 実装の検証フェーズ。7日間安定稼働カウント Day 2/7 として監視継続。深い仕事なし、余白確保。"
+}
