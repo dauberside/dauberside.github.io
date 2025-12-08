@@ -26,6 +26,14 @@
     "generated_at": "2025-12-08T05:01:48.417906+00:00",
     "source": "sync-digest-tasks",
     "version": "1.0.0",
-    "updated_at": "2025-12-08T05:02:00.792823+00:00"
+    "updated_at": "2025-12-08T09:43:50.789081+00:00",
+    "incomplete_detection": {
+      "version": "1.0.0",
+      "detected_at": "2025-12-08T09:43:50.788930+00:00",
+      "planned": 0,
+      "completed": 0,
+      "incomplete": 0,
+      "completion_rate": 0.0
+    }
   }
 }

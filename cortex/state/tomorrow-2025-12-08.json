@@ -1,0 +1,17 @@
+{
+  "generated_at": "2025-12-08T09:51:00.000Z",
+  "source_date": "2025-12-08",
+  "tomorrow_candidates": [
+    "v1.4 Phase 4: /wrap-up 統合実装",
+    "Recipe 自動実行の最終確認（Day 1/7）",
+    "Weekly Intelligence 設計着手"
+  ],
+  "carryover_tasks": [],
+  "reflection_summary": "Phase 1-3 完全実装完了。記録→同期→検出の流れが確立。",
+  "completion_rate": 0.0,
+  "metrics": {
+    "planned": 0,
+    "completed": 0,
+    "incomplete": 0
+  }
+}
