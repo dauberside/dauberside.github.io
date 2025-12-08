@@ -27,7 +27,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Calculate yesterday's date in JST (UTC+9) for digest generation\n// Digest is generated at 00:30 JST for the previous day\nfunction getDigestDateJST() {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);\n  // Subtract one day to get yesterday's date\n  jstTime.setDate(jstTime.getDate() - 1);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getDigestDateJST();\n\nreturn {\n  json: {\n    date: dateString,\n    timestamp: new Date().toISOString(),\n    digestPath: `cortex/daily/${dateString}-digest.md`\n  }\n};"
+        "jsCode": "// Calculate today's date in JST (UTC+9) for digest generation\n// Digest is generated at 00:30 JST for today's journal\nfunction getDigestDateJST() {\n  const now = new Date();\n  const jstOffset = 9 * 60; // JST = UTC+9\n  const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);\n  return jstTime.toISOString().split('T')[0]; // YYYY-MM-DD\n}\n\nconst dateString = getDigestDateJST();\n\nreturn {\n  json: {\n    date: dateString,\n    timestamp: new Date().toISOString(),\n    digestPath: `cortex/daily/${dateString}-digest.md`\n  }\n};"
       },
       "id": "calculate-date",
       "name": "Calculate Digest Date (JST)",
