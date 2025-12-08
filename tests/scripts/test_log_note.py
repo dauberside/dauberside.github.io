@@ -17,6 +17,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from log import format_log_entry, insert_into_digest as log_insert
 from note import format_note_entry, insert_into_digest as note_insert
 
+# Import sync functions for Phase 2 tests
+import json
+import importlib.util
+
+# Load sync-digest-tasks.py module
+sync_script_path = Path(__file__).resolve().parents[2] / "scripts" / "sync-digest-tasks.py"
+spec = importlib.util.spec_from_file_location("sync_digest_tasks", sync_script_path)
+sync_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(sync_module)
+
+parse_digest_progress = sync_module.parse_digest_progress
+sync_digest_to_tasks = sync_module.sync_digest_to_tasks
+sync_tasks_to_digest = sync_module.sync_tasks_to_digest
+get_digest_task_titles = sync_module.get_digest_task_titles
+format_task_for_digest = sync_module.format_task_for_digest
+
 
 # Sample digest template
 DIGEST_TEMPLATE = """# デイリーダイジェスト - 2025-12-08
@@ -180,6 +196,301 @@ def test_multiple_notes():
         temp_path.unlink()
 
 
+# ========================================
+# Phase 2: Bidirectional Sync Tests
+# ========================================
+
+DIGEST_WITH_TASKS = """# デイリーダイジェスト - 2025-12-08
+
+## 進捗
+
+### 既存タスク1 (10:00 JST)
+- **カテゴリ**: core-work
+- **所要時間**: 30m
+- **メモ**: 既存のタスク
+
+### 既存タスク2 (11:00 JST)
+- **カテゴリ**: admin
+- **所要時間**: 15m
+
+## 振り返り
+
+（記録）
+"""
+
+
+def test_parse_digest_progress():
+    """Test parsing tasks from digest ## 進捗 section"""
+    tasks = parse_digest_progress(DIGEST_WITH_TASKS)
+
+    assert len(tasks) == 2
+    assert tasks[0]["title"] == "既存タスク1"
+    assert tasks[0]["timestamp"] == "10:00"
+    assert tasks[0]["category"] == "core-work"
+    assert tasks[0]["duration"] == "30m"
+    assert tasks[0]["memo"] == "既存のタスク"
+
+    assert tasks[1]["title"] == "既存タスク2"
+    assert tasks[1]["timestamp"] == "11:00"
+    assert tasks[1]["memo"] is None
+
+
+def test_sync_digest_to_tasks_adds_new():
+    """Test digest → tasks sync adds new items"""
+    # Given: digest with 2 tasks
+    digest_tasks = [
+        {
+            "title": "タスクA",
+            "category": "core-work",
+            "duration": "20m",
+            "timestamp": "10:00",
+            "memo": "メモA"
+        },
+        {
+            "title": "タスクB",
+            "category": "admin",
+            "duration": "10m",
+            "timestamp": "11:00",
+            "memo": None
+        }
+    ]
+
+    # Given: empty task-entry
+    task_entry = {
+        "date": "2025-12-08",
+        "completed": []
+    }
+
+    # When: sync digest → tasks
+    changed = sync_digest_to_tasks("2025-12-08", digest_tasks, task_entry)
+
+    # Then: both tasks added
+    assert changed is True
+    assert len(task_entry["completed"]) == 2
+    assert task_entry["completed"][0]["content"] == "タスクA"
+    assert task_entry["completed"][1]["content"] == "タスクB"
+
+
+def test_sync_digest_to_tasks_no_duplicates():
+    """Test digest → tasks sync prevents duplicates"""
+    # Given: digest with 1 task
+    digest_tasks = [
+        {
+            "title": "既存タスク",
+            "category": "core-work",
+            "duration": "30m",
+            "timestamp": "10:00",
+            "memo": None
+        }
+    ]
+
+    # Given: task-entry already has this task
+    task_entry = {
+        "date": "2025-12-08",
+        "completed": [
+            {
+                "content": "既存タスク",
+                "category": "core-work",
+                "duration": "30m",
+                "timestamp": "10:00"
+            }
+        ]
+    }
+
+    # When: sync digest → tasks
+    changed = sync_digest_to_tasks("2025-12-08", digest_tasks, task_entry)
+
+    # Then: no changes (duplicate prevented)
+    assert changed is False
+    assert len(task_entry["completed"]) == 1
+
+
+def test_sync_tasks_to_digest_appends_only():
+    """Test tasks → digest sync appends new tasks without modifying existing"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+        f.write(DIGEST_WITH_TASKS)
+        temp_path = Path(f.name)
+
+    try:
+        # Given: task-entry with existing + new task
+        task_entry = {
+            "date": "2025-12-08",
+            "completed": [
+                {
+                    "content": "既存タスク1",
+                    "category": "core-work",
+                    "duration": "30m",
+                    "timestamp": "10:00",
+                    "memo": "既存のタスク"
+                },
+                {
+                    "content": "新規タスク",
+                    "category": "test",
+                    "duration": "5m",
+                    "timestamp": "12:00",
+                    "memo": "これは新しいタスク"
+                }
+            ]
+        }
+
+        # When: sync tasks → digest
+        changed = sync_tasks_to_digest("2025-12-08", task_entry, temp_path)
+
+        # Then: new task added
+        assert changed is True
+
+        content = temp_path.read_text(encoding='utf-8')
+
+        # Existing tasks preserved
+        assert "### 既存タスク1 (10:00 JST)" in content
+        assert "### 既存タスク2 (11:00 JST)" in content
+
+        # New task added
+        assert "### 新規タスク (12:00 JST)" in content
+        assert "**カテゴリ**: test" in content
+        assert "**所要時間**: 5m" in content
+        assert "**メモ**: これは新しいタスク" in content
+
+        # Check order: new task should be after existing ones
+        existing1_idx = content.index("### 既存タスク1")
+        existing2_idx = content.index("### 既存タスク2")
+        new_idx = content.index("### 新規タスク")
+        assert new_idx > existing1_idx
+        assert new_idx > existing2_idx
+
+    finally:
+        temp_path.unlink()
+
+
+def test_sync_tasks_to_digest_no_duplicates():
+    """Test tasks → digest sync prevents duplicates"""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+        f.write(DIGEST_WITH_TASKS)
+        temp_path = Path(f.name)
+
+    try:
+        # Given: task-entry with only existing tasks
+        task_entry = {
+            "date": "2025-12-08",
+            "completed": [
+                {
+                    "content": "既存タスク1",
+                    "category": "core-work",
+                    "duration": "30m",
+                    "timestamp": "10:00"
+                },
+                {
+                    "content": "既存タスク2",
+                    "category": "admin",
+                    "duration": "15m",
+                    "timestamp": "11:00"
+                }
+            ]
+        }
+
+        # When: sync tasks → digest
+        changed = sync_tasks_to_digest("2025-12-08", task_entry, temp_path)
+
+        # Then: no changes (duplicates prevented)
+        assert changed is False
+
+        content = temp_path.read_text(encoding='utf-8')
+
+        # Tasks should appear only once
+        assert content.count("### 既存タスク1") == 1
+        assert content.count("### 既存タスク2") == 1
+
+    finally:
+        temp_path.unlink()
+
+
+def test_get_digest_task_titles():
+    """Test extracting task titles from digest"""
+    titles = get_digest_task_titles(DIGEST_WITH_TASKS)
+
+    assert len(titles) == 2
+    assert "既存タスク1" in titles
+    assert "既存タスク2" in titles
+
+
+def test_format_task_for_digest():
+    """Test formatting task-entry task for digest"""
+    task = {
+        "content": "テストタスク",
+        "category": "core-work",
+        "duration": "25m",
+        "timestamp": "14:30",
+        "memo": "テストメモ"
+    }
+
+    formatted = format_task_for_digest(task)
+
+    assert "### テストタスク (14:30 JST)" in formatted
+    assert "**カテゴリ**: core-work" in formatted
+    assert "**所要時間**: 25m" in formatted
+    assert "**メモ**: テストメモ" in formatted
+
+
+def test_format_task_for_digest_no_memo():
+    """Test formatting task without memo"""
+    task = {
+        "content": "タスク",
+        "category": "admin",
+        "duration": "10m",
+        "timestamp": "15:00"
+    }
+
+    formatted = format_task_for_digest(task)
+
+    assert "### タスク (15:00 JST)" in formatted
+    assert "**カテゴリ**: admin" in formatted
+    assert "**所要時間**: 10m" in formatted
+    assert "**メモ**:" not in formatted
+
+
 if __name__ == "__main__":
-    import pytest
-    pytest.main([__file__, "-v"])
+    # Simple test runner (no pytest required)
+    import traceback
+
+    test_functions = [
+        test_format_log_entry,
+        test_format_log_entry_without_memo,
+        test_log_insert_into_digest,
+        test_format_note_entry,
+        test_note_insert_into_digest,
+        test_multiple_log_entries,
+        test_multiple_notes,
+        # Phase 2 tests
+        test_parse_digest_progress,
+        test_sync_digest_to_tasks_adds_new,
+        test_sync_digest_to_tasks_no_duplicates,
+        test_sync_tasks_to_digest_appends_only,
+        test_sync_tasks_to_digest_no_duplicates,
+        test_get_digest_task_titles,
+        test_format_task_for_digest,
+        test_format_task_for_digest_no_memo,
+    ]
+
+    passed = 0
+    failed = 0
+
+    for test_func in test_functions:
+        try:
+            test_func()
+            print(f"✅ PASS: {test_func.__name__}")
+            passed += 1
+        except AssertionError as e:
+            print(f"❌ FAIL: {test_func.__name__}")
+            print(f"   {str(e)}")
+            failed += 1
+        except Exception as e:
+            print(f"❌ ERROR: {test_func.__name__}")
+            traceback.print_exc()
+            failed += 1
+
+    print(f"\n{'='*60}")
+    print(f"Tests: {passed} passed, {failed} failed, {passed + failed} total")
+    print(f"{'='*60}")
+
+    if failed > 0:
+        sys.exit(1)

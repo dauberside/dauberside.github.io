@@ -101,6 +101,147 @@ def load_task_entry(date: str) -> Dict:
     }
 
 
+def get_digest_task_titles(digest_content: str) -> set:
+    """
+    Extract existing task titles from ## 進捗 section
+
+    Returns set of task titles for duplicate detection
+    """
+    tasks = parse_digest_progress(digest_content)
+    return {task["title"].strip() for task in tasks}
+
+
+def find_section_end(section_name: str, content: str) -> int:
+    """
+    Find the end position of a markdown section
+
+    Returns position where new content should be inserted
+    (before next ## section or EOF)
+    """
+    # Find section start
+    section_pattern = rf'^{re.escape(section_name)}\s*$'
+    section_match = re.search(section_pattern, content, re.MULTILINE)
+
+    if not section_match:
+        raise ValueError(f"Section '{section_name}' not found in content")
+
+    section_start = section_match.end()
+
+    # Find next ## section or EOF
+    next_section_pattern = r'\n##\s+'
+    next_section = re.search(next_section_pattern, content[section_start:])
+
+    if next_section:
+        return section_start + next_section.start()
+    else:
+        # EOF
+        return len(content)
+
+
+def format_task_for_digest(task: Dict) -> str:
+    """
+    Format a task dict into digest markdown format
+
+    Input task dict:
+    {
+        "content": "タスクタイトル",
+        "category": "core-work",
+        "duration": "30m",
+        "timestamp": "10:00",
+        "memo": "optional memo"
+    }
+
+    Output markdown:
+    ### タスクタイトル (10:00 JST)
+    - **カテゴリ**: core-work
+    - **所要時間**: 30m
+    - **メモ**: optional memo
+    """
+    lines = []
+
+    title = task.get("content", "").strip()
+    timestamp = task.get("timestamp", "00:00").strip()
+    category = task.get("category", "unknown").strip()
+    duration = task.get("duration", "0m").strip()
+    memo = task.get("memo")
+
+    # Title line
+    lines.append(f"### {title} ({timestamp} JST)")
+
+    # Metadata
+    lines.append(f"- **カテゴリ**: {category}")
+    lines.append(f"- **所要時間**: {duration}")
+
+    if memo:
+        lines.append(f"- **メモ**: {memo.strip()}")
+
+    return "\n".join(lines) + "\n"
+
+
+def sync_tasks_to_digest(date: str, task_entry: Dict, digest_path: Path) -> bool:
+    """
+    Sync tasks.json → digest (append-only, digest-safe)
+
+    Strategy:
+    1. Load digest content
+    2. Parse existing task titles from ## 進捗
+    3. Find tasks in task_entry.completed not in digest
+    4. Format new tasks in digest format
+    5. Append to ## 進捗 section (末尾追加)
+    6. Write back safely
+
+    Returns True if changes were made
+    """
+    # Load digest
+    if not digest_path.exists():
+        print(f"  ⚠️  Digest not found: {digest_path.name}")
+        return False
+
+    digest_content = digest_path.read_text(encoding='utf-8')
+
+    # Get existing task titles
+    try:
+        existing_titles = get_digest_task_titles(digest_content)
+    except Exception as e:
+        print(f"  ❌ Error parsing digest: {e}")
+        return False
+
+    # Get completed tasks from task-entry
+    completed_tasks = task_entry.get("completed", [])
+
+    # Find new tasks (in task-entry but not in digest)
+    new_tasks = []
+    for task in completed_tasks:
+        task_title = task.get("content", "").strip()
+        if task_title and task_title not in existing_titles:
+            new_tasks.append(task)
+
+    if not new_tasks:
+        return False
+
+    # Format new tasks
+    new_tasks_formatted = "\n" + "\n".join(format_task_for_digest(task) for task in new_tasks)
+
+    # Find insertion position (end of ## 進捗 section)
+    try:
+        progress_end = find_section_end("## 進捗", digest_content)
+    except ValueError as e:
+        print(f"  ❌ {e}")
+        return False
+
+    # Insert new tasks
+    new_content = digest_content[:progress_end] + new_tasks_formatted + digest_content[progress_end:]
+
+    # Write back
+    digest_path.write_text(new_content, encoding='utf-8')
+
+    print(f"  ✅ Added {len(new_tasks)} tasks to digest:")
+    for task in new_tasks:
+        print(f"     - {task.get('content', 'Untitled')}")
+
+    return True
+
+
 def sync_digest_to_tasks(date: str, digest_tasks: List[Dict], task_entry: Dict) -> bool:
     """
     Sync digest tasks to task-entry.json
@@ -216,13 +357,24 @@ Examples:
         else:
             print("⏰ Tasks is newer → digest takes priority (human input)")
     
-    # Sync digest → tasks
+    # Bidirectional sync
     print("\n🔄 Syncing digest → task-entry.json...")
-    changed = sync_digest_to_tasks(date, digest_tasks, task_entry)
-    
-    if changed:
+    changed_digest_to_tasks = sync_digest_to_tasks(date, digest_tasks, task_entry)
+
+    print("\n🔄 Syncing task-entry.json → digest...")
+    changed_tasks_to_digest = sync_tasks_to_digest(date, task_entry, digest_file)
+
+    # Save task-entry if needed
+    if changed_digest_to_tasks:
         save_task_entry(date, task_entry)
-        print(f"\n✅ Sync complete!")
+
+    # Summary
+    if changed_digest_to_tasks or changed_tasks_to_digest:
+        print(f"\n✅ Bidirectional sync complete!")
+        if changed_digest_to_tasks:
+            print(f"   ↓ digest → task-entry")
+        if changed_tasks_to_digest:
+            print(f"   ↑ task-entry → digest")
     else:
         print(f"\n✨ No changes needed (already in sync)")
 
