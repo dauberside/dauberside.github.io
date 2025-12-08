@@ -1,0 +1,31 @@
+{
+  "date": "2025-12-08",
+  "tasks": [],
+  "completed": [
+    {
+      "content": "v1.4 Phase 1 実装",
+      "status": "completed",
+      "category": "core-work",
+      "duration": "30m",
+      "timestamp": "13:31",
+      "memo": "log/note コマンド作成"
+    },
+    {
+      "content": "Phase 2 プロトタイプ実装",
+      "status": "completed",
+      "category": "core-work",
+      "duration": "45m",
+      "timestamp": "14:02",
+      "memo": "digest→tasks.json 同期"
+    }
+  ],
+  "carryover": [],
+  "reflection": "",
+  "tomorrow_candidates": [],
+  "metadata": {
+    "generated_at": "2025-12-08T05:01:48.417906+00:00",
+    "source": "sync-digest-tasks",
+    "version": "1.0.0",
+    "updated_at": "2025-12-08T05:02:00.792823+00:00"
+  }
+}
