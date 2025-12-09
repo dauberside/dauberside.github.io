@@ -165,7 +165,7 @@ async function validateOutput() {
   // Check for required sections and ensure template placeholders are replaced
   const content = await fs.readFile(OUTPUT_PATH, 'utf8');
   
-  if (!content.includes("## Today's Focus") || content.includes('{{DATE}}')) {
+  if (!content.includes("## 今日のフォーカス") || content.includes('{{DATE}}')) {
     throw new Error('Generated file is missing required sections or still contains template placeholders');
   }
   
