@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-09T00:00:00.000Z",
+  "date": "2025-12-09",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "/diagnose で Recipe 実行ログ検証",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Recipe 動作確認",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "v1.2 Roadmap 確認",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "軽めのタスク構成で余裕を確保。Recipe の動作確認とロードマップ把握に集中する月曜日。"
+}

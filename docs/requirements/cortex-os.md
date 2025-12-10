@@ -95,29 +95,39 @@ This document specifies the requirements for Cortex OS v1.2 "Autonomy" - a self-
 
 ## 🔄 Autonomous Loops
 
-### Daily Loop
+### Daily Loop (Lifecycle-Aware Schedule)
 
-| Time | Recipe | Input | Output | Status |
-|------|--------|-------|--------|--------|
-| 00:00 JST | Recipe 14 | TODO.md, Git | Daily Digest | ✅ Active |
-| 03:00 JST | Recipe 02 | All .md files | KB Index | ✅ Active |
-| 08:05 JST | Recipe 10 | Today's Focus | TODO.md update | ✅ Active |
-| 22:00 JST | Recipe 13 | TODO.md | tomorrow.json | ✅ Active |
+**Target Days**: Monday, Wednesday, Friday, Saturday, Sunday (in-home days)
+**Excluded**: Tuesday, Thursday (night shift days)
 
-**Dependencies**:
+| Time | Recipe | Input | Output | Status | Cron |
+|------|--------|-------|--------|--------|------|
+| 20:00 JST | Recipe 13 | TODO.md | tomorrow.json | ✅ Active | `0 20 * * 0,1,3,5,6` |
+| 20:10 JST | Recipe 14 | TODO.md, Git | Daily Digest | ✅ Active | `10 20 * * 0,1,3,5,6` |
+| 20:30 JST | Recipe 02 | All .md files | KB Index | ✅ Active | `30 20 * * 0,1,3,5,6` |
+| 20:40 JST | Recipe 10 | Today's Focus | TODO.md update | ✅ Active | `40 20 * * 0,1,3,5,6` |
+
+**Rationale**: See [ADR-0011: Lifecycle-Aware Recipe Scheduling](../decisions/ADR-0011-lifecycle-aware-recipe-scheduling.md)
+
+**Dependencies** (Evening Batch):
 ```
-Recipe 13 (22:00) → tomorrow.json
+Recipe 13 (20:00) → tomorrow.json
+  ↓ (10 min)
+Recipe 14 (20:10) → Daily Digest (cortex/daily/YYYY-MM-DD-digest.md)
+  ↓ (20 min)
+Recipe 02 (20:30) → KB Index (all .md files)
+  ↓ (10 min)
+Recipe 10 (20:40) → TODO.md (synced for tomorrow)
   ↓
-Recipe 14 (00:00) → Daily Digest (cortex/daily/YYYY-MM-DD-digest.md)
+Next day: Human works on tasks (manual)
   ↓
-Recipe 10 (08:05) → TODO.md (reads yesterday's digest)
-  ↓
-Human works on tasks (manual)
-  ↓
-Recipe 14 (next day 00:00) → Next Daily Digest
-  ↓
-Recipe 02 (03:00) → KB Index
+Recipe 13 (20:00 next automation day) → Cycle repeats
 ```
+
+**Exception Days** (Tue/Thu):
+- No automatic Recipe execution (night shift)
+- Manual workflow: `/brief` on mobile or light note-taking
+- Next automation: Following Mon/Wed/Fri evening
 
 ---
 
