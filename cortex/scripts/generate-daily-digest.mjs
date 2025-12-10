@@ -43,6 +43,7 @@ if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}
 
 const TEMPLATE_PATH = path.join(ROOT, 'cortex/templates/daily-digest-template.md');
 const TODO_PATH = path.join(ROOT, 'TODO.md');
+const TOMORROW_JSON_PATH = path.join(ROOT, 'cortex/state/tomorrow.json');
 const OUTPUT_DIR = path.join(ROOT, 'cortex/daily');
 const OUTPUT_PATH = path.join(OUTPUT_DIR, `${targetDate}-digest.md`);
 
@@ -97,6 +98,23 @@ function getTodayInJST() {
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+}
+
+/**
+ * Load tomorrow.json if it exists
+ */
+async function loadTomorrowJson() {
+  try {
+    const content = await fs.readFile(TOMORROW_JSON_PATH, 'utf8');
+    const data = JSON.parse(content);
+    console.log(`📖 Reading tomorrow.json: ${TOMORROW_JSON_PATH}`);
+    console.log(`   ✓ Candidates: ${data.tomorrow_candidates?.length || 0}`);
+    console.log(`   ✓ Carryover: ${data.carryover_tasks?.length || 0}`);
+    return data;
+  } catch (error) {
+    console.log(`ℹ️  tomorrow.json not found, using TODO.md only`);
+    return null;
   }
 }
 
@@ -185,29 +203,43 @@ async function generateDigest() {
   console.log(`📖 Reading template: ${TEMPLATE_PATH}`);
   const template = await fs.readFile(TEMPLATE_PATH, 'utf8');
 
-  // 2. Read TODO.md
+  // 2. Load tomorrow.json (if exists)
+  const tomorrowData = await loadTomorrowJson();
+
+  // 3. Read TODO.md
   console.log(`📖 Reading TODO.md: ${TODO_PATH}`);
   const todoContent = await fs.readFile(TODO_PATH, 'utf8');
 
-  // 3. Extract tasks
-  console.log('🔄 Extracting tasks from TODO.md...');
+  // 4. Extract tasks
+  console.log('🔄 Extracting tasks...');
   const { highPriority, regular, noTag } = extractTasks(todoContent);
 
-  console.log(`   ✓ High Priority: ${highPriority.length} tasks`);
-  console.log(`   ✓ Regular: ${regular.length} tasks`);
+  // 5. Merge with tomorrow.json candidates
+  let finalHighPriority = [...highPriority];
+  let finalRegular = [...regular];
+  
+  if (tomorrowData && tomorrowData.tomorrow_candidates) {
+    console.log('🔀 Merging tomorrow.json candidates...');
+    const candidates = tomorrowData.tomorrow_candidates.map(task => `- [ ] ${task}`);
+    finalHighPriority = [...candidates, ...highPriority];
+    console.log(`   ✓ Added ${candidates.length} candidates from tomorrow.json`);
+  }
+
+  console.log(`   ✓ High Priority: ${finalHighPriority.length} tasks`);
+  console.log(`   ✓ Regular: ${finalRegular.length} tasks`);
   console.log(`   ✓ No Tags: ${noTag.length} tasks\n`);
 
-  // 4. Format task lists
+  // 6. Format task lists
   const formatTasks = (tasks) => {
     if (tasks.length === 0) return '（タスクなし）';
     return tasks.join('\n');
   };
 
-  // 5. Replace template placeholders
+  // 7. Replace template placeholders
   let content = template
     .replace(/\{\{DATE\}\}/g, targetDate)
-    .replace(/\{\{HIGH_PRIORITY_TASKS\}\}/g, formatTasks(highPriority))
-    .replace(/\{\{REGULAR_TASKS\}\}/g, formatTasks(regular))
+    .replace(/\{\{HIGH_PRIORITY_TASKS\}\}/g, formatTasks(finalHighPriority))
+    .replace(/\{\{REGULAR_TASKS\}\}/g, formatTasks(finalRegular))
     .replace(/\{\{NO_TAG_TASKS\}\}/g, formatTasks(noTag))
     .replace(/\{\{TIMESTAMP\}\}/g, new Date().toISOString());
   
@@ -217,17 +249,17 @@ async function generateDigest() {
     throw new Error(`Unresolved placeholders found: ${remainingPlaceholders.join(', ')}`);
   }
 
-  // 6. Ensure output directory exists
+  // 8. Ensure output directory exists
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-  // 7. Write digest file
+  // 9. Write digest file
   console.log(`💾 Writing digest: ${OUTPUT_PATH}`);
   await fs.writeFile(OUTPUT_PATH, content, 'utf8');
 
   console.log(`✅ Daily digest generated successfully!`);
   console.log(`   File: ${OUTPUT_PATH}`);
   console.log(`   Size: ${content.length} bytes`);
-  console.log(`   Tasks: ${highPriority.length + regular.length + noTag.length} total`);
+  console.log(`   Tasks: ${finalHighPriority.length + finalRegular.length + noTag.length} total`);
   
   // Validate the generated file
   await validateOutput();
