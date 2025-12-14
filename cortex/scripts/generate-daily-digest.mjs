@@ -21,26 +21,18 @@ const __dirname = path.dirname(__filename);
 const ROOT = process.env.WORKSPACE_ROOT || path.resolve(__dirname, '../..');
 
 // Parse command line arguments
-const args = process.argv.slice(2);
-const dashboardOnly = args.includes('--dashboard');
-const targetDate = dashboardOnly ? null : (args.find(a => !a.startsWith('--')) || getTodayInJST());
+const argv = process.argv.slice(2);
+const dashboardOnly = argv.includes('--dashboard');
+const dateArg = argv.find(a => /^\d{4}-\d{2}-\d{2}$/.test(a));
+const nonFlagArgs = argv.filter(a => !a.startsWith('--'));
+const targetDate = dateArg || getTodayInJST();
 
-// Debug: Ensure targetDate is valid (skip if dashboard-only mode)
-if (!dashboardOnly && (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}-\d{2}$/))) {
-  console.error(`❌ Invalid target date: "${targetDate}"`);
-  console.error(`   Expected format: YYYY-MM-DD`);
-  console.error(`   Falling back to date calculation...`);
-
-  // Emergency fallback: manual calculation
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const y = yesterday.getFullYear();
-  const m = String(yesterday.getMonth() + 1).padStart(2, '0');
-  const d = String(yesterday.getDate()).padStart(2, '0');
-  const fallbackDate = `${y}-${m}-${d}`;
-
-  console.error(`   Using fallback date: ${fallbackDate}`);
-  process.exit(1); // Exit to prevent bad file generation
+// Validate date argument (ignore flags like --dashboard)
+if (!dashboardOnly && nonFlagArgs.length > 0 && !dateArg) {
+  const bad = nonFlagArgs[0];
+  console.error(`❌ Invalid target date: "${bad}"`);
+  console.error('   Expected format: YYYY-MM-DD');
+  process.exit(1);
 }
 
 const TEMPLATE_PATH = path.join(ROOT, 'cortex/templates/daily-digest-template.md');
@@ -289,10 +281,12 @@ async function updateCategoryHeatmap(date, taskLines) {
   return { counts, summary };
 }
 
-// ===== Dashboard Generation Functions =====
-
 function toISO(ts = new Date()) {
-  return new Date(ts).toISOString();
+  // Format as ISO in JST (Asia/Tokyo, UTC+9)
+  const jstDate = new Date(ts);
+  const jstOffset = 9 * 60; // JST = UTC+9 minutes
+  const jstTime = new Date(jstDate.getTime() + jstOffset * 60 * 1000);
+  return jstTime.toISOString().replace('Z', '+09:00');
 }
 
 function sortDatesAsc(dates) {
@@ -478,7 +472,7 @@ async function generateDigest() {
   const allTaskLines = [...finalHighPriority, ...finalRegular, ...noTag];
   await updateCategoryHeatmap(targetDate, allTaskLines);
 
-  // Update category dashboard (non-fatal)
+  // Update markdown dashboard (non-fatal)
   await writeCategoryDashboard();
 
   // Validate the generated file
@@ -490,14 +484,6 @@ async function generateDigest() {
  */
 async function main() {
   try {
-    // Dashboard-only mode: just regenerate the dashboard
-    if (dashboardOnly) {
-      console.log('📊 Dashboard-only mode: Regenerating category dashboard...\n');
-      await writeCategoryDashboard();
-      console.log('\n✅ Dashboard generation complete!');
-      return;
-    }
-
     // Check if file already exists
     try {
       await fs.access(OUTPUT_PATH);
@@ -514,4 +500,9 @@ async function main() {
   }
 }
 
-main();
+if (dashboardOnly) {
+  // Dashboard-only mode
+  writeCategoryDashboard().then(() => process.exit(0));
+} else {
+  main();
+}
