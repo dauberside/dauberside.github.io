@@ -28,7 +28,7 @@ if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}
   console.error(`❌ Invalid target date: "${targetDate}"`);
   console.error(`   Expected format: YYYY-MM-DD`);
   console.error(`   Falling back to date calculation...`);
-  
+
   // Emergency fallback: manual calculation
   const now = new Date();
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -36,16 +36,19 @@ if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}
   const m = String(yesterday.getMonth() + 1).padStart(2, '0');
   const d = String(yesterday.getDate()).padStart(2, '0');
   const fallbackDate = `${y}-${m}-${d}`;
-  
+
   console.error(`   Using fallback date: ${fallbackDate}`);
   process.exit(1); // Exit to prevent bad file generation
 }
 
 const TEMPLATE_PATH = path.join(ROOT, 'cortex/templates/daily-digest-template.md');
-const TODO_PATH = path.join(ROOT, 'TODO.md');
+// TODO.md is now in Obsidian vault (see ADR-0013)
+const OBSIDIAN_VAULT_PATH = process.env.OBSIDIAN_VAULT_PATH || path.join(ROOT, '../obsidian-vault');
+const TODO_PATH = path.join(OBSIDIAN_VAULT_PATH, 'TODO.md');
 const TOMORROW_JSON_PATH = path.join(ROOT, 'cortex/state/tomorrow.json');
 const OUTPUT_DIR = path.join(ROOT, 'cortex/daily');
 const OUTPUT_PATH = path.join(OUTPUT_DIR, `${targetDate}-digest.md`);
+const CATEGORY_HEATMAP_PATH = path.join(ROOT, 'cortex/state/category_heatmap.json');
 
 /**
  * Format date as YYYY-MM-DD in JST
@@ -58,12 +61,12 @@ function formatDate(date = new Date()) {
     month: '2-digit',
     day: '2-digit'
   });
-  
+
   const parts = formatter.formatToParts(date);
   const year = parts.find(p => p.type === 'year').value;
   const month = parts.find(p => p.type === 'month').value;
   const day = parts.find(p => p.type === 'day').value;
-  
+
   return `${year}-${month}-${day}`;
 }
 
@@ -74,24 +77,24 @@ function formatDate(date = new Date()) {
 function getTodayInJST() {
   try {
     const now = new Date();
-    
+
     // Validate that 'now' is a valid date
     if (isNaN(now.getTime())) {
       throw new Error('Invalid current date');
     }
-    
+
     const result = formatDate(now);
-    
+
     // Validate result
     if (!result || !result.match(/^\d{4}-\d{2}-\d{2}$/)) {
       throw new Error(`Invalid date format: ${result}`);
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ Error calculating today date:', error.message);
     console.error('   This may be due to timezone/Intl API issues');
-    
+
     // Emergency fallback: manual calculation (UTC-based)
     const now = new Date();
     const y = now.getFullYear();
@@ -115,6 +118,49 @@ async function loadTomorrowJson() {
   } catch (error) {
     console.log(`ℹ️  tomorrow.json not found, using TODO.md only`);
     return null;
+  }
+}
+
+/**
+ * Fetch TODO.md from Obsidian via REST API
+ */
+async function fetchTODOFromObsidian() {
+  try {
+    const { default: https } = await import('node:https');
+
+    const options = {
+      hostname: process.env.MCP_OBSIDIAN_HOST || '127.0.0.1',
+      port: parseInt(process.env.MCP_OBSIDIAN_PORT || '27124'),
+      path: '/vault/TODO.md',
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${process.env.MCP_OBSIDIAN_API_KEY}`,
+        'Accept': 'text/markdown'
+      },
+      rejectUnauthorized: false  // Allow self-signed cert
+    };
+
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => data += chunk);
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            console.log('📖 Reading TODO.md from Obsidian vault (via REST API)');
+            resolve(data);
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.end();
+    });
+  } catch (error) {
+    // Fallback to file system if API fails
+    console.log(`ℹ️  Obsidian API failed, trying file system: ${TODO_PATH}`);
+    return await fs.readFile(TODO_PATH, 'utf8');
   }
 }
 
@@ -170,23 +216,94 @@ function extractTasks(todoContent) {
 }
 
 /**
+ * Estimate category for a task (keyword-based, safe + explainable)
+ */
+function estimateCategory(task) {
+  const rules = [
+    { cat: 'ops', re: /運用|防御|incident|on[- ]?call|alert|pager|slack/i },
+    { cat: 'n8n', re: /\bn8n\b|recipe|workflow|verification node|error workflow/i },
+    { cat: 'cortex', re: /\bcortex\b|llm|digest|tomorrow\.json|daily/i },
+    { cat: 'docs', re: /docs?|ドキュメント|readme|spec|設計/i },
+    { cat: 'github', re: /github|\bpr\b|pull request|merge/i },
+    { cat: 'infra', re: /deploy|production|staging|docker|k8s|server|infra/i },
+  ];
+
+  for (const r of rules) {
+    if (r.re.test(task)) return r.cat;
+  }
+  return 'other';
+}
+
+function normalizeTaskText(line) {
+  return String(line || '')
+    .replace(/^-\s*\[\s\]\s*/i, '')
+    .replace(/<!--.*?-->/g, '')
+    .trim();
+}
+
+/**
+ * Update cortex/state/category_heatmap.json
+ * - Does NOT fail digest generation if heatmap update fails
+ */
+async function updateCategoryHeatmap(date, taskLines) {
+  const tasks = (taskLines || []).map(normalizeTaskText).filter(Boolean);
+
+  const counts = {};
+  for (const t of tasks) {
+    const cat = estimateCategory(t);
+    counts[cat] = (counts[cat] || 0) + 1;
+  }
+
+  const summary = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k}:${v}`)
+    .join(', ') || 'none';
+
+  try {
+    // Ensure directory exists
+    await fs.mkdir(path.dirname(CATEGORY_HEATMAP_PATH), { recursive: true });
+
+    let data = {};
+    try {
+      const existing = await fs.readFile(CATEGORY_HEATMAP_PATH, 'utf8');
+      data = JSON.parse(existing);
+    } catch {
+      data = {};
+    }
+
+    // Overwrite per-day counts to avoid double counting on retries/re-runs
+    data[date] = counts;
+
+    await fs.writeFile(CATEGORY_HEATMAP_PATH, JSON.stringify(data, null, 2), 'utf8');
+
+    console.log(`📊 Category heatmap updated: ${CATEGORY_HEATMAP_PATH}`);
+    console.log(`   Date: ${date}`);
+    console.log(`   Summary: ${summary}`);
+  } catch (error) {
+    console.log('⚠️  Category heatmap update failed (non-fatal):', error.message);
+  }
+
+  return { counts, summary };
+}
+
+/**
  * Validate generated digest file
  */
 async function validateOutput() {
   const stats = await fs.stat(OUTPUT_PATH);
   const MIN_SIZE = 100; // Minimum 100 bytes
-  
+
   if (stats.size < MIN_SIZE) {
     throw new Error(`Generated file is too small (${stats.size} bytes)`);
   }
-  
+
   // Check for required sections and ensure template placeholders are replaced
   const content = await fs.readFile(OUTPUT_PATH, 'utf8');
-  
+
   if (!content.includes("## 今日のフォーカス") || content.includes('{{DATE}}')) {
     throw new Error('Generated file is missing required sections or still contains template placeholders');
   }
-  
+
   console.log('✅ Validation passed');
   console.log(`   File size: ${stats.size} bytes`);
   console.log(`   Required sections: present`);
@@ -206,9 +323,8 @@ async function generateDigest() {
   // 2. Load tomorrow.json (if exists)
   const tomorrowData = await loadTomorrowJson();
 
-  // 3. Read TODO.md
-  console.log(`📖 Reading TODO.md: ${TODO_PATH}`);
-  const todoContent = await fs.readFile(TODO_PATH, 'utf8');
+  // 3. Read TODO.md from Obsidian vault
+  const todoContent = await fetchTODOFromObsidian();
 
   // 4. Extract tasks
   console.log('🔄 Extracting tasks...');
@@ -217,7 +333,7 @@ async function generateDigest() {
   // 5. Merge with tomorrow.json candidates
   let finalHighPriority = [...highPriority];
   let finalRegular = [...regular];
-  
+
   if (tomorrowData && tomorrowData.tomorrow_candidates) {
     console.log('🔀 Merging tomorrow.json candidates...');
     const candidates = tomorrowData.tomorrow_candidates.map(task => `- [ ] ${task}`);
@@ -242,7 +358,7 @@ async function generateDigest() {
     .replace(/\{\{REGULAR_TASKS\}\}/g, formatTasks(finalRegular))
     .replace(/\{\{NO_TAG_TASKS\}\}/g, formatTasks(noTag))
     .replace(/\{\{TIMESTAMP\}\}/g, new Date().toISOString());
-  
+
   // Verify all placeholders were replaced
   const remainingPlaceholders = content.match(/\{\{[A-Z_]+\}\}/g);
   if (remainingPlaceholders) {
@@ -260,7 +376,11 @@ async function generateDigest() {
   console.log(`   File: ${OUTPUT_PATH}`);
   console.log(`   Size: ${content.length} bytes`);
   console.log(`   Tasks: ${finalHighPriority.length + finalRegular.length + noTag.length} total`);
-  
+
+  // Update category heatmap from all tasks (non-fatal)
+  const allTaskLines = [...finalHighPriority, ...finalRegular, ...noTag];
+  await updateCategoryHeatmap(targetDate, allTaskLines);
+
   // Validate the generated file
   await validateOutput();
 }

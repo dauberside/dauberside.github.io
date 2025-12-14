@@ -46,6 +46,8 @@ services:
       - N8N_PERSONALIZATION_ENABLED=false
       - N8N_METRICS=true
       - N8N_RUNNERS_ENABLED=true
+      - EXECUTIONS_MODE=regular
+      - N8N_LOG_LEVEL=info
       - DB_SQLITE_POOL_SIZE=5
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
@@ -61,6 +63,10 @@ services:
       - CALENDAR_ID=${CALENDAR_ID:-primary}
       # Obsidian & Slack for Recipe 09: Daily Digest
       - OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY:-}
+      - MCP_OBSIDIAN_API_KEY=${OBSIDIAN_API_KEY:-}
+      - MCP_OBSIDIAN_HOST=host.docker.internal
+      - MCP_OBSIDIAN_PORT=${MCP_OBSIDIAN_PORT:-27124}
+      - MCP_OBSIDIAN_HTTPS=${MCP_OBSIDIAN_HTTPS:-true}
       - SLACK_DAILY_DIGEST_WEBHOOK=${SLACK_DAILY_DIGEST_WEBHOOK:-}
       # Slack for Recipe 11: Weekly Summary
       - SLACK_WEEKLY_SUMMARY_WEBHOOK=${SLACK_WEEKLY_SUMMARY_WEBHOOK:-}
