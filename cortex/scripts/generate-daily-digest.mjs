@@ -21,10 +21,12 @@ const __dirname = path.dirname(__filename);
 const ROOT = process.env.WORKSPACE_ROOT || path.resolve(__dirname, '../..');
 
 // Parse command line arguments
-const targetDate = process.argv[2] || getTodayInJST();
+const args = process.argv.slice(2);
+const dashboardOnly = args.includes('--dashboard');
+const targetDate = dashboardOnly ? null : (args.find(a => !a.startsWith('--')) || getTodayInJST());
 
-// Debug: Ensure targetDate is valid
-if (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+// Debug: Ensure targetDate is valid (skip if dashboard-only mode)
+if (!dashboardOnly && (!targetDate || targetDate === 'undefined' || !targetDate.match(/^\d{4}-\d{2}-\d{2}$/))) {
   console.error(`❌ Invalid target date: "${targetDate}"`);
   console.error(`   Expected format: YYYY-MM-DD`);
   console.error(`   Falling back to date calculation...`);
@@ -49,6 +51,7 @@ const TOMORROW_JSON_PATH = path.join(ROOT, 'cortex/state/tomorrow.json');
 const OUTPUT_DIR = path.join(ROOT, 'cortex/daily');
 const OUTPUT_PATH = path.join(OUTPUT_DIR, `${targetDate}-digest.md`);
 const CATEGORY_HEATMAP_PATH = path.join(ROOT, 'cortex/state/category_heatmap.json');
+const CATEGORY_DASHBOARD_PATH = path.join(ROOT, 'cortex/state/category-dashboard.md');
 
 /**
  * Format date as YYYY-MM-DD in JST
@@ -286,6 +289,100 @@ async function updateCategoryHeatmap(date, taskLines) {
   return { counts, summary };
 }
 
+// ===== Dashboard Generation Functions =====
+
+function toISO(ts = new Date()) {
+  return new Date(ts).toISOString();
+}
+
+function sortDatesAsc(dates) {
+  return [...dates].sort((a, b) => a.localeCompare(b));
+}
+
+function sumCounts(listOfCounts) {
+  const out = {};
+  for (const c of listOfCounts) {
+    for (const [k, v] of Object.entries(c || {})) {
+      out[k] = (out[k] || 0) + (v || 0);
+    }
+  }
+  return out;
+}
+
+function formatCountsInline(counts) {
+  const entries = Object.entries(counts || {}).sort((a, b) => (b[1] || 0) - (a[1] || 0));
+  if (entries.length === 0) return 'none';
+  return entries.map(([k, v]) => `${k}:${v}`).join(', ');
+}
+
+function pickRecentDates(allDatesAsc, n) {
+  if (!allDatesAsc || allDatesAsc.length === 0) return [];
+  return allDatesAsc.slice(Math.max(0, allDatesAsc.length - n));
+}
+
+/**
+ * Write a simple Markdown dashboard from category_heatmap.json
+ * - Non-fatal: dashboard generation should never break digest generation
+ */
+async function writeCategoryDashboard() {
+  try {
+    let heatmap = {};
+    try {
+      heatmap = JSON.parse(await fs.readFile(CATEGORY_HEATMAP_PATH, 'utf8'));
+    } catch {
+      heatmap = {};
+    }
+
+    const datesAsc = sortDatesAsc(Object.keys(heatmap));
+    const latest = datesAsc[datesAsc.length - 1];
+
+    const last7Dates = pickRecentDates(datesAsc, 7);
+    const last30Dates = pickRecentDates(datesAsc, 30);
+
+    const last7 = sumCounts(last7Dates.map(d => heatmap[d] || {}));
+    const last30 = sumCounts(last30Dates.map(d => heatmap[d] || {}));
+
+    // Collect all categories seen
+    const categorySet = new Set();
+    for (const d of datesAsc) {
+      for (const k of Object.keys(heatmap[d] || {})) categorySet.add(k);
+    }
+    const categories = [...categorySet].sort();
+
+    const recent14 = pickRecentDates(datesAsc, 14);
+
+    const header = `# Category Analytics Dashboard\n\n` +
+      `Last updated: ${toISO()}\n\n` +
+      `- Latest date: ${latest || 'n/a'}\n` +
+      `- Total days tracked: ${datesAsc.length}\n\n`;
+
+    const summary = `## Rolling totals\n\n` +
+      `- Last 7 days: ${formatCountsInline(last7)}\n` +
+      `- Last 30 days: ${formatCountsInline(last30)}\n\n`;
+
+    const tableHeader = ['Date', ...categories].join(' | ');
+    const tableSep = ['---', ...categories.map(() => '---')].join(' | ');
+    const tableRows = recent14.map(d => {
+      const row = [d, ...categories.map(c => String((heatmap[d] && heatmap[d][c]) ? heatmap[d][c] : 0))];
+      return row.join(' | ');
+    }).join('\n');
+
+    const recent = `## Recent (last ${recent14.length} days)\n\n` +
+      `${tableHeader}\n` +
+      `${tableSep}\n` +
+      `${tableRows || ''}\n\n`;
+
+    const content = header + summary + recent;
+
+    await fs.mkdir(path.dirname(CATEGORY_DASHBOARD_PATH), { recursive: true });
+    await fs.writeFile(CATEGORY_DASHBOARD_PATH, content, 'utf8');
+
+    console.log(`📈 Category dashboard written: ${CATEGORY_DASHBOARD_PATH}`);
+  } catch (error) {
+    console.log('⚠️  Category dashboard generation failed (non-fatal):', error.message);
+  }
+}
+
 /**
  * Validate generated digest file
  */
@@ -381,6 +478,9 @@ async function generateDigest() {
   const allTaskLines = [...finalHighPriority, ...finalRegular, ...noTag];
   await updateCategoryHeatmap(targetDate, allTaskLines);
 
+  // Update category dashboard (non-fatal)
+  await writeCategoryDashboard();
+
   // Validate the generated file
   await validateOutput();
 }
@@ -390,6 +490,14 @@ async function generateDigest() {
  */
 async function main() {
   try {
+    // Dashboard-only mode: just regenerate the dashboard
+    if (dashboardOnly) {
+      console.log('📊 Dashboard-only mode: Regenerating category dashboard...\n');
+      await writeCategoryDashboard();
+      console.log('\n✅ Dashboard generation complete!');
+      return;
+    }
+
     // Check if file already exists
     try {
       await fs.access(OUTPUT_PATH);

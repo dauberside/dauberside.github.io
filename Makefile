@@ -1,7 +1,7 @@
 # Makefile for dauberside.github.io
 # Common development tasks and utilities
 
-.PHONY: help dev build test lint typecheck ci claude reload-mcp
+.PHONY: help dev build test lint typecheck ci claude reload-mcp dashboard
 
 .DEFAULT_GOAL := help
 
@@ -72,6 +72,11 @@ kb-build: ## Build KB embeddings index
 
 kb-smoke: ## Test KB API
 	pnpm kb:smoke:api
+
+# Cortex Analytics
+dashboard: ## Generate category analytics dashboard
+	@echo "$(CYAN)Generating category analytics dashboard...$(RESET)"
+	@node cortex/scripts/generate-daily-digest.mjs --dashboard
 
 # Operations
 ops-allowlist: ## List IP allowlist
