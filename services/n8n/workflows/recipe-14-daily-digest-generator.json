@@ -120,8 +120,7 @@
       "name": "Send Slack Notification",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1450, 300],
-      "onError": "continueRegularOutput"
+      "position": [1450, 300]
     }
   ],
   "connections": {
