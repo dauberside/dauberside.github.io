@@ -1,0 +1,89 @@
+{
+  "$schema": "./category-rules.schema.json",
+  "version": "1.0",
+  "description": "Category classification rules for daily digest tasks",
+  "default_category": "other",
+  "rules": [
+    {
+      "category": "ops",
+      "priority": 1,
+      "patterns": [
+        "運用",
+        "防御",
+        "incident",
+        "on[- ]?call",
+        "alert",
+        "pager",
+        "slack"
+      ],
+      "case_sensitive": false,
+      "description": "Operations, incidents, on-call work"
+    },
+    {
+      "category": "n8n",
+      "priority": 2,
+      "patterns": [
+        "\\bn8n\\b",
+        "recipe",
+        "workflow",
+        "verification node",
+        "error workflow"
+      ],
+      "case_sensitive": false,
+      "description": "n8n workflow automation tasks"
+    },
+    {
+      "category": "cortex",
+      "priority": 3,
+      "patterns": [
+        "\\bcortex\\b",
+        "llm",
+        "digest",
+        "tomorrow\\.json",
+        "daily"
+      ],
+      "case_sensitive": false,
+      "description": "Cortex OS development and maintenance"
+    },
+    {
+      "category": "docs",
+      "priority": 4,
+      "patterns": [
+        "docs?",
+        "ドキュメント",
+        "readme",
+        "spec",
+        "設計"
+      ],
+      "case_sensitive": false,
+      "description": "Documentation and specifications"
+    },
+    {
+      "category": "github",
+      "priority": 5,
+      "patterns": [
+        "github",
+        "\\bpr\\b",
+        "pull request",
+        "merge"
+      ],
+      "case_sensitive": false,
+      "description": "GitHub operations (PRs, merges, reviews)"
+    },
+    {
+      "category": "infra",
+      "priority": 6,
+      "patterns": [
+        "deploy",
+        "production",
+        "staging",
+        "docker",
+        "k8s",
+        "server",
+        "infra"
+      ],
+      "case_sensitive": false,
+      "description": "Infrastructure and deployment tasks"
+    }
+  ]
+}

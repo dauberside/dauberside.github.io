@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://dauberside.github.io/cortex/config/category-rules.schema.json",
+  "title": "Category Rules Configuration",
+  "description": "Schema for category classification rules used in daily digest generation",
+  "type": "object",
+  "required": ["version", "default_category", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Configuration version",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": ["1.0", "2.0"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this configuration"
+    },
+    "default_category": {
+      "type": "string",
+      "description": "Fallback category when no patterns match",
+      "minLength": 1,
+      "default": "other"
+    },
+    "rules": {
+      "type": "array",
+      "description": "Array of category classification rules",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["category", "patterns"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Category name (lowercase, alphanumeric + hyphen/underscore)",
+            "pattern": "^[a-z0-9_-]+$",
+            "minLength": 1,
+            "maxLength": 20,
+            "examples": ["ops", "n8n", "cortex", "docs", "github", "infra"]
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Rule evaluation priority (lower = higher priority)",
+            "minimum": 1,
+            "maximum": 1000,
+            "default": 100
+          },
+          "patterns": {
+            "type": "array",
+            "description": "Regular expression patterns to match against task text",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "description": "JavaScript-compatible regex pattern (without delimiters)",
+              "minLength": 1,
+              "examples": [
+                "\\bn8n\\b",
+                "incident|alert|pager",
+                "運用|防御"
+              ]
+            }
+          },
+          "case_sensitive": {
+            "type": "boolean",
+            "description": "Whether pattern matching is case-sensitive",
+            "default": false
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable explanation of this rule",
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}
