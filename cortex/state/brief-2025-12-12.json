@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-12T14:30:00.000Z",
+  "date": "2025-12-12",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "/diagnose 結果の振り返り",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    },
+    {
+      "title": "v1.2 Roadmap 確認",
+      "time": "0分",
+      "phase": "記録のみ",
+      "priority": "P2",
+      "status": "completed"
+    },
+    {
+      "title": "余白の確保",
+      "time": "残り時間",
+      "phase": "リカバリータイム",
+      "priority": "P3",
+      "status": "pending"
+    }
+  ],
+  "total_time": 10,
+  "buffer": "OK",
+  "reflection": "夜勤日の軽量プラン。認知負荷ゼロ、余白重視。明日12/13（金）20:00から新スケジュール本格稼働開始。"
+}

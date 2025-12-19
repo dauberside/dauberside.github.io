@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-19T01:28:00.000Z",
+  "date": "2025-12-19",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Recipe 動作確認",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "v1.2 Roadmap 確認",
+      "time": "15分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "ドキュメント整理",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P2",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "昨日の wrap-up から持ち越された3タスクを継続。軽〜中程度のタスクのみで、十分なバッファを確保。ブロッカーなく即実行可能。"
+}

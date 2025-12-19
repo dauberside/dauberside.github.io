@@ -1,15 +1,11 @@
 {
-  "generated_at": "2025-12-07T13:00:48.276Z",
-  "source_date": "2025-12-07",
+  "generated_at": "2025-12-19T01:27:53.648Z",
+  "source_date": "2025-12-19",
   "tomorrow_candidates": [
-    "Recipe 02 (03:00) の自動実行確認",
-    "Recipe 03 (08:00) の自動実行確認",
-    "Recipe 10 (08:05) の自動実行確認"
+    "v1.2 Roadmap 確認",
+    "Recipe 動作確認",
+    "ドキュメント整理"
   ],
-  "carryover_tasks": [
-    "Recipe 02 (03:00) の自動実行確認",
-    "Recipe 03 (08:00) の自動実行確認",
-    "Recipe 10 (08:05) の自動実行確認"
-  ],
-  "reflection_summary": "n8n の scheduleTrigger は、cron state を Docker volume に永続化している、単純な restart ではこの state がリセットされない"
+  "carryover_tasks": [],
+  "reflection_summary": "（Reflection なし）"
 }

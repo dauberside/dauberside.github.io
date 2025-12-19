@@ -1,11 +1,11 @@
-# Weekly Summary — 2025-W50
+# Weekly Summary — 2025-W51
 
 対象期間: （データなし）
 取得できた日数: 1/7
 
 ## 📊 Overview
 - 完了タスク数: 0
-- 未完了タスク数: 0
+- 未完了タスク数: 6
 - 進捗率: 0%
 
 ## 🏆 Highlights

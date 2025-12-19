@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-11T13:10:00.000Z",
+  "date": "2025-12-11",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Recipe 動作確認",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "v1.2 Roadmap 確認",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    },
+    {
+      "title": "ドキュメント整理",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "軽めのタスク構成で余裕を確保。Recipeの動作確認とロードマップ把握に集中する水曜日。"
+}
