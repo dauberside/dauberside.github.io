@@ -91,6 +91,13 @@ pnpm kb:smoke:api                      # Test standalone KB API service
 pnpm kb:smoke:next                     # Test KB via Next.js proxy
 ```
 
+### Cortex Analytics
+```bash
+make dashboard                         # Generate category analytics dashboard
+# Output: cortex/state/category-dashboard.md
+# Auto-updates with daily digest (00:30 JST)
+```
+
 ### Operations
 ```bash
 pnpm ops:allowlist:list                # List IP allowlist

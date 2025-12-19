@@ -74,6 +74,8 @@ services:
       - KB_API_TOKEN=${KB_API_TOKEN:-}
       # Workspace root for scripts
       - WORKSPACE_ROOT=/workspace/dauberside.github.io-1
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto,fs
+      - CORTEX_ENV=production
     ports:
       - "5678:5678"
     # ... 既存設定 ...
@@ -82,6 +84,7 @@ services:
       - "/Volumes/Extreme Pro/dauberside.github.io-1:/workspace/dauberside.github.io-1"
       - n8n_data:/home/node/.n8n
       - ./data/chat-logs:/data/chat-logs
+      - ./data/cortex-logs:/data/cortex/logs
     extra_hosts:
       # Enable host.docker.internal on Linux (required for Obsidian API access)
       # On Mac/Windows Docker Desktop, this is redundant but harmless

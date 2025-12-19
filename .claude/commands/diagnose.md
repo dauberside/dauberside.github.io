@@ -79,18 +79,31 @@ ls -lt cortex/weekly/*.md | head -1
 
 ---
 
-### 5. TODO.md Freshness
+### 5. TODO.md Freshness (Obsidian Vault)
+
+**IMPORTANT**: Use MCP Obsidian tool to check vault TODO.md freshness:
+- Tool: `mcp__obsidian__obsidian_get_file_contents` with path `"TODO.md"`
+- Extract the file successfully → check if content contains today's date in "## Today — YYYY-MM-DD" section
+- If MCP not available, skip this check and note in warnings
+
+**Fallback (if MCP available)**:
 ```bash
-# Check TODO.md last modified time
-stat -f "%Sm %z" -t "%Y-%m-%d %H:%M" TODO.md 2>/dev/null
+# Use Obsidian MCP tool: mcp__obsidian__obsidian_get_file_contents("TODO.md")
+# Parse response to check for today's date in "## Today — " section
+# This is more reliable than curl since MCP handles auth automatically
 ```
 
-**Expected**: Modified today (Recipe 10 runs at 08:05 JST)
+**Expected**: TODO.md contains today's date in "## Today — YYYY-MM-DD" section
+
+**Note**:
+- Recipe 10 updates Obsidian vault's TODO.md (source of truth), NOT project root TODO.md
+- Project root `/dauberside.github.io-1/TODO.md` is NOT updated by Recipe 10 and should be ignored
+- Use MCP tools when available for accurate vault status
 
 **Scoring**:
-- ✅ Modified today: +15 points
-- ⚠️ Modified yesterday: +5 points
-- ❌ Older than 2 days: 0 points
+- ✅ Today's date found in TODO section: +15 points
+- ⚠️ Yesterday's date found: +5 points
+- ❌ Older than 2 days or file not accessible: 0 points
 
 ---
 
@@ -185,7 +198,7 @@ Generate a Markdown report with the following structure:
 ### Data Freshness
 - 📅 **Daily Digest**: {status} ({latest_date})
 - 📊 **Weekly Summary**: {status} ({latest_week})
-- 📝 **TODO.md**: {status} ({last_modified})
+- 📝 **TODO.md (vault)**: {status} ({last_modified_date}, source: Obsidian vault/TODO.md)
 - 🧠 **KB Index**: {status} ({size}, {modified})
 - 🌅 **tomorrow.json**: {status} ({generated_at})
 
@@ -334,9 +347,10 @@ Generate warnings for:
    - Warning: "Today's daily digest not found"
    - Recommendation: "Recipe 03 may have failed. Check n8n execution history, or run Recipe 03 manually"
 
-4. **Stale TODO.md**
-   - Warning: "TODO.md not updated today"
-   - Recommendation: "Recipe 10 may have failed. Check n8n execution history at 08:05 JST"
+4. **Stale TODO.md (Vault)**
+   - Warning: "TODO.md in Obsidian vault not updated today"
+   - Recommendation: "Recipe 10 may have failed. Check n8n execution history and cron schedule. Expected to run daily at configured time (check Schedule Trigger in n8n)."
+   - Note: "Project root TODO.md is NOT checked (vault is source of truth)"
 
 5. **Old KB Index**
    - Warning: "KB index older than 7 days"
