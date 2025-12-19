@@ -11,7 +11,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY:-}"
+# Fallback to MCP_OBSIDIAN_API_KEY if OBSIDIAN_API_KEY is not set
+OBSIDIAN_API_KEY="${OBSIDIAN_API_KEY:-${MCP_OBSIDIAN_API_KEY}}"
 OBSIDIAN_URL="https://127.0.0.1:27124"
 PROJECT_ROOT="/Volumes/Extreme Pro/dauberside.github.io-1"
 
@@ -51,9 +52,10 @@ echo ""
 
 # Validate Obsidian API key
 if [ -z "$OBSIDIAN_API_KEY" ]; then
-  echo -e "${RED}❌ Error: OBSIDIAN_API_KEY is not set${NC}"
-  echo "Please set the environment variable:"
+  echo -e "${RED}❌ Error: OBSIDIAN_API_KEY or MCP_OBSIDIAN_API_KEY is not set${NC}"
+  echo "Please set one of the following environment variables:"
   echo "  export OBSIDIAN_API_KEY=your_api_key"
+  echo "  export MCP_OBSIDIAN_API_KEY=your_api_key"
   exit 1
 fi
 
