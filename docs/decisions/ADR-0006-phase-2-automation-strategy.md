@@ -172,6 +172,15 @@ This ADR is **Accepted** (2025-11-19).
   - GitHub Issue 自動生成（ラベル、リンク付き）
   - Production-ready 実装完了
 
+**v1.3 Category Analytics 完了（2025-12-15）**:
+- ✅ Category Heatmap 実装（日別カテゴリ集計、上書きロジック）
+- ✅ Dashboard 自動生成（Markdown、JST タイムスタンプ対応）
+- ✅ Docker 統合（Obsidian API 接続、extra_hosts 設定）
+- ✅ クロスプラットフォーム対応（Mac/Linux 両対応）
+- ✅ Recipe 14 拡張（Daily Digest → Category Heatmap → Dashboard）
+- ✅ Slack エラーハンドリング改善（環境変数未設定時のスキップ）
+- 📊 v1.3 入口条件 1/2 達成（Category Analytics 完了、Logging 基盤は残タスク）
+
 **Key Learnings**:
 - n8n HTTP Request v4.2 では raw body 送信時に `contentType: "raw"` + `rawContentType: "text/markdown"` の設定が必要
 - Obsidian Local REST API への認証は httpHeaderAuth credentials を使用
@@ -179,6 +188,9 @@ This ADR is **Accepted** (2025-11-19).
 - Webhook データは `$input.item.json.body` 配下にネストされる（Phase 2.2）
 - GitHub API の認証は HTTP Header Auth credentials で安定動作
 - Slack 通知は環境変数設定が必須（オプショナル設計推奨）
+- JST タイムスタンプ: `Intl.DateTimeFormat` with `timeZone: 'Asia/Tokyo'` で確実な地域時刻生成（v1.3）
+- Category Heatmap 上書きロジック: 同一日付は完全置換で重複カウント防止（v1.3）
+- Docker `extra_hosts` 設定で Mac/Linux 両対応の Obsidian API 接続を実現（v1.3）
 
 ---
 

@@ -73,11 +73,6 @@ kb-build: ## Build KB embeddings index
 kb-smoke: ## Test KB API
 	pnpm kb:smoke:api
 
-# Cortex Analytics
-dashboard: ## Generate category analytics dashboard
-	@echo "$(CYAN)Generating category analytics dashboard...$(RESET)"
-	@node cortex/scripts/generate-daily-digest.mjs --dashboard
-
 # Operations
 ops-allowlist: ## List IP allowlist
 	pnpm ops:allowlist:list
@@ -124,3 +119,8 @@ docs: ## Open documentation map
 	@echo "  Decisions (ADRs):  docs/decisions/"
 	@echo "  MCP Troubleshoot:  docs/operations/mcp-troubleshooting.md"
 	@echo "  CLAUDE.md:         CLAUDE.md"
+
+
+# Analytics
+dashboard: ## Generate Markdown category analytics dashboard (writes cortex/state/category-dashboard.md)
+	node cortex/scripts/generate-daily-digest.mjs --dashboard
