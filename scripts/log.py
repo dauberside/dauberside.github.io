@@ -131,6 +131,26 @@ Examples:
     # Insert into digest
     insert_into_digest(digest_path, entry_block)
 
+    # Auto-sync digest → task-entry.json
+    try:
+        import subprocess
+        sync_script = ROOT / "scripts" / "sync-digest-tasks.py"
+        if sync_script.exists():
+            result = subprocess.run(
+                ["python3", str(sync_script), today],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0:
+                # Extract summary line from sync output
+                for line in result.stdout.split('\n'):
+                    if '✅' in line or 'Added:' in line:
+                        print(f"   {line.strip()}")
+    except Exception:
+        # Sync failure is non-fatal - user can manually sync later
+        pass
+
 
 if __name__ == "__main__":
     main()

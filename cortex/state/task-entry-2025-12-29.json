@@ -1,0 +1,38 @@
+{
+  "date": "2025-12-29",
+  "tasks": [],
+  "completed": [
+    {
+      "content": "Archive対応実装完了",
+      "status": "completed",
+      "category": "core-work",
+      "duration": "45m",
+      "timestamp": "13:09",
+      "memo": "generate-daily-digest.mjsにArchive形式タスク抽出機能を追加"
+    },
+    {
+      "content": "Phase 2 自動同期テスト",
+      "status": "completed",
+      "category": "testing",
+      "duration": "5m",
+      "timestamp": "16:58"
+    },
+    {
+      "content": "v1.4 Phase 2 実装完了",
+      "status": "completed",
+      "category": "core-work",
+      "duration": "1.5h",
+      "timestamp": "16:59",
+      "memo": "digest ↔ tasks.json自動同期機能を実装・テスト完了"
+    }
+  ],
+  "carryover": [],
+  "reflection": "",
+  "tomorrow_candidates": [],
+  "metadata": {
+    "generated_at": "2025-12-29T04:15:35.092933+00:00",
+    "source": "sync-digest-tasks",
+    "version": "1.0.0",
+    "updated_at": "2025-12-29T07:59:37.194479+00:00"
+  }
+}
