@@ -22,6 +22,10 @@ const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '../../..');
 const DAILY_DIR = path.join(ROOT, 'cortex/daily');
 const WEEKLY_DIR = path.join(ROOT, 'cortex/weekly');
+const STATE_DIR = path.join(ROOT, 'cortex/state');
+
+// OpenAI API key (optional, graceful degradation if missing)
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || null;
 
 /**
  * Main entry point
@@ -123,6 +127,49 @@ function getWeekIdForDate(dateString) {
 }
 
 /**
+ * Load task entries for a specific week
+ * @param {string} weekId - Week ID (e.g., "2026-W01")
+ * @returns {Array<Object>} Task entries with date and tasks
+ */
+function loadTaskEntriesForWeek(weekId) {
+  if (!fs.existsSync(STATE_DIR)) {
+    return [];
+  }
+
+  const files = fs
+    .readdirSync(STATE_DIR)
+    .filter(f => f.startsWith('task-entry-') && f.endsWith('.json'))
+    .sort();
+
+  const entries = [];
+
+  for (const file of files) {
+    const dateMatch = file.match(/task-entry-(\d{4}-\d{2}-\d{2})\.json/);
+    if (!dateMatch) continue;
+
+    const date = dateMatch[1];
+    const fileWeekId = getWeekIdForDate(date);
+
+    if (fileWeekId === weekId) {
+      try {
+        const fullPath = path.join(STATE_DIR, file);
+        const content = fs.readFileSync(fullPath, 'utf8');
+        const data = JSON.parse(content);
+        entries.push({
+          date,
+          tasks: data.tasks || [],
+          completed: data.completed || [],
+        });
+      } catch (err) {
+        console.warn(`⚠️  Failed to load ${file}:`, err.message);
+      }
+    }
+  }
+
+  return entries;
+}
+
+/**
  * Parse daily digest markdown
  */
 function parseDailyDigest(filename, content) {
@@ -171,7 +218,191 @@ function extractSections(content) {
 }
 
 /**
- * Generate weekly summary
+ * Analyze category distribution from task entries
+ * @param {Array<Object>} taskEntries - Task entries for the week
+ * @returns {Object} Category distribution and insights
+ */
+function analyzeCategoryDistribution(taskEntries) {
+  const categoryCount = {};
+  let totalTasks = 0;
+
+  for (const entry of taskEntries) {
+    const allTasks = [...(entry.tasks || []), ...(entry.completed || [])];
+    for (const task of allTasks) {
+      const category = task.category || 'uncategorized';
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
+      totalTasks++;
+    }
+  }
+
+  // Sort by count descending
+  const distribution = Object.entries(categoryCount)
+    .sort(([, a], [, b]) => b - a)
+    .map(([category, count]) => ({
+      category,
+      count,
+      percentage: totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0,
+    }));
+
+  return {
+    distribution,
+    totalTasks,
+    topCategory: distribution[0] || null,
+  };
+}
+
+/**
+ * Calculate completion rate trends
+ * @param {Array<Object>} taskEntries - Task entries for the week
+ * @returns {Object} Completion trends
+ */
+function analyzeCompletionTrends(taskEntries) {
+  const dailyStats = taskEntries.map(entry => {
+    const planned = (entry.tasks || []).length;
+    const completed = (entry.completed || []).length;
+    const rate = planned > 0 ? Math.round((completed / planned) * 100) : 100;
+
+    return {
+      date: entry.date,
+      planned,
+      completed,
+      rate,
+    };
+  });
+
+  const avgRate = dailyStats.length > 0
+    ? Math.round(dailyStats.reduce((sum, s) => sum + s.rate, 0) / dailyStats.length)
+    : 0;
+
+  return {
+    dailyStats,
+    averageCompletionRate: avgRate,
+  };
+}
+
+/**
+ * Generate AI-powered weekly insights (Phase 3 Intelligence)
+ * @param {Object} analytics - Analytics data
+ * @param {Array<Object>} digests - Daily digests
+ * @returns {Promise<Object>} AI insights or null if unavailable
+ */
+async function generateAIInsights(analytics, digests) {
+  if (!OPENAI_API_KEY) {
+    console.log('ℹ️  OpenAI API key not found - skipping AI insights');
+    return null;
+  }
+
+  try {
+    const prompt = buildInsightsPrompt(analytics, digests);
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a productivity coach analyzing weekly work patterns. Provide concise, actionable insights in Japanese.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(`⚠️  OpenAI API error: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      return null;
+    }
+
+    return {
+      strengths: extractSection(content, 'よくできた点'),
+      improvements: extractSection(content, '改善できる点'),
+      recommendations: extractSection(content, '来週の推奨'),
+    };
+  } catch (err) {
+    console.warn(`⚠️  Failed to generate AI insights:`, err.message);
+    return null;
+  }
+}
+
+/**
+ * Build prompt for AI insights
+ */
+function buildInsightsPrompt(analytics, digests) {
+  const { categoryDistribution, completionTrends } = analytics;
+
+  const lines = [];
+  lines.push('# 今週の活動データ');
+  lines.push('');
+  lines.push('## カテゴリ分布');
+  for (const { category, count, percentage } of categoryDistribution.distribution.slice(0, 5)) {
+    lines.push(`- ${category}: ${count}件 (${percentage}%)`);
+  }
+  lines.push('');
+  lines.push(`## 平均完了率: ${completionTrends.averageCompletionRate}%`);
+  lines.push('');
+  lines.push('## 主な活動（日次サマリー抜粋）');
+  for (const digest of digests.slice(0, 3)) {
+    const summary = getBriefSummary(digest);
+    if (summary) {
+      lines.push(`- ${digest.date}: ${summary}`);
+    }
+  }
+  lines.push('');
+  lines.push('上記データをもとに、以下の3点を簡潔に分析してください：');
+  lines.push('1. **よくできた点**: 今週の強みや成果');
+  lines.push('2. **改善できる点**: ボトルネックや課題');
+  lines.push('3. **来週の推奨**: 具体的なアクションアイテム');
+
+  return lines.join('\n');
+}
+
+/**
+ * Extract section from AI response
+ */
+function extractSection(content, keyword) {
+  const lines = content.split('\n').filter(l => l.trim());
+  const sectionLines = [];
+  let capturing = false;
+
+  for (const line of lines) {
+    if (line.includes(keyword)) {
+      capturing = true;
+      continue;
+    }
+    if (capturing) {
+      if (line.match(/^(##|#+|\*\*[^*]+\*\*:|[0-9]\.|•)/)) {
+        // Stop at next section
+        if (!line.includes(keyword)) {
+          break;
+        }
+      }
+      if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+        sectionLines.push(line.trim().replace(/^[-•]\s*/, ''));
+      }
+    }
+  }
+
+  return sectionLines.slice(0, 3); // Top 3 items
+}
+
+/**
+ * Generate weekly summary (Phase 3 enhanced)
  */
 async function generateWeeklySummary(weekId, digests) {
   const sorted = digests.sort((a, b) => a.date.localeCompare(b.date));
@@ -198,6 +429,17 @@ async function generateWeeklySummary(weekId, digests) {
     summary: getBriefSummary(d),
   }));
 
+  // Phase 3: Load task entries and analyze
+  const taskEntries = loadTaskEntriesForWeek(weekId);
+  const categoryDistribution = analyzeCategoryDistribution(taskEntries);
+  const completionTrends = analyzeCompletionTrends(taskEntries);
+
+  // Phase 3: AI insights (optional, graceful degradation)
+  const aiInsights = await generateAIInsights(
+    { categoryDistribution, completionTrends },
+    sorted
+  );
+
   return {
     weekId,
     dateRange: {
@@ -212,6 +454,12 @@ async function generateWeeklySummary(weekId, digests) {
     tasksCompleted: allTasks,
     themes,
     dailyLogs,
+    // Phase 3: Intelligence data
+    analytics: {
+      categoryDistribution,
+      completionTrends,
+    },
+    aiInsights,
   };
 }
 
@@ -260,6 +508,81 @@ function renderWeeklySummary(summary) {
     lines.push('## 🏷️ Recurring Themes');
     lines.push(summary.themes.map(t => `\`${t}\``).join(', '));
     lines.push('');
+  }
+
+  // Phase 3: Weekly Intelligence Analytics
+  if (summary.analytics) {
+    const { categoryDistribution, completionTrends } = summary.analytics;
+
+    lines.push('---');
+    lines.push('');
+    lines.push('## 📊 Weekly Intelligence (Phase 3)');
+    lines.push('');
+
+    // Category Distribution
+    if (categoryDistribution.distribution.length > 0) {
+      lines.push('### カテゴリ分布');
+      lines.push('');
+      lines.push('| Category | Count | % |');
+      lines.push('|----------|-------|---|');
+      for (const { category, count, percentage } of categoryDistribution.distribution) {
+        lines.push(`| ${category} | ${count} | ${percentage}% |`);
+      }
+      lines.push('');
+
+      if (categoryDistribution.topCategory) {
+        lines.push(`**Top Category**: \`${categoryDistribution.topCategory.category}\` (${categoryDistribution.topCategory.count}件)`);
+        lines.push('');
+      }
+    }
+
+    // Completion Trends
+    if (completionTrends.dailyStats.length > 0) {
+      lines.push('### 完了率推移');
+      lines.push('');
+      lines.push('| Date | Planned | Completed | Rate |');
+      lines.push('|------|---------|-----------|------|');
+      for (const { date, planned, completed, rate } of completionTrends.dailyStats) {
+        lines.push(`| ${date} | ${planned} | ${completed} | ${rate}% |`);
+      }
+      lines.push('');
+      lines.push(`**Average Completion Rate**: ${completionTrends.averageCompletionRate}%`);
+      lines.push('');
+    }
+  }
+
+  // Phase 3: AI Insights (if available)
+  if (summary.aiInsights) {
+    const { strengths, improvements, recommendations } = summary.aiInsights;
+
+    lines.push('---');
+    lines.push('');
+    lines.push('## 🤖 AI分析');
+    lines.push('');
+
+    if (strengths && strengths.length > 0) {
+      lines.push('### ✅ よくできた点');
+      for (const item of strengths) {
+        lines.push(`- ${item}`);
+      }
+      lines.push('');
+    }
+
+    if (improvements && improvements.length > 0) {
+      lines.push('### ⚠️ 改善できる点');
+      for (const item of improvements) {
+        lines.push(`- ${item}`);
+      }
+      lines.push('');
+    }
+
+    if (recommendations && recommendations.length > 0) {
+      lines.push('### 💡 来週の推奨アクション');
+      for (const item of recommendations) {
+        lines.push(`- ${item}`);
+      }
+      lines.push('');
+    }
   }
 
   lines.push('---');
