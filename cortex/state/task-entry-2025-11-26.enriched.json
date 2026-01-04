@@ -1,0 +1,404 @@
+{
+  "tasks": [
+    {
+      "title": "Obsidian MCP エラー確認（2件）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "環境変数確認（MCP_OBSIDIAN_* すべて正常）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Obsidian プロセス確認（未起動を確認）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "PORT 27124 接続テスト（失敗）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "lsof でポート確認（リスニングなし）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "curl テスト（Connection refused）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "**根本原因確定**: Obsidian REST API 未起動",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Obsidian アプリ起動",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "REST API プラグイン有効化確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "接続テスト成功（Status: OK）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "API バージョン確認（v3.2.0）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "cortex-task-policy.md 依然として不在",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "docs/operations/ ファイルリスト比較",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Git repo に10ファイル存在、Vault に不在を確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Vault パス特定",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "obsidian-workflow.md 読解",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "二Vault構成確認（Personal / Project）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "既存 cortex/ symlink 発見",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "iCloud 同期との互換性確認（symlink 動作実績あり）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "移行スクリプト作成（/tmp/migrate_docs_to_symlink.sh）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "既存 docs/ バックアップ（docs.backup.20251126_152808）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "symlink 作成成功",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ファイルシステムレベル検証",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Obsidian 完全再起動（Cmd+Q → 再起動）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "MCP 経由ファイル読み取りテスト",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ディレクトリリスト確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "検索機能テスト",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "バックアップ内容確認（304KB、7サブディレクトリ）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "バックアップ削除実行",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "最終構成確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Daily Digest 作成（本ファイル）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-26T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Phase 2 完成（build-embeddings, cluster, export）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "初の Knowledge Graph 生成",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "clusters-v1.md を Obsidian で確認",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "AI統合有効化（OpenAI API key 設定）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "月次集約実装（monthly.mjs）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Cortex CLI 初版（cortex summarize コマンド）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Knowledge Graph 可視化（UI）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Priority Extraction Engine",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Action Planner（KB逆算型タスク生成）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

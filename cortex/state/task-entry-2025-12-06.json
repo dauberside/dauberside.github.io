@@ -1,0 +1,37 @@
+{
+  "tasks": [
+    {
+      "title": "Recipe 03/10 実行ログ確認",
+      "status": "completed",
+      "category": "normal",
+      "completed_at": "2025-12-06T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 10,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Health Score 初回診断",
+      "status": "completed",
+      "category": "normal",
+      "completed_at": "2025-12-06T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 15,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "/suggest v2.0 動作確認",
+      "status": "completed",
+      "category": "normal",
+      "completed_at": "2025-12-06T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 20,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    }
+  ]
+}

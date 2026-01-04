@@ -1,0 +1,44 @@
+{
+  "tasks": [
+    {
+      "title": "22:00 自動実行確認（Recipe 13）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-24T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "/brief テスト実行",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-24T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Daily Digest 作成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-24T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 13 本番稼働確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-24T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

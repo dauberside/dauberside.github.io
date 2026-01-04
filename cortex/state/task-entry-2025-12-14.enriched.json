@@ -1,0 +1,64 @@
+{
+  "tasks": [
+    {
+      "title": "v1.2 Roadmap 確認",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 動作確認",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ドキュメント整理",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "他Recipe（02, 10, 13）へのJSONLログ展開",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "`analyze-health.py`でObservability確認",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Overall Score 65以上でEntry Gate通過",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

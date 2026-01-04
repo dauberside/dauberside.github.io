@@ -1,0 +1,80 @@
+{
+  "tasks": [
+    {
+      "title": "Recipe 動作確認",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-12T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 14 日付ロジック修正",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-12T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 02 kb-api 参照削除",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-12T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "スケジュール再設定（22:10スタート）",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-12T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "🔧 Recipe 14 日付ロジック修正",
+      "status": "completed",
+      "category": "normal",
+      "started_at": "2025-12-12T21:18:00+09:00",
+      "completed_at": "2025-12-12T21:30:00+09:00",
+      "timestamp_source": "timerange",
+      "timestamp_confidence": 0.7,
+      "duration_minutes": 12,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "🔍 Recipe 02 kb-api 参照削除",
+      "status": "completed",
+      "category": "normal",
+      "started_at": "2025-12-12T21:30:00+09:00",
+      "completed_at": "2025-12-12T22:00:00+09:00",
+      "timestamp_source": "timerange",
+      "timestamp_confidence": 0.7,
+      "duration_minutes": 30,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "⏰ Recipe スケジュール再設定",
+      "status": "completed",
+      "category": "normal",
+      "started_at": "2025-12-12T22:00:00+09:00",
+      "completed_at": "2025-12-12T22:10:00+09:00",
+      "timestamp_source": "timerange",
+      "timestamp_confidence": 0.7,
+      "duration_minutes": 10,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    }
+  ]
+}

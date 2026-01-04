@@ -1,0 +1,62 @@
+{
+  "generated_at": "2025-12-20T00:00:00.000Z",
+  "date": "2025-12-20",
+  "source": "brief",
+  "milestone": "v1.3 Milestone 1",
+  "tasks": [
+    {
+      "title": "Automation Logging基盤設計",
+      "time": "20分",
+      "phase": "ウォームアップ",
+      "priority": "P0",
+      "status": "pending",
+      "dependencies": [],
+      "outputs": [
+        "cortex/logs/ ディレクトリ構造",
+        "JSONL形式仕様",
+        "Log Collector設計案"
+      ]
+    },
+    {
+      "title": "Recipe 10ログ出力実装",
+      "time": "25分",
+      "phase": "コアワーク",
+      "priority": "P0",
+      "status": "pending",
+      "dependencies": ["Automation Logging基盤設計"],
+      "outputs": [
+        "Recipe 10ログノード追加",
+        "cortex/logs/recipe-10-{date}.jsonl生成",
+        "実行ログ検証"
+      ]
+    },
+    {
+      "title": "Milestone 1達成確認",
+      "time": "15分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending",
+      "dependencies": ["Recipe 10ログ出力実装"],
+      "checklist": [
+        "Automation logs: no_data → data_ok",
+        "Overall health score: 62 → 75",
+        "Rhythm active days: 3 → 7",
+        "Category samples: 0 → 50+",
+        "analyze-health.py実行成功"
+      ]
+    }
+  ],
+  "total_time": 60,
+  "buffer": "OK",
+  "reflection": "v1.3 Milestone 1達成のための連携タスク。設計→実装→検証の流れ。今日が期限日なので必達。",
+  "milestone_context": {
+    "milestone": "v1.3 Milestone 1",
+    "deadline": "2025-12-20",
+    "success_criteria": [
+      "Automation logs: no_data → data_ok",
+      "Rhythm active days: 3 → 7",
+      "Category samples: 0 → 50+",
+      "Overall health score: 62 → 75"
+    ]
+  }
+}

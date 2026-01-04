@@ -1,0 +1,57 @@
+{
+  "tasks": [
+    {
+      "title": "Analytics Health改善プロジェクト",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-20T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "構造的バグ修正（active_days計算）",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-20T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Automation Logging基盤設計 ← 未着手",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-20T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 20,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Recipe 10ログ出力実装 ← 未着手",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-20T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 25,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Milestone 1達成確認 ← 未着手",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-20T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 15,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    }
+  ]
+}

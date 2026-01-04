@@ -1,0 +1,17 @@
+{
+  "generated_at": "2025-12-23T00:00:00+09:00",
+  "date": "2025-12-23",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Docker/n8nを起動して自律ワークフローを復旧",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P0",
+      "status": "pending"
+    }
+  ],
+  "total_time": 15,
+  "buffer": "OK",
+  "reflection": "昨日は完璧な実行（4/4タスク完了）。今日は余白を重視し、システムインフラ復旧の1タスクのみに集中。Docker/n8n復旧後は自律ワークフローが再開され、Cortex OSが正常稼働に戻る。"
+}

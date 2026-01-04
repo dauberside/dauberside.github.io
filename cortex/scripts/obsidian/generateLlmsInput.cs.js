@@ -25,7 +25,7 @@ async function generateLlmsInput(app) {
   const [clustersMd, todoMd, tomorrowJson] = await Promise.all([
     readIfExists(vault, clustersPath),
     readIfExists(vault, todoPath),
-    readIfExists(vault, tomorrowPath).then(text => safeJsonParse(text, {}))
+    readIfExists(vault, tomorrowPath).then((text) => safeJsonParse(text, {})),
   ]);
 
   // 2. clusters-v1.md をパースして Cluster Summaries を作る
@@ -35,12 +35,12 @@ async function generateLlmsInput(app) {
   const highlights = await buildHighlights(app, {
     clusters: clusterSummaries,
     todoMd,
-    tomorrowJson
+    tomorrowJson,
   });
 
   // 4. vault 全体から recentlyUpdatedNotes を拾う（mtime 降順）
   const recentlyUpdatedNotes = await listRecentlyUpdatedNotes(vault, {
-    limit: 10
+    limit: 10,
   });
 
   // 5. Meta 情報を構築
@@ -53,8 +53,8 @@ async function generateLlmsInput(app) {
     highlights: {
       recentHighImpactNotes: highlights.recentHighImpactNotes,
       recentlyUpdatedNotes,
-      todoContext: highlights.todoContext
-    }
+      todoContext: highlights.todoContext,
+    },
   });
 
   // 7. JSON として書き出し
@@ -162,7 +162,7 @@ function parseClustersMarkdown(markdown) {
         purpose: "",
         outputs: [],
         coreConcepts: [],
-        representativeNotes: []
+        representativeNotes: [],
       };
       section = null;
       descriptionLines = [];
@@ -208,7 +208,7 @@ function parseClustersMarkdown(markdown) {
       const rest = mOutputs[1].trim();
       current.outputs = rest
         .split(/[、,]/)
-        .map(s => s.trim())
+        .map((s) => s.trim())
         .filter(Boolean);
       section = null;
       continue;
@@ -318,9 +318,10 @@ async function buildHighlights(app, { clusters, todoMd, tomorrowJson }) {
   }
 
   // Cluster 5 (Highlights) を探す
-  const highlightsCluster = clusters.find(
-    (c) => c.id === "cluster-4" || /highlights|🎉/i.test(c.name ?? "")
-  ) ?? null;
+  const highlightsCluster =
+    clusters.find(
+      (c) => c.id === "cluster-4" || /highlights|🎉/i.test(c.name ?? ""),
+    ) ?? null;
 
   let recentHighImpactNotes = [];
   if (highlightsCluster && highlightsCluster.representativeNotes) {
@@ -348,7 +349,7 @@ async function buildHighlights(app, { clusters, todoMd, tomorrowJson }) {
     console.warn("⚠ Highlights cluster not found. Using fallback.");
     recentHighImpactNotes = [
       "cortex/weekly/2025-W48-summary.md",
-      "docs/releases/v1.0.md"
+      "docs/releases/v1.0.md",
     ];
   }
 
@@ -356,8 +357,8 @@ async function buildHighlights(app, { clusters, todoMd, tomorrowJson }) {
     recentHighImpactNotes,
     todoContext: {
       today: todayStr,
-      topItems
-    }
+      topItems,
+    },
   };
 }
 
@@ -390,7 +391,7 @@ function buildMetaFromClusters(clusters) {
     totalConcepts,
     totalClusters: clusters.length,
     method: "connected-components",
-    similarityThreshold: 0.7
+    similarityThreshold: 0.7,
   };
 }
 
@@ -407,33 +408,53 @@ function buildMcpLayer() {
         name: "filesystem",
         status: "active",
         priority: "critical",
-        tools: ["read_file", "list_files"]
+        tools: ["read_file", "list_files"],
       },
       {
         name: "terminal",
         status: "active",
         priority: "critical",
-        tools: ["run_task", "list_tasks"]
+        tools: ["run_task", "list_tasks"],
       },
       {
         name: "text-editor",
         status: "active",
         priority: "critical",
-        tools: ["write_file", "append_to_file", "insert_at_line", "replace_lines", "search_replace"]
+        tools: [
+          "write_file",
+          "append_to_file",
+          "insert_at_line",
+          "replace_lines",
+          "search_replace",
+        ],
       },
       {
         name: "search",
         status: "active",
         priority: "critical",
-        tools: ["search_concepts", "search_notes", "search_by_cluster", "list_clusters", "get_concept", "find_similar"]
+        tools: [
+          "search_concepts",
+          "search_notes",
+          "search_by_cluster",
+          "list_clusters",
+          "get_concept",
+          "find_similar",
+        ],
       },
       {
         name: "time",
         status: "active",
         priority: "high",
-        tools: ["get_current_time", "add_time", "format_date", "get_week_range", "get_month_range", "date_diff"]
-      }
-    ]
+        tools: [
+          "get_current_time",
+          "add_time",
+          "format_date",
+          "get_week_range",
+          "get_month_range",
+          "date_diff",
+        ],
+      },
+    ],
   };
 }
 
@@ -448,7 +469,7 @@ function buildLlmsInputJson({ meta, clusters, highlights }) {
     knowledgeGraph: meta,
     clusters,
     highlights,
-    mcpLayer: buildMcpLayer()
+    mcpLayer: buildMcpLayer(),
   };
 }
 
@@ -470,5 +491,5 @@ async function invoke(app) {
 
 module.exports = {
   generateLlmsInput,
-  invoke
+  invoke,
 };

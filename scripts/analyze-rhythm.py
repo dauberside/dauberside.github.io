@@ -65,6 +65,24 @@ def parse_iso_datetime(value: str) -> datetime | None:
         return None
 
 
+def is_task_completed(task: Dict[str, Any]) -> bool:
+    """
+    Check if a task is completed using multiple indicators.
+
+    Supports:
+    - status: "completed", "done", "finished"
+    - title: starts with "[x]" or "- [x]"
+    """
+    status = task.get("status", "").lower()
+    title = task.get("title", "")
+
+    return (
+        status in ("completed", "done", "finished") or
+        title.startswith("[x]") or
+        title.startswith("- [x]")
+    )
+
+
 def extract_activity(entries: List[Dict[str, Any]]):
     """
     Extract activity by hour and weekday.
@@ -87,7 +105,7 @@ def extract_activity(entries: List[Dict[str, Any]]):
         day_has_task = False
 
         for task in tasks:
-            if task.get("status") != "completed":
+            if not is_task_completed(task):
                 continue
 
             started_at = parse_iso_datetime(task.get("started_at"))
@@ -113,13 +131,24 @@ def extract_activity(entries: List[Dict[str, Any]]):
 
 
 def classify_chronotype(start_hours: List[int], min_tasks: int) -> str:
-    """Classify into morning / balanced / evening / unknown."""
+    """
+    Classify into morning / balanced / evening / night / unknown.
+
+    Handles midnight crossover:
+    - 0-4: night (late night continuation)
+    - 5-10: morning
+    - 11-16: balanced
+    - 17-23: evening
+    """
     if len(start_hours) < min_tasks:
         return "unknown"
 
     median_hour = statistics.median(start_hours)
 
-    if median_hour < 11:
+    # Midnight crossover handling: 0-4 is considered late night, not morning
+    if 0 <= median_hour <= 4:
+        return "night"
+    elif median_hour < 11:
         return "morning"
     elif median_hour > 17:
         return "evening"
@@ -178,6 +207,7 @@ def generate_insights(
         label = {
             "morning": "morning type (早起き型)",
             "evening": "evening type (夜型)",
+            "night": "night owl type (深夜型)",
             "balanced": "balanced type (バランス型)",
         }.get(chronotype, chronotype)
         insights.append(f"Your current rhythm is classified as: {label}.")

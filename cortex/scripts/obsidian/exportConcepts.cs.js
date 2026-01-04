@@ -17,7 +17,7 @@
  * @param {Object} app - Obsidian app instance
  */
 async function exportConcepts(app) {
-  console.log('Starting concept extraction...');
+  console.log("Starting concept extraction...");
 
   const concepts = new Map();
 
@@ -51,11 +51,8 @@ async function exportConcepts(app) {
   const data = serializeConcepts(concepts);
 
   // Write to cortex/graph/concepts.json
-  const outputPath = 'cortex/graph/concepts.json';
-  await app.vault.adapter.write(
-    outputPath,
-    JSON.stringify(data, null, 2)
-  );
+  const outputPath = "cortex/graph/concepts.json";
+  await app.vault.adapter.write(outputPath, JSON.stringify(data, null, 2));
 
   console.log(`✅ Concepts exported to ${outputPath}`);
 
@@ -77,9 +74,9 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
     for (const tag of cache.tags) {
       const conceptId = normalizeConceptId(tag.tag);
       addConcept(concepts, conceptId, {
-        type: 'tag',
+        type: "tag",
         source: file.path,
-        label: tag.tag.replace('#', ''),
+        label: tag.tag.replace("#", ""),
       });
     }
   }
@@ -89,7 +86,7 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
     for (const link of cache.links) {
       const conceptId = normalizeConceptId(link.link);
       addConcept(concepts, conceptId, {
-        type: 'link',
+        type: "link",
         source: file.path,
         label: link.displayText || link.link,
       });
@@ -106,7 +103,7 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
       for (const tag of tags) {
         const conceptId = normalizeConceptId(tag);
         addConcept(concepts, conceptId, {
-          type: 'frontmatter-tag',
+          type: "frontmatter-tag",
           source: file.path,
           label: tag,
         });
@@ -114,11 +111,11 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
     }
 
     // Extract other relevant frontmatter (e.g., category, type)
-    for (const key of ['category', 'type', 'topic']) {
+    for (const key of ["category", "type", "topic"]) {
       if (fm[key]) {
         const conceptId = normalizeConceptId(fm[key]);
         addConcept(concepts, conceptId, {
-          type: 'frontmatter',
+          type: "frontmatter",
           source: file.path,
           label: fm[key],
         });
@@ -132,7 +129,7 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
       if (heading.level <= 2) {
         const conceptId = normalizeConceptId(heading.heading);
         addConcept(concepts, conceptId, {
-          type: 'heading',
+          type: "heading",
           source: file.path,
           label: heading.heading,
         });
@@ -148,13 +145,13 @@ async function extractConceptsFromNote({ file, content, cache, concepts }) {
  */
 function normalizeConceptId(raw) {
   // Remove leading #
-  let normalized = raw.replace(/^#/, '');
+  let normalized = raw.replace(/^#/, "");
 
   // Remove file extensions (.md, .ts, .js, etc.)
-  normalized = normalized.replace(/\.(md|ts|js|json|yml|yaml|txt)$/i, '');
+  normalized = normalized.replace(/\.(md|ts|js|json|yml|yaml|txt)$/i, "");
 
   // Remove leading slashes and dots (from paths like /.claude/commands/...)
-  normalized = normalized.replace(/^[\/\.]+/, '');
+  normalized = normalized.replace(/^[\/\.]+/, "");
 
   // For non-ASCII (e.g., Japanese), create a hash-based ID
   // Check if contains non-ASCII characters
@@ -163,17 +160,17 @@ function normalizeConceptId(raw) {
     // Use a simple hash or just use the original with minimal processing
     // Keep Japanese characters, remove only problematic chars
     normalized = normalized
-      .replace(/[\s\n\r\t]+/g, '-') // Replace whitespace with -
-      .replace(/[^\p{L}\p{N}\-]/gu, '-') // Keep letters, numbers, - (Unicode-aware, remove /)
-      .replace(/-+/g, '-') // Collapse multiple -
-      .replace(/^-|-$/g, ''); // Trim leading/trailing -
+      .replace(/[\s\n\r\t]+/g, "-") // Replace whitespace with -
+      .replace(/[^\p{L}\p{N}\-]/gu, "-") // Keep letters, numbers, - (Unicode-aware, remove /)
+      .replace(/-+/g, "-") // Collapse multiple -
+      .replace(/^-|-$/g, ""); // Trim leading/trailing -
 
     // If still empty or very short, use a hash
     if (normalized.length < 2) {
       // Simple hash function (deterministic)
       let hash = 0;
       for (let i = 0; i < raw.length; i++) {
-        hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+        hash = (hash << 5) - hash + raw.charCodeAt(i);
         hash = hash & hash; // Convert to 32bit integer
       }
       return `concept-${Math.abs(hash).toString(36)}`;
@@ -185,10 +182,10 @@ function normalizeConceptId(raw) {
   // For ASCII text, use standard processing
   return normalized
     .toLowerCase()
-    .replace(/\//g, '-') // Replace / with -
-    .replace(/[^\w\-]/g, '-') // Replace non-word chars with -
-    .replace(/-+/g, '-') // Collapse multiple -
-    .replace(/^-|-$/g, ''); // Trim leading/trailing -
+    .replace(/\//g, "-") // Replace / with -
+    .replace(/[^\w\-]/g, "-") // Replace non-word chars with -
+    .replace(/-+/g, "-") // Collapse multiple -
+    .replace(/^-|-$/g, ""); // Trim leading/trailing -
 }
 
 /**
@@ -223,8 +220,8 @@ function serializeConcepts(concepts) {
   const MIN_FREQUENCY = 2; // Only keep concepts that appear in 2+ notes
 
   const sorted = Array.from(concepts.values())
-    .filter(c => c.frequency >= MIN_FREQUENCY) // Filter by frequency
-    .map(c => ({
+    .filter((c) => c.frequency >= MIN_FREQUENCY) // Filter by frequency
+    .map((c) => ({
       id: c.id,
       label: c.label,
       sourceNotes: Array.from(c.sourceNotes).sort(), // Deterministic sort
@@ -240,7 +237,7 @@ function serializeConcepts(concepts) {
     });
 
   return {
-    version: '1.0',
+    version: "1.0",
     generatedAt: new Date().toISOString(),
     totalConcepts: sorted.length,
     minFrequency: MIN_FREQUENCY,

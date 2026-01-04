@@ -1,11 +1,12 @@
 // src/pages/api/healthz.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'node:fs/promises';
+import fs from "node:fs/promises";
 
-const KB_INDEX_PATH = 'kb/index/embeddings.json';
+import type { NextApiRequest, NextApiResponse } from "next";
+
+const KB_INDEX_PATH = "kb/index/embeddings.json";
 const OBSIDIAN_API_URL = process.env.OBSIDIAN_API_URL; // 例: http://localhost:8443/vault
 
-type Status = 'healthy' | 'degraded' | 'unavailable' | 'not_configured';
+type Status = "healthy" | "degraded" | "unavailable" | "not_configured";
 
 type KbCheck = {
   status: Status;
@@ -42,41 +43,41 @@ async function checkKb(): Promise<KbCheck> {
     const stat = await fs.stat(KB_INDEX_PATH);
     if (!stat.isFile()) {
       return {
-        status: 'degraded',
-        message: 'KB index path exists but is not a file',
+        status: "degraded",
+        message: "KB index path exists but is not a file",
         details: { path: KB_INDEX_PATH, size: 0 },
       };
     }
 
     if (stat.size === 0) {
       return {
-        status: 'degraded',
-        message: 'KB index file is empty',
+        status: "degraded",
+        message: "KB index file is empty",
         details: { path: KB_INDEX_PATH, size: 0 },
       };
     }
 
     // 簡易 JSON パースチェック
     try {
-      const raw = await fs.readFile(KB_INDEX_PATH, 'utf8');
+      const raw = await fs.readFile(KB_INDEX_PATH, "utf8");
       JSON.parse(raw);
     } catch {
       return {
-        status: 'degraded',
-        message: 'KB index exists but is not valid JSON',
+        status: "degraded",
+        message: "KB index exists but is not valid JSON",
         details: { path: KB_INDEX_PATH, size: stat.size },
       };
     }
 
     return {
-      status: 'healthy',
-      message: 'KB index is present and valid',
+      status: "healthy",
+      message: "KB index is present and valid",
       details: { path: KB_INDEX_PATH, size: stat.size },
     };
   } catch {
     return {
-      status: 'unavailable',
-      message: 'KB index file not found',
+      status: "unavailable",
+      message: "KB index file not found",
       details: { path: KB_INDEX_PATH, size: 0 },
     };
   }
@@ -85,8 +86,8 @@ async function checkKb(): Promise<KbCheck> {
 async function checkObsidian(): Promise<ObsidianCheck> {
   if (!OBSIDIAN_API_URL) {
     return {
-      status: 'not_configured',
-      message: 'OBSIDIAN_API_URL is not set',
+      status: "not_configured",
+      message: "OBSIDIAN_API_URL is not set",
     };
   }
 
@@ -95,29 +96,32 @@ async function checkObsidian(): Promise<ObsidianCheck> {
 
   try {
     const res = await fetch(OBSIDIAN_API_URL, {
-      method: 'GET',
+      method: "GET",
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
 
     if (!res.ok) {
       return {
-        status: 'degraded',
+        status: "degraded",
         message: `Obsidian REST responded with HTTP ${res.status}`,
         details: { url: OBSIDIAN_API_URL },
       };
     }
 
     return {
-      status: 'healthy',
-      message: 'Obsidian REST responded successfully',
+      status: "healthy",
+      message: "Obsidian REST responded successfully",
       details: { url: OBSIDIAN_API_URL },
     };
   } catch (e: any) {
     clearTimeout(timeoutId);
-    const msg = e?.name === 'AbortError' ? 'request timeout' : (e?.message ?? 'request failed');
+    const msg =
+      e?.name === "AbortError"
+        ? "request timeout"
+        : (e?.message ?? "request failed");
     return {
-      status: 'unavailable',
+      status: "unavailable",
       message: `Failed to reach Obsidian REST (${msg})`,
       details: { url: OBSIDIAN_API_URL },
     };
@@ -126,10 +130,10 @@ async function checkObsidian(): Promise<ObsidianCheck> {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<HealthzResponse>
+  res: NextApiResponse<HealthzResponse>,
 ) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
     return res.status(405).end();
   }
 
@@ -138,11 +142,11 @@ export default async function handler(
   // クリティカル判定ルール：
   // - KB が unavailable のときはシステムとして 503（検索/RAG 前提だから）
   // - Obsidian は not_configured の場合はクリティカル扱いしない
-  const kbCriticalOk = kb.status !== 'unavailable';
+  const kbCriticalOk = kb.status !== "unavailable";
   const obsidianCriticalOk =
-    obsidian.status === 'healthy' ||
-    obsidian.status === 'degraded' ||
-    obsidian.status === 'not_configured';
+    obsidian.status === "healthy" ||
+    obsidian.status === "degraded" ||
+    obsidian.status === "not_configured";
 
   const criticalOk = kbCriticalOk && obsidianCriticalOk;
 

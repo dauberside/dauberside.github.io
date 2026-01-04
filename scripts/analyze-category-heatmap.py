@@ -75,6 +75,7 @@ def extract_category_activity(entries: List[Dict[str, Any]]):
         category_totals: dict[str, int]
         weekday_totals: dict[str, int]
         total_completed: int
+        active_days: int (number of unique calendar days with completed tasks)
     """
     weekday_category_matrix: Dict[str, Dict[str, int]] = {
         day: defaultdict(int) for day in WEEKDAY_ORDER
@@ -82,6 +83,7 @@ def extract_category_activity(entries: List[Dict[str, Any]]):
     category_totals: Dict[str, int] = defaultdict(int)
     weekday_totals: Dict[str, int] = {day: 0 for day in WEEKDAY_ORDER}
     total_completed = 0
+    active_dates = set()  # Track unique dates with completed tasks
 
     for entry in entries:
         tasks = entry.get("tasks", [])
@@ -122,6 +124,11 @@ def extract_category_activity(entries: List[Dict[str, Any]]):
             weekday_totals[weekday] += 1
             total_completed += 1
 
+            # Track active dates
+            entry_date = entry.get("__date")
+            if entry_date:
+                active_dates.add(entry_date)
+
     # Convert defaultdict to regular dict for JSON serialization
     weekday_category_matrix = {
         day: dict(categories) for day, categories in weekday_category_matrix.items()
@@ -132,6 +139,7 @@ def extract_category_activity(entries: List[Dict[str, Any]]):
         dict(category_totals),
         weekday_totals,
         total_completed,
+        len(active_dates),  # active_days
     )
 
 
@@ -258,9 +266,10 @@ def main():
         category_totals,
         weekday_totals,
         total_completed,
+        active_days,
     ) = extract_category_activity(entries)
 
-    print(f"✅ Extracted {total_completed} completed tasks", file=sys.stderr)
+    print(f"✅ Extracted {total_completed} completed tasks across {active_days} active days", file=sys.stderr)
 
     dominant_categories = find_dominant_categories(
         weekday_category_matrix,
@@ -281,6 +290,7 @@ def main():
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "analysis_period_days": args.days,
         "total_completed_tasks": total_completed,
+        "active_days": active_days,  # Number of unique calendar days with completed tasks
         "weekday_category_matrix": weekday_category_matrix,
         "category_totals": category_totals,
         "weekday_totals": weekday_totals,

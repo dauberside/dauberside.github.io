@@ -1,18 +1,18 @@
 {
-  "generated_at": "2025-12-19T10:28:01+09:00",
+  "generated_at": "2026-01-04T12:56:30+09:00",
   "analysis_period_days": 30,
-  "total_tasks": 22,
-  "active_days": 3,
-  "chronotype": "morning",
-  "peak_hour": 10,
+  "total_tasks": 44,
+  "active_days": 9,
+  "chronotype": "night",
+  "peak_hour": 1,
   "peak_window": {
-    "start_hour": 8,
-    "end_hour": 11,
-    "total_tasks": 22
+    "start_hour": 0,
+    "end_hour": 3,
+    "total_tasks": 33
   },
   "hourly_distribution": {
     "0": 0,
-    "1": 0,
+    "1": 33,
     "2": 0,
     "3": 0,
     "4": 0,
@@ -21,36 +21,50 @@
     "7": 0,
     "8": 0,
     "9": 0,
-    "10": 22,
-    "11": 0,
-    "12": 0,
+    "10": 0,
+    "11": 1,
+    "12": 2,
     "13": 0,
     "14": 0,
-    "15": 0,
+    "15": 1,
     "16": 0,
     "17": 0,
-    "18": 0,
+    "18": 2,
     "19": 0,
-    "20": 0,
-    "21": 0,
-    "22": 0,
+    "20": 1,
+    "21": 3,
+    "22": 1,
     "23": 0
   },
   "weekday_hour_matrix": {
-    "Wednesday": {
-      "10": 7
-    },
     "Monday": {
-      "10": 7
+      "1": 3,
+      "11": 1,
+      "12": 2,
+      "15": 1,
+      "18": 1,
+      "20": 1
+    },
+    "Sunday": {
+      "1": 12
+    },
+    "Saturday": {
+      "1": 11
     },
     "Friday": {
-      "10": 8
+      "1": 7,
+      "21": 2,
+      "22": 1
+    },
+    "Wednesday": {
+      "18": 1,
+      "21": 1
     }
   },
   "insights": [
-    "Your current rhythm is classified as: morning type (早起き型).",
-    "Single peak hour: around 10:00.",
-    "Most active window: 08:00–11:00 (22 tasks in 3 active days).",
-    "Average completed tasks per active day: 7.33 over 3 active days."
+    "Your current rhythm is classified as: night owl type (深夜型).",
+    "Single peak hour: around 01:00.",
+    "Most active window: 00:00–03:00 (33 tasks in 9 active days).",
+    "Average completed tasks per active day: 4.89 over 9 active days."
   ]
 }

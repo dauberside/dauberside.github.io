@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-25T11:30:00+09:00",
+  "date": "2025-12-25",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Enriched files適用",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Health score再計算と確認",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    },
+    {
+      "title": "時刻レンジ記録の習慣化テスト",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P3",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "データ品質基盤の完全稼働を目指す。207タスク分のenriched files適用後、Health score改善を測定。時刻レンジ記録の習慣化も開始。合計45分で余裕のあるプラン。"
+}

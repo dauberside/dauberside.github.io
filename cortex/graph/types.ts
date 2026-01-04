@@ -118,7 +118,7 @@ export interface GraphBuildOptions {
   similarityThreshold?: number; // Min similarity for edge (default: 0.7)
 
   // Clustering (Phase 2)
-  clusteringMethod?: 'connected-components' | 'kmeans'; // Default: connected-components
+  clusteringMethod?: "connected-components" | "kmeans"; // Default: connected-components
   minClusterSize?: number; // Minimum nodes per cluster (default: 2)
 
   // Community Detection (Phase 2.5)
@@ -128,7 +128,7 @@ export interface GraphBuildOptions {
   // Output
   includeEmbeddings?: boolean; // Include embeddings in output (default: false)
   generateMarkdown?: boolean; // Generate human-readable "brain map" (default: true)
-  markdownFormat?: 'clusters' | 'communities' | 'both'; // What to include in markdown
+  markdownFormat?: "clusters" | "communities" | "both"; // What to include in markdown
 }
 
 /**

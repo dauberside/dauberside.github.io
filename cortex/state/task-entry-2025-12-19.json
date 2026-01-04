@@ -1,0 +1,34 @@
+{
+  "tasks": [
+    {
+      "title": "v1.2 Roadmap 確認",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-19T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 動作確認",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-19T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ドキュメント整理",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-19T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

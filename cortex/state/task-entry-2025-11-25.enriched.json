@@ -1,0 +1,414 @@
+{
+  "tasks": [
+    {
+      "title": "/init でセッション状態復元",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 13 実行結果確認（22:00自動実行成功）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "tomorrow.json 検証（正常生成確認）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Phase 2 実装状況確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "デプロイ手順ドキュメント確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "プラットフォーム選択（Railway 決定）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": ".env.production 作成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "セキュリティキー生成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": ".gitignore 確認（機密情報保護）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "railway.json 作成（ビルド設定）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Dockerfile.railway 作成（Railway最適化）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "README-RAILWAY.md 作成（デプロイガイド）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Caddyfile 作成（自前VPS用）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "deploy-production.sh 作成（自前VPS用）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Railway設定ファイル一式 git add",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "コミット作成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "GitHub push (commit: 68acb9c9)",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "VPS接続テスト（Tailscale問題発見）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Railway への切り替え決定",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Railway プロジェクト作成（GitHub連携）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "環境変数設定（Railway UI）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "デプロイ成功確認（n8n v1.120.4）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "URL確認: https://n8n-production-f846.up.railway.app",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "n8n UI ログイン（BASIC認証）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 4 Phase 2 ワークフローインポート",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "GitHub webhook URL 確認（既に設定済み）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ワークフローアクティブ化",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "初回テスト実行（エラー発見）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "URL式エラー特定",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "テスト用 ADR-0009 作成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "1回目テスト (commit: 6f7cd62f) → エラー",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ワークフロー修正",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "2回目テスト (commit: 295eb027) → エラー",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "完全修正",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "3回目テスト (commit: 5d5fc2ce) → **成功！**",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Issue #70 自動作成確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ADR-0009: Railway n8n Deployment",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "services/n8n/README-RAILWAY.md",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "services/n8n/Dockerfile.railway",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "services/n8n/railway.json",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Obsidian Daily Digest 作成",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-11-25T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

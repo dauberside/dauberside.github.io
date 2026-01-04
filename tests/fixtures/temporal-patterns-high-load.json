@@ -37,7 +37,7 @@
       "days_observed": 5
     },
     "Friday": {
-      "avg_tasks": 18,
+      "avg_tasks": 11,
       "avg_completion_rate": 0.73,
       "task_count": 55,
       "days_observed": 5
@@ -49,7 +49,7 @@
       "days_observed": 4
     },
     "Sunday": {
-      "avg_tasks": 3.5,
+      "avg_tasks": 18,
       "avg_completion_rate": 0.9,
       "task_count": 14,
       "days_observed": 4

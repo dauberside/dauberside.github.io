@@ -26,17 +26,22 @@ export interface DailyDigest {
 /**
  * Parse a daily digest markdown file into structured data
  */
-export function parseDailyDigest(filename: string, content: string): DailyDigest {
+export function parseDailyDigest(
+  filename: string,
+  content: string,
+): DailyDigest {
   // Extract date from filename (YYYY-MM-DD-digest.md)
   const dateMatch = filename.match(/(\d{4}-\d{2}-\d{2})/);
-  const date = dateMatch ? dateMatch[1] : 'unknown';
+  const date = dateMatch ? dateMatch[1] : "unknown";
 
   // Extract sections using markdown headers
   const sections = extractSections(content);
 
   // Calculate metadata
   const wordCount = content.split(/\s+/).length;
-  const sectionCount = Object.keys(sections).filter(k => sections[k as keyof typeof sections]).length;
+  const sectionCount = Object.keys(sections).filter(
+    (k) => sections[k as keyof typeof sections],
+  ).length;
   const hasContent = wordCount > 50; // Arbitrary threshold
 
   return {
@@ -55,8 +60,8 @@ export function parseDailyDigest(filename: string, content: string): DailyDigest
 /**
  * Extract markdown sections by header
  */
-function extractSections(content: string): DailyDigest['sections'] {
-  const sections: DailyDigest['sections'] = {};
+function extractSections(content: string): DailyDigest["sections"] {
+  const sections: DailyDigest["sections"] = {};
 
   // Patterns for section headers
   const patterns = {
@@ -84,13 +89,13 @@ export function extractCompletedTasks(digest: DailyDigest): string[] {
   const tasks: string[] = [];
 
   if (digest.sections.tasks) {
-    const lines = digest.sections.tasks.split('\n');
+    const lines = digest.sections.tasks.split("\n");
     for (const line of lines) {
       // Match lines with ✅ or [x] or - [x]
       if (line.match(/✅|✔|(\[x\])/i)) {
         const cleaned = line
-          .replace(/✅|✔|\[x\]/gi, '')
-          .replace(/^[-*]\s*/, '')
+          .replace(/✅|✔|\[x\]/gi, "")
+          .replace(/^[-*]\s*/, "")
           .trim();
         if (cleaned) {
           tasks.push(cleaned);
@@ -110,10 +115,10 @@ export function extractInsights(digest: DailyDigest): string[] {
 
   // From highlights section
   if (digest.sections.highlights) {
-    const lines = digest.sections.highlights.split('\n');
+    const lines = digest.sections.highlights.split("\n");
     for (const line of lines) {
       if (line.match(/^[-*]\s/)) {
-        const cleaned = line.replace(/^[-*]\s*/, '').trim();
+        const cleaned = line.replace(/^[-*]\s*/, "").trim();
         if (cleaned && cleaned.length > 10) {
           insights.push(cleaned);
         }
@@ -123,12 +128,12 @@ export function extractInsights(digest: DailyDigest): string[] {
 
   // From reflection section
   if (digest.sections.reflection) {
-    const lines = digest.sections.reflection.split('\n');
+    const lines = digest.sections.reflection.split("\n");
     for (const line of lines) {
       if (line.match(/^[-*]\s/) || line.match(/^###\s/)) {
         const cleaned = line
-          .replace(/^[-*]\s*/, '')
-          .replace(/^###\s*/, '')
+          .replace(/^[-*]\s*/, "")
+          .replace(/^###\s*/, "")
           .trim();
         if (cleaned && cleaned.length > 10) {
           insights.push(cleaned);
@@ -144,7 +149,8 @@ export function extractInsights(digest: DailyDigest): string[] {
  * Get a brief summary of a daily digest (first N words from highlights)
  */
 export function getBriefSummary(digest: DailyDigest, maxWords = 50): string {
-  const content = digest.sections.highlights || digest.sections.todaysPlan || digest.raw;
+  const content =
+    digest.sections.highlights || digest.sections.todaysPlan || digest.raw;
   const words = content.split(/\s+/).slice(0, maxWords);
-  return words.join(' ') + (words.length === maxWords ? '...' : '');
+  return words.join(" ") + (words.length === maxWords ? "..." : "");
 }

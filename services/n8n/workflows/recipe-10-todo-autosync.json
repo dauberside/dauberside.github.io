@@ -167,6 +167,34 @@
         300
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare JSONL log entry for Recipe 10\nconst mergeData = $('Merge Tasks into TODO').first().json;\nconst extractData = $('Extract Uncompleted Tasks').first().json;\nconst updateData = $('Update TODO.md').first().json;\n\n// Calculate duration (use reasonable default if not available)\nconst startTime = $('Every Morning 08:05 JST').first().json.startTime || Date.now();\nconst endTime = Date.now();\nconst durationMs = endTime - startTime;\n\n// Determine status and error message\nlet status = 'success';\nlet errorMessage = null;\nconst warnings = [];\n\n// Add warnings if no tasks were added\nif (mergeData.newTasksCount === 0) {\n  warnings.push('No new tasks extracted');\n}\n\n// Build meta object\nconst meta = {\n  tasksAdded: mergeData.newTasksCount || 0,\n  totalTasks: extractData.taskCount || 0,\n  sourceSection: extractData.sourceSection || 'None',\n  statusCode: updateData.statusCode || 204,\n  target: 'vault/TODO.md'\n};\n\nif (warnings.length > 0) {\n  meta.warnings = warnings;\n}\n\n// Build log entry\nconst logEntry = {\n  ts: new Date().toISOString(),\n  workflow: 'Recipe 10: TODO.md Auto-sync',\n  executionId: $executionId,\n  status: status,\n  durationMs: durationMs,\n  env: 'production',\n  errorMessage: errorMessage,\n  meta: meta\n};\n\n// Create filename with today's date\nconst today = mergeData.date || new Date().toISOString().split('T')[0];\nconst filename = `cortex/logs/recipe-10-${today}.jsonl`;\n\n// Create the log line (single line JSON)\nconst logLine = JSON.stringify(logEntry);\n\nreturn {\n  json: {\n    logEntry: logEntry,\n    logLine: logLine,\n    filename: filename\n  }\n};"
+      },
+      "id": "prepare-log",
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "={{ \"echo '\" + $json.logLine + \"' >> /workspace/dauberside.github.io-1/\" + $json.filename }}",
+        "options": {}
+      },
+      "id": "write-log",
+      "name": "Write JSONL Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        2050,
+        300
+      ],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -241,6 +269,28 @@
         [
           {
             "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Slack": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Write JSONL Log",
             "type": "main",
             "index": 0
           }

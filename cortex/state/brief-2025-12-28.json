@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-28T10:30:00+09:00",
+  "date": "2025-12-28",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Enriched files適用 (python3 scripts/enrich-task-metadata.py --all --overwrite)",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Health score再計算と確認",
+      "time": "10分",
+      "phase": "コアワーク",
+      "priority": "P2",
+      "status": "pending"
+    },
+    {
+      "title": "時刻レンジ記録の習慣化テスト（今日の作業に時刻追記）",
+      "time": "5分",
+      "phase": "軽作業",
+      "priority": "P3",
+      "status": "pending"
+    }
+  ],
+  "total_time": 30,
+  "buffer": "OK",
+  "reflection": "データ品質基盤の完全稼働に向けたEnrichment適用とHealth score確認。時刻レンジ記録の習慣化も開始。"
+}

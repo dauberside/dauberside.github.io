@@ -52,10 +52,37 @@ def load_task_entries(days: int) -> List[Dict[str, Any]]:
     return entries
 
 
-def extract_durations(entries: List[Dict[str, Any]]) -> Dict[str, List[float]]:
+def is_task_completed(task: Dict[str, Any]) -> bool:
+    """
+    Check if a task is completed using multiple indicators.
+
+    Supports:
+    - status: "completed", "done", "finished"
+    - title: starts with "[x]" or "- [x]"
+    """
+    status = task.get("status", "").lower()
+    title = task.get("title", "")
+
+    return (
+        status in ("completed", "done", "finished") or
+        title.startswith("[x]") or
+        title.startswith("- [x]")
+    )
+
+
+def extract_durations(entries: List[Dict[str, Any]], min_confidence: float = 0.7) -> Dict[str, List[float]]:
     """
     Extract duration data grouped by category.
-    
+
+    Args:
+        entries: List of task entry dictionaries
+        min_confidence: Minimum duration_confidence to include (default: 0.7)
+                       This filters out low-quality duration data:
+                       - 1.0: explicit duration (10分, 10m)
+                       - 0.7: timerange-derived duration
+                       - 0.3: inferred (excluded by default)
+                       - 0.0: unknown (excluded by default)
+
     Returns:
         {
             "development": [1.5, 2.0, 1.8, ...],
@@ -64,21 +91,49 @@ def extract_durations(entries: List[Dict[str, Any]]) -> Dict[str, List[float]]:
         }
     """
     durations_by_category = defaultdict(list)
-    
+    filtered_count = 0
+    total_with_duration = 0
+
     for entry in entries:
         tasks = entry.get('tasks', [])
         for task in tasks:
             # Only analyze completed tasks with duration data
-            if task.get('status') != 'completed':
+            if not is_task_completed(task):
                 continue
-            
-            duration = task.get('duration_hours')
-            if duration is None or duration <= 0:
+
+            # Support both duration_hours and duration_minutes
+            duration_hours = task.get('duration_hours')
+            duration_minutes = task.get('duration_minutes')
+
+            # Check duration_confidence (new: confidence filtering)
+            duration_confidence = task.get('duration_confidence', 1.0)  # Default to 1.0 for backwards compat
+
+            if duration_minutes is not None or duration_hours is not None:
+                total_with_duration += 1
+
+                # Filter by confidence threshold
+                if duration_confidence < min_confidence:
+                    filtered_count += 1
+                    continue
+
+            # Convert minutes to hours if available
+            if duration_minutes is not None and duration_minutes > 0:
+                duration = duration_minutes / 60.0
+            elif duration_hours is not None and duration_hours > 0:
+                duration = duration_hours
+            else:
                 continue
-            
+
             category = task.get('category', 'uncategorized')
             durations_by_category[category].append(duration)
-    
+
+    # Log filtering statistics
+    if total_with_duration > 0:
+        print(f"🔍 Duration confidence filtering (min_confidence={min_confidence}):", file=sys.stderr)
+        print(f"   Total with duration: {total_with_duration}", file=sys.stderr)
+        print(f"   Filtered out (low confidence): {filtered_count}", file=sys.stderr)
+        print(f"   Accepted: {total_with_duration - filtered_count}", file=sys.stderr)
+
     return dict(durations_by_category)
 
 
@@ -192,28 +247,30 @@ def generate_insights(patterns: Dict[str, Any], overall: Dict[str, Any]) -> List
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze task duration patterns')
-    parser.add_argument('--days', type=int, default=30, 
+    parser.add_argument('--days', type=int, default=30,
                        help='Number of days to analyze (default: 30)')
     parser.add_argument('--min-samples', type=int, default=3,
                        help='Minimum samples required per category (default: 3)')
-    parser.add_argument('--output', type=str, 
+    parser.add_argument('--min-confidence', type=float, default=0.7,
+                       help='Minimum duration_confidence to include (default: 0.7, range: 0.0-1.0)')
+    parser.add_argument('--output', type=str,
                        default='cortex/state/duration-patterns.json',
                        help='Output file path')
-    
+
     args = parser.parse_args()
-    
+
     print(f"📊 Analyzing duration patterns (past {args.days} days)...", file=sys.stderr)
-    
+
     # Load task entries
     entries = load_task_entries(args.days)
     if not entries:
         print("❌ No task entries found", file=sys.stderr)
         sys.exit(1)
-    
+
     print(f"✅ Loaded {len(entries)} task entries", file=sys.stderr)
-    
-    # Extract durations
-    durations_by_category = extract_durations(entries)
+
+    # Extract durations with confidence filtering
+    durations_by_category = extract_durations(entries, min_confidence=args.min_confidence)
     total_samples = sum(len(d) for d in durations_by_category.values())
     
     print(f"✅ Extracted {total_samples} duration samples from {len(durations_by_category)} categories", 

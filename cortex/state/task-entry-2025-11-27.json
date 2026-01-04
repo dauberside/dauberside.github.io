@@ -1,0 +1,104 @@
+{
+  "tasks": [
+    {
+      "title": "`cortex/graph/build-embeddings.mjs` 作成P",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "`buildConceptText()` 関数実装（決定的テキスト表現）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "既存 KB embed() 関数再利用",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "`concept-embeddings.json` 生成確認",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "cluster.mjs 実装（Connected Components）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "export-graph.mjs 実装（graph-v1.json + clusters-v1.md）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "初の Knowledge Graph 生成実行",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Obsidian で clusters-v1.md 開く",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Cluster 品質確認（10-20 clusters 想定）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "「脳の地図」として意味があるか検証",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

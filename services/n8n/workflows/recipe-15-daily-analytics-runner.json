@@ -1,0 +1,201 @@
+{
+  "name": "Recipe 15: Daily Analytics Runner",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days"
+            }
+          ]
+        },
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 7,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "Daily Trigger 07:00 JST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nreturn {\n  json: {\n    startTime: now.toISOString(),\n    date: now.toISOString().split('T')[0]\n  }\n};"
+      },
+      "id": "calculate-timestamp",
+      "name": "Calculate Timestamp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-duration.py 2>&1"
+      },
+      "id": "run-duration",
+      "name": "Run analyze-duration.py",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-rhythm.py 2>&1"
+      },
+      "id": "run-rhythm",
+      "name": "Run analyze-rhythm.py",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace/dauberside.github.io-1 && python3 scripts/analyze-category-heatmap.py 2>&1"
+      },
+      "id": "run-category",
+      "name": "Run analyze-category-heatmap.py",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "command": "ls -lh /workspace/dauberside.github.io-1/cortex/state/duration-patterns.json /workspace/dauberside.github.io-1/cortex/state/rhythm-patterns.json /workspace/dauberside.github.io-1/cortex/state/category-heatmap.json 2>&1"
+      },
+      "id": "verify-files",
+      "name": "Verify All Files Updated",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 📊 Success Log Entry for Recipe 15\nconst startTime = $('Calculate Timestamp').first().json.startTime;\nconst endTime = new Date().toISOString();\n\n// Extract script outputs\nconst durationOutput = $('Run analyze-duration.py').first()?.json?.stdout || '';\nconst rhythmOutput = $('Run analyze-rhythm.py').first()?.json?.stdout || '';\nconst categoryOutput = $('Run analyze-category-heatmap.py').first()?.json?.stdout || '';\n\n// Check for errors in outputs\nconst hasErrors =\n  durationOutput.includes('Error') ||\n  rhythmOutput.includes('Error') ||\n  categoryOutput.includes('Error');\n\nconst logEntry = {\n  ts: endTime,\n  workflow: \"Recipe 15: Daily Analytics Runner\",\n  executionId: $executionId,\n  status: hasErrors ? \"warning\" : \"success\",\n  durationMs: new Date(endTime) - new Date(startTime),\n  env: \"production\",\n  errorMessage: hasErrors ? \"Some analytics scripts had warnings\" : null,\n  meta: {\n    scriptsRun: 3,\n    durationSuccess: durationOutput.includes('✅'),\n    rhythmSuccess: rhythmOutput.includes('✅'),\n    categorySuccess: categoryOutput.includes('✅')\n  }\n};\n\n// Return as JSON string for easy writing\nreturn { json: { logLine: JSON.stringify(logEntry) } };"
+      },
+      "id": "prepare-success-log",
+      "name": "Prepare Success Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "command": "=echo '{{ $json.logLine }}' >> /workspace/dauberside.github.io-1/cortex/logs/recipe-15-$(date +%Y-%m-%d).jsonl"
+      },
+      "id": "write-success-log",
+      "name": "Write Success Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1780, 300]
+    }
+  ],
+  "connections": {
+    "Daily Trigger 07:00 JST": {
+      "main": [
+        [
+          {
+            "node": "Calculate Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Timestamp": {
+      "main": [
+        [
+          {
+            "node": "Run analyze-duration.py",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run analyze-duration.py": {
+      "main": [
+        [
+          {
+            "node": "Run analyze-rhythm.py",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run analyze-rhythm.py": {
+      "main": [
+        [
+          {
+            "node": "Run analyze-category-heatmap.py",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run analyze-category-heatmap.py": {
+      "main": [
+        [
+          {
+            "node": "Verify All Files Updated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify All Files Updated": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Write Success Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "cortex-os"
+    },
+    {
+      "name": "analytics"
+    },
+    {
+      "name": "automation"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-20T04:20:00.000Z",
+  "versionId": "1.0"
+}

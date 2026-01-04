@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "title": "🔧 Recipe スケジュール修正完了",
+      "status": "completed",
+      "category": "normal",
+      "started_at": "2025-12-10T18:20:00+09:00",
+      "completed_at": "2025-12-10T18:30:00+09:00",
+      "timestamp_source": "timerange",
+      "timestamp_confidence": 0.7,
+      "duration_minutes": 10,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "🔍 Recipe 10 診断と誤診の訂正",
+      "status": "completed",
+      "category": "normal",
+      "started_at": "2025-12-10T21:30:00+09:00",
+      "completed_at": "2025-12-10T22:05:00+09:00",
+      "timestamp_source": "timerange",
+      "timestamp_confidence": 0.7,
+      "duration_minutes": 35,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    }
+  ]
+}

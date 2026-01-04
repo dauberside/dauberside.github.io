@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-29T00:45:00+09:00",
+  "date": "2025-12-29",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Health score改善効果の詳細分析",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Rhythm分析データの確認（時刻レンジ記録効果）",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending"
+    },
+    {
+      "title": "Recipe 14動作確認（brief-{date}.json優先参照の本番検証）",
+      "time": "10分",
+      "phase": "軽作業",
+      "priority": "P2",
+      "status": "pending"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "データ品質基盤稼働後の初回測定・検証フェーズ。昨日の成果を定量評価し、次のアクションを決定する。"
+}

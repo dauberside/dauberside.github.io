@@ -122,6 +122,28 @@
       "typeVersion": 4.2,
       "position": [1450, 300],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare JSONL log entry for Recipe 14\nconst startTime = $('Every Night 00:30 JST').first().json.startTime || Date.now();\nconst endTime = Date.now();\n\n// Get result data\nconst dateInfo = $('Calculate Digest Date (JST)').first().json;\nconst digestResult = $('Generate Daily Digest').first().json;\n\n// Check which branch was taken (success or error)\nlet resultData;\ntry {\n  resultData = $('Build Success Message').first().json;\n} catch (e) {\n  resultData = $('Build Error Message').first().json;\n}\n\nconst isSuccess = resultData.success || false;\n\nconst logEntry = {\n  ts: new Date().toISOString(),\n  workflow: \"Recipe 14: Daily Digest Generator\",\n  executionId: $executionId,\n  status: isSuccess ? \"success\" : \"error\",\n  durationMs: endTime - startTime,\n  env: \"production\",\n  errorMessage: isSuccess ? null : (resultData.error || digestResult.stderr || \"Unknown error\"),\n  meta: {\n    dateGenerated: dateInfo.date || resultData.date,\n    digestPath: resultData.digestPath || dateInfo.digestPath || \"unknown\",\n    digestLength: digestResult.stdout ? digestResult.stdout.length : 0,\n    tasksExtracted: 0\n  }\n};\n\nconst today = dateInfo.date || new Date().toISOString().split('T')[0];\nconst filename = `cortex/logs/recipe-14-${today}.jsonl`;\nconst logLine = JSON.stringify(logEntry);\n\nreturn {\n  json: {\n    logEntry: logEntry,\n    logLine: logLine,\n    filename: filename\n  }\n};"
+      },
+      "id": "prepare-log",
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "command": "={{ \"echo '\" + $json.logLine + \"' >> /workspace/dauberside.github.io-1/\" + $json.filename }}",
+        "options": {}
+      },
+      "id": "write-log",
+      "name": "Write JSONL Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1850, 300],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -203,6 +225,28 @@
         [
           {
             "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Notification": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Write JSONL Log",
             "type": "main",
             "index": 0
           }

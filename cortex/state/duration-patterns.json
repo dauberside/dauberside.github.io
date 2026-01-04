@@ -1,16 +1,39 @@
 {
-  "generated_at": "2025-12-19T10:28:01.313364",
+  "generated_at": "2026-01-03T10:45:25.014186",
   "analysis_period_days": 30,
   "min_samples_required": 3,
   "overall": {
-    "count": 0,
-    "mean": 0,
-    "median": 0,
-    "std_dev": 0,
-    "min": 0,
-    "max": 0,
-    "confidence": "none"
+    "count": 22,
+    "mean": 0.55,
+    "median": 0.33,
+    "std_dev": 0.76,
+    "min": 0.17,
+    "max": 3.5,
+    "confidence": "high"
   },
-  "by_category": {},
-  "insights": []
+  "by_category": {
+    "untagged": {
+      "count": 8,
+      "mean": 0.32,
+      "median": 0.33,
+      "std_dev": 0.07,
+      "min": 0.25,
+      "max": 0.42,
+      "confidence": "medium"
+    },
+    "normal": {
+      "count": 14,
+      "mean": 0.68,
+      "median": 0.42,
+      "std_dev": 0.94,
+      "min": 0.17,
+      "max": 3.5,
+      "confidence": "high"
+    }
+  },
+  "insights": [
+    "Quick tasks (< 1h): untagged, normal",
+    "Unpredictable duration: normal",
+    "Average task duration: 0.55h (22 completed tasks)"
+  ]
 }

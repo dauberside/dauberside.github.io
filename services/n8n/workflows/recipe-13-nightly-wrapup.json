@@ -99,6 +99,26 @@
     },
     {
       "parameters": {
+        "jsCode": "// 📊 Success Log Entry for Recipe 13\nconst startTime = $('Calculate File Paths').first().json.timestamp || new Date().toISOString();\nconst endTime = new Date().toISOString();\nconst dateInfo = $('Build tomorrow.json').first().json;\n\nconst logEntry = {\n  ts: endTime,\n  workflow: \"Recipe 13: Nightly Wrap-up\",\n  executionId: $executionId,\n  status: \"success\",\n  durationMs: new Date(endTime) - new Date(startTime),\n  env: \"production\",\n  errorMessage: null,\n  meta: {\n    date: dateInfo.date,\n    tomorrowCandidates: dateInfo.tomorrowJson.tomorrow_candidates.length,\n    completed: dateInfo.stats.completed,\n    pending: dateInfo.stats.pending,\n    rate: dateInfo.stats.rate\n  }\n};\n\nconst today = new Date().toISOString().split('T')[0];\nconst filename = `cortex/logs/recipe-13-${today}.jsonl`;\nconst logLine = JSON.stringify(logEntry);\n\nreturn {\n  json: {\n    logEntry: logEntry,\n    logLine: logLine,\n    filename: filename\n  }\n};"
+      },
+      "id": "prepare-success-log",
+      "name": "Prepare Success Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "command": "={{ \"echo '\" + $json.logLine + \"' >> /workspace/dauberside.github.io-1/\" + $json.filename }}"
+      },
+      "id": "write-success-log",
+      "name": "Write Success Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "={{ $env.SLACK_DAILY_DIGEST_WEBHOOK }}",
         "sendBody": true,
@@ -196,6 +216,28 @@
         [
           {
             "node": "Verify Write (DEBUG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Write (DEBUG)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Write Success Log",
             "type": "main",
             "index": 0
           }

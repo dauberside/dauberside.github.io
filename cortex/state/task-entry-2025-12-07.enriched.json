@@ -1,0 +1,14 @@
+{
+  "tasks": [
+    {
+      "title": "/diagnose で Recipe 実行ログ検証（明日に延期）",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

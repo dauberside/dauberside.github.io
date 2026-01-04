@@ -1,0 +1,31 @@
+{
+  "generated_at": "2025-12-21T01:30:00+09:00",
+  "date": "2025-12-21",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Analytics Health データ追加（あと2日分）",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Recipe 10 ログ出力実装の継続",
+      "time": "25分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending"
+    },
+    {
+      "title": "Automation Logging 基盤設計の見直し",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P2",
+      "status": "pending"
+    }
+  ],
+  "total_time": 60,
+  "buffer": "OK",
+  "reflection": "昨日の高い成果（Analytics +13点）の勢いを活かし、Silver tier到達（あと2日）を目指す。バッファ十分で予期せぬ作業にも対応可能。"
+}

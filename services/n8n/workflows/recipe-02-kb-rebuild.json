@@ -144,6 +144,28 @@
       "typeVersion": 4.2,
       "position": [1650, 300],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare JSONL log entry for Recipe 02\nconst startTime = $('Every Night 03:00 JST').first().json.startTime || Date.now();\nconst endTime = Date.now();\n\n// Get result data from workflow nodes\nconst rebuildResult = $('Rebuild KB Index').first().json;\nconst healthResult = $('Analyze Health Score').first().json;\n\n// Check if rebuild was successful\nconst isSuccess = rebuildResult.exitCode === 0;\n\nconst logEntry = {\n  ts: new Date().toISOString(),\n  workflow: \"Recipe 02: Nightly KB Rebuild\",\n  executionId: $executionId,\n  status: isSuccess ? \"success\" : \"error\",\n  durationMs: endTime - startTime,\n  env: \"production\",\n  errorMessage: isSuccess ? null : (rebuildResult.stderr || \"Unknown error\"),\n  meta: {\n    scriptsRun: 3,\n    kbChunks: rebuildResult.chunks || 0,\n    kbSizeMB: rebuildResult.sizeMB || 0,\n    rebuildSuccess: isSuccess,\n    healthScore: healthResult.overall_score || 0\n  }\n};\n\nconst today = new Date().toISOString().split('T')[0];\nconst filename = `cortex/logs/recipe-02-${today}.jsonl`;\nconst logLine = JSON.stringify(logEntry);\n\nreturn {\n  json: {\n    logEntry: logEntry,\n    logLine: logLine,\n    filename: filename\n  }\n};"
+      },
+      "id": "prepare-log",
+      "name": "Prepare Log Entry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1850, 300]
+    },
+    {
+      "parameters": {
+        "command": "={{ \"echo '\" + $json.logLine + \"' >> /workspace/dauberside.github.io-1/\" + $json.filename }}",
+        "options": {}
+      },
+      "id": "write-log",
+      "name": "Write JSONL Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [2050, 300],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -240,6 +262,28 @@
         [
           {
             "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Slack": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Write JSONL Log",
             "type": "main",
             "index": 0
           }

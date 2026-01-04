@@ -1,0 +1,67 @@
+{
+  "tasks": [
+    {
+      "title": "v1.2 Roadmap 確認",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 動作確認",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ドキュメント整理",
+      "status": "incomplete",
+      "category": "high-priority",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 動作確認",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_minutes": 10,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "v1.2 Roadmap 確認",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_minutes": 15,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "ドキュメント整理",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_minutes": 20,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    }
+  ]
+}

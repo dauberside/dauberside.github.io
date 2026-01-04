@@ -88,19 +88,33 @@ generate_tasks_from_brief() {
     return 1
   fi
 
-  # Check if tasks array exists
-  if ! jq -e '.tasks' "$brief_file" &>/dev/null; then
-    echo -e "${RED}❌ Error: Missing 'tasks' field in ${brief_file}${NC}" >&2
+  # Ensure tasks is an array
+  if ! jq -e '.tasks | type == "array"' "$brief_file" &>/dev/null; then
+    echo -e "${RED}❌ Error: 'tasks' must be an array in ${brief_file}${NC}" >&2
     return 1
   fi
 
-  # Generate Markdown task list
-  local tasks=$(cat "$brief_file" | jq -r '.tasks[] | "- [\(if .status == "completed" then "x" else " " end)] \(.title) (\(.time))"' 2>&1)
+  # Generate Markdown task list (stderr separated to avoid contaminating output)
+  local jq_stderr
+  jq_stderr=$(mktemp)
+  local tasks
+  tasks=$(cat "$brief_file" | jq -r '.tasks[] | "- [\(if .status == \"completed\" then \"x\" else \" \" end)] \(.title) (\(.time))"' 2>"$jq_stderr")
+  local jq_exit_code=$?
 
-  if [ $? -ne 0 ]; then
+  if [ $jq_exit_code -ne 0 ]; then
     echo -e "${RED}❌ Error: Failed to parse tasks from ${brief_file}${NC}" >&2
-    echo "Details: ${tasks}" >&2
+    echo "jq error output:" >&2
+    cat "$jq_stderr" >&2
+    rm -f "$jq_stderr"
     return 1
+  fi
+
+  rm -f "$jq_stderr"
+
+  if [ -z "$tasks" ]; then
+    echo -e "${YELLOW}⚠️  Warning: No tasks found in ${brief_file}${NC}" >&2
+    echo "- [ ] (タスクなし)"
+    return 0
   fi
 
   echo "$tasks"
@@ -124,20 +138,38 @@ generate_tasks_from_tomorrow() {
     return 1
   fi
 
-  # Check if tomorrow_candidates array exists
-  if ! jq -e '.tomorrow_candidates' "$tomorrow_file" &>/dev/null; then
-    echo -e "${RED}❌ Error: Missing 'tomorrow_candidates' field in ${tomorrow_file}${NC}" >&2
+  # Ensure tomorrow_candidates is an array
+  if ! jq -e '.tomorrow_candidates | type == "array"' "$tomorrow_file" &>/dev/null; then
+    echo -e "${RED}❌ Error: 'tomorrow_candidates' must be an array in ${tomorrow_file}${NC}" >&2
     return 1
   fi
 
-  # Generate Markdown task list from tomorrow_candidates
-  local tasks=$(cat "$tomorrow_file" | jq -r '.tomorrow_candidates[]? | "- [ ] \(.)"' 2>&1)
+  # Generate Markdown task list from tomorrow_candidates (supports string or object elements)
+  local jq_stderr
+  jq_stderr=$(mktemp)
+  local tasks
+  tasks=$(cat "$tomorrow_file" | jq -r '
+    .tomorrow_candidates[]?
+    | if type == "object" then
+        . as $t
+        | ($t.title // $t.task // "（無題）") as $name
+        | ($t.time // $t.estimated_time // "") as $time
+        | if $time == "" then "- [ ] \($name)" else "- [ ] \($name) (\($time))" end
+      else
+        "- [ ] \(.)"
+      end
+  ' 2>"$jq_stderr")
+  local jq_exit_code=$?
 
-  if [ $? -ne 0 ]; then
+  if [ $jq_exit_code -ne 0 ]; then
     echo -e "${RED}❌ Error: Failed to parse tomorrow_candidates from ${tomorrow_file}${NC}" >&2
-    echo "Details: ${tasks}" >&2
+    echo "jq error output:" >&2
+    cat "$jq_stderr" >&2
+    rm -f "$jq_stderr"
     return 1
   fi
+
+  rm -f "$jq_stderr"
 
   if [ -z "$tasks" ]; then
     echo -e "${YELLOW}⚠️  Warning: No tomorrow_candidates found in ${tomorrow_file}${NC}" >&2
@@ -271,7 +303,7 @@ if match:
 - 明朝 Recipe 03/10 の自動実行を確認"""
 
     # Replace section
-    section_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## )'
+    section_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## |\Z)'
     updated = re.sub(section_pattern, new_section, current, flags=re.DOTALL)
 else:
     # Section doesn't exist, create new one
@@ -309,7 +341,7 @@ ${TASKS}
 import re
 current = """$CURRENT_TODO"""
 new_section = """$NEW_TODAY_SECTION"""
-pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## )'
+pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(pattern, new_section, current, flags=re.DOTALL)
 if updated == current:
     updated = new_section + "\n\n---\n\n" + current
@@ -387,7 +419,7 @@ if match:
 - /wrap-up の tomorrow_candidates から自動反映 (--append)"""
 
     # Replace section
-    section_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## )'
+    section_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## |\Z)'
     updated = re.sub(section_pattern, new_section, current, flags=re.DOTALL)
 else:
     # Section doesn't exist, create new one
@@ -429,7 +461,7 @@ current = """$CURRENT_TODO"""
 new_section = """$NEW_TOMORROW_SECTION"""
 
 # Find and replace Tomorrow section
-pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## )'
+pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(pattern, new_section, current, flags=re.DOTALL)
 
 # If pattern not found, insert after Today section
@@ -564,11 +596,11 @@ tomorrow_section = """## Tomorrow — ${TOMORROW}
 - /wrap-up の tomorrow_candidates から自動反映 (--append)"""
 
 # Replace Today section
-today_section_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## )'
+today_section_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(today_section_pattern, today_section, current, flags=re.DOTALL)
 
 # Replace Tomorrow section
-tomorrow_section_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## )'
+tomorrow_section_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(tomorrow_section_pattern, tomorrow_section, updated, flags=re.DOTALL)
 
 # If Today section not found, add at beginning
@@ -617,11 +649,11 @@ today_section = """$NEW_TODAY_SECTION"""
 tomorrow_section = """$NEW_TOMORROW_SECTION"""
 
 # Replace Today section
-today_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## )'
+today_pattern = r'## Today — ${TODAY}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(today_pattern, today_section, current, flags=re.DOTALL)
 
 # Replace Tomorrow section
-tomorrow_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## )'
+tomorrow_pattern = r'## Tomorrow — ${TOMORROW}.*?(?=\n---\n\n## |\Z)'
 updated = re.sub(tomorrow_pattern, tomorrow_section, updated, flags=re.DOTALL)
 
 # If Today section not found, add it at beginning

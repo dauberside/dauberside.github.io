@@ -1,0 +1,159 @@
+{
+  "tasks": [
+    {
+      "title": "v1.2 Roadmap 確認",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 動作確認",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ドキュメント整理",
+      "status": "completed",
+      "category": "high-priority",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Analytics Health データ追加（あと2日分） ✅",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 15,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Recipe 10ログ出力実装の継続 ✅",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 25,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Automation Logging 基盤設計の見直し ✅",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 20,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "Recipe 13, 14 にログ実装（各）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 15,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "n8n で Recipe 10 を再インポート＆テスト",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "手動実行でログ出力確認",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Recipe 02, 11 にログ実装（各）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_minutes": 20,
+      "duration_source": "explicit",
+      "duration_confidence": 1.0
+    },
+    {
+      "title": "7日間の自動実行監視",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Health Score改善確認（Automation 50 → 75+）",
+      "status": "completed",
+      "category": "untagged",
+      "completed_at": "2025-12-21T01:00:00Z",
+      "timestamp_source": "fixed",
+      "timestamp_confidence": 0.1,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Log Collector Workflow 実装検討",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "Method A への段階的移行",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    },
+    {
+      "title": "ログ分析ダッシュボード構築",
+      "status": "incomplete",
+      "category": "untagged",
+      "completed_at": null,
+      "timestamp_source": "unknown",
+      "timestamp_confidence": 0.0,
+      "duration_source": "unknown",
+      "duration_confidence": 0.0
+    }
+  ]
+}

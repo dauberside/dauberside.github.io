@@ -5,7 +5,7 @@
  * from daily digest data.
  */
 
-import type { DailyDigest } from './parse-daily';
+import type { DailyDigest } from "./parse-daily";
 
 export interface AggregationOptions {
   aiEnabled?: boolean;
@@ -36,15 +36,21 @@ export interface WeeklySummary {
 export async function generateWeeklySummary(
   weekId: string,
   digests: DailyDigest[],
-  options: AggregationOptions = {}
+  options: AggregationOptions = {},
 ): Promise<WeeklySummary> {
   // Sort by date
   const sorted = digests.sort((a, b) => a.date.localeCompare(b.date));
 
   // Extract data
-  const allHighlights = sorted.flatMap(d => extractBulletPoints(d.sections.highlights || ''));
-  const allInsights = sorted.flatMap(d => extractBulletPoints(d.sections.reflection || ''));
-  const allTasks = sorted.flatMap(d => extractCompletedTasks(d.sections.tasks || ''));
+  const allHighlights = sorted.flatMap((d) =>
+    extractBulletPoints(d.sections.highlights || ""),
+  );
+  const allInsights = sorted.flatMap((d) =>
+    extractBulletPoints(d.sections.reflection || ""),
+  );
+  const allTasks = sorted.flatMap((d) =>
+    extractCompletedTasks(d.sections.tasks || ""),
+  );
 
   // Generate overview
   let overview = `週間サマリー ${weekId}`;
@@ -68,7 +74,7 @@ export async function generateWeeklySummary(
   const themes = detectThemes(sorted);
 
   // Create daily log summaries
-  const dailyLogs = sorted.map(d => ({
+  const dailyLogs = sorted.map((d) => ({
     date: d.date,
     summary: getBriefSummary(d),
   }));
@@ -76,8 +82,8 @@ export async function generateWeeklySummary(
   return {
     weekId,
     dateRange: {
-      start: sorted[0]?.date || 'unknown',
-      end: sorted[sorted.length - 1]?.date || 'unknown',
+      start: sorted[0]?.date || "unknown",
+      end: sorted[sorted.length - 1]?.date || "unknown",
     },
     generatedAt: new Date().toISOString(),
     dailyCount: sorted.length,
@@ -95,11 +101,14 @@ export async function generateWeeklySummary(
  */
 async function generateAISummary(
   digests: DailyDigest[],
-  options: AggregationOptions
+  options: AggregationOptions,
 ): Promise<{ overview: string; highlights: string[]; insights: string[] }> {
   const combinedContent = digests
-    .map(d => `## ${d.date}\n${d.sections.highlights || ''}\n${d.sections.reflection || ''}`)
-    .join('\n\n');
+    .map(
+      (d) =>
+        `## ${d.date}\n${d.sections.highlights || ""}\n${d.sections.reflection || ""}`,
+    )
+    .join("\n\n");
 
   const prompt = `以下は1週間分のdaily digestです。この内容を分析し、以下を生成してください：
 
@@ -117,15 +126,15 @@ ${combinedContent}
 }`;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${options.openaiApiKey}`,
       },
       body: JSON.stringify({
-        model: options.model || 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
+        model: options.model || "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
         max_tokens: options.maxTokens || 1000,
         temperature: 0.7,
       }),
@@ -139,7 +148,7 @@ ${combinedContent}
     const content = data.choices[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No content in OpenAI response');
+      throw new Error("No content in OpenAI response");
     }
 
     // Extract JSON from response (handle markdown code blocks)
@@ -147,23 +156,26 @@ ${combinedContent}
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
-        overview: parsed.overview || '',
+        overview: parsed.overview || "",
         highlights: parsed.highlights || [],
         insights: parsed.insights || [],
       };
     }
 
-    throw new Error('Failed to parse JSON from OpenAI response');
+    throw new Error("Failed to parse JSON from OpenAI response");
   } catch (error) {
-    console.error('AI summarization failed, falling back to rule-based:', error);
+    console.error(
+      "AI summarization failed, falling back to rule-based:",
+      error,
+    );
     // Fallback to rule-based
     return {
       overview: `${digests.length}日分の活動を集約`,
       highlights: digests
-        .flatMap(d => extractBulletPoints(d.sections.highlights || ''))
+        .flatMap((d) => extractBulletPoints(d.sections.highlights || ""))
         .slice(0, 5),
       insights: digests
-        .flatMap(d => extractBulletPoints(d.sections.reflection || ''))
+        .flatMap((d) => extractBulletPoints(d.sections.reflection || ""))
         .slice(0, 3),
     };
   }
@@ -182,13 +194,13 @@ function detectThemes(digests: DailyDigest[]): string[] {
       digest.sections.todaysPlan,
     ]
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
 
     // Extract meaningful words (simple approach)
     const tokens = content
       .toLowerCase()
       .split(/\s+/)
-      .filter(w => w.length > 3 && !isStopWord(w));
+      .filter((w) => w.length > 3 && !isStopWord(w));
 
     for (const token of tokens) {
       words[token] = (words[token] || 0) + 1;
@@ -210,10 +222,10 @@ function detectThemes(digests: DailyDigest[]): string[] {
  */
 function extractBulletPoints(text: string): string[] {
   return text
-    .split('\n')
-    .filter(line => line.match(/^[-*]\s/))
-    .map(line => line.replace(/^[-*]\s*/, '').trim())
-    .filter(line => line.length > 5);
+    .split("\n")
+    .filter((line) => line.match(/^[-*]\s/))
+    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .filter((line) => line.length > 5);
 }
 
 /**
@@ -221,24 +233,24 @@ function extractBulletPoints(text: string): string[] {
  */
 function extractCompletedTasks(text: string): string[] {
   return text
-    .split('\n')
-    .filter(line => line.match(/✅|✔|\[x\]/i))
-    .map(line =>
+    .split("\n")
+    .filter((line) => line.match(/✅|✔|\[x\]/i))
+    .map((line) =>
       line
-        .replace(/✅|✔|\[x\]/gi, '')
-        .replace(/^[-*]\s*/, '')
-        .trim()
+        .replace(/✅|✔|\[x\]/gi, "")
+        .replace(/^[-*]\s*/, "")
+        .trim(),
     )
-    .filter(line => line.length > 5);
+    .filter((line) => line.length > 5);
 }
 
 /**
  * Get brief summary of a digest
  */
 function getBriefSummary(digest: DailyDigest): string {
-  const highlights = digest.sections.highlights || '';
+  const highlights = digest.sections.highlights || "";
   const words = highlights.split(/\s+/).slice(0, 30);
-  return words.join(' ') + (words.length === 30 ? '...' : '');
+  return words.join(" ") + (words.length === 30 ? "..." : "");
 }
 
 /**
@@ -246,19 +258,19 @@ function getBriefSummary(digest: DailyDigest): string {
  */
 function isStopWord(word: string): boolean {
   const stopWords = new Set([
-    'the',
-    'and',
-    'for',
-    'with',
-    'this',
-    'that',
-    'from',
-    'have',
-    'した',
-    'する',
-    'ある',
-    'です',
-    'ます',
+    "the",
+    "and",
+    "for",
+    "with",
+    "this",
+    "that",
+    "from",
+    "have",
+    "した",
+    "する",
+    "ある",
+    "です",
+    "ます",
   ]);
   return stopWords.has(word);
 }

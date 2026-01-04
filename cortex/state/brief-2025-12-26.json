@@ -1,0 +1,34 @@
+{
+  "generated_at": "2025-12-26T11:40:00+09:00",
+  "date": "2025-12-26",
+  "source": "brief",
+  "tasks": [
+    {
+      "title": "Enriched files適用",
+      "time": "20分",
+      "phase": "コアワーク",
+      "priority": "P1",
+      "status": "pending",
+      "carryover_from": "2025-12-25"
+    },
+    {
+      "title": "Health score再計算と確認",
+      "time": "15分",
+      "phase": "ウォームアップ",
+      "priority": "P2",
+      "status": "pending",
+      "carryover_from": "2025-12-25"
+    },
+    {
+      "title": "時刻レンジ記録の習慣化テスト",
+      "time": "10分",
+      "phase": "ウォームアップ",
+      "priority": "P3",
+      "status": "pending",
+      "carryover_from": "2025-12-25"
+    }
+  ],
+  "total_time": 45,
+  "buffer": "OK",
+  "reflection": "昨日（12/25）未実行のタスクを今日完遂。データ品質基盤の完全稼働（207タスクのenriched files適用）→Health score改善測定→時刻記録習慣化。すべてcarryover taskとして引き継ぎ。"
+}
