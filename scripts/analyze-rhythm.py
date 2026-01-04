@@ -101,7 +101,8 @@ def extract_activity(entries: List[Dict[str, Any]]):
 
     for entry in entries:
         date_str = entry.get("__date")
-        tasks = entry.get("tasks", [])
+        # Support both "tasks" (scheduled) and "completed" (finished)
+        tasks = entry.get("tasks", []) + entry.get("completed", [])
         day_has_task = False
 
         for task in tasks:
@@ -111,7 +112,21 @@ def extract_activity(entries: List[Dict[str, Any]]):
             started_at = parse_iso_datetime(task.get("started_at"))
             completed_at = parse_iso_datetime(task.get("completed_at"))
 
-            dt = started_at or completed_at
+            # Support timestamp field (HH:MM format) from /log completed tasks
+            timestamp_str = task.get("timestamp")
+            if timestamp_str and date_str and not (started_at or completed_at):
+                try:
+                    # Parse "HH:MM" and combine with date
+                    hour_min = timestamp_str.split(":")
+                    if len(hour_min) == 2:
+                        dt = datetime.strptime(f"{date_str} {timestamp_str}", "%Y-%m-%d %H:%M")
+                    else:
+                        dt = None
+                except Exception:
+                    dt = None
+            else:
+                dt = started_at or completed_at
+
             if not dt:
                 continue
 

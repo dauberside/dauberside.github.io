@@ -1,43 +1,41 @@
 {
-  "generated_at": "2026-01-04T12:56:31+09:00",
+  "generated_at": "2026-01-04T13:45:14+09:00",
   "version": "1.0",
-  "overall_score": 82,
+  "overall_score": 83,
   "components": {
     "automation": {
       "score": 95,
-      "runs": 14,
-      "successes": 14,
+      "runs": 15,
+      "successes": 15,
       "failures": 0,
       "success_rate": 1.0,
       "window_days": 7
     },
     "data_freshness": {
       "score": 80,
-      "average_age_hours": 17.5,
+      "average_age_hours": 18.0,
       "file_ages_hours": {
-        "duration-patterns.json": 26.2,
+        "duration-patterns.json": 27.0,
         "rhythm-patterns.json": 0.0,
-        "category-heatmap.json": 26.2
+        "category-heatmap.json": 27.0
       }
     },
     "analytics_health": {
       "duration_samples": 22,
       "duration_score": 70,
       "duration_file": "duration-patterns.json",
-      "rhythm_active_days": 9,
-      "rhythm_samples": 44,
-      "rhythm_score": 65,
+      "rhythm_active_days": 12,
+      "rhythm_samples": 49,
+      "rhythm_score": 80,
       "category_samples": 44,
       "category_active_days": 9,
       "category_score": 65,
-      "score": 66
+      "score": 71
     }
   },
   "insights": [
     "🟢 Cortex OS is healthy with minor areas for improvement.",
     "🤖 Automation loop is highly reliable.",
-    "📊 Analytics health is low. More task history needed for reliable patterns.",
-    "💡 Rhythm patterns need more data (target: 10+ active days).",
     "💡 Duration stats are stale. Run: python scripts/analyze-duration.py"
   ]
 }

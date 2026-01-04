@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-01-04T12:56:30+09:00",
+  "generated_at": "2026-01-04T13:45:07+09:00",
   "analysis_period_days": 30,
-  "total_tasks": 44,
-  "active_days": 9,
+  "total_tasks": 49,
+  "active_days": 12,
   "chronotype": "night",
   "peak_hour": 1,
   "peak_window": {
@@ -16,18 +16,18 @@
     "2": 0,
     "3": 0,
     "4": 0,
-    "5": 0,
+    "5": 1,
     "6": 0,
     "7": 0,
     "8": 0,
     "9": 0,
     "10": 0,
     "11": 1,
-    "12": 2,
-    "13": 0,
+    "12": 3,
+    "13": 1,
     "14": 0,
     "15": 1,
-    "16": 0,
+    "16": 2,
     "17": 0,
     "18": 2,
     "19": 0,
@@ -37,24 +37,28 @@
     "23": 0
   },
   "weekday_hour_matrix": {
+    "Sunday": {
+      "1": 12,
+      "12": 1
+    },
+    "Friday": {
+      "1": 7,
+      "5": 1,
+      "21": 2,
+      "22": 1
+    },
     "Monday": {
       "1": 3,
       "11": 1,
       "12": 2,
+      "13": 1,
       "15": 1,
+      "16": 2,
       "18": 1,
       "20": 1
     },
-    "Sunday": {
-      "1": 12
-    },
     "Saturday": {
       "1": 11
-    },
-    "Friday": {
-      "1": 7,
-      "21": 2,
-      "22": 1
     },
     "Wednesday": {
       "18": 1,
@@ -64,7 +68,7 @@
   "insights": [
     "Your current rhythm is classified as: night owl type (深夜型).",
     "Single peak hour: around 01:00.",
-    "Most active window: 00:00–03:00 (33 tasks in 9 active days).",
-    "Average completed tasks per active day: 4.89 over 9 active days."
+    "Most active window: 00:00–03:00 (33 tasks in 12 active days).",
+    "Average completed tasks per active day: 4.08 over 12 active days."
   ]
 }
