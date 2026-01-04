@@ -1,0 +1,66 @@
+{
+  "monitoring_start_date": "2025-12-29",
+  "monitoring_definition": "event-based",
+  "target_events": 7,
+  "success_criteria": {
+    "log_event_present": "最低1件の/logタスク記録",
+    "digest_updated": "digest ファイル更新確認",
+    "task_entry_updated": "task-entry.json 更新確認",
+    "data_integrity": "digest と task-entry の内容一致"
+  },
+  "events": [
+    {
+      "event_id": 1,
+      "date": "2025-12-29",
+      "log_event": true,
+      "log_count": 3,
+      "digest": {
+        "exists": true,
+        "path": "cortex/daily/2025-12-29-digest.md",
+        "mtime": "2025-12-29T13:09:00+09:00",
+        "hash": null
+      },
+      "task_entry": {
+        "exists": true,
+        "path": "cortex/state/task-entry-2025-12-29.json",
+        "mtime": "2025-12-29T13:09:00+09:00",
+        "hash": null
+      },
+      "result": "success",
+      "notes": "Phase 2実装完了: Archive対応、auto-sync、テスト（3タスク記録）",
+      "errors": []
+    },
+    {
+      "event_id": 2,
+      "date": "2026-01-02",
+      "log_event": true,
+      "log_count": 1,
+      "digest": {
+        "exists": true,
+        "path": "cortex/daily/2026-01-02-digest.md",
+        "mtime": "2026-01-02T05:46:59.136300",
+        "hash": "sha256:e7f0c9cbf0291be2"
+      },
+      "task_entry": {
+        "exists": true,
+        "path": "cortex/state/task-entry-2026-01-02.json",
+        "mtime": "2026-01-02T05:46:59.171503",
+        "hash": "sha256:22f0593dd387bc25"
+      },
+      "result": "success",
+      "notes": "1タスク記録、auto-sync成功、データ整合性OK",
+      "errors": []
+    }
+  ],
+  "summary": {
+    "completed_events": 2,
+    "remaining_events": 5,
+    "success_rate": 1.0,
+    "total_tasks_logged": 4,
+    "failures": 0
+  },
+  "metadata": {
+    "last_updated": "2026-01-04T09:53:49.733238",
+    "schema_version": "2.0.0"
+  }
+}
