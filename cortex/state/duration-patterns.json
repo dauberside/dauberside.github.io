@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-01-03T10:45:25.014186",
+  "generated_at": "2026-01-05T11:42:49.571182",
   "analysis_period_days": 30,
   "min_samples_required": 3,
   "overall": {
-    "count": 22,
-    "mean": 0.55,
+    "count": 19,
+    "mean": 0.6,
     "median": 0.33,
-    "std_dev": 0.76,
+    "std_dev": 0.81,
     "min": 0.17,
     "max": 3.5,
     "confidence": "high"
@@ -22,10 +22,10 @@
       "confidence": "medium"
     },
     "normal": {
-      "count": 14,
-      "mean": 0.68,
-      "median": 0.42,
-      "std_dev": 0.94,
+      "count": 11,
+      "mean": 0.8,
+      "median": 0.5,
+      "std_dev": 1.03,
       "min": 0.17,
       "max": 3.5,
       "confidence": "high"
@@ -34,6 +34,6 @@
   "insights": [
     "Quick tasks (< 1h): untagged, normal",
     "Unpredictable duration: normal",
-    "Average task duration: 0.55h (22 completed tasks)"
+    "Average task duration: 0.6h (19 completed tasks)"
   ]
 }

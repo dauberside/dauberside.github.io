@@ -1,20 +1,19 @@
 # Category Analytics Dashboard
 
-Last updated: 2026-01-04T13:49:19.176+09:00
+Last updated: 2026-01-05T10:28:19.173+09:00
 
-- Latest date: 2026-01-04
-- Total days tracked: 18
+- Latest date: 2026-01-05
+- Total days tracked: 19
 
 ## Rolling totals
 
-- Last 7 days: other:14, n8n:4, docs:3
-- Last 30 days: other:31, n8n:18, docs:16
+- Last 7 days: other:12, n8n:5, docs:4
+- Last 30 days: other:32, n8n:19, docs:17
 
 ## Recent (last 14 days)
 
 Date | docs | n8n | other
 --- | --- | --- | ---
-2025-12-19 | 1 | 1 | 1
 2025-12-20 | 1 | 1 | 1
 2025-12-21 | 2 | 2 | 2
 2025-12-22 | 2 | 3 | 3
@@ -28,4 +27,5 @@ Date | docs | n8n | other
 2026-01-01 | 1 | 1 | 1
 2026-01-02 | 1 | 1 | 1
 2026-01-04 | 1 | 1 | 1
+2026-01-05 | 1 | 1 | 1
 

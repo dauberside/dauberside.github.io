@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-01-04T13:45:14+09:00",
+  "generated_at": "2026-01-04T14:06:09+09:00",
   "version": "1.0",
-  "overall_score": 83,
+  "overall_score": 88,
   "components": {
     "automation": {
       "score": 95,
-      "runs": 15,
-      "successes": 15,
+      "runs": 16,
+      "successes": 16,
       "failures": 0,
       "success_rate": 1.0,
       "window_days": 7
     },
     "data_freshness": {
-      "score": 80,
-      "average_age_hours": 18.0,
+      "score": 95,
+      "average_age_hours": 0.0,
       "file_ages_hours": {
-        "duration-patterns.json": 27.0,
+        "duration-patterns.json": 0.0,
         "rhythm-patterns.json": 0.0,
-        "category-heatmap.json": 27.0
+        "category-heatmap.json": 0.0
       }
     },
     "analytics_health": {
@@ -35,7 +35,6 @@
   },
   "insights": [
     "🟢 Cortex OS is healthy with minor areas for improvement.",
-    "🤖 Automation loop is highly reliable.",
-    "💡 Duration stats are stale. Run: python scripts/analyze-duration.py"
+    "🤖 Automation loop is highly reliable."
   ]
 }

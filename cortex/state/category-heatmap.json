@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-01-03T10:45:25+09:00",
+  "generated_at": "2026-01-05T11:42:49+09:00",
   "analysis_period_days": 30,
-  "total_completed_tasks": 44,
-  "active_days": 9,
+  "total_completed_tasks": 41,
+  "active_days": 8,
   "weekday_category_matrix": {
     "Monday": {
       "high-priority": 3,
@@ -19,8 +19,7 @@
     },
     "Saturday": {
       "high-priority": 5,
-      "untagged": 3,
-      "normal": 3
+      "untagged": 3
     },
     "Sunday": {
       "high-priority": 3,
@@ -30,7 +29,7 @@
   "category_totals": {
     "high-priority": 18,
     "untagged": 12,
-    "normal": 14
+    "normal": 11
   },
   "weekday_totals": {
     "Monday": 9,
@@ -38,7 +37,7 @@
     "Wednesday": 2,
     "Thursday": 0,
     "Friday": 10,
-    "Saturday": 11,
+    "Saturday": 8,
     "Sunday": 12
   },
   "dominant_categories": {
@@ -79,7 +78,12 @@
       {
         "category": "high-priority",
         "count": 5,
-        "percentage": 45.5
+        "percentage": 62.5
+      },
+      {
+        "category": "untagged",
+        "count": 3,
+        "percentage": 37.5
       }
     ],
     "Sunday": [
@@ -91,11 +95,11 @@
     ]
   },
   "insights": [
-    "Most common category overall: 'high-priority' (18 tasks, 40.9%)",
+    "Most common category overall: 'high-priority' (18 tasks, 43.9%)",
     "Busiest day: Sunday (12 completed tasks)",
     "Monday: Dominated by 'normal' (66.7%), 'high-priority' (33.3%)",
     "Friday: Dominated by 'high-priority' (70.0%), 'normal' (30.0%)",
-    "Saturday: Dominated by 'high-priority' (45.5%)",
+    "Saturday: Dominated by 'high-priority' (62.5%), 'untagged' (37.5%)",
     "Sunday: Dominated by 'untagged' (75.0%)",
     "Light activity days: Wednesday"
   ]

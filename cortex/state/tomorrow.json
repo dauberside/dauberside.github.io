@@ -1,15 +1,11 @@
 {
-  "generated_at": "2026-01-04T04:19:09.115Z",
-  "source_date": "2026-01-04",
+  "generated_at": "2026-01-05T00:58:09.203Z",
+  "source_date": "2026-01-05",
   "tomorrow_candidates": [
     "v1.2 Roadmap 確認",
     "Recipe 動作確認",
     "ドキュメント整理"
   ],
-  "carryover_tasks": [
-    "v1.2 Roadmap 確認",
-    "Recipe 動作確認",
-    "ドキュメント整理"
-  ],
+  "carryover_tasks": [],
   "reflection_summary": "（Reflection なし）"
 }
